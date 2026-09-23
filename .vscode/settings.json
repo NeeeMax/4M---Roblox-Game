@@ -1,0 +1,10 @@
+{
+  "files.eol": "\n",
+  "editor.formatOnSave": true,
+  "[luau]": {
+    "editor.defaultFormatter": "JohnnyMorganz.stylua"
+  },
+  "luau-lsp.platform.type": "roblox",
+  "luau-lsp.sourcemap.enabled": true,
+  "luau-lsp.sourcemap.rojoProjectFile": "default.project.json"
+}

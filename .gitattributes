@@ -1,0 +1,16 @@
+# Normalise line endings: LF in the repo, regardless of OS
+* text=auto eol=lf
+
+*.luau text eol=lf
+*.lua  text eol=lf
+*.md   text eol=lf
+*.json text eol=lf
+*.toml text eol=lf
+
+# Roblox binary files (should rarely be committed)
+*.rbxl  binary
+*.rbxm  binary
+*.png   binary
+*.jpg   binary
+*.ogg   binary
+*.mp3   binary

@@ -1,0 +1,23 @@
+# Roblox place files — the world lives in the Roblox cloud, not in git
+*.rbxl
+*.rbxlx
+*.rbxl.lock
+*.rbxlx.lock
+
+# Generated tooling files
+sourcemap.json
+globalTypes.d.luau
+roblox.d.luau
+
+# Editors / OS
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local Claude Code settings (shared rules live in CLAUDE.md)
+.claude/settings.local.json
+CLAUDE.local.md
