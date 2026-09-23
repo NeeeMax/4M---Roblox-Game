@@ -10,13 +10,29 @@
    ```
    (Find the noreply address under GitHub → Settings → Emails.)
 3. Install VS Code and the recommended extensions (VS Code will prompt you; list in `.vscode/extensions.json`).
-4. Install the toolchain with [Rokit](https://github.com/rojo-rbx/rokit):
+4. Install [Rokit](https://github.com/rojo-rbx/rokit) (Windows: download the `windows-x86_64` zip from the
+   latest release, unzip, run `.\rokit.exe self-install`, then open a new terminal). In the repo folder run:
    ```
    rokit install
    ```
-   > Until `rokit.toml` exists, see issue "Set up toolchain + CI" — the first person to do it runs
-   > `rokit init`, then `rokit add rojo-rbx/rojo`, `rokit add JohnnyMorganz/StyLua`,
-   > `rokit add Kampfkarren/selene`, `rokit add JohnnyMorganz/luau-lsp`, and commits `rokit.toml`.
+   This installs the tool versions pinned in `rokit.toml` (Rojo, StyLua, selene, luau-lsp). Answer **yes** when
+   Rokit asks whether to trust each tool. To upgrade a tool, run `rokit update <tool>` and commit `rokit.toml` in its own PR.
+
+## 1b. Checks (same as CI)
+
+Every PR runs `.github/workflows/ci.yml`: StyLua, selene and luau-lsp must pass before merging. Run them locally first
+(Git Bash, from the repo root):
+
+```
+stylua src                 # formats files (CI runs `stylua --check src`)
+selene src                 # lint
+rojo sourcemap default.project.json --output sourcemap.json
+curl -sSfL -o globalTypes.d.luau https://raw.githubusercontent.com/JohnnyMorganz/luau-lsp/main/scripts/globalTypes.None.d.luau
+luau-lsp analyze --definitions=globalTypes.d.luau --sourcemap=sourcemap.json src
+```
+
+`sourcemap.json` and `globalTypes.d.luau` are generated and git-ignored. `luau-lsp analyze` reports "no files provided"
+while `src/` has no `.luau` files yet — CI skips the step in that case.
 
 ## 2. Roblox places
 
