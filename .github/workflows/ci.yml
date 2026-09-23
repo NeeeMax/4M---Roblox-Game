@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+
+jobs:
+  checks:
+    name: StyLua, selene, luau-lsp
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rokit
+        run: |
+          curl -sSf https://raw.githubusercontent.com/rojo-rbx/rokit/main/scripts/install.sh | bash
+          echo "$HOME/.rokit/bin" >> "$GITHUB_PATH"
+
+      # Installs the exact versions pinned in rokit.toml.
+      # The token only avoids GitHub API rate limits when downloading releases.
+      - name: Install tools
+        id: tools
+        run: |
+          rokit authenticate github --token "${{ secrets.GITHUB_TOKEN }}"
+          rokit install --no-trust-check
+
+      # The three checks run even if an earlier one fails, so one CI run shows every problem.
+      - name: StyLua (formatting)
+        if: ${{ !cancelled() && steps.tools.outcome == 'success' }}
+        run: stylua --check src
+
+      - name: selene (lint)
+        if: ${{ !cancelled() && steps.tools.outcome == 'success' }}
+        run: selene src
+
+      - name: luau-lsp (type check)
+        if: ${{ !cancelled() && steps.tools.outcome == 'success' }}
+        run: |
+          # luau-lsp exits with "no files provided" when src/ has no Luau files yet.
+          if [ -z "$(find src -name '*.luau' -print -quit)" ]; then
+            echo "No .luau files in src/ yet, skipping type check."
+            exit 0
+          fi
+          rojo sourcemap default.project.json --output sourcemap.json
+          curl -sSfL -o globalTypes.d.luau \
+            https://raw.githubusercontent.com/JohnnyMorganz/luau-lsp/main/scripts/globalTypes.None.d.luau
+          luau-lsp analyze --definitions=globalTypes.d.luau --sourcemap=sourcemap.json src
