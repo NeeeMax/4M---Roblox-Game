@@ -1,7 +1,7 @@
 --!strict
 -- Shared type definitions. Changing this file is a contract change: own PR, both approve.
 
-export type UpgradeId = "MoveSpeed" | "ProjectileSpeed" | "ProjectileSize" | "FireRate" | "Shooters"
+export type UpgradeId = "MoveSpeed" | "ProjectileSize" | "FireRate" | "Shooters"
 
 export type HitQuality = "Normal" | "Good" | "Hard" | "Massive" | "Legendary"
 

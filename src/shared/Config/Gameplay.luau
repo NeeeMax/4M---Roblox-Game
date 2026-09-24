@@ -39,7 +39,11 @@ return {
 		LaunchAngleDegrees = 45,
 		-- Launch speed varies by ± this fraction per shot.
 		SpeedJitter = 0.1,
-		LifetimeAfterContact = 1.5,
+		-- Server cleanup delay after first contact. Clients already hide the projectile the moment they see it reach
+		-- the island surface, so this only has to outlast the network delay.
+		LifetimeAfterContact = 0.5,
+		-- Client: a projectile counts as "on the ground" when its bottom is this close to the island surface.
+		GroundTolerance = 0.25,
 		MaxLifetime = 8,
 		MaxPerIsland = 60,
 		-- Random spin in radians/s, purely visual.

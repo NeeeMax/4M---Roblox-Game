@@ -37,18 +37,6 @@ local defs: { [string]: UpgradeDef } = {
 		StepKind = "Add",
 		Format = "Plain",
 	},
-	ProjectileSpeed = {
-		Id = "ProjectileSpeed",
-		DisplayName = "Projectile Speed",
-		Description = "Faster projectiles: more points per hit, harder to catch.",
-		BaseCost = DEFAULT_BASE_COST,
-		Growth = DEFAULT_GROWTH,
-		MaxLevel = 10,
-		BaseValue = 1,
-		Step = 1.15,
-		StepKind = "Multiply",
-		Format = "Multiplier",
-	},
 	ProjectileSize = {
 		Id = "ProjectileSize",
 		DisplayName = "Projectile Size",
@@ -87,7 +75,7 @@ local defs: { [string]: UpgradeDef } = {
 	},
 }
 
-local order: { Types.UpgradeId } = { "MoveSpeed", "ProjectileSpeed", "ProjectileSize", "FireRate", "Shooters" }
+local order: { Types.UpgradeId } = { "MoveSpeed", "ProjectileSize", "FireRate", "Shooters" }
 
 local Upgrades = {
 	Defs = defs,
