@@ -1,6 +1,6 @@
 import bpy, math, sys, os, random
-from mathutils import Vector, Matrix
-# Shiba tiers 2-10 (except GalaxyShiba, see build_galaxy_shiba.py) and projectile tiers 2-10, built from
+from mathutils import Vector, Matrix, Euler
+# Shiba tiers 1-10 and projectile tiers 2-10, built from
 # shiba_bonk_default.blend like build_shiba.py: same posed dog, same stick in the right paw, same export settings.
 # Each Shiba gets its own fur colours plus accessories made of low-poly primitives; everything is baked into vertex
 # colours (Roblox ignores FBX material colours). Output: one <AssetName>.fbx per model and preview_tiers.png.
@@ -457,6 +457,143 @@ def gold(parts, hs):
                        vertices=10, radius=0.065, depth=0.018))
     return cols, ex
 
+# Galaxy fur gradient (linear RGB) from the feet to the ear tips, as in the old OBJ-based Galaxy Shiba.
+GALAXY_STOPS = [(0.00, (0.020, 0.010, 0.090)),  # deep indigo
+                (0.35, (0.160, 0.030, 0.420)),  # violet
+                (0.65, (0.650, 0.080, 0.450)),  # pink
+                (1.00, (0.120, 0.600, 0.900))]  # cyan
+
+def galaxy_gradient(t):
+    t = max(0.0, min(1.0, t))
+    for (t0, c0), (t1, c1) in zip(GALAXY_STOPS, GALAXY_STOPS[1:]):
+        if t <= t1:
+            return mix(c0, c1, (t - t0) / (t1 - t0))
+    return GALAXY_STOPS[-1][1]
+
+def surface_samples(objs, count, rng, keep, spacing):
+    """Area-weighted random points on the faces of objs: (object, world point, world normal), at least `spacing`
+    apart, on faces where keep(object, world_centre, world_normal, material) is true."""
+    faces = []
+    for o in objs:
+        mw = o.matrix_world; nm = mw.to_3x3().inverted().transposed()
+        for poly in o.data.polygons:
+            c = mw @ poly.center; nrm = (nm @ poly.normal).normalized()
+            mat = o.data.materials[poly.material_index].name if len(o.data.materials) else ""
+            if keep(o, c, nrm, mat):
+                vs = [mw @ o.data.vertices[v].co for v in poly.vertices]
+                area = sum(((vs[k] - vs[0]).cross(vs[k + 1] - vs[0])).length / 2 for k in range(1, len(vs) - 1))
+                faces.append((o, vs, nrm, area))
+    weights = [f[3] for f in faces]
+    out, tries = [], 0
+    while len(out) < count and tries < count * 40:
+        tries += 1
+        o, vs, nrm, _ = rng.choices(faces, weights)[0]
+        k = rng.randrange(1, len(vs) - 1)  # random point in one triangle of the face fan
+        a, b = rng.random(), rng.random()
+        if a + b > 1: a, b = 1 - a, 1 - b
+        p = vs[0] + (vs[k] - vs[0]) * a + (vs[k + 1] - vs[0]) * b
+        if all((p - q).length >= spacing for _, q, _ in out):
+            out.append((o, p, nrm))
+    return out
+
+def star_specks(samples, rng, name):
+    """One mesh of tiny four-pointed star specks lying on the fur: each rim point is ray-cast back onto the surface
+    it was sampled from (so nothing floats), the centre is raised a little so the star catches the light."""
+    white, cyan, pink = srgb(255, 255, 255), srgb(150, 245, 255), srgb(255, 170, 235)
+    verts, tris, cols = [], [], []
+    for o, p, n in samples:
+        size = rng.uniform(0.022, 0.04)
+        colr = rng.choices([white, cyan, pink], [5, 3, 2])[0]
+        t1 = n.orthogonal().normalized(); t1.rotate(Matrix.Rotation(rng.uniform(0, math.pi), 3, n)); t2 = n.cross(t1)
+        mwi = o.matrix_world.inverted(); mw = o.matrix_world
+        rim = []
+        for k in range(8):
+            a = k * math.tau / 8
+            r = size if k % 2 == 0 else size * 0.32
+            q = p + (t1 * math.cos(a) + t2 * math.sin(a)) * r
+            hit, loc, _, _ = o.ray_cast(mwi @ (q + n * 0.05), (mwi.to_3x3() @ -n).normalized(), distance=0.2)
+            if not hit or abs((mw @ loc - q).dot(n)) > size * 0.5:
+                break  # the surface falls away here (ear tip, edge): this star would stick out, skip it
+            rim.append(mw @ loc - n * 0.003)
+        if len(rim) < 8:
+            continue
+        base = len(verts)
+        verts += [p + n * size * 0.28] + rim
+        for k in range(8):
+            tris.append((base, base + 1 + k, base + 1 + (k + 1) % 8))
+            cols.append(colr)
+    me = bpy.data.meshes.new(name); me.from_pydata([tuple(v) for v in verts], [], tris)
+    me.update()
+    ob = bpy.data.objects.new(name, me); coll.objects.link(ob)
+    attr = me.color_attributes.new("Col", 'BYTE_COLOR', 'CORNER')
+    for poly in me.polygons:
+        for li in poly.loop_indices:
+            attr.data[li].color = (*cols[poly.index], 1.0)
+    me.color_attributes.active_color = attr
+    return ob
+
+ARM_NAMES = ("RightUpperArm", "RightLowerArm", "RightHand")
+# GalaxyShiba's Orbit: ring radius, its centre's height above the eyes, and its axis (the game spins Orbit about it).
+ORBIT_RADIUS, ORBIT_LIFT, ORBIT_AXIS = 0.54, 0.15, (-0.28, 0.2, 1.0)
+
+def galaxy(parts, hs):
+    """Galaxy fur, glowing cyan eyes, star specks on the fur, and a planet on a tilted ring around the head. The
+    planet, its moon and the ring are the separate part `Orbit`, which the game spins around the `OrbitCenter`
+    marker (the ring's centre) about the ring's axis."""
+    l = landmarks(parts); ex = []
+    rng = random.Random(8)  # own generator: keeps the random layouts of the other designs unchanged
+    span = l.max_z - l.min_z
+    fur = lambda p: galaxy_gradient((p.z - l.min_z) / span)
+    light = lambda p: tuple(min(1.0, c * 1.6 + 0.08) for c in fur(p))
+    ink = (0.004, 0.003, 0.009)
+    cols = {"fur_orange": fur, "fur_cream": light, "fur_dark": lambda p: ink}
+    # Glowing eyes: a bright cyan almond with a white glint over each closed-eye line (nose and mouth stay dark ink).
+    eye, glint = srgb(90, 235, 255), srgb(255, 255, 255)
+    for s in (-1, 1):
+        x, z = s * l.eye_x, l.eye_z - 0.005
+        y = face_y(l, x, z)
+        ex.append(ball((x, y + 0.004, z), 1, eye, scale=(0.06, 0.022, 0.036), rot=(0, 0, s * math.radians(24))))
+        gx = x - s * 0.018
+        ex.append(ball((gx, face_y(l, gx, z + 0.012) - 0.014, z + 0.012), 0.014, glint))
+    # Star specks all over the fur (not on the face, nose or soles); the arm's specks swing with the arm.
+    head = parts['Head']
+    face = lambda c: c.y < l.eye_y + 0.08 and l.mouth.z - 0.06 < c.z < l.eye_z + 0.07 and abs(c.x) < 0.24
+    keep = lambda o, c, nrm, mat: mat != "fur_dark" and nrm.z > -0.5 and not (o is head and face(c))
+    arm = [parts[n] for n in ARM_NAMES]
+    samples = surface_samples(list(parts.values()), 230, rng, keep, 0.06)
+    ex.append(star_specks([s for s in samples if s[0] not in arm], rng, "GalaxyStars"))
+    arm_stars = star_specks([s for s in samples if s[0] in arm], rng, "GalaxyArmStars")
+    # --- Orbit: a ring around the head, tilted up on the stick side, with a banded planet ("Jupiter") wearing its own
+    # little ring, and a moon. The ring's centre is the OrbitCenter marker. ---
+    centre = Vector((0, (l.head_min.y + l.head_max.y) / 2, l.eye_z + ORBIT_LIFT))
+    axis = Vector(ORBIT_AXIS).normalized()
+    ring_rot = tilt(axis)
+    e1 = ring_rot.to_matrix() @ Vector((1, 0, 0)); e2 = axis.cross(e1)
+    on_ring = lambda a: centre + (e1 * math.cos(a) + e2 * math.sin(a)) * ORBIT_RADIUS
+    pink, pale = srgb(255, 130, 210), srgb(255, 230, 248)
+    orbit = [prim("torus", centre, ring_rot, fn=lambda p, n, i: pale if (i // 6) % 5 == 0 else pink,
+                  major_radius=ORBIT_RADIUS, minor_radius=0.024, major_segments=40, minor_segments=6)]
+    planet = on_ring(math.radians(200))
+    p_axis = (axis + e1 * 0.5).normalized()
+    bands = [srgb(255, 90, 170), srgb(255, 205, 232), srgb(185, 70, 215), srgb(255, 150, 90), srgb(255, 90, 170)]
+    band = lambda p, n, i: bands[min(4, max(0, int(((p - planet).dot(p_axis) / 0.11 + 1) * 2.5)))]
+    orbit.append(prim("uv", planet, tilt(p_axis), fn=band, segments=12, ring_count=8, radius=0.11))
+    orbit.append(prim("torus", planet, tilt(p_axis), color=srgb(190, 250, 255), major_radius=0.15, minor_radius=0.015,
+                      major_segments=18, minor_segments=4, scale=(1, 1, 0.5)))
+    orbit.append(prim("ico", on_ring(math.radians(20)), color=srgb(170, 245, 255), subdivisions=1, radius=0.05))
+    # Clearance: spun, the ring, planet and moon sweep the whole circle, so check the full path against the dog.
+    near = {}
+    for o in list(parts.values()) + [hs]:
+        mwi = o.matrix_world.inverted()
+        near[o.name] = min((o.matrix_world @ o.closest_point_on_mesh(mwi @ on_ring(k * math.tau / 120))[1]
+                            - on_ring(k * math.tau / 120)).length for k in range(120))
+    close = sorted(near.items(), key=lambda kv: kv[1])[:3]
+    print(f"GALAXY orbit centre {tuple(round(v, 3) for v in centre)} axis {tuple(round(v, 3) for v in axis)} "
+          f"radius {ORBIT_RADIUS}; nearest to the ring path: {[(n, round(d, 3)) for n, d in close]} "
+          f"(planet with its ring reaches 0.165)")
+    marker = box(centre, (0.02, 0.02, 0.02), srgb(255, 0, 255))
+    return cols, ex, {"ThrowArm": [arm_stars], "Orbit": orbit, "OrbitCenter": [marker]}
+
 def giant(parts, hs):
     l = landmarks(parts); ex = []
     cols = {"fur_orange": lambda p: srgb(150, 60, 20), "fur_cream": lambda p: srgb(215, 185, 140),
@@ -525,7 +662,7 @@ def cheems(parts, hs):
     return cols, ex
 
 DESIGNS = [("Shiba", plain), ("ShadesShiba", shades), ("BuffShiba", buff), ("ChefShiba", chef), ("PoliceShiba", police),
-           ("NinjaShiba", ninja), ("GoldShiba", gold), ("GiantShiba", giant), ("CheemsGod", cheems)]
+           ("NinjaShiba", ninja), ("GoldShiba", gold), ("GalaxyShiba", galaxy), ("GiantShiba", giant), ("CheemsGod", cheems)]
 
 EXPORT = dict(axis_forward='Z', axis_up='Y', use_selection=True, object_types={'MESH'}, colors_type='SRGB',
               apply_scale_options='FBX_SCALE_ALL', mesh_smooth_type='FACE', add_leaf_bones=False)
@@ -534,11 +671,13 @@ one = bpy.data.materials.new("Tier")
 def join(objs, name):
     for o in objs:
         o.data.materials.clear(); o.data.materials.append(one)
-    bpy.ops.object.select_all(action='DESELECT')
-    for o in objs: o.select_set(True)
-    bpy.context.view_layer.objects.active = objs[0]
-    bpy.ops.object.join()
-    j = bpy.context.view_layer.objects.active
+    j = objs[0]
+    if len(objs) > 1:
+        bpy.ops.object.select_all(action='DESELECT')
+        for o in objs: o.select_set(True)
+        bpy.context.view_layer.objects.active = j
+        bpy.ops.object.join()
+        j = bpy.context.view_layer.objects.active
     j.name = name; j.data.name = name
     return j
 
@@ -560,25 +699,30 @@ for asset, design in DESIGNS:
         parts[o.name] = cp
     hs = stick.copy(); hs.data = stick.data.copy(); coll.objects.link(hs); hs.name = f"{asset}_Stick"
     bpy.context.view_layer.update()
-    cols, extras = design(parts, hs)
+    # A design may return a third value, {mesh name: [objects]}: extra objects for "Body" or "ThrowArm", or extra
+    # named parts exported as their own meshes (GalaxyShiba's "Orbit" and "OrbitCenter").
+    cols, extras, *rest = design(parts, hs)
+    named = dict(rest[0]) if rest else {}
     bpy.context.view_layer.update()
     for base_name, cp in parts.items():
         whole = cols.get(f"{base_name}:*")  # full paint override for this part: fn(position, material, face)
         paint(cp, whole or (lambda p, n, i: (cols.get(n) or (lambda q: srgb(200, 200, 200)))(p)))
     # The throwing arm is its own part with a Shoulder marker at the joint, so the game can swing it.
-    arm_names = ("RightUpperArm", "RightLowerArm", "RightHand")
     up_min, up_max = wb(parts["RightUpperArm"])
     shoulder = Vector(((up_min.x + up_max.x) / 2, (up_min.y + up_max.y) / 2, up_max.z - 0.04))
-    arm = join([parts[n] for n in arm_names], f"{asset}_Arm")
-    body = join([p for n, p in parts.items() if n not in arm_names] + extras, f"{asset}_Body")
+    arm = join([parts[n] for n in ARM_NAMES] + named.pop("ThrowArm", []), f"{asset}_Arm")
+    body = join([p for n, p in parts.items() if n not in ARM_NAMES] + extras + named.pop("Body", []), f"{asset}_Body")
     marker = box(shoulder, (0.02, 0.02, 0.02), srgb(255, 0, 255))
     marker.data.materials.append(one)
     paint(hs, lambda p, n, i: WOOD)
     hs.data.materials.clear(); hs.data.materials.append(one)
-    export({"Body": body, "ThrowArm": arm, "Shoulder": marker, "Stick": hs}, f"{asset}.fbx")
-    tris = sum(len(p.vertices) - 2 for p in body.data.polygons)
-    print(f"BUILT {asset}: Body {tris} triangles")
-    built.append([body, arm, marker, hs])
+    meshes = {"Body": body, "ThrowArm": arm, "Shoulder": marker, "Stick": hs}
+    for part_name, objs in named.items():
+        meshes[part_name] = join(objs, f"{asset}_{part_name}")
+    export(meshes, f"{asset}.fbx")
+    tris = ", ".join(f"{n} {sum(len(p.vertices) - 2 for p in o.data.polygons)}" for n, o in meshes.items())
+    print(f"BUILT {asset}: triangles {tris}")
+    built.append(list(meshes.values()))
 
 # --- Projectiles: long axis along Z, centred at the origin, like Stick.fbx ---
 def loose_stick(name):
@@ -742,7 +886,7 @@ sc.world = bpy.data.worlds.new("w"); sc.world.color = (0.2, 0.22, 0.26)
 cam = bpy.data.objects['Camera']
 cam.location = Vector((0, -15.5, 3.2)); target = Vector((0, -0.8, 0.6))
 cam.rotation_euler = (target - cam.location).to_track_quat('-Z', 'Y').to_euler()
-cam.data.lens = 50
+cam.data.lens = 36  # wide enough for all ten Shibas
 sc.camera = cam
 sc.render.filepath = os.path.join(OUT, "preview_tiers.png")
 bpy.ops.render.render(write_still=True)
