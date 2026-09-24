@@ -3,5 +3,5 @@
 -- Bump the label with every change that should be visible in a playtest.
 
 return {
-	Label = "2026-09-25 #18: no arm swing when a throw is cancelled",
+	Label = "2026-09-25 #19: projectile in paw, smooth turning, barrier, themed platforms, galaxy float+orbit, bigger pickup, landing hops + fade",
 }

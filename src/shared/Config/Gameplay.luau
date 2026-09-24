@@ -27,10 +27,18 @@ return {
 
 	Shooters = {
 		RingRadius = 56,
-		PlatformDiameter = 8,
-		-- The platform's top sits this far above the island surface (equal heights flicker: z-fighting); the Shiba
-		-- stands on it. Platforms of Shibas taller than Height grow with them.
+		-- Each tier stands on its own platform (Config/ShibaPlatforms). Its top is at least this far above the island
+		-- surface (equal heights flicker: z-fighting); the Shiba stands on it and throws from there.
 		PlatformLift = 0.2,
+		-- Invisible wall (a cylinder around platform and Shiba) so players can't walk through a Shiba: platform
+		-- Diameter + 2 × Padding wide, platform Top + Shiba height + ExtraHeight tall. It only blocks characters:
+		-- CanQuery and CanTouch are off, and projectiles fly on computed paths.
+		Barrier = {
+			Padding = 0.5,
+			ExtraHeight = 6,
+			-- It starts this far under the island surface, so there is no gap at its foot.
+			Sink = 0.5,
+		},
 		-- The shooter turns toward its target this long before firing.
 		AimTime = 0.5,
 		-- Delay before a freshly placed ring of shooters fires for the first time.
@@ -44,7 +52,8 @@ return {
 
 		-- Shiba tiers (ShooterTier level n = Tiers[n + 1]). Each tier throws faster (FireInterval: seconds between two
 		-- throws of one Shiba) and pays more (RewardMultiplier). Model: ReplicatedStorage.Assets.<AssetName>, scaled to the
-		-- tier's Height in studs, bottom on the platform; effects in Config/ShibaEffects. A tier without its own model uses
+		-- tier's Height in studs, bottom on its platform (Config/ShibaPlatforms); effects and motion in
+		-- Config/ShibaEffects. A tier without its own model uses
 		-- the next lower tier's model (then LegacyAssetName) with an outline in its Color. To add a tier: add a line (the
 		-- upgrade follows automatically).
 		Tiers = {
@@ -136,15 +145,39 @@ return {
 		Height = 6,
 		-- Turn the model by this many degrees if it doesn't face its target (try 90, 180 or 270).
 		YawOffsetDegrees = 0,
-		-- Optional parts inside the model: an Attachment where projectiles start, and the stick in its hand,
-		-- which is hidden for HandStickHideTime after each throw.
+		-- Optional parts inside the model: an Attachment where projectiles start, and the stick in its paw.
 		MuzzleName = "Muzzle",
 		HandStickName = "Stick",
+		-- The paw holds the player's current projectile (ProjectileTier): a copy of its model, named Name, replaces the
+		-- model's own stick (which stays hidden): longest side along the stick's, LengthScale × the stick's length, grip
+		-- end on the stick's lower end. Projectile models have their grip at the negative end of their longest axis
+		-- (set GripAtNegativeEnd false if they show upside down). Without any projectile model the stick stays.
+		-- Whatever is in the paw is hidden for HandStickHideTime after each throw.
+		HandProjectile = {
+			Name = "HandProjectile",
+			LengthScale = 0.75,
+			GripAtNegativeEnd = true,
+		},
 		HandStickHideTime = 0.4,
+		-- Client-side motion (Controllers/ShibaController). The server writes the yaw the model should face to
+		-- AimYawAttribute (radians; pivot rotation CFrame.Angles(0, yaw, 0), YawOffsetDegrees included) and never moves
+		-- the model after building it; clients turn it there smoothly: exponential smoothing at TurnSharpness (1/s),
+		-- at most MaxTurnDegreesPerSecond. A model may contain an OrbitName part that spins around an OrbitCenterName
+		-- marker (made invisible); spin speed and axis, and floating, per model in Config/ShibaEffects.
+		Motion = {
+			AimYawAttribute = "AimYaw",
+			TurnSharpness = 12,
+			MaxTurnDegreesPerSecond = 540,
+			OrbitName = "Orbit",
+			OrbitCenterName = "OrbitCenter",
+			-- Invisible part the server puts at the model's pivot (its PrimaryPart): the rest pose clients turn from.
+			PivotName = "ShibaPivot",
+		},
 		-- Throw animation (client, Controllers/ShibaController). Models with a ThrowArmName part and a ShoulderName
-		-- marker swing that arm (with the stick) around the shoulder: back during AimTime, forward to ReleaseDegrees in
-		-- SwingTime when the stick leaves the paw, then back to rest in ReturnTime. The server sets ThrowAtAttribute on
-		-- the shooter model to the release time (workspace:GetServerTimeNow()) when it starts aiming.
+		-- marker swing that arm (with what is in the paw) around the shoulder: back during AimTime, forward to
+		-- ReleaseDegrees in SwingTime when the projectile leaves the paw, then back to rest in ReturnTime. The server
+		-- sets ThrowAtAttribute on the shooter model to the release time (Workspace:GetServerTimeNow()) when it starts
+		-- aiming.
 		Throw = {
 			ThrowArmName = "ThrowArm",
 			ShoulderName = "Shoulder",
@@ -160,19 +193,30 @@ return {
 		LaunchAngleDegrees = 45,
 		-- Launch speed varies by ± this fraction per shot.
 		SpeedJitter = 0.1,
-		-- Ground bounces before the projectile disappears (it disappears on the next ground contact).
+		-- Landing (all planned in Util/ProjectilePath, so client and server agree): after the flight it bounces `Bounces`
+		-- times, then makes the small settling hops, then lies still and fades out over LandingFadeTime.
 		Bounces = 2,
 		-- Vertical speed kept per bounce (0.5 = half as fast upward as it came down).
 		BounceRestitution = 0.5,
 		-- Horizontal speed kept per bounce.
 		BounceFriction = 0.7,
-		-- A projectile that bounces off the island edge is removed this far below the island surface.
+		-- Small hops after the bounces, as apex heights in studs above the ground. Fixed heights, so they stay visible
+		-- whatever the shot's gravity; each is capped at the previous hop's height. {} = no settling hops.
+		SettleHopHeights = { 0.7, 0.3 },
+		-- Horizontal speed kept per settling hop; after the last one the projectile lies still.
+		SettleFriction = 0.45,
+		-- Seconds the landed projectile lies on the ground fading out before it is gone.
+		LandingFadeTime = 0.6,
+		-- Whether a landed projectile can still be collected while it fades. false: only until it comes to rest
+		-- (flight, bounces and settling hops). The client check and the server validation both follow this.
+		CollectableWhileFading = false,
+		-- A projectile that bounces off the island edge is removed this far below the island surface (no fade).
 		FallDespawnDepth = 20,
-		-- Server cleanup delay after the path ends. Clients already hide the projectile the moment its path ends,
-		-- so this only has to outlast the network delay.
+		-- Server cleanup delay after the landing fade ends (path EndTime + FadeTime). Clients stop drawing the
+		-- projectile when their fade ends, so this only has to outlast the network delay.
 		DespawnDelay = 0.5,
-		-- The server keeps a projectile's path this long after it ended, so hit reports that arrive after the part is
-		-- gone (network delay) can still be validated.
+		-- The server accepts hit reports up to this long after the collectable window ended
+		-- (ProjectilePath.GetCollectEndTime) and keeps the path that long, so reports delayed by the network still count.
 		ReportGracePeriod = 2,
 		-- Safety net only; normal paths end much earlier.
 		MaxLifetime = 15,
@@ -184,6 +228,8 @@ return {
 		GoldenMultiplier = 5,
 		GoldenColor = Color3.fromRGB(255, 205, 40),
 		GoldenAttribute = "Golden",
+		-- Fill transparency of the gold outline (before the landing fade).
+		GoldenFillTransparency = 0.55,
 		-- A projectile that already paid out keeps flying (it passes through the player) at this transparency.
 		PaidTransparency = 0.5,
 		-- Attribute set on each projectile marker, read by the client (the path itself: Util/ProjectilePath).
@@ -192,16 +238,22 @@ return {
 
 	Hits = {
 		ImmunityTime = 0.5,
+		-- Extra pickup reach in studs around every projectile, so they are easier to collect without bigger models.
+		-- Client: the overlap sphere is projectile radius + PickupPadding. Server: HitTolerance / HeadTolerance are added
+		-- on top of radius + PickupPadding, so both sides stay consistent. Keep it well below
+		-- Shooters.MinDistanceFromPlayer, or the anti-farm rule no longer keeps standing players at 0.
+		PickupPadding = 2,
 		-- Player velocity used for hit quality is clamped to this vertically (and to WalkSpeed horizontally),
 		-- so knockback or a spoofed client velocity can't inflate the quality.
 		MaxVerticalPlayerSpeed = 50,
-		-- Client: projectiles farther than projectile radius + this from the root part skip the exact overlap check.
+		-- Client: projectiles farther than projectile radius + PickupPadding + this from the root part skip the exact
+		-- overlap check.
 		BroadPhaseDistance = 6,
-		-- Server: a reported hit counts if the flight path passed within projectile radius + this of the root part.
-		-- Covers body size plus network delay (docs/decisions/0003).
+		-- Server: a reported hit counts if the path passed within projectile radius + PickupPadding + this of the root
+		-- part. Covers body size plus network delay (docs/decisions/0003).
 		HitTolerance = 6,
 		-- A hit that touches the head pays HeadMultiplier times as much. The server accepts the client's head claim
-		-- if the path passed within projectile radius + HeadTolerance of the server-side head.
+		-- if the path passed within projectile radius + PickupPadding + HeadTolerance of the server-side head.
 		HeadMultiplier = 2,
 		HeadTolerance = 4,
 		-- Server: time step when searching the flight path for its closest point to the player.

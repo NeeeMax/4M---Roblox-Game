@@ -1,10 +1,10 @@
 --!strict
 -- Plans, spawns and removes projectiles. Every shot is planned in full before it is fired: a 45° arc with its own
--- gravity so it lands exactly on the target, then `Bounces` bounces on the island, then it disappears on the next
--- ground contact. Because the whole path is known, the shooter can check it against the anti-farm rule and
--- BonkService can validate reported hits against it. The server only creates an invisible, anchored marker that
--- carries the path (Util/ProjectilePath); every client draws the projectile along it (ProjectileController), so the
--- flight is smooth. See docs/GAME_DESIGN.md → Projectiles and docs/decisions/0004.
+-- gravity so it lands exactly on the target, then `Bounces` bounces and a few small settling hops on the island, then
+-- it lies still and fades out (ProjectilePath.Build plans it all). Because the whole path is known, the shooter can
+-- check it against the anti-farm rule and BonkService can validate reported hits against it. The server only creates
+-- an invisible, anchored marker that carries the path (Util/ProjectilePath); every client draws the projectile along
+-- it (ProjectileController), so the flight is smooth. See docs/GAME_DESIGN.md → Projectiles and docs/decisions/0004.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -22,7 +22,6 @@ local UpgradeService = require(script.Parent.UpgradeService)
 
 local CONFIG = Gameplay.Projectiles
 local HITS = Gameplay.Hits
-local ISLAND = Gameplay.Island
 
 export type ShotPlan = {
 	Def: Projectiles.ProjectileDef,
@@ -55,16 +54,6 @@ local nextId = 1
 local random = Random.new()
 
 local ProjectileService = {}
-
--- Time until a body at height y0 with vertical speed vy falls to `height` under gravity g (the later root).
-local function timeToHeight(y0: number, vy: number, g: number, height: number): number
-	local discriminant = vy * vy + 2 * g * (y0 - height)
-	return (vy + math.sqrt(math.max(discriminant, 0))) / g
-end
-
-local function isOverIsland(center: Vector3, position: Vector3): boolean
-	return Vector3.new(position.X - center.X, 0, position.Z - center.Z).Magnitude <= ISLAND.Radius
-end
 
 local function destroy(info: ProjectileInfo)
 	live[info.Part] = nil
@@ -106,49 +95,6 @@ function ProjectileService.GetLaunchDirection(from: Vector3, to: Vector3): Vecto
 	return horizontal * math.cos(angle) + Vector3.yAxis * math.sin(angle)
 end
 
--- Plans a shot for `owner` from `from` that first lands on `target` (a point at projectile-centre height).
--- Returns nil if the owner has no island.
--- Flight from `from` with `velocity` under `gravity`, then the bounces on the island (or the fall off its edge).
-local function buildPath(
-	center: Vector3,
-	radius: number,
-	from: Vector3,
-	velocity: Vector3,
-	gravity: number
-): ProjectilePath.Path
-	local acceleration = Vector3.new(0, -gravity, 0)
-	local groundHeight = ISLAND.SurfaceY + radius
-	local segments: { ProjectilePath.Segment } = {}
-	local startTime = 0
-	local position = from
-	local endTime = 0
-
-	for contact = 1, CONFIG.Bounces + 1 do
-		table.insert(segments, { StartTime = startTime, StartPosition = position, StartVelocity = velocity })
-		local time = timeToHeight(position.Y, velocity.Y, gravity, groundHeight)
-		local contactPosition = position + velocity * time + acceleration * (0.5 * time * time)
-		if not isOverIsland(center, contactPosition) then
-			-- Bounced off the edge: it keeps falling until it is well below the island.
-			local fallHeight = ISLAND.SurfaceY - CONFIG.FallDespawnDepth
-			endTime = startTime + timeToHeight(position.Y, velocity.Y, gravity, fallHeight)
-			break
-		end
-		endTime = startTime + time
-		if contact == CONFIG.Bounces + 1 then
-			break
-		end
-		local contactVelocity = velocity + acceleration * time
-		startTime = endTime
-		position = contactPosition
-		velocity = Vector3.new(
-			contactVelocity.X * CONFIG.BounceFriction,
-			-contactVelocity.Y * CONFIG.BounceRestitution,
-			contactVelocity.Z * CONFIG.BounceFriction
-		)
-	end
-	return { Gravity = gravity, Segments = segments, EndTime = endTime }
-end
-
 -- Rolls whether the next projectile of `owner` is golden (Lucky Sticks pass: more often).
 local function rollGolden(owner: Player): boolean
 	local chance = if RewardService.HasPass(owner, "LuckySticks")
@@ -183,7 +129,7 @@ function ProjectileService.Plan(owner: Player, from: Vector3, target: Vector3): 
 		Radius = radius,
 		NominalSpeed = nominalSpeed,
 		Speed = speed,
-		Path = buildPath(island.Center, radius, from, velocity, gravity),
+		Path = ProjectilePath.Build(island.Center, radius, from, velocity, gravity),
 		Golden = rollGolden(owner),
 	}
 end
@@ -208,7 +154,7 @@ function ProjectileService.PlanDrop(owner: Player, target: Vector3, height: numb
 		NominalSpeed = def.BaseSpeed,
 		-- Hit quality compares against launch speed; a drop lands at about this speed.
 		Speed = gravity * fallTime,
-		Path = buildPath(island.Center, radius, from, velocity, gravity),
+		Path = ProjectilePath.Build(island.Center, radius, from, velocity, gravity),
 		Golden = rollGolden(owner),
 	}
 end
@@ -225,17 +171,29 @@ function ProjectileService.ClosestApproach(plan: ShotPlan, position: Vector3, un
 	local lastTime = math.min(untilTime or path.EndTime, path.EndTime)
 	local bestDistance = math.huge
 	local bestVelocity = path.Segments[1].StartVelocity
-	local time = 0
-	while time <= lastTime do
+	local function sample(time: number)
 		local point, velocity = ProjectileService.GetState(plan, time)
 		local distance = (point - position).Magnitude
 		if distance < bestDistance then
 			bestDistance = distance
 			bestVelocity = velocity
 		end
+	end
+	local time = 0
+	while time < lastTime do
+		sample(time)
 		time += HITS.FlightSampleStep
 	end
+	-- The last point exactly (e.g. where it comes to rest).
+	sample(math.max(lastTime, 0))
 	return bestDistance, bestVelocity
+end
+
+-- Whether a hit report for this projectile may still be validated now: until the end of its collectable window
+-- (ProjectilePath.GetCollectEndTime) plus ReportGracePeriod for network delay.
+function ProjectileService.AcceptsReports(info: ProjectileInfo): boolean
+	local age = os.clock() - info.LaunchedAt
+	return age <= ProjectilePath.GetCollectEndTime(info.Plan.Path) + CONFIG.ReportGracePeriod
 end
 
 -- Fires a planned shot for `owner`.
@@ -302,8 +260,9 @@ function ProjectileService.Start()
 		local now = os.clock()
 		for part, info in live do
 			local age = now - info.LaunchedAt
+			-- The marker stays until every client has finished the landing fade (it drives their model).
 			if
-				age >= info.Plan.Path.EndTime + CONFIG.DespawnDelay
+				age >= ProjectilePath.GetVisibleEndTime(info.Plan.Path) + CONFIG.DespawnDelay
 				or age >= CONFIG.MaxLifetime
 				or part.Parent == nil
 			then
@@ -311,8 +270,7 @@ function ProjectileService.Start()
 			end
 		end
 		for id, info in byId do
-			local endedAt = info.LaunchedAt + info.Plan.Path.EndTime
-			if not live[info.Part] and now - endedAt >= CONFIG.ReportGracePeriod then
+			if not live[info.Part] and not ProjectileService.AcceptsReports(info) then
 				byId[id] = nil
 			end
 		end
