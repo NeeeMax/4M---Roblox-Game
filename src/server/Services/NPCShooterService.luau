@@ -25,7 +25,10 @@ local MODEL_THROW_HEIGHT = 0.8
 local MODEL_THROW_FORWARD = 1.5
 
 type Shooter = {
+	-- Holds everything of this shooter (platform included); destroyed when the ring shrinks.
 	Model: Model,
+	-- Custom model only: the imported model inside Model. Only this turns when aiming, so the platform stays put.
+	Visual: Model?,
 	-- Point on the island-surface height where the shooter stands.
 	Ground: Vector3,
 	-- Custom model: height of its pivot above its bottom. Fallback block: nil (uses Body and Barrel).
@@ -78,11 +81,11 @@ end
 
 local function aimAt(shooter: Shooter, target: Vector3)
 	local ground = shooter.Ground
-	local pivotHeight = shooter.PivotHeight
-	if pivotHeight then
+	local pivotHeight, visual = shooter.PivotHeight, shooter.Visual
+	if pivotHeight and visual then
 		local pivot = ground + Vector3.new(0, pivotHeight, 0)
 		local facing = CFrame.lookAt(pivot, pivot + flatDirection(ground, target))
-		shooter.Model:PivotTo(facing * CFrame.Angles(0, math.rad(CONFIG.YawOffsetDegrees), 0))
+		visual:PivotTo(facing * CFrame.Angles(0, math.rad(CONFIG.YawOffsetDegrees), 0))
 		return
 	end
 	local body, barrel = shooter.Body, shooter.Barrel
@@ -170,20 +173,22 @@ local function buildShooter(parent: Instance, center: Vector3, angle: number): S
 	-- Angle 0 is north (−Z), then clockwise.
 	local ground = center + Vector3.new(math.sin(angle), 0, -math.cos(angle)) * CONFIG.RingRadius
 
+	local model = Instance.new("Model")
 	local asset = Assets.CloneModel(CONFIG.AssetName)
-	local model: Model = asset or Instance.new("Model")
 	local shooter: Shooter
 	if asset then
-		Assets.ScaleTo(model, CONFIG.Height, true)
-		Assets.MakeVisualOnly(model, true)
-		local box, size = model:GetBoundingBox()
-		local muzzle = model:FindFirstChild(CONFIG.MuzzleName, true)
+		Assets.ScaleTo(asset, CONFIG.Height, true)
+		Assets.MakeVisualOnly(asset, true)
+		local box, size = asset:GetBoundingBox()
+		local muzzle = asset:FindFirstChild(CONFIG.MuzzleName, true)
+		asset.Parent = model
 		shooter = {
 			Model = model,
+			Visual = asset,
 			Ground = ground,
-			PivotHeight = model:GetPivot().Position.Y - (box.Position.Y - size.Y / 2),
+			PivotHeight = asset:GetPivot().Position.Y - (box.Position.Y - size.Y / 2),
 			Muzzle = if muzzle and muzzle:IsA("Attachment") then muzzle else nil,
-			HandStick = collectHandStick(model),
+			HandStick = collectHandStick(asset),
 			NextFireAt = 0,
 		}
 	else
