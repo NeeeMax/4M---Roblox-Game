@@ -14,10 +14,10 @@ Every RemoteEvent and RemoteFunction is listed here. A PR that adds or changes a
 
 | Name | Type | Direction | Payload | Server validation | Owner |
 |------|------|-----------|---------|-------------------|-------|
-| `RequestPurchase` | RemoteEvent | C→S | `upgradeId: string` | string, known upgrade id, below max level, enough Bonk Points, ≤ 5/s | Marco |
-| `SetActiveShooters` | RemoteEvent | C→S | `count: number` | integer, 1 ≤ count ≤ owned shooters, ≤ 5/s | Marco |
+| `RequestPurchase` | RemoteEvent | C→S | `upgradeId: string` | string, known upgrade id, below max level, enough Bonk Points, ≤ 5/s | Max |
+| `SetActiveShooters` | RemoteEvent | C→S | `count: number` | integer, 1 ≤ count ≤ owned shooters, ≤ 5/s | Max |
 | `BonkHit` | RemoteEvent | S→C | `reward: number, quality: HitQuality, knockbackDirection: Vector3` | — (server → client) | Max |
-| `StateChanged` | RemoteEvent | S→C | `bonkPoints: number, upgradeLevels: { [UpgradeId]: number }, activeShooters: number` | — (server → client) | Marco |
+| `StateChanged` | RemoteEvent | S→C | `bonkPoints: number, upgradeLevels: { [UpgradeId]: number }, activeShooters: number` | — (server → client) | Max |
 
 Remotes live in `ReplicatedStorage/Remotes`, created by `Net.CreateRemotes()` from `Main.server.luau`. Get one with `Net.Get(Net.BonkHit)`.
 `StateChanged` is sent after the player's data loads and after every change to points, levels or active shooters.
