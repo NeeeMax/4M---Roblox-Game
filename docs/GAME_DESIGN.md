@@ -208,8 +208,24 @@ Receipts are granted exactly once (handled purchase ids are saved); pass ownersh
 
 ## UI (MVP)
 
-- HUD: Bonk Points (counts up), running boosts, left buttons UPGRADES / QUESTS / SPIN (/ ADMIN) with "!" badges, short messages at the bottom.
-- Menus: one open at a time, built in code (`client/UI/Widgets`), shared look (`client/UI/Theme`).
+Look and usability follow successful Roblox tycoons: few buttons on screen, big and chunky.
+
+- HUD (uncluttered), top centre: square **menu** button (list icon) + green **clipboard** button (MANAGE) + dark bar
+  with the Bonk Points counter in big green text, abbreviated (`Format.Abbreviate`: "324.316 quadrillion", counts up).
+  - Menu button opens a small list: SHOP, GIFTS, QUESTS, SPIN, INDEX, SETTINGS (ADMIN for admins). A menu that does
+    not exist yet says "coming soon".
+  - MANAGE: with the Manage pass the upgrade menu opens anywhere; without it the shop opens on the POWERS tab to
+    buy it (upgrades are normally bought at the stands on the island).
+  - Red "!" badges on the menu button and its entries (and on MANAGE) when something can be claimed or bought;
+    hidden when Settings → "Show "New" Hints" is off.
+  - Also: running boosts (pill under the bar), Bonk Rain button (right), short messages (bottom centre). Bottom
+    centre is kept free for the big round yellow upgrade button. The Roblox player list shows cash (leaderstats).
+- Menus: one open at a time, built in code (`client/UI/Widgets`), shared look (`client/UI/Theme`): black inside a
+  thick studded border (green; grey for Settings), big white outlined title, red square X over the top-right corner,
+  chunky buttons and tabs, yellow price pills with a coin (Robux) or cash (Bonk Points) icon.
+- Settings: Volume sliders Master / Music / Effects (Master only on this device), Gameplay "Show "New" Hints".
+  Music, Effects and Hints are saved (`state.Settings`, `SaveSettings`).
+- Icons: `assets/ui/*.png` (see its README), ids in `shared/Config/Icons`; until uploaded, glyphs are shown.
 
 ## Saving
 
