@@ -1,5 +1,11 @@
 # Contributing to 4M
 
+## 0. Team access (Max, once per new teammate)
+
+1. **GitHub:** repo → Settings → Collaborators → *Add people* → the teammate's GitHub username. They accept the email invite.
+2. **Roblox:** be Roblox friends, then open the main place → **Collaborate** (or File → Game Settings → Permissions)
+   → add their Roblox username with **Edit**. The place then shows up in their Studio.
+
 ## 1. One-time setup (each developer)
 
 1. Clone the repo to a normal local folder — **not** inside Synology Drive, OneDrive, Dropbox or any other sync tool. Sync tools corrupt `.git`.
@@ -47,6 +53,14 @@ while synced to the shared Team Create place, your branch's code lands in your t
 
 To refresh a dev place with the latest world: in the main place, save the world as a copy or re-publish to the dev place.
 
+### 3D models and other assets
+
+- Models are built in the **main place** and kept in **`ReplicatedStorage/Assets`** with fixed names (e.g. `Ball`, `Shooter`, `Island`).
+  Code uses them by exactly these names (falling back to plain parts if one is missing — wired up per asset as models arrive). Renaming an asset = code change in the same PR.
+- To get them into a dev place: right-click the model → **Convert to Package**, then insert it in the dev place from
+  Toolbox → Inventory → Packages (updates can flow automatically). Quick alternative: copy/paste into the same folder.
+- Owner: Marco (see `docs/ARCHITECTURE.md`).
+
 ## 3. Connecting Studio (Script Sync)
 
 In your **dev place**, create these three folders (hover over the parent in the Explorer → **⊕** → Folder), then right-click each → **Sync to…** → choose the repo's **`src`** folder for all three.
@@ -86,7 +100,17 @@ Only one person does this at a time; say so in chat first.
 - Contract changes (`src/shared/Net/`, `src/shared/Types/`, `docs/CONVENTIONS.md`) get their own small PR, merged first.
 - Never commit place files (`.rbxl`, `.rbxlx`). Export single models as `.rbxm` into `assets/` only when really needed.
 
-## 5. Working with Claude Code
+## 5. Daily workflow
+
+1. Pick an issue in your area (ownership: `docs/ARCHITECTURE.md`). `git checkout main && git pull`, then create the branch.
+2. Code (with Claude Code if you like) and test in **your own dev place**. Don't switch branches while you playtest — Studio loads whatever is on disk.
+3. Run the checks (section 1b), commit, push, open a PR and fill in the template.
+4. The other developer reviews, then squash-merge. Everyone pulls `main`.
+5. From time to time, one person loads `main` into the main place (section 3) and publishes. Say so in chat first.
+
+Playing together: in the main place, **Test → Team Test** starts a server you can both join. The published game gives everyone their own island.
+
+## 6. Working with Claude Code
 
 - Each developer runs Claude Code only in their own clone, on their own branch.
 - Work is split by **feature area**, not by server vs client. Ownership is listed in `docs/ARCHITECTURE.md`.
