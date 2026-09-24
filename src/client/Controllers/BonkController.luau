@@ -26,6 +26,8 @@ local PROJECTILES = Gameplay.Projectiles
 
 local player = Players.LocalPlayer
 local sound: Sound
+-- Settings → Master × Effects (SettingsController).
+local volumeScale = 1
 local immuneUntil = 0
 local comboLabel: TextLabel
 local comboBar: Frame
@@ -286,11 +288,19 @@ local function update(projectileFolder: Instance, reportHit: RemoteEvent)
 	end
 end
 
+-- 0..1, scales the bonk sound (Settings menu).
+function BonkController.SetVolumeScale(scale: number)
+	volumeScale = math.clamp(scale, 0, 1)
+	if sound then
+		sound.Volume = BONK.SoundVolume * volumeScale
+	end
+end
+
 function BonkController.Init()
 	sound = Instance.new("Sound")
 	sound.Name = "Bonk"
 	sound.SoundId = BONK.SoundId
-	sound.Volume = BONK.SoundVolume
+	sound.Volume = BONK.SoundVolume * volumeScale
 	sound.Parent = SoundService
 	buildComboDisplay()
 end
