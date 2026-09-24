@@ -30,13 +30,15 @@ Every RemoteEvent and RemoteFunction is listed here. A PR that adds or changes a
 | `DuelRespond` | RemoteEvent | C→S | `duelId: number, accept: boolean` | duel exists, sender is its target, not expired, both can still afford it, ≤ 2/s | Max |
 | `DuelResult` | RemoteEvent | S→C | `won: boolean, opponentName: string, amount: number, side: "Heads" \| "Tails"` | — | Max |
 | `ClaimQuest` | RemoteEvent | C→S | `questIndex: number` | quest exists today, finished, not claimed, ≤ 5/s | Max |
-| `ShopBuy` | RemoteEvent | C→S | `itemId: string` | known pass / product / `Trophy_<id>`, not owned yet, product-specific checks (top tier, starter pack once), points trophies: enough Bonk Points; Robux items only open Roblox's prompt, granting happens in ProcessReceipt / PromptGamePassPurchaseFinished; ≤ 3/s | Max |
+| `ShopBuy` | RemoteEvent | C→S | `itemId: string` | known pass / product / `Trophy_<id>`, not owned yet, product-specific checks (top tier, instant upgrade not maxed, Double Offline only with pending offline earnings, starter pack once), points trophies: enough Bonk Points; Robux items only open Roblox's prompt, granting happens in ProcessReceipt / PromptGamePassPurchaseFinished; ≤ 3/s | Max |
 | `UseBonkRain` | RemoteEvent | C→S | — | has a Bonk Rain, none running, on own island, ≤ 2/s | Max |
 | `BonkRainStarted` | RemoteEvent | S→C | `seconds: number` | — | Max |
 | `ClaimStreak` | RemoteEvent | C→S | — | today's streak reward not claimed yet, ≤ 5/s | Max |
 | `ClaimPlaytime` | RemoteEvent | C→S | `giftIndex: number` | gift exists, enough play time today, not claimed, ≤ 5/s | Max |
 | `ServerEvent` | RemoteEvent | S→C | `eventId: string, time: number` — `eventId` = the running server event (`Config/Events`) and `time` = when it ends; `eventId ""` = no event, `time` = when the next one starts (server clock, `Workspace:GetServerTimeNow()`). Sent to everyone on start / end and to each player on join | — (server → client) | Max |
 | `ClaimIndex` | RemoteEvent | C→S | `entryId: string` | string, known `Config/Index` entry that the player has seen and not claimed yet (or `Index.CompleteId` "Complete": every entry seen, bonus not claimed), ≤ 5/s; reward computed on the server (`RewardService.Hits`) | Max |
+| `OfflineEarnings` | RemoteEvent | S→C | `amount: number, seconds: number` (pending offline earnings, time away they cover) | — (server → client; sent on join when `Bank.Pending` > 0) | Marco |
+| `ClaimOffline` | RemoteEvent | C→S | `double: boolean` | boolean, data loaded, `Bank.Pending` > 0, ≤ 2/s; `false` pays Pending and clears it; `true` only opens the Roblox prompt for the "DoubleOffline" product (Studio with id 0: test grant), 2× Pending is paid in ProcessReceipt (`ShopService.Grant`) | Marco |
 
 Remotes live in `ReplicatedStorage/Remotes`, created by `Net.CreateRemotes()` from `Main.server.luau`. Get one with `Net.Get(Net.BonkHit)`.
 `StateChanged` is sent after the player's data loads and after every change to points, levels or active shooters.

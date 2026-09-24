@@ -112,14 +112,31 @@ local function onReportHit(player: Player, projectileId: unknown, onHeadClaim: u
 		onHead = headDistance <= pickupRadius + HITS.HeadTolerance
 	end
 
-	ProjectileService.MarkPaid(info)
 	immuneUntil[player] = os.clock() + HITS.ImmunityTime
 
 	-- Hit quality: how hard the impact was compared with the projectile's own launch speed.
 	-- Running and jumping into a projectile raises it; standing under it gives about 1.0.
 	local playerVelocity = clampPlayerVelocity(root.AssemblyLinearVelocity, humanoid.WalkSpeed)
 	local ratio = (projectileVelocity - playerVelocity).Magnitude / plan.Speed
-	local quality = getQuality(ratio)
+	local flat = Vector3.new(projectileVelocity.X, 0, projectileVelocity.Z)
+	local knockbackDirection = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.zero
+	BonkService.AwardHit(player, info, getQuality(ratio), onHead, knockbackDirection)
+end
+
+-- Pays out a validated hit: marks the projectile paid, counts the combo, adds the reward, records quests and tells
+-- the client (popup, sound, knockback). Used for reported hits and by AutoCatchService (Normal quality, no head).
+function BonkService.AwardHit(
+	player: Player,
+	info: ProjectileService.ProjectileInfo,
+	quality: Economy.HitQualityDef,
+	onHead: boolean,
+	knockbackDirection: Vector3
+)
+	if info.Paid then
+		return
+	end
+	ProjectileService.MarkPaid(info)
+	local plan = info.Plan
 
 	local combo, comboMultiplier, window = registerCombo(player, os.clock())
 	local tier = RewardService.GetShooterTier(player)
@@ -155,8 +172,6 @@ local function onReportHit(player: Player, projectileId: unknown, onHeadClaim: u
 		QuestService.Record(player, "HardHit", 1)
 	end
 
-	local flat = Vector3.new(projectileVelocity.X, 0, projectileVelocity.Z)
-	local knockbackDirection = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.zero
 	bonkHit:FireClient(player, reward, quality.Name, knockbackDirection, onHead, combo, window, plan.Golden)
 end
 

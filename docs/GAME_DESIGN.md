@@ -114,15 +114,25 @@ The player velocity is clamped before use: horizontal ≤ current WalkSpeed, ver
 
 ## Upgrades
 
-Cost of the next level: `cost(n) = floor(BaseCost × Growth^n)`, n = current level. Four upgrades (projectile size and
+Cost of the next level: `cost(n) = floor(BaseCost × Growth^n × (1 + Curve × n²))`, n = current level. The `Curve`
+term keeps the first levels cheap and bends the late ones up (see **Pacing** below). Four upgrades (projectile size and
 fire rate were removed on 2026-09-24: projectiles always have the same size, the fire rate comes with the Shiba tier).
 
-| Id | Menu name | Effect per level | Level 0 | Max level | BaseCost | Growth |
-|----|-----------|-----------------|---------|-----------|----------|--------|
-| `ShooterTier` | Shiba Tier | all Shibas evolve: new model, faster throws, more points | Shiba | 9 | 2,000 | 4.3 |
-| `ProjectileTier` | Projectile Tier | next projectile (see Projectiles) | Stick | 9 | 1,500 | 1.78 |
-| `Shooters` | More Shibas | +1 Shiba | 1 | 7 (8 Shibas) | 500 | 4 |
-| `MoveSpeed` | Move Speed | WalkSpeed +3 | 16 | 10 (46) | 100 | 2.6 |
+| Id | Menu name | Effect per level | Level 0 | Max level | BaseCost | Growth | Curve |
+|----|-----------|-----------------|---------|-----------|----------|--------|-------|
+| `ShooterTier` | Shiba Tier | all Shibas evolve: new model, faster throws, more points | Shiba | 9 | 400 | 3.5 | 0.1 |
+| `ProjectileTier` | Projectile Tier | next projectile (see Projectiles) | Stick | 9 | 150 | 3.6 | 0.15 |
+| `Shooters` | More Shibas | +1 Shiba | 1 | 7 (8 Shibas) | 60 | 5.5 | 0.2 |
+| `MoveSpeed` | Move Speed | WalkSpeed +3 | 16 | 10 (46) | 40 | 3.5 | 0.1 |
+
+Costs per level:
+
+| Upgrade | 0→1 | 1→2 | 2→3 | 3→4 | 4→5 | 5→6 | 6→7 | 7→8 | 8→9 | 9→10 |
+|---------|-----|-----|-----|-----|-----|-----|-----|-----|-----|------|
+| Shiba Tier | 400 | 1.5K | 6.9K | 33K | 156K | 735K | 3.4M | 15M | 67M | — |
+| Projectile Tier | 150 | 621 | 3.1K | 16K | 86K | 431K | 2.1M | 9.8M | 45M | — |
+| More Shibas | 60 | 396 | 3.3K | 28K | 231K | 1.8M | 14M | — | — | — |
+| Move Speed | 40 | 154 | 686 | 3.3K | 16K | 74K | 338K | 1.5M | 6.7M | 29M |
 
 Shiba tiers (`Config/Gameplay → Shooters.Tiers`):
 
@@ -161,6 +171,34 @@ Shiba tiers (`Config/Gameplay → Shooters.Tiers`):
   - The big round **yellow arrow button** at the bottom centre does the same as SHOW ME for the cheapest affordable
     upgrade ("Nothing affordable yet" otherwise).
 - **Run Faster** pass: WalkSpeed ×1.5 on top of Move Speed.
+
+### Pacing
+
+Goal: the first upgrades come fast (first buy within ~30 s, five within ~4 min), later ones slower but never a wall
+(at most ~75 min of play for the very last levels), so boosts and instant upgrades are worth buying in the mid and late
+game. Estimated with a player who always buys the cheapest upgrade next:
+
+```
+income / min = 60 / FireInterval(Shiba tier) × Shibas × catch rate × BaseReward(projectile) × Shiba tier mult × 1.3
+catch rate   = 60 % (+2 % per Move Speed level); 1.3 = average bonus from quality, head hits, combo and golden sticks
+```
+
+| Buy # | Upgrade bought | Cost | Income at that stage (/min) | Wait for it (min) | Play time so far |
+|-------|----------------|------|-----------------------------|-------------------|------------------|
+| 1 | Move Speed 1 | 40 | 94 | 0.4 | 26 s |
+| 2 | More Shibas 1 | 60 | 95 | 0.6 | 1.1 min |
+| 3 | Projectile Tier 1 | 150 | 191 | 0.8 | 1.8 min |
+| 5 | More Shibas 2 | 396 | 253 | 1.6 | 4 min |
+| 6 | Shiba Tier 1 | 400 | 380 | 1.1 | 5 min |
+| 10 | Projectile Tier 3 | 3.1K | 1.6K | 1.9 | 10 min |
+| 15 | Projectile Tier 4 | 16K | 5.0K | 3.3 | 23 min |
+| 20 | Shiba Tier 5 | 156K | 19K | 8 | 50 min |
+| 25 | Move Speed 8 | 1.5M | 96K | 16 | 1.8 h |
+| 30 | Projectile Tier 8 | 9.8M | 258K | 38 | 3.8 h |
+| 35 | Shiba Tier 9 (all maxed) | 67M | 911K | 73 | 8.2 h |
+
+Robux speeds this up without selling Bonk Points: 2× Points (pass or 30 min boost) halves every wait, 2× Fire Rate
+nearly does, and the instant upgrades skip one level.
 - Upgrade menu: one card per upgrade with level badge, current → next value (tier names in their colours), what the next
   level gives, one dot per level, buy button (green when affordable). The UPGRADES button shows "!" when something is affordable.
 
@@ -232,10 +270,37 @@ Roblox ids live in `Config/Shop` (0 = not created yet: free test purchase in Stu
 | Product | Shiba Tier Skip | 99 | next Shiba tier now (blocked at the top tier) |
 | Product | Starter Pack | 49 | once: 2× points 1 h + 3 Bonk Rains + Starter trophy; offered in a popup for 48 h after the first join |
 | Product | Diamond / Rainbow trophy | 99 / 249 | exclusive trophies |
+| Product | Instant Shiba Tier / Projectile Tier / Shiba / Speed | 99 / 79 / 49 / 25 | +1 level of that upgrade now (blocked when it is maxed) |
+| Product | Double Offline Earnings | 39 | only in the "Welcome back" popup: pays 2× the pending Shiba Bank earnings |
+
+**POWERS** (first shop tab, big cards with yellow Robux price pills, "OWNED" once bought; other code opens it with
+`ShopController.OpenTab("POWERS")`):
+
+| Pass | Robux | Effect | Implemented in |
+|------|-------|--------|----------------|
+| Manage | 199 | manage all income sources from one place: the upgrade menu opens anywhere | HudController |
+| Run Faster | 99 | walk speed x1 → x1.5 | UpgradeService |
+| Stack Upgrade | 149 | buy several upgrade levels at once (x1 → x10) | UpgradeService |
+| Auto-Catch | 249 | every 0.25 s, sticks whose current position is within 10 studs of the character are collected as a Normal bonk (no head bonus, combo counts); only while they could be caught by hand | AutoCatchService |
 
 Trophies stand on your island for everyone to see: Wooden 5K, Bronze 50K, Silver 500K, Golden 5M, Galaxy 100M Bonk
 Points (long-term goals), plus exclusive ones (Starter, 7-Day Streak, VIP, Diamond, Rainbow).
 Receipts are granted exactly once (handled purchase ids are saved); pass ownership is checked with Roblox on every join.
+
+## Offline Shiba Bank
+
+While the player is away, their Shibas keep earning (Config/Economy → `OfflineBank`, OfflineService):
+
+- **Income rate:** every 60 s of play the Bonk Points earned in that minute (hits, spin, quests, gifts, coin-flip wins;
+  not admin gifts or the offline payout itself) are smoothed into `Bank.IncomePerMinute`
+  (`rate += 0.3 × (sample − rate)`, the first sample sets it). A sample counts at most 8 normal bonks per Shiba throw,
+  so a big coin-flip win can't inflate the rate.
+- **Last seen:** every save (leave, autosave, shutdown) stamps `Bank.LastSeenAt`.
+- **On join:** time away = now − LastSeenAt, only if at least 60 s, capped at 8 h.
+  `Pending += IncomePerMinute × minutes away × 10 %`, then the "WELCOME BACK!" popup shows the time away and the amount.
+- **OKAY** pays Pending (counts for the leaderboard). **x2 DOUBLE IT! (R$ 39)** opens the "Double Offline Earnings" product;
+  when Roblox grants it, 2× Pending is paid. Unclaimed earnings stay pending (and add up) until claimed.
+- Example: 1,000 points/min while playing, away 2 h → 1,000 × 120 × 0.1 = 12,000 (24,000 doubled).
 
 ## Admin (testing)
 
@@ -249,7 +314,8 @@ Receipts are granted exactly once (handled purchase ids are saved); pass ownersh
 ## Economy
 
 - Currency: **Bonk Points** (integer). Earned by hits, daily spin, quests and coin flips. Start with 0.
-- Pacing target (for tuning): first upgrade after ~90 s of active play, 5 purchases within the first 10 minutes.
+- Pacing target (for tuning): first upgrade after ~30 s of active play, 5 purchases within the first 5 minutes, all
+  upgrades maxed after ~8 h (see Upgrades → Pacing). While away, the Offline Shiba Bank pays 10 % of the recent income.
 
 ## UI (MVP)
 

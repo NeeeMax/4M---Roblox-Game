@@ -30,6 +30,7 @@ local store: DataStore? = nil
 local sessions: { [Player]: Session } = {}
 local loadedCallbacks: { (Player, PlayerState) -> () } = {}
 local replicatedCallbacks: { (Player) -> () } = {}
+local savingCallbacks: { (Player, PlayerState) -> () } = {}
 
 local DataService = {}
 
@@ -257,6 +258,9 @@ local function save(player: Player, session: Session)
 	if not session.CanSave or not currentStore then
 		return
 	end
+	for _, callback in savingCallbacks do
+		callback(player, session.State)
+	end
 	local data = deepCopy(session.State) :: any
 	data.Version = SAVE_VERSION
 	withRetries(`Saving {player.Name}`, function()
@@ -332,6 +336,12 @@ end
 -- Runs `callback` after every state change of any player (e.g. to update the player list).
 function DataService.OnReplicated(callback: (Player) -> ())
 	table.insert(replicatedCallbacks, callback)
+end
+
+-- Runs `callback` right before every save of a player (leave, autosave, shutdown, SaveNow), so it can stamp fields
+-- such as Bank.LastSeenAt. It must not yield.
+function DataService.OnSaving(callback: (Player, PlayerState) -> ())
+	table.insert(savingCallbacks, callback)
 end
 
 -- Saves right away (after Robux purchases), in the background.
