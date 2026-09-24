@@ -2,16 +2,17 @@
 -- Plans, spawns and removes projectiles. Every shot is planned in full before it is fired: a 45° arc with its own
 -- gravity so it lands exactly on the target, then `Bounces` bounces on the island, then it disappears on the next
 -- ground contact. Because the whole path is known, the shooter can check it against the anti-farm rule and
--- BonkService can validate reported hits against it. The server steers the physics part along that path
--- (it never collides with anything). See docs/GAME_DESIGN.md → Projectiles.
+-- BonkService can validate reported hits against it. The server only creates an invisible, anchored marker that
+-- carries the path (Util/ProjectilePath); every client draws the projectile along it (ProjectileController), so the
+-- flight is smooth. See docs/GAME_DESIGN.md → Projectiles and docs/decisions/0004.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
-local Assets = require(ReplicatedStorage.Shared.Util.Assets)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
+local ProjectilePath = require(ReplicatedStorage.Shared.Util.ProjectilePath)
 local Projectiles = require(ReplicatedStorage.Shared.Config.Projectiles)
 
 local IslandService = require(script.Parent.IslandService)
@@ -20,13 +21,6 @@ local UpgradeService = require(script.Parent.UpgradeService)
 local CONFIG = Gameplay.Projectiles
 local HITS = Gameplay.Hits
 local ISLAND = Gameplay.Island
-
--- One piece of the path: a free flight starting at StartTime (seconds after launch).
-export type Segment = {
-	StartTime: number,
-	StartPosition: Vector3,
-	StartVelocity: Vector3,
-}
 
 export type ShotPlan = {
 	Def: Projectiles.ProjectileDef,
@@ -37,25 +31,18 @@ export type ShotPlan = {
 	NominalSpeed: number,
 	-- Actual launch speed including jitter. Hit quality is measured against it.
 	Speed: number,
-	-- Downward acceleration of this projectile (studs/s²).
-	Gravity: number,
-	-- The flight, then one segment per bounce.
-	Segments: { Segment },
-	-- Seconds after launch when the path ends (last ground contact, or fallen below the island).
-	EndTime: number,
+	-- Flight and bounces, as the clients draw it.
+	Path: ProjectilePath.Path,
 }
 
 export type ProjectileInfo = {
 	Id: number,
+	-- Invisible, anchored marker carrying the path for the clients.
 	Part: BasePart,
-	-- Parts to fade when the projectile has paid out (the model, or the sphere itself).
-	VisualParts: { BasePart },
 	Owner: Player,
 	Plan: ShotPlan,
+	-- os.clock() at launch.
 	LaunchedAt: number,
-	-- Index of the next segment (bounce) the server still has to apply.
-	NextSegment: number,
-	EndedAt: number?,
 	Paid: boolean,
 }
 
@@ -98,34 +85,6 @@ local function makeRoom(owner: Player)
 	end
 end
 
--- The visible part of a projectile: the Assets model welded to the invisible hit sphere, or the sphere itself.
-local function attachVisual(sphere: Part, def: Projectiles.ProjectileDef, diameter: number): { BasePart }
-	local model = if def.AssetName then Assets.CloneModel(def.AssetName) else nil
-	if not model then
-		sphere.Color = def.Color
-		sphere.Material = def.Material
-		return { sphere }
-	end
-	sphere.Transparency = 1
-	Assets.ScaleTo(model, diameter)
-	Assets.MakeVisualOnly(model, false)
-	-- Centre the model's bounding box on the sphere.
-	local box = model:GetBoundingBox()
-	model:PivotTo(sphere.CFrame * box:ToObjectSpace(model:GetPivot()))
-	local parts: { BasePart } = {}
-	for _, descendant in model:GetDescendants() do
-		if descendant:IsA("BasePart") then
-			local weld = Instance.new("WeldConstraint")
-			weld.Part0 = sphere
-			weld.Part1 = descendant
-			weld.Parent = descendant
-			table.insert(parts, descendant)
-		end
-	end
-	model.Parent = sphere
-	return parts
-end
-
 function ProjectileService.GetDef(): Projectiles.ProjectileDef
 	return Projectiles.Defs[Projectiles.DefaultId]
 end
@@ -166,7 +125,7 @@ function ProjectileService.Plan(owner: Player, from: Vector3, target: Vector3): 
 
 	local acceleration = Vector3.new(0, -gravity, 0)
 	local groundHeight = ISLAND.SurfaceY + radius
-	local segments: { Segment } = {}
+	local segments: { ProjectilePath.Segment } = {}
 	local startTime = 0
 	local position = from
 	local velocity = ProjectileService.GetLaunchDirection(from, target) * speed
@@ -203,33 +162,22 @@ function ProjectileService.Plan(owner: Player, from: Vector3, target: Vector3): 
 		Radius = radius,
 		NominalSpeed = nominalSpeed,
 		Speed = speed,
-		Gravity = gravity,
-		Segments = segments,
-		EndTime = endTime,
+		Path = { Gravity = gravity, Segments = segments, EndTime = endTime },
 	}
 end
 
 -- Position and velocity on the planned path `time` seconds after launch.
 function ProjectileService.GetState(plan: ShotPlan, time: number): (Vector3, Vector3)
-	local clamped = math.clamp(time, 0, plan.EndTime)
-	local segment = plan.Segments[1]
-	for _, candidate in plan.Segments do
-		if candidate.StartTime <= clamped then
-			segment = candidate
-		end
-	end
-	local dt = clamped - segment.StartTime
-	local acceleration = Vector3.new(0, -plan.Gravity, 0)
-	local position = segment.StartPosition + segment.StartVelocity * dt + acceleration * (0.5 * dt * dt)
-	return position, segment.StartVelocity + acceleration * dt
+	return ProjectilePath.GetState(plan.Path, time)
 end
 
 -- The point of the path (up to `untilTime`, default: the whole path) closest to `position`:
 -- returns the distance and the projectile velocity there.
 function ProjectileService.ClosestApproach(plan: ShotPlan, position: Vector3, untilTime: number?): (number, Vector3)
-	local lastTime = math.min(untilTime or plan.EndTime, plan.EndTime)
+	local path = plan.Path
+	local lastTime = math.min(untilTime or path.EndTime, path.EndTime)
 	local bestDistance = math.huge
-	local bestVelocity = plan.Segments[1].StartVelocity
+	local bestVelocity = path.Segments[1].StartVelocity
 	local time = 0
 	while time <= lastTime do
 		local point, velocity = ProjectileService.GetState(plan, time)
@@ -254,50 +202,29 @@ function ProjectileService.Fire(owner: Player, plan: ShotPlan)
 	local id = nextId
 	nextId += 1
 
-	-- Invisible hit sphere that carries the model. It never collides: the server moves it along the plan.
-	local sphere = Instance.new("Part")
-	sphere.Name = plan.Def.Id
-	sphere.Shape = Enum.PartType.Ball
-	sphere.Size = Vector3.one * plan.Radius * 2
-	sphere.TopSurface = Enum.SurfaceType.Smooth
-	sphere.BottomSurface = Enum.SurfaceType.Smooth
-	sphere.CanCollide = false
-	sphere.CanTouch = false
-	sphere.CanQuery = false
-	sphere.CFrame = CFrame.new(plan.From)
-	sphere:SetAttribute(CONFIG.IdAttribute, id)
-	local visualParts = attachVisual(sphere, plan.Def, plan.Radius * 2)
-
-	local attachment = Instance.new("Attachment")
-	attachment.Parent = sphere
-	local antiGravity = Instance.new("VectorForce")
-	antiGravity.Attachment0 = attachment
-	antiGravity.RelativeTo = Enum.ActuatorRelativeTo.World
-	antiGravity.ApplyAtCenterOfMass = true
-	antiGravity.Parent = sphere
-
-	sphere.Parent = island.ProjectileFolder
-	-- Server-owned so it moves exactly along the plan the server validates hits against.
-	sphere:SetNetworkOwner(nil)
-	antiGravity.Force = Vector3.new(0, sphere.AssemblyMass * (Workspace.Gravity - plan.Gravity), 0)
-	sphere.AssemblyLinearVelocity = plan.Segments[1].StartVelocity
-	sphere.AssemblyAngularVelocity = Vector3.new(
-		random:NextNumber(-CONFIG.MaxSpin, CONFIG.MaxSpin),
-		random:NextNumber(-CONFIG.MaxSpin, CONFIG.MaxSpin),
-		random:NextNumber(-CONFIG.MaxSpin, CONFIG.MaxSpin)
-	)
+	-- Invisible marker: it never moves or collides. Clients draw the projectile along the path it carries.
+	local marker = Instance.new("Part")
+	marker.Name = plan.Def.Id
+	marker.Size = Vector3.one
+	marker.Transparency = 1
+	marker.Anchored = true
+	marker.CanCollide = false
+	marker.CanTouch = false
+	marker.CanQuery = false
+	marker.CFrame = CFrame.new(plan.From)
+	marker:SetAttribute(CONFIG.IdAttribute, id)
+	ProjectilePath.Write(marker, plan.Path, Workspace:GetServerTimeNow(), plan.Radius * 2)
+	marker.Parent = island.ProjectileFolder
 
 	local info: ProjectileInfo = {
 		Id = id,
-		Part = sphere,
-		VisualParts = visualParts,
+		Part = marker,
 		Owner = owner,
 		Plan = plan,
 		LaunchedAt = os.clock(),
-		NextSegment = 2,
 		Paid = false,
 	}
-	live[sphere] = info
+	live[marker] = info
 	byId[id] = info
 end
 
@@ -309,28 +236,8 @@ end
 function ProjectileService.MarkPaid(info: ProjectileInfo)
 	info.Paid = true
 	if live[info.Part] then
-		for _, part in info.VisualParts do
-			part.Transparency = math.max(part.Transparency, CONFIG.PaidTransparency)
-		end
-	end
-end
-
--- Keeps the part on its planned path: applies each bounce exactly, and stops it where the path ends.
-local function steer(info: ProjectileInfo, now: number)
-	local part = info.Part
-	local plan = info.Plan
-	local elapsed = now - info.LaunchedAt
-	local segment = plan.Segments[info.NextSegment]
-	if segment and elapsed >= segment.StartTime then
-		local position, velocity = ProjectileService.GetState(plan, elapsed)
-		part.CFrame = CFrame.new(position) * part.CFrame.Rotation
-		part.AssemblyLinearVelocity = velocity
-		info.NextSegment += 1
-	end
-	if elapsed >= plan.EndTime then
-		info.EndedAt = now
-		part.Anchored = true
-		part.CFrame = CFrame.new((ProjectileService.GetState(plan, plan.EndTime))) * part.CFrame.Rotation
+		-- Clients fade the projectile when they see this.
+		info.Part:SetAttribute(ProjectilePath.Attribute.Paid, true)
 	end
 end
 
@@ -346,19 +253,17 @@ function ProjectileService.Start()
 	RunService.Heartbeat:Connect(function()
 		local now = os.clock()
 		for part, info in live do
-			local endedAt = info.EndedAt
-			if not endedAt then
-				steer(info, now)
-			elseif now - endedAt >= CONFIG.DespawnDelay then
-				destroy(info)
-				continue
-			end
-			if now - info.LaunchedAt >= CONFIG.MaxLifetime or part.Parent == nil then
+			local age = now - info.LaunchedAt
+			if
+				age >= info.Plan.Path.EndTime + CONFIG.DespawnDelay
+				or age >= CONFIG.MaxLifetime
+				or part.Parent == nil
+			then
 				destroy(info)
 			end
 		end
 		for id, info in byId do
-			local endedAt = info.EndedAt or info.LaunchedAt
+			local endedAt = info.LaunchedAt + info.Plan.Path.EndTime
 			if not live[info.Part] and now - endedAt >= CONFIG.ReportGracePeriod then
 				byId[id] = nil
 			end

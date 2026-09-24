@@ -58,14 +58,12 @@ return {
 		BounceFriction = 0.7,
 		-- A projectile that bounces off the island edge is removed this far below the island surface.
 		FallDespawnDepth = 20,
-		-- Server cleanup delay after the path ends. Clients already hide the projectile the moment they see it land
-		-- for the last time, so this only has to outlast the network delay.
+		-- Server cleanup delay after the path ends. Clients already hide the projectile the moment its path ends,
+		-- so this only has to outlast the network delay.
 		DespawnDelay = 0.5,
 		-- The server keeps a projectile's path this long after it ended, so hit reports that arrive after the part is
 		-- gone (network delay) can still be validated.
 		ReportGracePeriod = 2,
-		-- Client: a ground contact is detected when the projectile's bottom comes this close to the island surface.
-		GroundTolerance = 1,
 		-- Safety net only; normal paths end much earlier.
 		MaxLifetime = 15,
 		MaxPerIsland = 60,
@@ -73,7 +71,7 @@ return {
 		MaxSpin = 10,
 		-- A projectile that already paid out keeps flying (it passes through the player) at this transparency.
 		PaidTransparency = 0.5,
-		-- Attribute set on each projectile part, read by the client.
+		-- Attribute set on each projectile marker, read by the client (the path itself: Util/ProjectilePath).
 		IdAttribute = "ProjectileId",
 	},
 
