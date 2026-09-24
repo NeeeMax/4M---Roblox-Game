@@ -57,7 +57,7 @@ server → client only and purely visual (`Controllers/ShibaController`):
   marks the rest pose they turn from.
 - `ThrowAt` (number, server clock `Workspace:GetServerTimeNow()`): when the projectile leaves the paw. The server sets
   it when the Shiba starts aiming and clears it when the throw is cancelled; clients swing the `ThrowArm` toward that
-  moment.
+  moment, and hide what is in the paw from then on for `Shooters.HandStickHideTime` (the server never changes it).
 `BonkHit` drives the client-only effects: popup, sound, knockback (the owning client moves its own character), head-hit
 bonus text and the combo counter (`combo` hits in a row; it ends if no hit follows within `comboWindow` seconds).
 

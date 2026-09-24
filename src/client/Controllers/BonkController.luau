@@ -3,6 +3,7 @@
 -- validates the report and decides about points (docs/decisions/0003). When the server confirms a hit, plays
 -- the bonk effects: "+X BONK" popup, sound, and knockback (the client simulates its own character).
 
+local ContentProvider = game:GetService("ContentProvider")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -93,9 +94,25 @@ local function showPopup(reward: number, quality: Economy.HitQualityDef, onHead:
 	end)
 end
 
+-- Plays a fresh copy of the bonk sound (Gameplay.Bonk.SoundId), so hits in quick succession overlap instead of
+-- restarting (or re-pitching) one playing sound. Parented to SoundService: heard only here, not positional.
 local function playSound(tier: number)
-	sound.PlaybackSpeed = 1 + BONK.PitchStepPerTier * (tier - 1)
-	SoundService:PlayLocalSound(sound)
+	if BONK.SoundId == "" then
+		return
+	end
+	local copy = sound:Clone()
+	copy.PlaybackSpeed = 1 + BONK.PitchStepPerTier * (tier - 1)
+	copy.Parent = SoundService
+	copy.Ended:Once(function()
+		copy:Destroy()
+	end)
+	copy:Play()
+	-- Safety net if Ended never fires (asset failed to load); the sound is about 1 s long.
+	task.delay(5, function()
+		if copy.Parent then
+			copy:Destroy()
+		end
+	end)
 end
 
 -- Stars bursting from the head, more for better hits.
@@ -214,12 +231,19 @@ local function knockback(direction: Vector3)
 	end
 	local attachment = Instance.new("Attachment")
 	attachment.Parent = root
+	local velocity = direction * KNOCKBACK.HorizontalSpeed + Vector3.yAxis * KNOCKBACK.UpSpeed
+	if velocity.Magnitude < 1e-3 then
+		attachment:Destroy()
+		return
+	end
+	-- Only along the push direction: movement across it stays free, so the nudge never stops the player's walk.
 	local push = Instance.new("LinearVelocity")
 	push.Attachment0 = attachment
 	push.RelativeTo = Enum.ActuatorRelativeTo.World
-	push.VelocityConstraintMode = Enum.VelocityConstraintMode.Vector
+	push.VelocityConstraintMode = Enum.VelocityConstraintMode.Line
+	push.LineDirection = velocity.Unit
+	push.LineVelocity = velocity.Magnitude
 	push.MaxForce = math.huge
-	push.VectorVelocity = direction * KNOCKBACK.HorizontalSpeed + Vector3.yAxis * KNOCKBACK.UpSpeed
 	push.Parent = root
 	task.delay(KNOCKBACK.Duration, function()
 		push:Destroy()
@@ -303,6 +327,16 @@ function BonkController.Init()
 	sound.Volume = BONK.SoundVolume * volumeScale
 	sound.Parent = SoundService
 	buildComboDisplay()
+	-- Load the (uploaded) sound up front, so the first bonk isn't silent while it downloads.
+	task.spawn(function()
+		ContentProvider:PreloadAsync({ sound })
+	end)
+end
+
+-- True if this client reported a hit on the projectile (a hand catch). MagnetController uses it to tell auto-catches
+-- (paid without a report) apart.
+function BonkController.WasReported(marker: BasePart): boolean
+	return reported[marker] == true
 end
 
 function BonkController.Start()

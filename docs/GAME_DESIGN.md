@@ -29,7 +29,7 @@ Casual Roblox players, roughly 8–14. Understandable in under 10 seconds withou
 | Player spawn | own island centre, facing the hub (hub spawn in front of the how-to board if no island) |
 | Shooter ring | Shibas on platforms at radius 56, evenly spaced, with the bridge side exactly between two of them. Each Shiba sits inside an invisible wall (cylinder around platform and Shiba) so players can't walk through it; it doesn't affect projectiles or hits |
 | Shiba platforms | per tier, built from parts (`Config/ShibaPlatforms`), the Shiba stands and throws from its top: Shiba wooden stump (1.4 studs), Shades black-and-gold podium (2), Buff gym weight plate (1.05), Chef kitchen counter with cutting board (2.9), Police blue-white striped pedestal with siren lights (1.8), Ninja dark stone with red trim (1.6), Gold coin stack (2), Galaxy purple space rock floating over a glowing ring (3.2), Giant cracked rock plateau (1.8, 21 studs wide), Cheems God golden temple column on a cloud (10). Tops are at least 0.2 studs above the island surface (equal heights flicker) |
-| Shooter look | per Shiba Tier (see Upgrades): `ReplicatedStorage/Assets/Shiba`, `ShadesShiba`, `BuffShiba`, `ChefShiba`, `PoliceShiba`, `NinjaShiba`, `GoldShiba`, `GalaxyShiba`, `GiantShiba`, `CheemsGod`, each scaled to its tier's height (Ninja 5.5 … Shiba 6 … Buff/Chef 7.5 … Cheems God 12, Giant 16 studs). From the Gold Shiba on, every tier gets a glow and particles, more special with each tier but kept moderate so they don't blow out the screen (`Config/ShibaEffects`: Gold glints; Galaxy stars and nebula haze, floats gently up and down, planet ring spinning around its head; Giant dust and embers; Cheems God holy glow, sparkles and light motes). Every Shiba holds the player's current projectile (Projectile Tier) in its paw. A missing model falls back to the next lower tier's model with an outline in the tier colour, then `Shooter`, then a red block with barrel |
+| Shooter look | per Shiba Tier (see Upgrades): `ReplicatedStorage/Assets/Shiba`, `ShadesShiba`, `BuffShiba`, `ChefShiba`, `PoliceShiba`, `NinjaShiba`, `GoldShiba`, `GalaxyShiba`, `GiantShiba`, `CheemsGod`, each scaled to its tier's height (Ninja 5.5 … Shiba 6 … Buff/Chef 7.5 … Cheems God 12, Giant 16 studs). From the Gold Shiba on, every tier gets a glow and particles, more special with each tier but kept moderate so they don't blow out the screen (`Config/ShibaEffects`: Gold glints; Galaxy stars and nebula haze, floats gently up and down, planet ring spinning around its head; Giant dust and embers; Cheems God holy glow, sparkles and light motes). Every Shiba holds the player's current projectile (Projectile Tier) in its paw (its `Grip` marker on the paw, long side along the paw's stick; it swings with the throwing arm and is gone from the paw for 0.4 s after each release). A missing model falls back to the next lower tier's model with an outline in the tier colour, then `Shooter`, then a red block with barrel |
 | Looks | warm lighting with atmosphere, bloom and sun rays; real terrain water far below (surface Y = 40); clouds and small floating islands in the distance; rocky cones under every island |
 | Props | everything that should become a 3D model is a `PropService` prop: `ReplicatedStorage/Assets/<name>` if it exists, else a part-built placeholder. In Studio placeholders get a pink box and a "MODEL: <name>" label (list in `assets/README.md`) |
 | Fall-off | below Y = 50 → back to own island (or hub), no penalty |
@@ -67,7 +67,7 @@ Projectile tiers (upgrade `ProjectileTier`): **Stick** (BaseReward 10) → **New
 - **Pickup padding (+2 studs):** projectiles are easier to collect than their model size suggests. The client counts a touch when the character overlaps a sphere of `projectile radius + 2` studs (`Gameplay.Hits.PickupPadding`) around the projectile (a Bonk Stick: 3.5 studs instead of 1.5); the server adds the same padding before its tolerances, so both sides agree. The models are not bigger. Anti-farm stays safe: the padded reach of a standing character (≈ radius + 2 + ~2 studs of body) is below the anti-farm distance of radius + 6.
 - **Each projectile pays out at most once.**
 - **Hit immunity:** 0.5 s after a hit (checked on client and server). Projectiles touching the player during immunity are ignored (they can still hit afterwards).
-- **Knockback:** 0.25 s, 16 studs/s horizontally in the projectile's flight direction + 12 studs/s up (≈ 4 studs, a small hop). No ragdoll in MVP.
+- **Knockback:** only a small nudge: 0.12 s at 6 studs/s horizontally in the projectile's flight direction + 4 studs/s up (under a stud, a tiny hop; `Gameplay.Knockback`). It only pushes along that direction, so the player keeps walking. Auto-catches have no direction, only the tiny hop. No ragdoll in MVP.
 
 ### Reward
 
@@ -108,7 +108,7 @@ The player velocity is clamped before use: horizontal ≤ current WalkSpeed, ver
 ## Feedback (client)
 
 - Popup above the character: `+X BONK` for 1.0 s; for Good and above prefixed with the quality, e.g. `HARD BONK! +50`.
-- One bonk sound; pitch 1.0 + 0.1 per quality tier above Normal.
+- One bonk sound (a custom cartoon "bonk", ≈ 0.9 s, `Gameplay.Bonk.SoundId`); pitch 1.0 + 0.05 per quality tier above Normal. Every hit plays its own copy, so quick hits overlap.
 - Head hits say `HEADBONK!` instead of `BONK`.
 - Stars burst from the head in the quality colour (6 + 6 per tier above Normal); from Hard on the camera shakes briefly.
 
@@ -301,7 +301,7 @@ Roblox ids live in `Config/Shop` (0 = not created yet: free test purchase in Stu
 | Manage | 199 | manage all income sources from one place: the upgrade menu opens anywhere | HudController |
 | Run Faster | 99 | walk speed x1 → x1.5 | UpgradeService |
 | Stack Upgrade | 149 | buy several upgrade levels at once (x1 → x10) | UpgradeService |
-| Auto-Catch | 249 | every 0.25 s, sticks whose current position is within 10 studs of the character are collected as a Normal bonk (no head bonus, combo counts); only while they could be caught by hand | AutoCatchService |
+| Auto-Catch | 249 | every 0.25 s, sticks whose current position is within 10 studs of the character are collected as a Normal bonk (no head bonus, combo counts); only while they could be caught by hand. Look (client only): a small red/silver magnet circles the owner; each auto-caught stick is pulled into the player with a beam and a trail, sparkles pop and the magnet wiggles | AutoCatchService, MagnetController |
 
 Trophies stand on your island for everyone to see: Wooden 5K, Bronze 50K, Silver 500K, Golden 5M, Galaxy 100M Bonk
 Points (long-term goals), plus exclusive ones (Starter, 7-Day Streak, VIP, Diamond, Rainbow).
