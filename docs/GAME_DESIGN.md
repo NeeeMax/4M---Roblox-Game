@@ -52,13 +52,14 @@ MVP has one projectile type: **Ball**.
 
 **Size vs speed:** projectile diameter = `2 × sizeScale`, launch speed = `45 × speedScale × sizeScale^-0.5`. Bigger projectiles are easier to hit but fly slower and therefore pay a lower speed multiplier.
 
-**Lifetime / cleanup:** a projectile is spent on its first contact with anything (ground, player, other). Spent projectiles never pay. Destroyed 1.5 s after first contact, or 8 s after launch at the latest. Max 60 live projectiles per island; the oldest is destroyed first. All projectiles of a player are destroyed when they leave.
+**Lifetime / cleanup:** a projectile's flight ends at its first contact with anything (ground or other); only the flight counts for hits. Destroyed 1.5 s after first contact, or 8 s after launch at the latest. Max 60 live projectiles per island; the oldest is destroyed first. All projectiles of a player are destroyed when they leave.
 
-## Hits (server only)
+## Hits (server decides)
 
-- Hit detection and rewards happen **only on the server**. Every Heartbeat, each live projectile checks for overlap (`GetPartBoundsInRadius`, radius = projectile radius) with the owner's character only.
+- The owner's client detects the touch (what the player sees on screen) and reports the projectile id. See `docs/decisions/0003-client-reports-hits-server-validates.md`.
+- The **server alone decides** and awards points. A report counts only if: the projectile belongs to the player, hasn't paid yet, the player is alive and not immune, and the projectile's flight path (launch until first contact) passed within `projectile radius + 6` studs of the character's root on the server. Max 10 reports/s.
 - **Each projectile pays out at most once.**
-- **Hit immunity:** 0.5 s after a hit. Projectiles touching the player during immunity are ignored (not spent).
+- **Hit immunity:** 0.5 s after a hit (checked on client and server). Projectiles touching the player during immunity are ignored (they can still hit afterwards).
 - **Knockback:** 0.4 s, 40 studs/s horizontally in the projectile's flight direction + 30 studs/s up. No ragdoll in MVP.
 
 ### Reward
@@ -72,7 +73,7 @@ SpeedMult = launch speed / 45           (includes the size slowdown, excludes th
 
 ### Hit quality — one rule
 
-`r = |projectile velocity − player velocity| / projectile launch speed`, measured at the moment of the hit.
+`r = |projectile velocity − player velocity| / projectile launch speed`, measured at the moment of the hit (projectile velocity from its flight path at the closest point, player velocity from the server's view of the character).
 
 The player velocity is clamped before use: horizontal ≤ current WalkSpeed, vertical ≤ 50 (jump velocity), so knockback or a spoofed client velocity can't inflate it.
 
