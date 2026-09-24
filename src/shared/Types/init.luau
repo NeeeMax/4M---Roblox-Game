@@ -30,6 +30,43 @@ export type PlaytimeState = {
 	Claimed: { boolean },
 }
 
+-- Offline income (Shiba Bank, Config/Economy → OfflineBank): while away, the Shibas keep earning a share of the
+-- player's recent income. `Pending` waits for the player to claim it in the "Welcome back" popup.
+export type BankState = {
+	-- Unix time the player was last online (saved on leave / autosave).
+	LastSeenAt: number,
+	-- Bonk Points per minute earned by playing, averaged recently; the offline rate is a share of it.
+	IncomePerMinute: number,
+	-- Offline earnings not claimed yet.
+	Pending: number,
+	-- Seconds offline that produced `Pending`.
+	PendingSeconds: number,
+}
+
+-- Jump and run on the hub (Config/Obby).
+export type ObbyState = {
+	-- Unix time of the last rewarded finish (reward cooldown).
+	LastRewardAt: number,
+	-- Best finishing time in seconds (0 = never finished).
+	BestTime: number,
+}
+
+-- Shiba-Index (Config/Index): collection book of Shiba tiers, projectile tiers, trophies …
+export type IndexState = {
+	-- Entry id → discovered.
+	Seen: { [string]: boolean },
+	-- Entry id → discovery reward claimed.
+	Claimed: { [string]: boolean },
+}
+
+-- Settings menu (client look and sound only; saved so they survive rejoins).
+export type SettingsState = {
+	Music: number,
+	Effects: number,
+	-- Show "NEW" hints and "you can afford …" popups.
+	Hints: boolean,
+}
+
 -- Everything saved per player. Created by DataService and sent to the owning client as a copy (StateChanged).
 export type PlayerState = {
 	BonkPoints: number,
@@ -57,6 +94,10 @@ export type PlayerState = {
 	Passes: { [string]: boolean },
 	-- Recently granted Robux purchase ids, so a receipt Roblox sends twice is only granted once.
 	Receipts: { string },
+	Bank: BankState,
+	Obby: ObbyState,
+	Index: IndexState,
+	Settings: SettingsState,
 }
 
 return {}
