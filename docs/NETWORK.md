@@ -23,7 +23,7 @@ Every RemoteEvent and RemoteFunction is listed here. A PR that adds or changes a
 
 Remotes live in `ReplicatedStorage/Remotes`, created by `Net.CreateRemotes()` from `Main.server.luau`. Get one with `Net.Get(Net.BonkHit)`.
 `StateChanged` is sent after the player's data loads and after every change to points, levels or active shooters.
-Projectiles carry the attributes `ProjectileId` (number) and `Landed` (true after first contact) so the client can report hits.
+Projectiles carry the attribute `ProjectileId` (number) so the client can report hits.
 `BonkHit` drives the client-only effects: popup, sound and knockback (the owning client moves its own character).
 
 Direction: `C→S` client to server, `S→C` server to client, `S→All` broadcast.

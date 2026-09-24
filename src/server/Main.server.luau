@@ -4,12 +4,15 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Build = require(ReplicatedStorage.Shared.Config.Build)
 local Net = require(ReplicatedStorage.Shared.Net)
 
 type Module = {
 	Init: (() -> ())?,
 	Start: (() -> ())?,
 }
+
+print(`[4M] Server code version: {Build.Label}`)
 
 -- Before any service is required: services fetch their remotes at load time.
 Net.CreateRemotes()

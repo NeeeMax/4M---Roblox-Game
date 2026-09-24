@@ -26,41 +26,45 @@ Casual Roblox players, roughly 8–14. Understandable in under 10 seconds withou
 | Target area | disc radius 28 (2-stud margin to the edge) |
 | Player spawn | island centre |
 | Shooter ring | shooters stand on small platforms at radius 60 from the centre, at island surface height, evenly spaced (360°/n), first one at north |
+| Shooter look | the Shiba model `ReplicatedStorage/Assets/Shooter` (6 studs tall), fallback: red block with barrel |
 | Fall-off | below Y = 50 → respawn at island centre, no penalty |
 
-Players never affect each other: projectiles only exist for their owner's island, only the owner's character can be hit, and projectiles do not physically collide with any character (collision group) — knockback comes from the hit code only.
+Players never affect each other: projectiles only exist for their owner's island, only the owner's character can be hit, and projectiles never physically collide with anything — the server moves them along their planned path, knockback comes from the hit code only.
 
 ## NPC shooters
 
 - Shooters **never aim at the player**. Each shot picks a random target point, uniformly distributed in the target area.
-- **Anti-farm rule:** the target point must be at least `projectile radius + 8` studs away from the player's position at fire time; otherwise pick again (max 10 tries, then skip the shot). Standing still therefore earns 0 points.
+- **Anti-farm rule:** the projectile's whole path (flight and both bounces) must stay at least `projectile radius + 6` studs away from the player's position at fire time; otherwise pick again (max 30 tries, then skip the turn). Standing still therefore earns 0 points.
 - **Spread:** the random target point is the spread; additionally the launch speed varies ±10 % per shot.
 - **Telegraph:** the shooter turns toward its target 0.5 s before firing.
-- Fire interval: 5.0 s at level 0 (see upgrades). Each shooter has its own timer, offset randomly by 0–1 s so shots don't sync.
+- Fire interval: 5.0 s per shooter at level 0 (see upgrades). **Shooters take turns:** with n shooters one of them fires every `interval / n` seconds, never two at once.
+- A shooter model may contain a part named `Stick` (hidden for 0.4 s after each throw) and an Attachment `Muzzle` (where the throw starts).
 
 ## Projectiles
 
-MVP has one projectile type: **Ball**.
+MVP has one projectile type: the **Bonk Stick** (model `ReplicatedStorage/Assets/Stick`, fallback: brown sphere). Hits use an invisible sphere of the projectile's diameter; the model is scaled so its longest side equals that diameter and spins in flight.
 
-| Field | Ball |
+| Field | Bonk Stick |
 |-------|------|
-| Diameter | 2 studs |
+| Diameter | 3 studs |
 | Base launch speed | 36 studs/s |
 | BaseReward | 10 Bonk Points |
 
 **Flight (visible arc):** launched at a fixed 45° angle toward the target point. Per projectile, gravity is set (with a `VectorForce`) to `g = v² / d` (v = launch speed, d = horizontal distance) so it lands exactly on the target. Every shot has the same readable arc shape (apex = d / 4); higher speed only shortens the flight time. At base speed a 60-stud shot flies 2.4 s.
 
-**Size vs speed:** projectile diameter = `2 × sizeScale`, launch speed = `36 × sizeScale^-0.5`. Bigger projectiles are easier to hit but fly slower and therefore pay a lower speed multiplier.
+**Size vs speed:** projectile diameter = `3 × sizeScale`, launch speed = `36 × sizeScale^-0.5`. Bigger projectiles are easier to hit but fly slower and therefore pay a lower speed multiplier.
 
-**Lifetime / cleanup:** a projectile's flight ends at its first contact with anything (ground or other); only the flight counts for hits. It disappears the moment it touches the ground: each client hides it as soon as it sees it reach the island surface (the client shows server objects slightly delayed, so a server-side delete would make balls vanish just before they land). The server destroys it 0.5 s after first contact, or 8 s after launch at the latest. Max 60 live projectiles per island; the oldest is destroyed first. All projectiles of a player are destroyed when they leave.
+**Bounces:** after landing it bounces **twice**: each bounce keeps 50 % of the vertical and 70 % of the horizontal speed (at base speed: first bounce ≈ 3.7 studs high, second ≈ 1 stud). The whole path is computed when the shot is planned; the server steers the projectile along it. A bounce that leaves the island makes it fall off the edge.
+
+**Lifetime / cleanup:** it disappears the moment it touches the ground after the second bounce (or drops below the island): each client hides it as soon as it sees that happen (the client shows server objects slightly delayed, so a server-side delete would make it vanish too early). The server destroys it 0.5 s after the path ends, 15 s after launch at the latest, and keeps the path 2 s longer to validate late hit reports. Max 60 live projectiles per island; the oldest is destroyed first. All projectiles of a player are destroyed when they leave.
 
 ## Hits (server decides)
 
 - The owner's client detects the touch (what the player sees on screen) and reports the projectile id. See `docs/decisions/0003-client-reports-hits-server-validates.md`.
-- The **server alone decides** and awards points. A report counts only if: the projectile belongs to the player, hasn't paid yet, the player is alive and not immune, and the projectile's flight path (launch until first contact) passed within `projectile radius + 6` studs of the character's root on the server. Max 10 reports/s.
+- The **server alone decides** and awards points. A report counts only if: the projectile belongs to the player, hasn't paid yet, the player is alive and not immune, and the projectile's path so far (flight and bounces) passed within `projectile radius + 6` studs of the character's root on the server. Max 10 reports/s.
 - **Each projectile pays out at most once.**
 - **Hit immunity:** 0.5 s after a hit (checked on client and server). Projectiles touching the player during immunity are ignored (they can still hit afterwards).
-- **Knockback:** 0.4 s, 40 studs/s horizontally in the projectile's flight direction + 30 studs/s up. No ragdoll in MVP.
+- **Knockback:** 0.25 s, 16 studs/s horizontally in the projectile's flight direction + 12 studs/s up (≈ 4 studs, a small hop). No ragdoll in MVP.
 
 ### Reward
 
