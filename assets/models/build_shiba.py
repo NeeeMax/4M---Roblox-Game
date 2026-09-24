@@ -80,7 +80,7 @@ else:
     common=dict(axis_forward='Z', axis_up='Y', use_selection=True, object_types={'MESH'},
                 colors_type='SRGB', apply_scale_options='FBX_SCALE_ALL', mesh_smooth_type='FACE', add_leaf_bones=False)
     bpy.ops.object.select_all(action='DESELECT'); body.select_set(True); stick.select_set(True)
-    bpy.ops.export_scene.fbx(filepath=os.path.join(OUT,"Shooter.fbx"), **common)
+    bpy.ops.export_scene.fbx(filepath=os.path.join(OUT,"Shiba.fbx"), **common)
     stick.name="HandStick"; loose.name="Stick"; loose.data.name="Stick"
     bpy.data.collections['Collection'].objects.link(loose)
     loose.matrix_world = Matrix.Rotation(math.radians(-90),4,'X') @ src.matrix_world

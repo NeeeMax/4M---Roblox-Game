@@ -1,19 +1,24 @@
 --!strict
 -- Upgrade levels, server-validated purchases, the active-shooter count, and applying MoveSpeed to the character.
--- Other services read upgrade effects through GetValue / GetActiveShooters.
+-- Other services read upgrade effects through GetValue / GetLevel / GetFireInterval / GetActiveShooters.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Economy = require(ReplicatedStorage.Shared.Config.Economy)
+local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local Net = require(ReplicatedStorage.Shared.Net)
 local RateLimiter = require(ReplicatedStorage.Shared.Util.RateLimiter)
 local Types = require(ReplicatedStorage.Shared.Types)
 local Upgrades = require(ReplicatedStorage.Shared.Config.Upgrades)
 
+local BoostService = require(script.Parent.BoostService)
 local DataService = require(script.Parent.DataService)
 local EconomyService = require(script.Parent.EconomyService)
+local NotifyService = require(script.Parent.NotifyService)
+local QuestService = require(script.Parent.QuestService)
+local RewardService = require(script.Parent.RewardService)
 
 local purchaseLimiter = RateLimiter.New(Economy.MaxRequestsPerSecond, 1)
 local shooterLimiter = RateLimiter.New(Economy.MaxRequestsPerSecond, 1)
@@ -25,12 +30,13 @@ function UpgradeService.IsReady(player: Player): boolean
 	return DataService.GetState(player) ~= nil
 end
 
-function UpgradeService.GetLevel(player: Player, id: Types.UpgradeId): number
+-- `id` is an UpgradeId (a plain string is accepted because level tables are keyed by string).
+function UpgradeService.GetLevel(player: Player, id: string): number
 	local state = DataService.GetState(player)
 	return if state then state.UpgradeLevels[id] or 0 else 0
 end
 
--- The upgrade's effect at the player's current level (e.g. WalkSpeed, speed scale, fire interval).
+-- The upgrade's effect at the player's current level (e.g. WalkSpeed, owned shooters, tier index).
 function UpgradeService.GetValue(player: Player, id: Types.UpgradeId): number
 	return Upgrades.GetValue(id, UpgradeService.GetLevel(player, id))
 end
@@ -38,6 +44,11 @@ end
 function UpgradeService.GetActiveShooters(player: Player): number
 	local state = DataService.GetState(player)
 	return if state then state.ActiveShooters else Upgrades.GetValue("Shooters", 0)
+end
+
+-- Seconds between two throws of one Shiba: set by the Shiba tier, halved by the fire-rate boost.
+function UpgradeService.GetFireInterval(player: Player): number
+	return RewardService.GetShooterTier(player).FireInterval / BoostService.GetMultiplier(player, "FireRate")
 end
 
 local function applyMovement(player: Player)
@@ -50,6 +61,23 @@ local function applyMovement(player: Player)
 	-- Hit quality assumes this jump speed (Gameplay.Hits.MaxVerticalPlayerSpeed).
 	humanoid.UseJumpPower = true
 	humanoid.JumpPower = Gameplay.Character.JumpPower
+end
+
+-- Sets a level directly (admin testing tool), clamped to 0..MaxLevel.
+function UpgradeService.SetLevel(player: Player, id: string, level: number)
+	local state = DataService.GetState(player)
+	local def = Upgrades.Defs[id]
+	if not state or not def then
+		return
+	end
+	state.UpgradeLevels[id] = math.clamp(math.floor(level), 0, Upgrades.GetMaxLevel(id, state.Passes))
+	local owned = Upgrades.GetValue("Shooters", state.UpgradeLevels.Shooters or 0)
+	if id == "Shooters" then
+		state.ActiveShooters = owned
+	end
+	state.ActiveShooters = math.clamp(state.ActiveShooters, 1, owned)
+	applyMovement(player)
+	DataService.Replicate(player)
 end
 
 local function onRequestPurchase(player: Player, upgradeId: unknown)
@@ -65,10 +93,12 @@ local function onRequestPurchase(player: Player, upgradeId: unknown)
 		return
 	end
 	local level = state.UpgradeLevels[def.Id] or 0
-	if level >= def.MaxLevel then
+	if level >= Upgrades.GetMaxLevel(def.Id, state.Passes) then
 		return
 	end
-	if not EconomyService.TrySpend(player, Upgrades.GetCost(def.Id, level)) then
+	local cost = Upgrades.GetCost(def.Id, level)
+	if not EconomyService.TrySpend(player, cost) then
+		NotifyService.Send(player, `You need {Format.Number(cost - state.BonkPoints)} more Bonk Points`, "Bad")
 		return
 	end
 
@@ -80,6 +110,8 @@ local function onRequestPurchase(player: Player, upgradeId: unknown)
 		applyMovement(player)
 	end
 	DataService.Replicate(player)
+	NotifyService.Send(player, `{def.DisplayName}: {Upgrades.FormatValue(def.Id, level + 1)}!`, "Good")
+	QuestService.Record(player, "Upgrade", 1)
 end
 
 local function onSetActiveShooters(player: Player, count: unknown)
@@ -123,7 +155,7 @@ function UpgradeService.Start()
 		RateLimiter.Remove(shooterLimiter, player)
 	end)
 
-	-- Levels are 0 until the data is loaded; apply the real MoveSpeed once it is.
+	-- Levels are 0 until the data is loaded; apply the real MoveSpeed once it is (and after an admin reset).
 	DataService.OnLoaded(applyMovement)
 end
 
