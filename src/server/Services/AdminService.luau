@@ -14,6 +14,8 @@ local Upgrades = require(ReplicatedStorage.Shared.Config.Upgrades)
 
 local BoostService = require(script.Parent.BoostService)
 local DailySpinService = require(script.Parent.DailySpinService)
+local EventService = require(script.Parent.EventService)
+local OfflineService = require(script.Parent.OfflineService)
 local DataService = require(script.Parent.DataService)
 local EconomyService = require(script.Parent.EconomyService)
 local IslandService = require(script.Parent.IslandService)
@@ -117,6 +119,17 @@ local HANDLERS: { [string]: Handler } = {
 	end,
 	ResetGifts = function(player)
 		StreakService.Reset(player)
+	end,
+	StartEvent = function(_player, argument)
+		if typeof(argument) == "string" then
+			EventService.StartNow(argument)
+		end
+	end,
+	StopEvent = function()
+		EventService.StopNow()
+	end,
+	SimulateOffline = function(player)
+		OfflineService.SimulateAway(player, 3600)
 	end,
 	AllTrophies = function(player)
 		local state = DataService.GetState(player)

@@ -30,6 +30,7 @@ local store: DataStore? = nil
 local sessions: { [Player]: Session } = {}
 local loadedCallbacks: { (Player, PlayerState) -> () } = {}
 local replicatedCallbacks: { (Player) -> () } = {}
+local savingCallbacks: { (Player, PlayerState) -> () } = {}
 
 local DataService = {}
 
@@ -55,6 +56,10 @@ local function defaultState(): PlayerState
 		StarterPackBought = false,
 		Passes = {},
 		Receipts = {},
+		Bank = { LastSeenAt = 0, IncomePerMinute = 0, Pending = 0, PendingSeconds = 0 },
+		Obby = { LastRewardAt = 0, BestTime = 0 },
+		Index = { Seen = {}, Claimed = {} },
+		Settings = { Music = 0.5, Effects = 1, Hints = true },
 	}
 end
 
@@ -137,6 +142,47 @@ local function stateFromSaved(saved: unknown): PlayerState
 			end
 		end
 	end
+	local bank = data.Bank
+	if typeof(bank) == "table" then
+		state.Bank = {
+			LastSeenAt = if isNumber(bank.LastSeenAt) then bank.LastSeenAt else 0,
+			IncomePerMinute = if isNumber(bank.IncomePerMinute) then math.max(0, bank.IncomePerMinute) else 0,
+			Pending = if isNumber(bank.Pending) then math.max(0, math.floor(bank.Pending)) else 0,
+			PendingSeconds = if isNumber(bank.PendingSeconds) then math.max(0, bank.PendingSeconds) else 0,
+		}
+	end
+	local obby = data.Obby
+	if typeof(obby) == "table" then
+		state.Obby = {
+			LastRewardAt = if isNumber(obby.LastRewardAt) then obby.LastRewardAt else 0,
+			BestTime = if isNumber(obby.BestTime) then math.max(0, obby.BestTime) else 0,
+		}
+	end
+	local savedIndex = data.Index
+	if typeof(savedIndex) == "table" then
+		if typeof(savedIndex.Seen) == "table" then
+			for id, value in savedIndex.Seen do
+				if typeof(id) == "string" and value == true then
+					state.Index.Seen[id] = true
+				end
+			end
+		end
+		if typeof(savedIndex.Claimed) == "table" then
+			for id, value in savedIndex.Claimed do
+				if typeof(id) == "string" and value == true then
+					state.Index.Claimed[id] = true
+				end
+			end
+		end
+	end
+	local settings = data.Settings
+	if typeof(settings) == "table" then
+		state.Settings = {
+			Music = if isNumber(settings.Music) then math.clamp(settings.Music, 0, 1) else 0.5,
+			Effects = if isNumber(settings.Effects) then math.clamp(settings.Effects, 0, 1) else 1,
+			Hints = settings.Hints ~= false,
+		}
+	end
 	if typeof(data.Receipts) == "table" then
 		for _, receipt in data.Receipts do
 			if typeof(receipt) == "string" then
@@ -211,6 +257,9 @@ local function save(player: Player, session: Session)
 	local currentStore = store
 	if not session.CanSave or not currentStore then
 		return
+	end
+	for _, callback in savingCallbacks do
+		callback(player, session.State)
 	end
 	local data = deepCopy(session.State) :: any
 	data.Version = SAVE_VERSION
@@ -287,6 +336,12 @@ end
 -- Runs `callback` after every state change of any player (e.g. to update the player list).
 function DataService.OnReplicated(callback: (Player) -> ())
 	table.insert(replicatedCallbacks, callback)
+end
+
+-- Runs `callback` right before every save of a player (leave, autosave, shutdown, SaveNow), so it can stamp fields
+-- such as Bank.LastSeenAt. It must not yield.
+function DataService.OnSaving(callback: (Player, PlayerState) -> ())
+	table.insert(savingCallbacks, callback)
 end
 
 -- Saves right away (after Robux purchases), in the background.

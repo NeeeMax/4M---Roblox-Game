@@ -2,6 +2,8 @@
 -- The upgrade menu: one card per upgrade (Config/Upgrades) with its level progress, what the next level gives,
 -- and a buy button. The "More Shibas" card also sets how many of your Shibas are active. Purchases are validated
 -- on the server; this only shows the state the server sent.
+-- Opening it anywhere needs the Manage pass (the HUD clipboard button); without it the shop opens on the pass
+-- instead. Upgrades are normally bought at the stands on the island.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -11,6 +13,7 @@ local Net = require(ReplicatedStorage.Shared.Net)
 local Projectiles = require(ReplicatedStorage.Shared.Config.Projectiles)
 local Upgrades = require(ReplicatedStorage.Shared.Config.Upgrades)
 
+local ShopController = require(script.Parent.ShopController)
 local State = require(script.Parent.Parent.UI.State)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
@@ -202,7 +205,7 @@ local function refresh()
 				`<font color="#{currentColor}">{current}</font>  →  <font color="#{nextColor}">{nextText}</font>`
 			card.Detail.Text = `Next: {describe(id, level + 1)}`
 			local cost = Upgrades.GetCost(id, level)
-			card.Button.Text = Format.Number(cost)
+			card.Button.Text = Format.Short(cost)
 			card.CanBuy = state.BonkPoints >= cost
 			Widgets.SetButtonColor(card.Button, if card.CanBuy then Theme.Good else Theme.Disabled)
 		end
@@ -216,13 +219,43 @@ local function refresh()
 	end
 end
 
+-- The shop on its POWERS tab (Manage and other time savers). ShopController.OpenTab is added by the shop
+-- feature; until it exists the shop opens on its first tab.
+function UpgradeController.OpenPowers()
+	-- Cast: OpenTab is optional (not in every version of ShopController), so its key may be missing from the type.
+	local shop = ShopController :: any
+	if shop.OpenTab then
+		shop.OpenTab("POWERS")
+	else
+		Widgets.Open("Shop")
+	end
+end
+
+-- The HUD clipboard button: the upgrade menu with the Manage pass, else the shop to buy it.
+function UpgradeController.OpenManage()
+	local state = State.Get()
+	if state and state.Passes.Manage then
+		Widgets.Open("Upgrades")
+	else
+		UpgradeController.OpenPowers()
+	end
+end
+
 function UpgradeController.Init()
-	local panel = Widgets.Panel("Upgrades", "UPGRADES", Vector2.new(640, 600), Color3.fromRGB(255, 150, 30))
+	local panel = Widgets.Panel("Upgrades", "MANAGE", Vector2.new(640, 600), Color3.fromRGB(255, 190, 60))
 	local list = Widgets.List(panel.Content, 10)
 	for index, id in Upgrades.Order do
 		buildCard(list, id, index)
 	end
-	panel.OnOpen = refresh
+	panel.OnOpen = function()
+		local state = State.Get()
+		if not (state and state.Passes.Manage) then
+			-- Locked: show where to get the pass instead.
+			UpgradeController.OpenPowers()
+			return
+		end
+		refresh()
+	end
 end
 
 function UpgradeController.Start()

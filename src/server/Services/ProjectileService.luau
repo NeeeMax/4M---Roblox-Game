@@ -11,12 +11,15 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
+local Events = require(ReplicatedStorage.Shared.Config.Events)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local ProjectilePath = require(ReplicatedStorage.Shared.Util.ProjectilePath)
 local Projectiles = require(ReplicatedStorage.Shared.Config.Projectiles)
 local Shop = require(ReplicatedStorage.Shared.Config.Shop)
 
+local EventService = require(script.Parent.EventService)
 local IslandService = require(script.Parent.IslandService)
+local NotifyService = require(script.Parent.NotifyService)
 local RewardService = require(script.Parent.RewardService)
 local UpgradeService = require(script.Parent.UpgradeService)
 
@@ -35,6 +38,8 @@ export type ShotPlan = {
 	Path: ProjectilePath.Path,
 	-- Golden projectiles glow and pay Gameplay.Projectiles.GoldenMultiplier times as much.
 	Golden: boolean,
+	-- MegaStick server event: the giant stick (Events.MegaStick.DiameterScale × diameter, pays RewardMultiplier ×).
+	Mega: boolean,
 }
 
 export type ProjectileInfo = {
@@ -97,6 +102,9 @@ end
 
 -- Rolls whether the next projectile of `owner` is golden (Lucky Sticks pass: more often).
 local function rollGolden(owner: Player): boolean
+	if EventService.IsActive("GoldenMinute") then
+		return true
+	end
 	local chance = if RewardService.HasPass(owner, "LuckySticks")
 		then Shop.Pass.LuckyGoldenChance
 		else CONFIG.GoldenChance
@@ -111,7 +119,9 @@ function ProjectileService.Plan(owner: Player, from: Vector3, target: Vector3): 
 		return nil
 	end
 	local def = ProjectileService.GetDef(owner)
-	local radius = def.Diameter / 2
+	-- MegaStick event: the player's next shot is the giant stick (taken for good when it is fired).
+	local mega = EventService.HasMegaPending(owner)
+	local radius = def.Diameter / 2 * (if mega then Events.MegaStick.DiameterScale else 1)
 	local nominalSpeed = def.BaseSpeed
 	local speed = nominalSpeed * (1 + random:NextNumber(-CONFIG.SpeedJitter, CONFIG.SpeedJitter))
 
@@ -131,6 +141,7 @@ function ProjectileService.Plan(owner: Player, from: Vector3, target: Vector3): 
 		Speed = speed,
 		Path = ProjectilePath.Build(island.Center, radius, from, velocity, gravity),
 		Golden = rollGolden(owner),
+		Mega = mega,
 	}
 end
 
@@ -156,6 +167,7 @@ function ProjectileService.PlanDrop(owner: Player, target: Vector3, height: numb
 		Speed = gravity * fallTime,
 		Path = ProjectilePath.Build(island.Center, radius, from, velocity, gravity),
 		Golden = rollGolden(owner),
+		Mega = false,
 	}
 end
 
@@ -202,6 +214,10 @@ function ProjectileService.Fire(owner: Player, plan: ShotPlan)
 	if not island then
 		return
 	end
+	-- Only one giant stick per player and event: a second mega plan (two Shibas aimed at once) is dropped.
+	if plan.Mega and not EventService.TakeMega(owner) then
+		return
+	end
 	makeRoom(owner)
 
 	local id = nextId
@@ -219,6 +235,10 @@ function ProjectileService.Fire(owner: Player, plan: ShotPlan)
 	marker.CFrame = CFrame.new(plan.From)
 	marker:SetAttribute(CONFIG.IdAttribute, id)
 	marker:SetAttribute(CONFIG.GoldenAttribute, plan.Golden)
+	if plan.Mega then
+		marker:SetAttribute(Events.MegaStick.Attribute, true)
+		NotifyService.Send(owner, `MEGA STICK incoming! Catch it for x{Events.MegaStick.RewardMultiplier}!`, "Good")
+	end
 	ProjectilePath.Write(marker, plan.Path, Workspace:GetServerTimeNow(), plan.Radius * 2)
 	marker.Parent = island.ProjectileFolder
 

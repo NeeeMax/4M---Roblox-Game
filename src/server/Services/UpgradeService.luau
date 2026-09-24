@@ -20,6 +20,9 @@ local NotifyService = require(script.Parent.NotifyService)
 local QuestService = require(script.Parent.QuestService)
 local RewardService = require(script.Parent.RewardService)
 
+-- The Run Faster game pass (Config/Shop): WalkSpeed ×1.5.
+local RUN_FASTER_MULTIPLIER = 1.5
+
 local purchaseLimiter = RateLimiter.New(Economy.MaxRequestsPerSecond, 1)
 local shooterLimiter = RateLimiter.New(Economy.MaxRequestsPerSecond, 1)
 
@@ -57,7 +60,9 @@ local function applyMovement(player: Player)
 	if not humanoid then
 		return
 	end
-	humanoid.WalkSpeed = UpgradeService.GetValue(player, "MoveSpeed")
+	local state = DataService.GetState(player)
+	local passMultiplier = if state and state.Passes.RunFaster then RUN_FASTER_MULTIPLIER else 1
+	humanoid.WalkSpeed = UpgradeService.GetValue(player, "MoveSpeed") * passMultiplier
 	-- Hit quality assumes this jump speed (Gameplay.Hits.MaxVerticalPlayerSpeed).
 	humanoid.UseJumpPower = true
 	humanoid.JumpPower = Gameplay.Character.JumpPower
@@ -80,38 +85,70 @@ function UpgradeService.SetLevel(player: Player, id: string, level: number)
 	DataService.Replicate(player)
 end
 
-local function onRequestPurchase(player: Player, upgradeId: unknown)
-	if not RateLimiter.Allow(purchaseLimiter, player) then
-		return
-	end
-	if typeof(upgradeId) ~= "string" then
-		return
-	end
-	local def = Upgrades.Defs[upgradeId]
+-- Buys up to `count` levels of upgrade `id`, one after another, while the player can afford them and the upgrade
+-- is below its max level. Tells the player what happened. Returns how many levels were bought (0 = none).
+-- Used by the RequestPurchase remote (1 level) and the upgrade stands (StationService).
+function UpgradeService.TryPurchase(player: Player, id: string, count: number): number
+	local def = Upgrades.Defs[id]
 	local state = DataService.GetState(player)
-	if not def or not state then
-		return
+	if not def or not state or count ~= count then
+		return 0
 	end
-	local level = state.UpgradeLevels[def.Id] or 0
-	if level >= Upgrades.GetMaxLevel(def.Id, state.Passes) then
-		return
-	end
-	local cost = Upgrades.GetCost(def.Id, level)
-	if not EconomyService.TrySpend(player, cost) then
-		NotifyService.Send(player, `You need {Format.Number(cost - state.BonkPoints)} more Bonk Points`, "Bad")
-		return
+	local wanted = math.max(1, math.floor(count))
+	local maxLevel = Upgrades.GetMaxLevel(def.Id, state.Passes)
+	local startLevel = state.UpgradeLevels[def.Id] or 0
+	local bought = 0
+	local missing = 0
+	while bought < wanted do
+		local level = startLevel + bought
+		if level >= maxLevel then
+			break
+		end
+		local cost = Upgrades.GetCost(def.Id, level)
+		if not EconomyService.TrySpend(player, cost) then
+			missing = cost - state.BonkPoints
+			break
+		end
+		bought += 1
+		state.UpgradeLevels[def.Id] = level + 1
 	end
 
-	state.UpgradeLevels[def.Id] = level + 1
+	if bought == 0 then
+		if startLevel >= maxLevel then
+			NotifyService.Send(player, `{def.DisplayName} is maxed out!`, "Info")
+		else
+			NotifyService.Send(player, `You need {Format.Number(missing)} more Bonk Points`, "Bad")
+		end
+		return 0
+	end
+
+	local newLevel = startLevel + bought
 	if def.Id == "Shooters" then
 		-- A newly bought shooter starts active.
-		state.ActiveShooters = Upgrades.GetValue("Shooters", level + 1)
+		state.ActiveShooters = Upgrades.GetValue("Shooters", newLevel)
 	elseif def.Id == "MoveSpeed" then
 		applyMovement(player)
 	end
 	DataService.Replicate(player)
-	NotifyService.Send(player, `{def.DisplayName}: {Upgrades.FormatValue(def.Id, level + 1)}!`, "Good")
-	QuestService.Record(player, "Upgrade", 1)
+	local times = if bought > 1 then ` (×{bought})` else ""
+	NotifyService.Send(player, `{def.DisplayName}: {Upgrades.FormatValue(def.Id, newLevel)}!{times}`, "Good")
+	QuestService.Record(player, "Upgrade", bought)
+	return bought
+end
+
+local function onRequestPurchase(player: Player, upgradeId: unknown)
+	if not RateLimiter.Allow(purchaseLimiter, player) then
+		return
+	end
+	if typeof(upgradeId) ~= "string" or not Upgrades.Defs[upgradeId] then
+		return
+	end
+	local state = DataService.GetState(player)
+	-- The menu only asks for levels below the max; stay quiet like before if it does anyway.
+	if not state or (state.UpgradeLevels[upgradeId] or 0) >= Upgrades.GetMaxLevel(upgradeId, state.Passes) then
+		return
+	end
+	UpgradeService.TryPurchase(player, upgradeId, 1)
 end
 
 local function onSetActiveShooters(player: Player, count: unknown)
@@ -157,6 +194,19 @@ function UpgradeService.Start()
 
 	-- Levels are 0 until the data is loaded; apply the real MoveSpeed once it is (and after an admin reset).
 	DataService.OnLoaded(applyMovement)
+	-- Re-apply when the Run Faster pass is bought or toggled (passes change through DataService.Replicate).
+	local hadRunFaster: { [Player]: boolean } = {}
+	DataService.OnReplicated(function(player)
+		local state = DataService.GetState(player)
+		local has = state ~= nil and state.Passes.RunFaster == true
+		if (hadRunFaster[player] or false) ~= has then
+			hadRunFaster[player] = has
+			applyMovement(player)
+		end
+	end)
+	Players.PlayerRemoving:Connect(function(player)
+		hadRunFaster[player] = nil
+	end)
 end
 
 return UpgradeService
