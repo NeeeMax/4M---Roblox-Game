@@ -25,37 +25,56 @@ return {
 		PlatformDiameter = 8,
 		-- The shooter turns toward its target this long before firing.
 		AimTime = 0.5,
-		-- Random extra delay per shooter so several shooters don't fire in sync.
-		StartOffsetMax = 1,
-		-- Delay before a freshly placed shooter aims for the first time.
+		-- Delay before a freshly placed ring of shooters fires for the first time.
 		FirstShotDelay = 1,
-		-- Anti-farm: a target must be at least projectile radius + this far from the player.
-		MinDistanceFromPlayer = 8,
-		TargetTries = 10,
+		-- Anti-farm: the whole path (flight + bounces) must stay at least projectile radius + this far away from
+		-- where the player stands at fire time, so standing still never gets hit.
+		MinDistanceFromPlayer = 6,
+		TargetTries = 30,
+		-- Fallback shooter (red block with a barrel) when there is no ReplicatedStorage.Assets.Shooter model.
 		BarrelLength = 3,
+
+		-- Custom shooter model: ReplicatedStorage.Assets.<AssetName>. Scaled to Height studs, bottom on the platform.
+		AssetName = "Shooter",
+		Height = 6,
+		-- Turn the model by this many degrees if it doesn't face its target (try 90, 180 or 270).
+		YawOffsetDegrees = 0,
+		-- Optional parts inside the model: an Attachment where projectiles start, and the stick in its hand,
+		-- which is hidden for HandStickHideTime after each throw.
+		MuzzleName = "Muzzle",
+		HandStickName = "Stick",
+		HandStickHideTime = 0.4,
 	},
 
 	Projectiles = {
 		LaunchAngleDegrees = 45,
 		-- Launch speed varies by ± this fraction per shot.
 		SpeedJitter = 0.1,
-		-- Server cleanup delay after first contact. Clients already hide the projectile the moment they see it reach
-		-- the island surface, so this only has to outlast the network delay.
-		LifetimeAfterContact = 0.5,
-		-- The server keeps a projectile's flight data this long after first contact, so hit reports that arrive
-		-- after the part is gone (network delay) can still be validated.
+		-- Ground bounces before the projectile disappears (it disappears on the next ground contact).
+		Bounces = 2,
+		-- Vertical speed kept per bounce (0.5 = half as fast upward as it came down).
+		BounceRestitution = 0.5,
+		-- Horizontal speed kept per bounce.
+		BounceFriction = 0.7,
+		-- A projectile that bounces off the island edge is removed this far below the island surface.
+		FallDespawnDepth = 20,
+		-- Server cleanup delay after the path ends. Clients already hide the projectile the moment they see it land
+		-- for the last time, so this only has to outlast the network delay.
+		DespawnDelay = 0.5,
+		-- The server keeps a projectile's path this long after it ended, so hit reports that arrive after the part is
+		-- gone (network delay) can still be validated.
 		ReportGracePeriod = 2,
-		-- Client: a projectile counts as "on the ground" when its bottom is this close to the island surface.
-		GroundTolerance = 0.25,
-		MaxLifetime = 8,
+		-- Client: a ground contact is detected when the projectile's bottom comes this close to the island surface.
+		GroundTolerance = 1,
+		-- Safety net only; normal paths end much earlier.
+		MaxLifetime = 15,
 		MaxPerIsland = 60,
 		-- Random spin in radians/s, purely visual.
 		MaxSpin = 10,
-		-- A ball that already paid out keeps flying (it passes through the player) at this transparency.
+		-- A projectile that already paid out keeps flying (it passes through the player) at this transparency.
 		PaidTransparency = 0.5,
-		-- Attributes set on each projectile part, read by the client.
+		-- Attribute set on each projectile part, read by the client.
 		IdAttribute = "ProjectileId",
-		LandedAttribute = "Landed",
 	},
 
 	Hits = {
@@ -79,9 +98,10 @@ return {
 	},
 
 	Knockback = {
-		Duration = 0.4,
-		HorizontalSpeed = 40,
-		UpSpeed = 30,
+		-- About 4 studs sideways and a small hop.
+		Duration = 0.25,
+		HorizontalSpeed = 16,
+		UpSpeed = 12,
 	},
 
 	Bonk = {

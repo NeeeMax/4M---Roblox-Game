@@ -42,24 +42,6 @@ local function clampPlayerVelocity(velocity: Vector3, walkSpeed: number): Vector
 	return horizontal + Vector3.new(0, vertical, 0)
 end
 
--- The point of the flight (launch until first contact) closest to `position`: distance and projectile velocity there.
-local function closestApproach(info: ProjectileService.ProjectileInfo, position: Vector3): (number, Vector3)
-	local flightEnd = (info.LandedAt or os.clock()) - info.LaunchedAt
-	local bestDistance = math.huge
-	local bestVelocity = info.LaunchVelocity
-	local time = 0
-	while time <= flightEnd do
-		local point, velocity = ProjectileService.GetFlightState(info, time)
-		local distance = (point - position).Magnitude
-		if distance < bestDistance then
-			bestDistance = distance
-			bestVelocity = velocity
-		end
-		time += HITS.FlightSampleStep
-	end
-	return bestDistance, bestVelocity
-end
-
 local function onReportHit(player: Player, projectileId: unknown)
 	if not RateLimiter.Allow(reportLimiter, player) or typeof(projectileId) ~= "number" then
 		return
@@ -78,9 +60,11 @@ local function onReportHit(player: Player, projectileId: unknown)
 		return
 	end
 
-	local radius = info.Radius
-	local distance, projectileVelocity = closestApproach(info, root.Position)
-	if distance > radius + HITS.HitTolerance then
+	-- Only the part of the path the projectile has already travelled (flight and bounces) counts.
+	local plan = info.Plan
+	local distance, projectileVelocity =
+		ProjectileService.ClosestApproach(plan, root.Position, os.clock() - info.LaunchedAt)
+	if distance > plan.Radius + HITS.HitTolerance then
 		return
 	end
 
@@ -90,12 +74,12 @@ local function onReportHit(player: Player, projectileId: unknown)
 	-- Hit quality: how hard the impact was compared with the projectile's own launch speed.
 	-- Running and jumping into a projectile raises it; standing under it gives about 1.0.
 	local playerVelocity = clampPlayerVelocity(root.AssemblyLinearVelocity, humanoid.WalkSpeed)
-	local ratio = (projectileVelocity - playerVelocity).Magnitude / info.LaunchSpeed
+	local ratio = (projectileVelocity - playerVelocity).Magnitude / plan.Speed
 	local quality = getQuality(ratio)
 
-	local sizeMultiplier = info.SizeScale
-	local speedMultiplier = info.NominalSpeed / info.Def.BaseSpeed
-	local reward = math.max(1, math.floor(info.Def.BaseReward * sizeMultiplier * speedMultiplier * quality.Multiplier))
+	local sizeMultiplier = plan.SizeScale
+	local speedMultiplier = plan.NominalSpeed / plan.Def.BaseSpeed
+	local reward = math.max(1, math.floor(plan.Def.BaseReward * sizeMultiplier * speedMultiplier * quality.Multiplier))
 	EconomyService.AddPoints(player, reward)
 
 	local flat = Vector3.new(projectileVelocity.X, 0, projectileVelocity.Z)

@@ -24,8 +24,16 @@ local PROJECTILES = Gameplay.Projectiles
 local player = Players.LocalPlayer
 local sound: Sound
 local immuneUntil = 0
--- Weak keys: destroyed projectiles drop out on their own.
-local reported: { [BasePart]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+-- Per-projectile client state. Weak keys: destroyed projectiles drop out on their own.
+type Tracked = {
+	Reported: boolean,
+	Hidden: boolean,
+	LastY: number?,
+	Falling: boolean,
+	-- Bounces seen on this client so far.
+	Bounces: number,
+}
+local tracked: { [BasePart]: Tracked } = setmetatable({}, { __mode = "k" }) :: any
 local overlapParams = OverlapParams.new()
 overlapParams.FilterType = Enum.RaycastFilterType.Include
 
@@ -127,29 +135,65 @@ local function tryReport(part: BasePart, character: Model, root: BasePart, repor
 	if #Workspace:GetPartBoundsInRadius(part.Position, radius, overlapParams) == 0 then
 		return false
 	end
-	reported[part] = true
 	-- Same immunity as the server, so we don't report hits it would reject anyway.
 	immuneUntil = os.clock() + HITS.ImmunityTime
 	reportHit:FireServer(id)
 	return true
 end
 
+local function hide(part: BasePart)
+	part.LocalTransparencyModifier = 1
+	for _, descendant in part:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			descendant.LocalTransparencyModifier = 1
+		end
+	end
+end
+
+-- Counts bounces as this client sees them (a low point near the ground where the projectile starts rising again)
+-- and hides the projectile the moment it reaches the ground after its last bounce, or drops below the island.
+local function updateVisibility(part: BasePart, state: Tracked)
+	local y = part.Position.Y
+	local bottom = y - part.Size.Y / 2
+	local lastY = state.LastY
+	if lastY then
+		local nearGround = lastY - part.Size.Y / 2 <= ISLAND.SurfaceY + PROJECTILES.GroundTolerance
+		if state.Falling and y > lastY and nearGround then
+			state.Bounces += 1
+		end
+		state.Falling = y < lastY
+	end
+	state.LastY = y
+
+	local landedForGood = state.Bounces >= PROJECTILES.Bounces
+		and bottom <= ISLAND.SurfaceY + PROJECTILES.GroundTolerance
+	if landedForGood or bottom < ISLAND.SurfaceY - PROJECTILES.GroundTolerance then
+		state.Hidden = true
+		hide(part)
+	end
+end
+
 local function update(projectileFolder: Instance, reportHit: RemoteEvent)
 	local character, root = getHittableCharacter()
 	for _, part in projectileFolder:GetChildren() do
-		if not part:IsA("BasePart") or reported[part] or part.LocalTransparencyModifier >= 1 then
+		if not part:IsA("BasePart") then
 			continue
 		end
-		-- Hit check first, so a ball landing right at the player's feet still counts.
-		-- No "Landed" attribute check: it can arrive before the ball visibly lands here. The server only
-		-- accepts hits on the flight path anyway.
-		if character and root and tryReport(part, character, root, reportHit) then
+		local state = tracked[part]
+		if not state then
+			state = { Reported = false, Hidden = false, Falling = true, Bounces = 0 }
+			tracked[part] = state
+		end
+		if state.Hidden then
+			continue
+		end
+		-- Hit check first, so a projectile landing right at the player's feet still counts. The server only
+		-- accepts hits on the path the projectile has really travelled.
+		if not state.Reported and character and root and tryReport(part, character, root, reportHit) then
+			state.Reported = true
 			character, root = nil, nil
 		end
-		-- Hide the ball the moment it reaches the ground as seen here; the server removes it shortly after.
-		if part.Position.Y - part.Size.Y / 2 <= ISLAND.SurfaceY + PROJECTILES.GroundTolerance then
-			part.LocalTransparencyModifier = 1
-		end
+		updateVisibility(part, state)
 	end
 end
 
