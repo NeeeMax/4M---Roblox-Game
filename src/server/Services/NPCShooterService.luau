@@ -54,9 +54,6 @@ type Shooter = {
 	MuzzleOffset: Vector3?,
 	Body: BasePart?,
 	Barrel: BasePart?,
-	-- What the model holds in its paw (hand projectile or stick) and its normal transparency, hidden for a moment
-	-- after each throw.
-	HandStick: { [BasePart]: number },
 	NextFireAt: number,
 	Plan: ProjectileService.ShotPlan?,
 }
@@ -177,31 +174,6 @@ local function findShot(
 	return nil
 end
 
--- Hides what is in the shooter's paw for a moment, so it looks like that was thrown.
-local function hideHandStick(shooter: Shooter)
-	for part in shooter.HandStick do
-		part.Transparency = 1
-	end
-	task.delay(CONFIG.HandStickHideTime, function()
-		for part, transparency in shooter.HandStick do
-			part.Transparency = transparency
-		end
-	end)
-end
-
-local function collectParts(instance: Instance): { [BasePart]: number }
-	local parts: { [BasePart]: number } = {}
-	if instance:IsA("BasePart") then
-		parts[instance] = instance.Transparency
-	end
-	for _, descendant in instance:GetDescendants() do
-		if descendant:IsA("BasePart") then
-			parts[descendant] = descendant.Transparency
-		end
-	end
-	return parts
-end
-
 local function hideMarker(model: Model, name: string)
 	local marker = model:FindFirstChild(name, true)
 	if marker and marker:IsA("BasePart") then
@@ -242,58 +214,86 @@ local function longestAxis(size: Vector3): number
 	return if size.Y >= size.Z then 2 else 3
 end
 
--- Puts `projectile` where `stick` is in the paw of a model facing `facing`: its longest side along the stick's,
--- LengthScale × as long, its grip end on the stick's lower end, its first other side along the model's right.
-local function placeInPaw(projectile: Model, stick: BasePart, facing: CFrame)
+-- The paw's grip point (the stick's lower end, where it meets the paw), the stick's axis pointing up, and its length.
+local function pawGrip(stick: BasePart): (Vector3, Vector3, number)
 	local stickAxis = longestAxis(stick.Size)
 	local stickLength = component(stick.Size, stickAxis)
 	local up = stick.CFrame:VectorToWorldSpace(AXES[stickAxis])
 	if up.Y < 0 then
 		up = -up
 	end
-	local grip = stick.Position - up * stickLength / 2
+	return stick.Position - up * stickLength / 2, up, stickLength
+end
+
+-- Which axis of the projectile's box (in the model's own orientation) is its long axis. With a Grip marker it is
+-- model-local Y by contract (assets/README.md); if Y is clearly not long, the export went wrong: use the longest.
+local function handAxis(projectile: Model, size: Vector3, hasGrip: boolean): number
+	local longest = longestAxis(size)
+	if not hasGrip or size.Y >= component(size, longest) * 0.6 then
+		return if hasGrip then 2 else longest
+	end
+	warn(`[4M] {projectile.Name}: its Grip model is not long along Y, using its longest side instead`)
+	return longest
+end
+
+-- Puts `projectile` into the paw of a model facing `facing`, where `stick` is: LengthScale × the stick's length,
+-- its long axis along the stick (pointing away from the paw), its grip point on the stick's lower end and its
+-- model-local X along the model's right.
+-- Grip point: the projectile's Grip marker if it has one (hidden here), else the negative end (GripAtNegativeEnd) of
+-- the centre line of its longest bounding-box side. The Grip is read after scaling, so it is exactly where the
+-- scaled model has it.
+local function placeInPaw(projectile: Model, stick: BasePart, facing: CFrame)
+	local paw, up, stickLength = pawGrip(stick)
+	local grip = Assets.HideMarkers(projectile, HAND.GripName)
 
 	local _, size = projectile:GetBoundingBox()
-	local axis = longestAxis(size)
+	local axis = handAxis(projectile, size, grip ~= nil)
 	local length = component(size, axis)
 	if length <= 0 then
 		return
 	end
 	projectile:ScaleTo(projectile:GetScale() * stickLength * HAND.LengthScale / length)
+	-- The box has the model's own orientation (its pivot's), so its axes are the model-local axes.
 	local box, scaledSize = projectile:GetBoundingBox()
-	-- In the projectile's box: from the grip toward the other end, and a side axis for the roll.
-	local along = AXES[axis] * (if HAND.GripAtNegativeEnd then 1 else -1)
-	local side = if axis == 1 then Vector3.zAxis else Vector3.xAxis
-	local gripEnd = box:PointToWorldSpace(-along * component(scaledSize, axis) / 2)
-	local from = CFrame.fromMatrix(gripEnd, box:VectorToWorldSpace(side), box:VectorToWorldSpace(along))
+	local side = box:VectorToWorldSpace(if axis == 1 then Vector3.zAxis else Vector3.xAxis)
+	local along = box:VectorToWorldSpace(AXES[axis])
+	local gripPoint: Vector3
+	if grip then
+		gripPoint = grip.Position
+		-- From the grip toward the rest of the item (the bulk of the box), whichever way model-local Y points.
+		if (box.Position - gripPoint):Dot(along) < 0 then
+			along = -along
+			side = -side
+		end
+	else
+		along *= if HAND.GripAtNegativeEnd then 1 else -1
+		gripPoint = box.Position - along * component(scaledSize, axis) / 2
+	end
+	local from = CFrame.fromMatrix(gripPoint, side, along)
 
 	local right = facing.RightVector - up * facing.RightVector:Dot(up)
 	if right.Magnitude < 1e-3 then
 		-- The stick points sideways: roll by the model's forward instead.
 		right = facing.LookVector - up * facing.LookVector:Dot(up)
 	end
-	local to = CFrame.fromMatrix(grip, right.Unit, up)
+	local to = CFrame.fromMatrix(paw, right.Unit, up)
 	projectile:PivotTo(to * from:ToObjectSpace(projectile:GetPivot()))
 end
 
--- Replaces the model's stick with the current projectile. Returns what is in the paw now (for hideHandStick).
-local function equipHandProjectile(asset: Model, projectileLevel: number): { [BasePart]: number }
+-- Replaces the model's stick with the current projectile (named HAND.Name, a direct child of the model, which is how
+-- ShibaController finds it). Without a projectile model, or with a stick that is not a single part, the stick stays.
+local function equipHandProjectile(asset: Model, projectileLevel: number)
 	local stick = asset:FindFirstChild(CONFIG.HandStickName, true)
-	if not stick then
-		return {}
-	end
-	local stickPart = if stick:IsA("BasePart") then stick else nil
+	local stickPart = if stick and stick:IsA("BasePart") then stick else nil
 	local projectile = if stickPart then cloneProjectileModel(projectileLevel) else nil
 	if not (stickPart and projectile) then
-		-- No projectile model (or a stick that is not a single part): the model's own stick stays.
-		return collectParts(stick)
+		return
 	end
 	Assets.MakeVisualOnly(projectile, true)
 	placeInPaw(projectile, stickPart, asset:GetPivot())
 	projectile.Name = HAND.Name
 	projectile.Parent = asset
 	stickPart.Transparency = 1
-	return collectParts(projectile)
 end
 
 -- An invisible, non-physical part that particles and light come from.
@@ -448,6 +448,8 @@ local function buildShooter(
 		asset.PrimaryPart = effectPart(MOTION.PivotName, asset:GetPivot(), Vector3.one * 0.2, asset)
 		asset:PivotTo(pivotFrame(ground, pivotHeight, center))
 		asset:SetAttribute(MOTION.AimYawAttribute, aimYaw(ground, center))
+		-- After the model is scaled and placed, so the paw is measured where it really is.
+		equipHandProjectile(asset, projectileLevel)
 		local muzzle = asset:FindFirstChild(CONFIG.MuzzleName, true)
 		shooter = {
 			Model = model,
@@ -458,7 +460,6 @@ local function buildShooter(
 			MuzzleOffset = if muzzle and muzzle:IsA("Attachment")
 				then asset:GetPivot():PointToObjectSpace(muzzle.WorldPosition)
 				else nil,
-			HandStick = equipHandProjectile(asset, projectileLevel),
 			NextFireAt = 0,
 		}
 		asset.Parent = model
@@ -483,7 +484,6 @@ local function buildShooter(
 			Height = CONFIG.Height,
 			Body = body,
 			Barrel = barrel,
-			HandStick = {},
 			NextFireAt = 0,
 		}
 		faceTarget(shooter, center)
@@ -578,8 +578,8 @@ local function updatePlayer(player: Player, now: number)
 				plan = findShot(player, shooter, island.Center, root.Position)
 			end
 			if plan then
+				-- Clients hide what is in the paw at the release themselves (ShibaController, from ThrowAt).
 				ProjectileService.Fire(player, plan)
-				hideHandStick(shooter)
 			elseif shooter.Visual then
 				-- No safe shot after all: don't let clients swing the arm for a throw that never happens.
 				shooter.Visual:SetAttribute(CONFIG.Throw.ThrowAtAttribute, nil)

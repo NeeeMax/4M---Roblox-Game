@@ -149,12 +149,18 @@ return {
 		MuzzleName = "Muzzle",
 		HandStickName = "Stick",
 		-- The paw holds the player's current projectile (ProjectileTier): a copy of its model, named Name, replaces the
-		-- model's own stick (which stays hidden): longest side along the stick's, LengthScale × the stick's length, grip
-		-- end on the stick's lower end. Projectile models have their grip at the negative end of their longest axis
-		-- (set GripAtNegativeEnd false if they show upside down). Without any projectile model the stick stays.
-		-- Whatever is in the paw is hidden for HandStickHideTime after each throw.
+		-- model's own stick (which stays hidden), LengthScale × the stick's length. The paw's grip point is the stick's
+		-- lower end (where the stick meets the paw); the item's long axis lies along the stick.
+		-- Projectile models (assets/README.md) have their long axis along model-local Y and a tiny marker part named
+		-- GripName at the exact point the paw holds: that point goes on the paw's grip point, the rest of the item
+		-- points along the stick, and the marker is always hidden (in the paw and in flight). Models without a Grip
+		-- marker fall back to their longest bounding-box side with the grip at its negative end (set
+		-- GripAtNegativeEnd false if those show upside down). Without any projectile model the stick stays.
+		-- Clients hide whatever is in the paw from the release (Throw.ThrowAtAttribute) for HandStickHideTime seconds,
+		-- so it looks thrown, then show it again (Controllers/ShibaController).
 		HandProjectile = {
 			Name = "HandProjectile",
+			GripName = "Grip",
 			LengthScale = 0.75,
 			GripAtNegativeEnd = true,
 		},
@@ -275,21 +281,26 @@ return {
 		MaxMultiplier = 3,
 	},
 
+	-- Only a small nudge (was 0.25 s at 16 / 12 studs/s, about 4 studs): under a stud sideways and a tiny hop, so the
+	-- player keeps control while collecting.
 	Knockback = {
-		-- About 4 studs sideways and a small hop.
-		Duration = 0.25,
-		HorizontalSpeed = 16,
-		UpSpeed = 12,
+		Duration = 0.12,
+		HorizontalSpeed = 6,
+		UpSpeed = 4,
 	},
 
 	Bonk = {
 		PopupTime = 1,
 		PopupRise = 4,
-		-- Built-in Studio sound. Swap for any audio asset id ("rbxassetid://123...") you like better.
-		SoundId = "rbxasset://sounds/action_jump_land.mp3",
-		SoundVolume = 1,
-		-- Playback speed goes up by this per hit-quality tier above Normal.
-		PitchStepPerTier = 0.1,
+		-- Bonk hit sound (Controllers/BonkController): custom cartoon "bonk" uploaded by Marco (≈ 0.9 s). To swap it,
+		-- paste another "rbxassetid://<id>" here. If it ever stays silent in the published game, the audio's
+		-- permissions (Creator Hub → Audio → Permissions) must allow this experience. Every hit plays its own copy,
+		-- so quick hits overlap instead of cutting each other off.
+		SoundId = "rbxassetid://94820265879957",
+		SoundVolume = 0.8,
+		-- Playback speed goes up by this per hit-quality tier above Normal (Legendary: 1.2); kept small so the cartoon
+		-- bonk still sounds like itself.
+		PitchStepPerTier = 0.05,
 		-- Stars bursting from the head: Stars at Normal, plus StarsPerTier per quality tier above it.
 		Stars = 6,
 		StarsPerTier = 6,
@@ -297,5 +308,33 @@ return {
 		ShakeFromTier = 3,
 		ShakeTime = 0.25,
 		ShakeStrength = 0.25,
+	},
+
+	-- Auto-Catch pass look (Controllers/MagnetController, purely visual; the catching itself is AutoCatchService with
+	-- Shop.Pass.AutoCatchRadius / AutoCatchInterval). A small red/silver magnet circles the owner; when the server
+	-- catches a stick (its Paid attribute turns true without a hand report) the stick is pulled into the player.
+	Magnet = {
+		-- Size of the magnet (1 = about 1 stud long).
+		Scale = 1.1,
+		-- Circle around the character's root: radius, height above the root, speed (radians per second).
+		OrbitRadius = 3,
+		OrbitHeight = 1.2,
+		OrbitSpeed = 1.6,
+		-- Gentle bobbing on top of the circle.
+		BobHeight = 0.3,
+		BobPeriod = 1.4,
+		-- How quickly the magnet follows its circle point (1/s; higher = snappier).
+		FollowSharpness = 14,
+		-- A caught stick flies from where it was into the player in PullTime seconds, shrinking to PullEndScale.
+		PullTime = 0.22,
+		PullEndScale = 0.35,
+		-- The magnet wiggles by up to WiggleDegrees for WiggleTime after each catch.
+		WiggleTime = 0.35,
+		WiggleDegrees = 28,
+		-- Sparkles where the stick arrives.
+		Sparkles = 10,
+		BeamColor = Color3.fromRGB(140, 210, 255),
+		-- At most this many pulls animate at once (extra catches only wiggle the magnet).
+		MaxPulls = 6,
 	},
 }
