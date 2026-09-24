@@ -141,6 +141,19 @@ return {
 		MuzzleName = "Muzzle",
 		HandStickName = "Stick",
 		HandStickHideTime = 0.4,
+		-- Throw animation (client, Controllers/ShibaController). Models with a ThrowArmName part and a ShoulderName
+		-- marker swing that arm (with the stick) around the shoulder: back during AimTime, forward to ReleaseDegrees in
+		-- SwingTime when the stick leaves the paw, then back to rest in ReturnTime. The server sets ThrowAtAttribute on
+		-- the shooter model to the release time (workspace:GetServerTimeNow()) when it starts aiming.
+		Throw = {
+			ThrowArmName = "ThrowArm",
+			ShoulderName = "Shoulder",
+			ThrowAtAttribute = "ThrowAt",
+			WindupDegrees = 50,
+			ReleaseDegrees = 110,
+			SwingTime = 0.12,
+			ReturnTime = 0.5,
+		},
 	},
 
 	Projectiles = {
