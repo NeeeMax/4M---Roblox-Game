@@ -43,9 +43,15 @@ attribute `ProjectileId` (number) so the client can report hits, plus their plan
 clock, `Gravity`, `SettleTime`, `EndTime`, `FadeTime`, `Diameter`, `SegmentCount`, `S<n>Time/Position/Velocity`), written and read only by
 `src/shared/Util/ProjectilePath.luau`, and `Paid` (true once it paid out) and `Golden`. Clients draw the model along that path
 (`docs/decisions/0004`): small settling hops from `SettleTime`, lying still from `EndTime`, fully faded at `EndTime + FadeTime`.
-Shooter models (the imported Shiba inside `Workspace/Islands/Island_<UserId>/…/Shooter`) carry the attribute `ThrowAt`
-(number, server clock `workspace:GetServerTimeNow()`): when the stick leaves the paw. The server sets it when the Shiba
-starts aiming; `Controllers/ShibaController` swings the `ThrowArm` part toward that moment. Server → client only, purely visual.
+Shooter models (the imported Shiba inside `Workspace/Islands/Island_<UserId>/…/Shooter`) carry two attributes, both
+server → client only and purely visual (`Controllers/ShibaController`):
+- `AimYaw` (number, radians): the yaw the model should face (pivot rotation `CFrame.Angles(0, AimYaw, 0)`,
+  `YawOffsetDegrees` included). Set when the model is built and whenever the Shiba picks a target; the server never
+  turns the model itself, clients turn it there smoothly. The model's invisible `ShibaPivot` part (its PrimaryPart)
+  marks the rest pose they turn from.
+- `ThrowAt` (number, server clock `Workspace:GetServerTimeNow()`): when the projectile leaves the paw. The server sets
+  it when the Shiba starts aiming and clears it when the throw is cancelled; clients swing the `ThrowArm` toward that
+  moment.
 `BonkHit` drives the client-only effects: popup, sound, knockback (the owning client moves its own character), head-hit
 bonus text and the combo counter (`combo` hits in a row; it ends if no hit follows within `comboWindow` seconds).
 

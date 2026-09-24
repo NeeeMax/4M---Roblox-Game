@@ -27,10 +27,18 @@ return {
 
 	Shooters = {
 		RingRadius = 56,
-		PlatformDiameter = 8,
-		-- The platform's top sits this far above the island surface (equal heights flicker: z-fighting); the Shiba
-		-- stands on it. Platforms of Shibas taller than Height grow with them.
+		-- Each tier stands on its own platform (Config/ShibaPlatforms). Its top is at least this far above the island
+		-- surface (equal heights flicker: z-fighting); the Shiba stands on it and throws from there.
 		PlatformLift = 0.2,
+		-- Invisible wall (a cylinder around platform and Shiba) so players can't walk through a Shiba: platform
+		-- Diameter + 2 × Padding wide, platform Top + Shiba height + ExtraHeight tall. It only blocks characters:
+		-- CanQuery and CanTouch are off, and projectiles fly on computed paths.
+		Barrier = {
+			Padding = 0.5,
+			ExtraHeight = 6,
+			-- It starts this far under the island surface, so there is no gap at its foot.
+			Sink = 0.5,
+		},
 		-- The shooter turns toward its target this long before firing.
 		AimTime = 0.5,
 		-- Delay before a freshly placed ring of shooters fires for the first time.
@@ -44,7 +52,8 @@ return {
 
 		-- Shiba tiers (ShooterTier level n = Tiers[n + 1]). Each tier throws faster (FireInterval: seconds between two
 		-- throws of one Shiba) and pays more (RewardMultiplier). Model: ReplicatedStorage.Assets.<AssetName>, scaled to the
-		-- tier's Height in studs, bottom on the platform; effects in Config/ShibaEffects. A tier without its own model uses
+		-- tier's Height in studs, bottom on its platform (Config/ShibaPlatforms); effects and motion in
+		-- Config/ShibaEffects. A tier without its own model uses
 		-- the next lower tier's model (then LegacyAssetName) with an outline in its Color. To add a tier: add a line (the
 		-- upgrade follows automatically).
 		Tiers = {
@@ -136,15 +145,39 @@ return {
 		Height = 6,
 		-- Turn the model by this many degrees if it doesn't face its target (try 90, 180 or 270).
 		YawOffsetDegrees = 0,
-		-- Optional parts inside the model: an Attachment where projectiles start, and the stick in its hand,
-		-- which is hidden for HandStickHideTime after each throw.
+		-- Optional parts inside the model: an Attachment where projectiles start, and the stick in its paw.
 		MuzzleName = "Muzzle",
 		HandStickName = "Stick",
+		-- The paw holds the player's current projectile (ProjectileTier): a copy of its model, named Name, replaces the
+		-- model's own stick (which stays hidden): longest side along the stick's, LengthScale × the stick's length, grip
+		-- end on the stick's lower end. Projectile models have their grip at the negative end of their longest axis
+		-- (set GripAtNegativeEnd false if they show upside down). Without any projectile model the stick stays.
+		-- Whatever is in the paw is hidden for HandStickHideTime after each throw.
+		HandProjectile = {
+			Name = "HandProjectile",
+			LengthScale = 1,
+			GripAtNegativeEnd = true,
+		},
 		HandStickHideTime = 0.4,
+		-- Client-side motion (Controllers/ShibaController). The server writes the yaw the model should face to
+		-- AimYawAttribute (radians; pivot rotation CFrame.Angles(0, yaw, 0), YawOffsetDegrees included) and never moves
+		-- the model after building it; clients turn it there smoothly: exponential smoothing at TurnSharpness (1/s),
+		-- at most MaxTurnDegreesPerSecond. A model may contain an OrbitName part that spins around an OrbitCenterName
+		-- marker (made invisible); spin speed and axis, and floating, per model in Config/ShibaEffects.
+		Motion = {
+			AimYawAttribute = "AimYaw",
+			TurnSharpness = 12,
+			MaxTurnDegreesPerSecond = 540,
+			OrbitName = "Orbit",
+			OrbitCenterName = "OrbitCenter",
+			-- Invisible part the server puts at the model's pivot (its PrimaryPart): the rest pose clients turn from.
+			PivotName = "ShibaPivot",
+		},
 		-- Throw animation (client, Controllers/ShibaController). Models with a ThrowArmName part and a ShoulderName
-		-- marker swing that arm (with the stick) around the shoulder: back during AimTime, forward to ReleaseDegrees in
-		-- SwingTime when the stick leaves the paw, then back to rest in ReturnTime. The server sets ThrowAtAttribute on
-		-- the shooter model to the release time (workspace:GetServerTimeNow()) when it starts aiming.
+		-- marker swing that arm (with what is in the paw) around the shoulder: back during AimTime, forward to
+		-- ReleaseDegrees in SwingTime when the projectile leaves the paw, then back to rest in ReturnTime. The server
+		-- sets ThrowAtAttribute on the shooter model to the release time (Workspace:GetServerTimeNow()) when it starts
+		-- aiming.
 		Throw = {
 			ThrowArmName = "ThrowArm",
 			ShoulderName = "Shoulder",

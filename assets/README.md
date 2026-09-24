@@ -28,8 +28,15 @@ Only models that code depends on. Keep this folder small; the world lives in the
 | `LegendaryStick.fbx` | `LegendaryStick` — golden stick, lightning, runes, sparks | projectile tier 10 |
 
 Tier Shibas are `Body` + `ThrowArm` (upper arm, forearm and paw that throw) + `Shoulder` (tiny marker at the joint,
-made invisible in the game; the arm turns around it) + `Stick` (in the paw, hidden after each throw). The client swings
-`ThrowArm` and `Stick` for the throw animation (`Controllers/ShibaController`). `Tiers_preview.png` shows them all.
+made invisible in the game; the arm turns around it) + `Stick` (in the paw). In the game the `Stick` stays hidden: the
+paw holds a copy of the player's current projectile model instead (`HandProjectile`, lined up with the stick: its
+longest side along the stick's, same length, grip on the stick's lower end), hidden for a moment after each throw; only
+if no projectile model exists the `Stick` shows. Projectile models therefore keep their grip at the negative end of
+their longest axis (the build scripts export them that way; `Config/Gameplay → Shooters.HandProjectile`). The client
+turns the whole Shiba and swings `ThrowArm` with what is in the paw for the throw animation
+(`Controllers/ShibaController`). Optional: an `Orbit` part that spins around a tiny `OrbitCenter` marker (made
+invisible), speed and axis per model in `Config/ShibaEffects` (Galaxy Shiba: planet ring around its head).
+`Tiers_preview.png` shows them all.
 
 `GalaxyShiba` has two more parts: `Orbit` (the tilted ring around the head with the banded planet, its little ring and
 the moon) and `OrbitCenter` (tiny marker at the ring's centre, made invisible in the game). The game spins `Orbit`
