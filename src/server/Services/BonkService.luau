@@ -14,6 +14,7 @@ local Shop = require(ReplicatedStorage.Shared.Config.Shop)
 
 local BoostService = require(script.Parent.BoostService)
 local EconomyService = require(script.Parent.EconomyService)
+local EventService = require(script.Parent.EventService)
 local ProjectileService = require(script.Parent.ProjectileService)
 local QuestService = require(script.Parent.QuestService)
 local RewardService = require(script.Parent.RewardService)
@@ -137,6 +138,7 @@ local function onReportHit(player: Player, projectileId: unknown, onHeadClaim: u
 				* BoostService.GetMultiplier(player, "Points")
 				* goldenMultiplier
 				* passMultiplier
+				* EventService.RewardMultiplier(plan.Mega) -- server events: DoublePoints, MegaStick
 		)
 	)
 	EconomyService.AddPoints(player, reward)

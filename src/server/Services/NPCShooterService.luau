@@ -23,6 +23,7 @@ local Projectiles = require(ReplicatedStorage.Shared.Config.Projectiles)
 local ShibaEffects = require(ReplicatedStorage.Shared.Config.ShibaEffects)
 local ShibaPlatforms = require(ReplicatedStorage.Shared.Config.ShibaPlatforms)
 
+local EventService = require(script.Parent.EventService)
 local IslandService = require(script.Parent.IslandService)
 local ProjectileService = require(script.Parent.ProjectileService)
 local UpgradeService = require(script.Parent.UpgradeService)
@@ -508,7 +509,8 @@ end
 -- Keeps the ring in sync with the active-shooter count, the tiers and the fire interval. Returns the player's ring.
 local function syncRing(player: Player, island: IslandService.Island, now: number): Ring
 	local wanted = UpgradeService.GetActiveShooters(player)
-	local interval = UpgradeService.GetFireInterval(player)
+	-- StickStorm server event: faster (EventService).
+	local interval = UpgradeService.GetFireInterval(player) * EventService.FireIntervalMultiplier()
 	local tier = UpgradeService.GetLevel(player, "ShooterTier")
 	local projectileTier = UpgradeService.GetLevel(player, "ProjectileTier")
 	local ring = rings[player]
