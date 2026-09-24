@@ -16,11 +16,13 @@ Every RemoteEvent and RemoteFunction is listed here. A PR that adds or changes a
 |------|------|-----------|---------|-------------------|-------|
 | `RequestPurchase` | RemoteEvent | C→S | `upgradeId: string` | string, known upgrade id, below max level, enough Bonk Points, ≤ 5/s | Max |
 | `SetActiveShooters` | RemoteEvent | C→S | `count: number` | integer, 1 ≤ count ≤ owned shooters, ≤ 5/s | Max |
+| `ReportHit` | RemoteEvent | C→S | `projectileId: number` | number, projectile exists and belongs to the player, not paid, player alive and not immune, flight path passed within radius + 6 studs of the server-side root, ≤ 10/s (see `docs/decisions/0003`) | Max |
 | `BonkHit` | RemoteEvent | S→C | `reward: number, quality: HitQuality, knockbackDirection: Vector3` | — (server → client) | Max |
 | `StateChanged` | RemoteEvent | S→C | `bonkPoints: number, upgradeLevels: { [UpgradeId]: number }, activeShooters: number` | — (server → client) | Max |
 
 Remotes live in `ReplicatedStorage/Remotes`, created by `Net.CreateRemotes()` from `Main.server.luau`. Get one with `Net.Get(Net.BonkHit)`.
 `StateChanged` is sent after the player's data loads and after every change to points, levels or active shooters.
+Projectiles carry the attributes `ProjectileId` (number) and `Landed` (true after first contact) so the client can report hits.
 `BonkHit` drives the client-only effects: popup, sound and knockback (the owning client moves its own character).
 
 Direction: `C→S` client to server, `S→C` server to client, `S→All` broadcast.
