@@ -287,6 +287,11 @@ local function buildShooter(parent: Instance, center: Vector3, angle: number, ti
 		local box, size = asset:GetBoundingBox()
 		local pivotHeight = asset:GetPivot().Position.Y - (box.Position.Y - size.Y / 2)
 		addEffects(asset, if def then ShibaEffects.Effects[def.AssetName] else nil, height)
+		-- The shoulder marker only tells the client where the throwing arm turns.
+		local shoulder = asset:FindFirstChild(CONFIG.Throw.ShoulderName, true)
+		if shoulder and shoulder:IsA("BasePart") then
+			shoulder.Transparency = 1
+		end
 		local muzzle = asset:FindFirstChild(CONFIG.MuzzleName, true)
 		asset.Parent = model
 		shooter = {
@@ -404,6 +409,10 @@ local function updatePlayer(player: Player, now: number)
 			if not plan then
 				-- Nowhere safe to throw right now: skip this turn.
 				shooter.NextFireAt += ring.Interval
+			elseif shooter.Visual then
+				-- Clients swing the throwing arm toward this moment (Controllers/ShibaController).
+				local releaseIn = math.max(0, shooter.NextFireAt - now)
+				shooter.Visual:SetAttribute(CONFIG.Throw.ThrowAtAttribute, workspace:GetServerTimeNow() + releaseIn)
 			end
 		end
 		local plan = shooter.Plan

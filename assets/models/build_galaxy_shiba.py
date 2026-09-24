@@ -68,11 +68,14 @@ def group(o):
         return "Stars"
     if n.startswith("stick"):
         return "Stick"
+    # The raised arm holding the stick: its own part, so the game can swing it (see NPCShooterService / ShibaController).
+    if n in ("upper_arm_L", "forearm_L", "front_paw_L"):
+        return "ThrowArm"
     return "Body"
 
 one = bpy.data.materials.new("GalaxyShiba")
 # Group before joining: join() deletes the merged objects.
-groups = {name: [o for o in objs if group(o) == name] for name in ("Body", "Stars", "Stick")}
+groups = {name: [o for o in objs if group(o) == name] for name in ("Body", "Stars", "Stick", "ThrowArm")}
 joined = {}
 for name, members in groups.items():
     for o in members:
@@ -87,6 +90,13 @@ for name, members in groups.items():
     joined[name] = j
     tris = sum(len(p.vertices) - 2 for p in j.data.polygons)
     print(f"MESH {name}: {tris} triangles")
+
+# Tiny marker at the shoulder joint: the pivot the arm swings around (made invisible in the game).
+bpy.ops.mesh.primitive_cube_add(size=0.02, location=(0.17, -0.07, 0.85))
+marker = bpy.context.active_object
+marker.name = "Shoulder"; marker.data.name = "Shoulder"
+marker.data.materials.append(one)
+joined["Shoulder"] = marker
 
 if MODE == "preview":
     sc = bpy.context.scene

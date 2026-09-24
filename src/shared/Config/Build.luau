@@ -3,5 +3,5 @@
 -- Bump the label with every change that should be visible in a playtest.
 
 return {
-	Label = "2026-09-24 #16: Shiba sizes per tier, glow + particles from Gold Shiba up, reworked Shades/Buff/Chef/Police/Ninja/Giant Bone, platform no longer flickers",
+	Label = "2026-09-25 #17: Shibas swing their arm to throw (ThrowArm + ShibaController), original Shiba colours",
 }
