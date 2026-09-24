@@ -78,5 +78,6 @@ jobs:
               "The author's Claude Code may replace this text with the filled-in PR template." > body.md
             gh pr create --head "$BRANCH" --base main --title "$BRANCH: $(git log -1 --format=%s)" --body-file body.md
           fi
-          # Merge commit (not squash) so everyone can keep working on their own long-lived branch.
-          gh pr merge "$BRANCH" --merge
+          # Squash is the only method the main ruleset allows. Long-lived branches still work because everyone
+          # merges origin/main back into their branch before pushing (CLAUDE.md, "Staying in sync").
+          gh pr merge "$BRANCH" --squash
