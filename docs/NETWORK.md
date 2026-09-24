@@ -35,13 +35,15 @@ Every RemoteEvent and RemoteFunction is listed here. A PR that adds or changes a
 | `BonkRainStarted` | RemoteEvent | S→C | `seconds: number` | — | Max |
 | `ClaimStreak` | RemoteEvent | C→S | — | today's streak reward not claimed yet, ≤ 5/s | Max |
 | `ClaimPlaytime` | RemoteEvent | C→S | `giftIndex: number` | gift exists, enough play time today, not claimed, ≤ 5/s | Max |
+| `ServerEvent` | RemoteEvent | S→C | `eventId: string, time: number` — `eventId` = the running server event (`Config/Events`) and `time` = when it ends; `eventId ""` = no event, `time` = when the next one starts (server clock, `Workspace:GetServerTimeNow()`). Sent to everyone on start / end and to each player on join | — (server → client) | Max |
+| `ClaimIndex` | RemoteEvent | C→S | `entryId: string` | string, known `Config/Index` entry that the player has seen and not claimed yet (or `Index.CompleteId` "Complete": every entry seen, bonus not claimed), ≤ 5/s; reward computed on the server (`RewardService.Hits`) | Max |
 
 Remotes live in `ReplicatedStorage/Remotes`, created by `Net.CreateRemotes()` from `Main.server.luau`. Get one with `Net.Get(Net.BonkHit)`.
 `StateChanged` is sent after the player's data loads and after every change to points, levels or active shooters.
 Projectiles are invisible, anchored marker parts in `Workspace/Islands/Island_<UserId>/Projectiles`. They carry the
 attribute `ProjectileId` (number) so the client can report hits, plus their planned path (`LaunchTime` on the server
 clock, `Gravity`, `SettleTime`, `EndTime`, `FadeTime`, `Diameter`, `SegmentCount`, `S<n>Time/Position/Velocity`), written and read only by
-`src/shared/Util/ProjectilePath.luau`, and `Paid` (true once it paid out) and `Golden`. Clients draw the model along that path
+`src/shared/Util/ProjectilePath.luau`, and `Paid` (true once it paid out), `Golden` and `Mega` (the MegaStick event's giant stick; its bigger size is already in `Diameter`). Clients draw the model along that path
 (`docs/decisions/0004`): small settling hops from `SettleTime`, lying still from `EndTime`, fully faded at `EndTime + FadeTime`.
 Shooter models (the imported Shiba inside `Workspace/Islands/Island_<UserId>/…/Shooter`) carry two attributes, both
 server → client only and purely visual (`Controllers/ShibaController`):

@@ -170,6 +170,32 @@ worth it at every stage. Config: `Config/Hub`.
   Admin gifts and coin-flip stakes coming back don't count, only real earnings.
 - Only earned points can be bet. Bonk Points must never be sold for Robux while coin flips exist (Roblox rules on paid random items).
 
+## Server events
+
+Every ~15 minutes (`Config/Events`: `Interval` 15 min from one start to the next, ± 1 min jitter, first one 5 min after
+the server starts) one random event (equal weights) runs for everyone in the server:
+
+| Event | Duration | Effect |
+|-------|----------|--------|
+| **Golden Minute** | 60 s | every projectile is golden (pays the golden ×5) |
+| **Mega Stick** | 90 s | each player's Shibas throw ONE giant stick (3× diameter) onto their field; catching it pays ×50. Only thrown while you are on your island; a player who joins during the event gets one too |
+| **Double Points** | 120 s | every bonk pays ×2 (stacks with passes, boosts, golden) |
+| **Stick Storm** | 90 s | every Shiba's fire interval is halved |
+
+A banner at the top of the screen shows the running event and its countdown (a big splash when it starts); between
+events a small line shows "Next event in mm:ss". Players who join mid-event see it right away. Admins can start one
+right away (`EventService.StartNow(eventId)`, hooked into the admin menu later).
+
+## Shiba-Index
+
+A collection book (INDEX menu, `Config/Index`) with one entry per Shiba tier (10), projectile tier (10), the golden stick
+and each trophy (10): 31 entries today, new tiers and trophies are added automatically. An entry is **found** when you
+first reach it: Shiba / projectile tier bought (or skipped past), first golden stick caught, trophy owned. Unfound entries
+show as a dark "???" silhouette. Each found entry pays a one-time discovery reward you claim on its card (in bonks, see
+Hub features): Shibas 20 + 10 per tier, projectiles 15 + 5 per tier, golden stick 50, trophies by rarity (Common 25,
+Rare 50, Epic 100, Legendary 200, Exclusive 300). Finding all entries unlocks a completion bonus of 1,000 bonks.
+A bar on top shows the progress ("12/31 found").
+
 ## Shop (monetisation)
 
 Goal: earn well without being a scam. Robux buys time savers, boosts and cosmetics; Bonk Points are **never** sold for
