@@ -52,8 +52,8 @@ Work is split by feature area. The owner reviews changes in their area and decid
 | Area | Owner | Notes |
 |------|-------|-------|
 | `shared/Net`, `shared/Types`, `CLAUDE.md`, `docs/CONVENTIONS.md` | both | contract files — changes in separate PRs, both approve |
-| Islands, NPC shooters, projectiles, hit detection, bonk effects (knockback, popup, sound) | Max | calls Economy to award Bonk Points, reads upgrade levels from Upgrades |
-| Economy, upgrades, shop, HUD, saving | Marco | the only code that changes Bonk Points or upgrade levels |
+| All game code: islands, NPC shooters, projectiles, hit detection, bonk effects, economy, upgrades, shop, HUD, saving | Max | only EconomyService / UpgradeService change Bonk Points or upgrade levels |
+| 3D models and other visual assets (islands, shooters, projectiles, UI art, effects) | Marco | built in Studio, not in git (see *World vs code*); code finds them by stable names |
 
 ## World vs code
 
