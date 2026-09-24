@@ -95,6 +95,18 @@ local function onClaimOffline(player: Player, double: unknown)
 	end
 end
 
+-- Admin testing tool: pretends the player was away for `seconds` (with at least 10 bonks per minute of income),
+-- so the Welcome Back popup shows without leaving the game.
+function OfflineService.SimulateAway(player: Player, seconds: number)
+	local state = DataService.GetState(player)
+	if not state then
+		return
+	end
+	state.Bank.IncomePerMinute = math.max(state.Bank.IncomePerMinute, RewardService.Hits(player, 10))
+	state.Bank.LastSeenAt = os.time() - seconds
+	onLoaded(player, state)
+end
+
 function OfflineService.Start()
 	Net.Get(Net.ClaimOffline).OnServerEvent:Connect(onClaimOffline)
 	DataService.OnLoaded(onLoaded)

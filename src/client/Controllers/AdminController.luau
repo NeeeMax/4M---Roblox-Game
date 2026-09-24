@@ -187,7 +187,25 @@ local function build()
 		send("FireNow")
 	end)
 
-	local danger = section(list, "Danger zone", 7)
+	local events = section(list, "Server events · Offline", 7)
+	local eventIds = { "GoldenMinute", "MegaStick", "DoublePoints", "StickStorm" }
+	local eventButtons =
+		buttonRow(events, 1, { { "Golden" }, { "Mega" }, { "Double" }, { "Storm" } }, Color3.fromRGB(255, 170, 40))
+	for index, eventId in eventIds do
+		eventButtons[index].Activated:Connect(function()
+			send("StartEvent", eventId)
+		end)
+	end
+	local eventTools =
+		buttonRow(events, 2, { { "Stop event" }, { "Simulate 1 h offline" } }, Color3.fromRGB(120, 110, 220))
+	eventTools[1].Activated:Connect(function()
+		send("StopEvent")
+	end)
+	eventTools[2].Activated:Connect(function()
+		send("SimulateOffline")
+	end)
+
+	local danger = section(list, "Danger zone", 8)
 	local reset = buttonRow(danger, 1, { { "RESET EVERYTHING" } }, Theme.Bad)[1]
 	local armedAt = 0
 	reset.Activated:Connect(function()
