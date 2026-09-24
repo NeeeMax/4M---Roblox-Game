@@ -42,7 +42,7 @@ for o in bpy.data.collections['Original_backup'].objects:
 
 # --- Base dog and hand stick (same as build_shiba.py) ---
 dog = [o for o in coll.objects if o.type == 'MESH']
-WOOD = srgb(110, 62, 30)
+WOOD = (0.12, 0.055, 0.022)  # wood_brown in shiba_bonk_default.blend (linear)
 src = bpy.data.objects['Stick_orig']
 stick = src.copy(); stick.data = src.data.copy(); stick.name = "BaseStick"
 stick.hide_render = False  # copied from the hidden backup collection
@@ -178,7 +178,12 @@ def transform_about(o, pivot, m):
 
 # --- Shiba designs. Each gets fresh copies of the dog parts (dict by name) and the paw stick, may reshape them,
 # and returns (colours per fur material, extra meshes). ---
-ORANGE, CREAM, DARK = srgb(190, 90, 25), srgb(247, 232, 205), srgb(25, 22, 25)
+# The original Shiba colours (material base colours in shiba_bonk_default.blend, linear).
+ORANGE, CREAM, DARK = (0.745, 0.254, 0.045), (0.922, 0.823, 0.672), (0.01, 0.01, 0.012)
+
+def plain(parts, hs):
+    """The standard orange Shiba (tier 1)."""
+    return default_cols(), []
 
 def default_cols():
     return {"fur_orange": lambda p: ORANGE, "fur_cream": lambda p: CREAM, "fur_dark": lambda p: DARK}
@@ -519,7 +524,7 @@ def cheems(parts, hs):
         ex.append(rod(cen - d.normalized() * 0.12, cen + d.normalized() * 0.12, 0.022, gold, verts=6))
     return cols, ex
 
-DESIGNS = [("ShadesShiba", shades), ("BuffShiba", buff), ("ChefShiba", chef), ("PoliceShiba", police),
+DESIGNS = [("Shiba", plain), ("ShadesShiba", shades), ("BuffShiba", buff), ("ChefShiba", chef), ("PoliceShiba", police),
            ("NinjaShiba", ninja), ("GoldShiba", gold), ("GiantShiba", giant), ("CheemsGod", cheems)]
 
 EXPORT = dict(axis_forward='Z', axis_up='Y', use_selection=True, object_types={'MESH'}, colors_type='SRGB',
@@ -560,13 +565,20 @@ for asset, design in DESIGNS:
     for base_name, cp in parts.items():
         whole = cols.get(f"{base_name}:*")  # full paint override for this part: fn(position, material, face)
         paint(cp, whole or (lambda p, n, i: (cols.get(n) or (lambda q: srgb(200, 200, 200)))(p)))
-    body = join(list(parts.values()) + extras, f"{asset}_Body")
+    # The throwing arm is its own part with a Shoulder marker at the joint, so the game can swing it.
+    arm_names = ("RightUpperArm", "RightLowerArm", "RightHand")
+    up_min, up_max = wb(parts["RightUpperArm"])
+    shoulder = Vector(((up_min.x + up_max.x) / 2, (up_min.y + up_max.y) / 2, up_max.z - 0.04))
+    arm = join([parts[n] for n in arm_names], f"{asset}_Arm")
+    body = join([p for n, p in parts.items() if n not in arm_names] + extras, f"{asset}_Body")
+    marker = box(shoulder, (0.02, 0.02, 0.02), srgb(255, 0, 255))
+    marker.data.materials.append(one)
     paint(hs, lambda p, n, i: WOOD)
     hs.data.materials.clear(); hs.data.materials.append(one)
-    export({"Body": body, "Stick": hs}, f"{asset}.fbx")
+    export({"Body": body, "ThrowArm": arm, "Shoulder": marker, "Stick": hs}, f"{asset}.fbx")
     tris = sum(len(p.vertices) - 2 for p in body.data.polygons)
     print(f"BUILT {asset}: Body {tris} triangles")
-    built.append([body, hs])
+    built.append([body, arm, marker, hs])
 
 # --- Projectiles: long axis along Z, centred at the origin, like Stick.fbx ---
 def loose_stick(name):

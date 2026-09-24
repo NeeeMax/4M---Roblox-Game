@@ -27,7 +27,9 @@ Only models that code depends on. Keep this folder small; the world lives in the
 | `NeonStick.fbx` | `NeonStick` — blue-pink neon, electric zigzags | projectile tier 9 |
 | `LegendaryStick.fbx` | `LegendaryStick` — golden stick, lightning, runes, sparks | projectile tier 10 |
 
-Tier Shibas are `Body` + `Stick` (the stick in the paw, hidden after each throw). `Tiers_preview.png` shows them all.
+Tier Shibas are `Body` + `ThrowArm` (upper arm, forearm and paw that throw) + `Shoulder` (tiny marker at the joint,
+made invisible in the game; the arm turns around it) + `Stick` (in the paw, hidden after each throw). The client swings
+`ThrowArm` and `Stick` for the throw animation (`Controllers/ShibaController`). `Tiers_preview.png` shows them all.
 
 A tier without its own model uses the next lower tier's model (shooters get an outline in the tier colour,
 projectiles a trail). The old name `Shooter` still works as the last fallback for shooters. Output lists found and
@@ -43,14 +45,15 @@ three meshes. Re-export:
 blender --background --factory-startup --python build_galaxy_shiba.py -- galaxy_shiba.obj <output folder> export
 ```
 
-Tier Shibas 2–10 (except Galaxy) and projectiles 2–10 are Marco's designs, built from the same `shiba_bonk_default.blend` (same pose and
+Tier Shibas 1–10 (except Galaxy) and projectiles 2–10 are Marco's designs, built from the same `shiba_bonk_default.blend` (same pose and
 paw stick, own colours plus accessories from low-poly primitives) with `build_shiba_tiers.py`:
 
 ```
 blender --background --disable-autoexec shiba_bonk_default.blend --python build_shiba_tiers.py -- <output folder>
 ```
 
-`Shiba.fbx` and `Stick.fbx` come from `shiba_bonk_default.blend` with `build_shiba.py`:
+`Stick.fbx` (and the old one-piece orange Shiba) come from `shiba_bonk_default.blend` with `build_shiba.py`; `Shiba.fbx`
+itself is now built by `build_shiba_tiers.py` too (same model, throwing arm split out):
 
 ```
 blender --background --disable-autoexec shiba_bonk_default.blend --python build_shiba.py -- <output folder> export
