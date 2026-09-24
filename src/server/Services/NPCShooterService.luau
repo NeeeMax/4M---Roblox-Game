@@ -2,7 +2,9 @@
 -- NPC shooters around each island. They never aim at the player: every shot targets a random point on the island,
 -- and its whole path (flight + bounces) must stay away from where the player stands, so standing still earns
 -- nothing (docs/decisions/0002). Shooters take turns: with n shooters, one fires every interval / n seconds.
--- Each shooter turns toward its target AimTime before it fires.
+-- The interval comes from the Shiba tier (and the fire-rate boost). Each shooter turns toward its target AimTime
+-- before it fires. Shooters only fire while their owner is on (or next to) their island. The ring leaves a gap
+-- where the bridge from the hub arrives.
 -- Looks: the ShooterTier's model from ReplicatedStorage.Assets (see Config/Gameplay → Shooters.Tiers), else a lower
 -- tier's model with an outline in the tier colour, else a red block.
 
@@ -267,7 +269,7 @@ end
 -- Keeps the ring in sync with the active-shooter count and the fire interval. Returns the player's ring.
 local function syncRing(player: Player, island: IslandService.Island, now: number): Ring
 	local wanted = UpgradeService.GetActiveShooters(player)
-	local interval = UpgradeService.GetValue(player, "FireRate")
+	local interval = UpgradeService.GetFireInterval(player)
 	local tier = UpgradeService.GetLevel(player, "ShooterTier")
 	local ring = rings[player]
 	if ring and #ring.Shooters == wanted and ring.Tier == tier then
@@ -284,7 +286,8 @@ local function syncRing(player: Player, island: IslandService.Island, now: numbe
 	end
 	local rebuilt: Ring = { Shooters = {}, Interval = interval, Tier = tier }
 	for index = 1, wanted do
-		local angle = (index - 1) / wanted * 2 * math.pi
+		-- Evenly spaced, with the bridge side (HubAngle) exactly between two shooters.
+		local angle = island.HubAngle + (index - 0.5) / wanted * 2 * math.pi
 		table.insert(rebuilt.Shooters, buildShooter(island.ShooterFolder, island.Center, angle, tier))
 	end
 	schedule(rebuilt, now)
@@ -299,9 +302,17 @@ local function updatePlayer(player: Player, now: number)
 	end
 	local ring = syncRing(player, island, now)
 
-	-- No character (dead or respawning): shooters wait.
+	-- No character (dead or respawning) or away from the island (on the hub): shooters wait.
 	local root = getRoot(player)
 	if not root then
+		return
+	end
+	local offset = root.Position - island.Center
+	if Vector3.new(offset.X, 0, offset.Z).Magnitude > ISLAND.ActiveDistance then
+		for _, shooter in ring.Shooters do
+			shooter.Plan = nil
+			shooter.NextFireAt = math.max(shooter.NextFireAt, now + CONFIG.FirstShotDelay)
+		end
 		return
 	end
 
@@ -330,6 +341,19 @@ local function updatePlayer(player: Player, now: number)
 				shooter.NextFireAt += ring.Interval
 			until shooter.NextFireAt > now
 		end
+	end
+end
+
+-- Admin testing tool: every shooter of this player fires as soon as it has aimed.
+function NPCShooterService.FireNow(player: Player)
+	local ring = rings[player]
+	if not ring then
+		return
+	end
+	local now = os.clock()
+	for index, shooter in ring.Shooters do
+		shooter.Plan = nil
+		shooter.NextFireAt = now + CONFIG.AimTime + (index - 1) * 0.15
 	end
 end
 

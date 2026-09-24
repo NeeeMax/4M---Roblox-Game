@@ -6,16 +6,15 @@ return {
 		-- Names the client relies on to find its own island: Workspace.<FolderName>.<ModelPrefix><UserId>.Projectiles
 		FolderName = "Islands",
 		ModelPrefix = "Island_",
-		-- Islands sit on a grid so one player's projectiles can never reach another island.
-		GridSpacing = 500,
-		GridColumns = 8,
 		SurfaceY = 100,
 		Radius = 30,
 		Thickness = 4,
 		-- Shots land inside this radius (2-stud margin to the edge).
 		TargetRadius = 28,
-		-- Below this height the character is put back on its island.
+		-- Below this height the character is put back on its island (or the hub).
 		FallOffY = 50,
+		-- Shooters only fire while the owner is within this distance of their island's centre (not on the hub).
+		ActiveDistance = 45,
 		SpawnHeight = 4,
 		FallCheckInterval = 0.5,
 	},
@@ -34,19 +33,67 @@ return {
 		-- Fallback shooter (red block with a barrel) when there is no ReplicatedStorage.Assets.Shooter model.
 		BarrelLength = 3,
 
-		-- Shooter looks per ShooterTier level (level n = Tiers[n + 1]). Model: ReplicatedStorage.Assets.<AssetName>,
-		-- scaled to Height studs, bottom on the platform. A tier without its own model uses the next lower tier's
-		-- model (then LegacyAssetName) with an outline in its Color. RewardMultiplier scales every bonk.
-		-- To add a tier: add a line here (the upgrade's max level follows automatically).
+		-- Shiba tiers (ShooterTier level n = Tiers[n + 1]). Each tier throws faster (FireInterval: seconds between two
+		-- throws of one Shiba) and pays more (RewardMultiplier). Model: ReplicatedStorage.Assets.<AssetName>, scaled to
+		-- Height studs, bottom on the platform. A tier without its own model uses the next lower tier's model (then
+		-- LegacyAssetName) with an outline in its Color. To add a tier: add a line (the upgrade follows automatically).
 		Tiers = {
-			{ Name = "Shiba", AssetName = "Shiba", RewardMultiplier = 1, Color = Color3.fromRGB(255, 170, 60) },
+			{
+				Name = "Shiba",
+				AssetName = "Shiba",
+				FireInterval = 5,
+				RewardMultiplier = 1,
+				Color = Color3.fromRGB(255, 170, 60),
+			},
 			{
 				Name = "Galaxy Shiba",
 				AssetName = "GalaxyShiba",
-				RewardMultiplier = 2,
+				FireInterval = 4.2,
+				RewardMultiplier = 1.8,
 				Color = Color3.fromRGB(170, 90, 255),
 			},
-			{ Name = "God Shiba", AssetName = "GodShiba", RewardMultiplier = 4, Color = Color3.fromRGB(255, 230, 120) },
+			{
+				Name = "Lava Shiba",
+				AssetName = "LavaShiba",
+				FireInterval = 3.5,
+				RewardMultiplier = 3.2,
+				Color = Color3.fromRGB(255, 80, 30),
+			},
+			{
+				Name = "Ice Shiba",
+				AssetName = "IceShiba",
+				FireInterval = 2.9,
+				RewardMultiplier = 5.8,
+				Color = Color3.fromRGB(140, 220, 255),
+			},
+			{
+				Name = "Robo Shiba",
+				AssetName = "RoboShiba",
+				FireInterval = 2.4,
+				RewardMultiplier = 10.5,
+				Color = Color3.fromRGB(160, 170, 185),
+			},
+			{
+				Name = "Angel Shiba",
+				AssetName = "AngelShiba",
+				FireInterval = 2,
+				RewardMultiplier = 19,
+				Color = Color3.fromRGB(255, 250, 220),
+			},
+			{
+				Name = "Demon Shiba",
+				AssetName = "DemonShiba",
+				FireInterval = 1.6,
+				RewardMultiplier = 34,
+				Color = Color3.fromRGB(200, 20, 60),
+			},
+			{
+				Name = "God Shiba",
+				AssetName = "GodShiba",
+				FireInterval = 1.3,
+				RewardMultiplier = 60,
+				Color = Color3.fromRGB(255, 215, 60),
+			},
 		},
 		-- Older single-model name, still used when no tier model exists.
 		LegacyAssetName = "Shooter",

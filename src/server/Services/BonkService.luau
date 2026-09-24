@@ -11,13 +11,17 @@ local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local Net = require(ReplicatedStorage.Shared.Net)
 local RateLimiter = require(ReplicatedStorage.Shared.Util.RateLimiter)
 
+local BoostService = require(script.Parent.BoostService)
 local EconomyService = require(script.Parent.EconomyService)
 local ProjectileService = require(script.Parent.ProjectileService)
+local QuestService = require(script.Parent.QuestService)
+local RewardService = require(script.Parent.RewardService)
 local UpgradeService = require(script.Parent.UpgradeService)
 
 local HITS = Gameplay.Hits
 local COMBO = Gameplay.Combo
-local TIERS = Gameplay.Shooters.Tiers
+-- Quality names from Hard up count for "Hard (or better)" quests.
+local HARD_QUALITIES = { Hard = true, Massive = true, Legendary = true }
 
 type Combo = {
 	Count: number,
@@ -44,7 +48,7 @@ end
 
 -- How long after a hit the next one still continues the combo: longer when shots come less often.
 local function comboWindow(player: Player): number
-	local timeBetweenShots = UpgradeService.GetValue(player, "FireRate") / UpgradeService.GetActiveShooters(player)
+	local timeBetweenShots = UpgradeService.GetFireInterval(player) / UpgradeService.GetActiveShooters(player)
 	return COMBO.BaseWindow + COMBO.ShotsWindow * timeBetweenShots
 end
 
@@ -113,23 +117,28 @@ local function onReportHit(player: Player, projectileId: unknown, onHeadClaim: u
 	local quality = getQuality(ratio)
 
 	local combo, comboMultiplier, window = registerCombo(player, os.clock())
-	local tier = TIERS[UpgradeService.GetLevel(player, "ShooterTier") + 1] or TIERS[1]
-	local sizeMultiplier = plan.SizeScale
-	local speedMultiplier = plan.NominalSpeed / plan.Def.BaseSpeed
+	local tier = RewardService.GetShooterTier(player)
 	local headMultiplier = if onHead then HITS.HeadMultiplier else 1
 	local reward = math.max(
 		1,
 		math.floor(
 			plan.Def.BaseReward
-				* sizeMultiplier
-				* speedMultiplier
 				* quality.Multiplier
 				* headMultiplier
 				* comboMultiplier
 				* tier.RewardMultiplier
+				* BoostService.GetMultiplier(player, "Points")
 		)
 	)
 	EconomyService.AddPoints(player, reward)
+	QuestService.Record(player, "Hit", 1)
+	QuestService.Record(player, "Combo", combo)
+	if onHead then
+		QuestService.Record(player, "HeadHit", 1)
+	end
+	if HARD_QUALITIES[quality.Name] then
+		QuestService.Record(player, "HardHit", 1)
+	end
 
 	local flat = Vector3.new(projectileVelocity.X, 0, projectileVelocity.Z)
 	local knockbackDirection = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.zero
