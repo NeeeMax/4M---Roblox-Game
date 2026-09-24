@@ -14,13 +14,22 @@ local Net = {
 	SetActiveShooters = "SetActiveShooters",
 	-- C→S (projectileId: number) — "this projectile touched me"; the server validates it (docs/decisions/0003)
 	ReportHit = "ReportHit",
+	-- C→S (amount: number) — admin-only testing tool, see Config/Admin
+	AdminAddPoints = "AdminAddPoints",
 	-- S→C (reward: number, quality: HitQuality, knockbackDirection: Vector3)
 	BonkHit = "BonkHit",
 	-- S→C (bonkPoints: number, upgradeLevels: { [UpgradeId]: number }, activeShooters: number)
 	StateChanged = "StateChanged",
 }
 
-local ALL_NAMES = { Net.RequestPurchase, Net.SetActiveShooters, Net.ReportHit, Net.BonkHit, Net.StateChanged }
+local ALL_NAMES = {
+	Net.RequestPurchase,
+	Net.SetActiveShooters,
+	Net.ReportHit,
+	Net.AdminAddPoints,
+	Net.BonkHit,
+	Net.StateChanged,
+}
 
 function Net.CreateRemotes()
 	assert(RunService:IsServer(), "Net.CreateRemotes is server-only")

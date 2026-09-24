@@ -7,7 +7,7 @@ export type ProjectileDef = {
 	DisplayName: string,
 	-- Studs at ProjectileSize level 0.
 	Diameter: number,
-	-- Launch speed in studs/s at ProjectileSpeed and ProjectileSize level 0.
+	-- Launch speed in studs/s at ProjectileSize level 0.
 	BaseSpeed: number,
 	-- Bonk Points for a Normal hit with no upgrades.
 	BaseReward: number,
@@ -20,7 +20,7 @@ local defs: { [string]: ProjectileDef } = {
 		Id = "Ball",
 		DisplayName = "Ball",
 		Diameter = 2,
-		BaseSpeed = 45,
+		BaseSpeed = 36,
 		BaseReward = 10,
 		Color = Color3.fromRGB(255, 120, 30),
 		Material = Enum.Material.SmoothPlastic,

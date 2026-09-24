@@ -1,7 +1,18 @@
 --!strict
--- Bonk Point balance. Server-only: clients can never add points, only BonkService does on a validated hit.
+-- Bonk Point balance. Server-only: clients can never add points themselves. Points come from validated hits
+-- (BonkService) and from the admin testing tool (AdminAddPoints, admins only).
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+local Admin = require(ReplicatedStorage.Shared.Config.Admin)
+local Economy = require(ReplicatedStorage.Shared.Config.Economy)
+local Net = require(ReplicatedStorage.Shared.Net)
+local RateLimiter = require(ReplicatedStorage.Shared.Util.RateLimiter)
 
 local DataService = require(script.Parent.DataService)
+
+local adminLimiter = RateLimiter.New(Economy.MaxRequestsPerSecond, 1)
 
 local EconomyService = {}
 
@@ -29,6 +40,24 @@ function EconomyService.TrySpend(player: Player, amount: number): boolean
 	state.BonkPoints -= amount
 	DataService.Replicate(player)
 	return true
+end
+
+local function onAdminAddPoints(player: Player, amount: unknown)
+	if not RateLimiter.Allow(adminLimiter, player) or not Admin.IsAdmin(player.UserId) then
+		return
+	end
+	-- Only the fixed button amounts, so even an admin client can't send absurd numbers.
+	if typeof(amount) ~= "number" or not table.find(Admin.PointAmounts, amount) then
+		return
+	end
+	EconomyService.AddPoints(player, amount)
+end
+
+function EconomyService.Start()
+	Net.Get(Net.AdminAddPoints).OnServerEvent:Connect(onAdminAddPoints)
+	Players.PlayerRemoving:Connect(function(player)
+		RateLimiter.Remove(adminLimiter, player)
+	end)
 end
 
 return EconomyService
