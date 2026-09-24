@@ -424,6 +424,9 @@ local function updatePlayer(player: Player, now: number)
 			if plan then
 				ProjectileService.Fire(player, plan)
 				hideHandStick(shooter)
+			elseif shooter.Visual then
+				-- No safe shot after all: don't let clients swing the arm for a throw that never happens.
+				shooter.Visual:SetAttribute(CONFIG.Throw.ThrowAtAttribute, nil)
 			end
 			shooter.Plan = nil
 			-- Keep the turn order even if a frame was late.
