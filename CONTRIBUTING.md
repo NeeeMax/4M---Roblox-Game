@@ -40,7 +40,7 @@ while `src/` has no `.luau` files yet — CI skips the step in that case.
 |-------|-----|---------|-----------------|
 | **4M (main)** — Team Create | both | building the world, maps, UI layout, playtests together | `main` only |
 | **4M Dev – Max** | Max | syncing + testing your branch | your local clone |
-| **4M Dev – <friend>** | friend | syncing + testing your branch | your local clone |
+| **4M Dev – Marco** | Marco | syncing + testing your branch | your local clone |
 
 Why separate dev places: Script Sync pushes whatever is on your disk into the place. If you switch git branches
 while synced to the shared Team Create place, your branch's code lands in your teammate's session.

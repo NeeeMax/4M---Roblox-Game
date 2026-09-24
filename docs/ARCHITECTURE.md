@@ -52,8 +52,8 @@ Work is split by feature area. The owner reviews changes in their area and decid
 | Area | Owner | Notes |
 |------|-------|-------|
 | `shared/Net`, `shared/Types`, `CLAUDE.md`, `docs/CONVENTIONS.md` | both | contract files — changes in separate PRs, both approve |
-| _TBD_ | Max | |
-| _TBD_ | _friend_ | |
+| Islands, NPC shooters, projectiles, hit detection, bonk effects (knockback, popup, sound) | Max | calls Economy to award Bonk Points, reads upgrade levels from Upgrades |
+| Economy, upgrades, shop, HUD, saving | Marco | the only code that changes Bonk Points or upgrade levels |
 
 ## World vs code
 
