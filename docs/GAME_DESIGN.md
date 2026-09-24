@@ -160,11 +160,12 @@ Explicitly not in MVP:
 | Projectiles | spawn, arc physics, lifetime, cleanup | Max |
 | Hit detection | overlap check, immunity, hit quality, reward calculation | Max |
 | Bonk effects | knockback, `+X BONK` popup, sound | Max |
-| Economy | Bonk Point balance, add/spend (server only) | Marco |
-| Upgrades | levels, cost formula, server-validated purchases | Marco |
-| Shop / upgrade menu | UI to buy upgrades, active-shooter selector | Marco |
-| HUD | Bonk Points display | Marco |
-| Saving | DataStore load/save | Marco |
+| Economy | Bonk Point balance, add/spend (server only) | Max |
+| Upgrades | levels, cost formula, server-validated purchases | Max |
+| Shop / upgrade menu | UI to buy upgrades, active-shooter selector | Max |
+| HUD | Bonk Points display | Max |
+| Saving | DataStore load/save | Max |
+| 3D models & visuals | models for islands, shooters, projectiles; UI art; effects | Marco |
 
 ## Monetisation
 
