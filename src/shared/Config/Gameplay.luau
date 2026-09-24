@@ -160,19 +160,30 @@ return {
 		LaunchAngleDegrees = 45,
 		-- Launch speed varies by ± this fraction per shot.
 		SpeedJitter = 0.1,
-		-- Ground bounces before the projectile disappears (it disappears on the next ground contact).
+		-- Landing (all planned in Util/ProjectilePath, so client and server agree): after the flight it bounces `Bounces`
+		-- times, then makes the small settling hops, then lies still and fades out over LandingFadeTime.
 		Bounces = 2,
 		-- Vertical speed kept per bounce (0.5 = half as fast upward as it came down).
 		BounceRestitution = 0.5,
 		-- Horizontal speed kept per bounce.
 		BounceFriction = 0.7,
-		-- A projectile that bounces off the island edge is removed this far below the island surface.
+		-- Small hops after the bounces, as apex heights in studs above the ground. Fixed heights, so they stay visible
+		-- whatever the shot's gravity; each is capped at the previous hop's height. {} = no settling hops.
+		SettleHopHeights = { 0.7, 0.3 },
+		-- Horizontal speed kept per settling hop; after the last one the projectile lies still.
+		SettleFriction = 0.45,
+		-- Seconds the landed projectile lies on the ground fading out before it is gone.
+		LandingFadeTime = 0.6,
+		-- Whether a landed projectile can still be collected while it fades. false: only until it comes to rest
+		-- (flight, bounces and settling hops). The client check and the server validation both follow this.
+		CollectableWhileFading = false,
+		-- A projectile that bounces off the island edge is removed this far below the island surface (no fade).
 		FallDespawnDepth = 20,
-		-- Server cleanup delay after the path ends. Clients already hide the projectile the moment its path ends,
-		-- so this only has to outlast the network delay.
+		-- Server cleanup delay after the landing fade ends (path EndTime + FadeTime). Clients stop drawing the
+		-- projectile when their fade ends, so this only has to outlast the network delay.
 		DespawnDelay = 0.5,
-		-- The server keeps a projectile's path this long after it ended, so hit reports that arrive after the part is
-		-- gone (network delay) can still be validated.
+		-- The server accepts hit reports up to this long after the collectable window ended
+		-- (ProjectilePath.GetCollectEndTime) and keeps the path that long, so reports delayed by the network still count.
 		ReportGracePeriod = 2,
 		-- Safety net only; normal paths end much earlier.
 		MaxLifetime = 15,
@@ -184,6 +195,8 @@ return {
 		GoldenMultiplier = 5,
 		GoldenColor = Color3.fromRGB(255, 205, 40),
 		GoldenAttribute = "Golden",
+		-- Fill transparency of the gold outline (before the landing fade).
+		GoldenFillTransparency = 0.55,
 		-- A projectile that already paid out keeps flying (it passes through the player) at this transparency.
 		PaidTransparency = 0.5,
 		-- Attribute set on each projectile marker, read by the client (the path itself: Util/ProjectilePath).
@@ -192,16 +205,22 @@ return {
 
 	Hits = {
 		ImmunityTime = 0.5,
+		-- Extra pickup reach in studs around every projectile, so they are easier to collect without bigger models.
+		-- Client: the overlap sphere is projectile radius + PickupPadding. Server: HitTolerance / HeadTolerance are added
+		-- on top of radius + PickupPadding, so both sides stay consistent. Keep it well below
+		-- Shooters.MinDistanceFromPlayer, or the anti-farm rule no longer keeps standing players at 0.
+		PickupPadding = 2,
 		-- Player velocity used for hit quality is clamped to this vertically (and to WalkSpeed horizontally),
 		-- so knockback or a spoofed client velocity can't inflate the quality.
 		MaxVerticalPlayerSpeed = 50,
-		-- Client: projectiles farther than projectile radius + this from the root part skip the exact overlap check.
+		-- Client: projectiles farther than projectile radius + PickupPadding + this from the root part skip the exact
+		-- overlap check.
 		BroadPhaseDistance = 6,
-		-- Server: a reported hit counts if the flight path passed within projectile radius + this of the root part.
-		-- Covers body size plus network delay (docs/decisions/0003).
+		-- Server: a reported hit counts if the path passed within projectile radius + PickupPadding + this of the root
+		-- part. Covers body size plus network delay (docs/decisions/0003).
 		HitTolerance = 6,
 		-- A hit that touches the head pays HeadMultiplier times as much. The server accepts the client's head claim
-		-- if the path passed within projectile radius + HeadTolerance of the server-side head.
+		-- if the path passed within projectile radius + PickupPadding + HeadTolerance of the server-side head.
 		HeadMultiplier = 2,
 		HeadTolerance = 4,
 		-- Server: time step when searching the flight path for its closest point to the player.

@@ -26,3 +26,12 @@ visibly hung for a moment each time it touched the ground.
   (not ~100 ms in the past as with replicated physics), which makes hit reports more accurate.
 - A new projectile type only needs a def in `Config/Projectiles` and an asset; the drawing is generic.
 - Revisit if projectiles ever need to react to the world (collide with things): then they need real physics again.
+
+## Amendment 2026-09-25 — landing: settling hops and fade
+
+- `ProjectilePath.Build` (shared) now plans the whole path, including two small **settling hops** of fixed height after
+  the bounces; the path carries `SettleTime` and `FadeTime` too. Clients no longer hide the model the instant the path
+  ends: it lies still at the end point, turned flat, and **fades out over `FadeTime`**; the server keeps the marker until
+  the fade is over (+ `DespawnDelay`). Falls off the island edge have no fade.
+- Near the ground the model is drawn with its lowest point on the ground (before, the hit-sphere centre was drawn, so a
+  flat stick bounced about a radius above the ground and vanished in mid-air while still sliding).

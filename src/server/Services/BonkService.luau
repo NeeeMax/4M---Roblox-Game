@@ -80,7 +80,7 @@ local function onReportHit(player: Player, projectileId: unknown, onHeadClaim: u
 		return
 	end
 	local info = ProjectileService.GetById(projectileId)
-	if not info or info.Owner ~= player or info.Paid then
+	if not info or info.Owner ~= player or info.Paid or not ProjectileService.AcceptsReports(info) then
 		return
 	end
 	if (immuneUntil[player] or 0) > os.clock() then
@@ -93,11 +93,13 @@ local function onReportHit(player: Player, projectileId: unknown, onHeadClaim: u
 		return
 	end
 
-	-- Only the part of the path the projectile has already travelled (flight and bounces) counts.
+	-- Only the part of the path the projectile has already travelled (flight, bounces, settling hops) counts; the
+	-- resting position at its end is the last point. The pickup sphere is radius + PickupPadding, as on the client.
 	local plan = info.Plan
 	local travelled = os.clock() - info.LaunchedAt
+	local pickupRadius = plan.Radius + HITS.PickupPadding
 	local distance, projectileVelocity = ProjectileService.ClosestApproach(plan, root.Position, travelled)
-	if distance > plan.Radius + HITS.HitTolerance then
+	if distance > pickupRadius + HITS.HitTolerance then
 		return
 	end
 	-- Head bonus: the client saw the head touch it, and the path really passed close to the head.
@@ -105,7 +107,7 @@ local function onReportHit(player: Player, projectileId: unknown, onHeadClaim: u
 	local onHead = false
 	if onHeadClaim == true and head and head:IsA("BasePart") then
 		local headDistance = ProjectileService.ClosestApproach(plan, head.Position, travelled)
-		onHead = headDistance <= plan.Radius + HITS.HeadTolerance
+		onHead = headDistance <= pickupRadius + HITS.HeadTolerance
 	end
 
 	ProjectileService.MarkPaid(info)

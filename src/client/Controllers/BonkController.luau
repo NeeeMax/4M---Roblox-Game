@@ -247,14 +247,16 @@ local function tryReport(
 	reportHit: RemoteEvent
 ): boolean
 	local id = entry.Marker:GetAttribute(PROJECTILES.IdAttribute)
+	-- Pickup sphere: the projectile's hit radius plus PickupPadding (the server adds the same padding).
+	local pickupRadius = entry.Radius + HITS.PickupPadding
 	if
 		typeof(id) ~= "number"
-		or (entry.Position - root.Position).Magnitude > entry.Radius + HITS.BroadPhaseDistance
+		or (entry.Position - root.Position).Magnitude > pickupRadius + HITS.BroadPhaseDistance
 	then
 		return false
 	end
 	overlapParams.FilterDescendantsInstances = { character }
-	local touching = Workspace:GetPartBoundsInRadius(entry.Position, entry.Radius, overlapParams)
+	local touching = Workspace:GetPartBoundsInRadius(entry.Position, pickupRadius, overlapParams)
 	if #touching == 0 then
 		return false
 	end
@@ -275,7 +277,7 @@ local function update(projectileFolder: Instance, reportHit: RemoteEvent)
 	if not character or not root then
 		return
 	end
-	for _, entry in ProjectileController.GetVisibleIn(projectileFolder) do
+	for _, entry in ProjectileController.GetCollectableIn(projectileFolder) do
 		if not reported[entry.Marker] and tryReport(entry, character, root, reportHit) then
 			reported[entry.Marker] = true
 			-- One hit per check: immunity starts now.
