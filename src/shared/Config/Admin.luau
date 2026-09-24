@@ -7,7 +7,7 @@ local RunService = game:GetService("RunService")
 local Admin = {
 	-- Roblox UserIds of extra admins (the number in the profile URL: roblox.com/users/<UserId>/profile).
 	-- The experience owner is always an admin. Example: { 12345678 }
-	UserIds = {} :: { number },
+	UserIds = { 11710633859 } :: { number }, -- Marco
 	-- In Studio playtests everyone is an admin, so testing needs no setup.
 	EveryoneInStudio = true,
 	-- The only amounts the ADMIN buttons (and the server) allow.

@@ -3,5 +3,5 @@
 -- Bump the label with every change that should be visible in a playtest.
 
 return {
-	Label = "2026-09-24 #8: automatic merging into main",
+	Label = "2026-09-24 #9: Galaxy Shiba shooter, Marco admin",
 }
