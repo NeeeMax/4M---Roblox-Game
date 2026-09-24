@@ -12,11 +12,13 @@ local Net = {
 	RequestPurchase = "RequestPurchase",
 	-- C→S (count: number)
 	SetActiveShooters = "SetActiveShooters",
-	-- C→S (projectileId: number) — "this projectile touched me"; the server validates it (docs/decisions/0003)
+	-- C→S (projectileId: number, onHead: boolean) — "this projectile touched me (on the head)"; the server validates it
+	-- (docs/decisions/0003)
 	ReportHit = "ReportHit",
 	-- C→S (amount: number) — admin-only testing tool, see Config/Admin
 	AdminAddPoints = "AdminAddPoints",
-	-- S→C (reward: number, quality: HitQuality, knockbackDirection: Vector3)
+	-- S→C (reward: number, quality: HitQuality, knockbackDirection: Vector3, onHead: boolean, combo: number,
+	-- comboWindow: number)
 	BonkHit = "BonkHit",
 	-- S→C (bonkPoints: number, upgradeLevels: { [UpgradeId]: number }, activeShooters: number)
 	StateChanged = "StateChanged",

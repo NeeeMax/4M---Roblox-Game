@@ -3,9 +3,11 @@
 -- To add an upgrade: add its id to Types.UpgradeId, an entry to `defs` and to `order`,
 -- then read its value with UpgradeService.GetValue where it should take effect.
 
+local Gameplay = require(script.Parent.Gameplay)
+local Projectiles = require(script.Parent.Projectiles)
 local Types = require(script.Parent.Parent.Types)
 
-export type ValueFormat = "Plain" | "Multiplier" | "Seconds"
+export type ValueFormat = "Plain" | "Multiplier" | "Seconds" | "Name"
 
 export type UpgradeDef = {
 	Id: Types.UpgradeId,
@@ -19,10 +21,21 @@ export type UpgradeDef = {
 	Step: number,
 	StepKind: "Add" | "Multiply",
 	Format: ValueFormat,
+	-- Format "Name": the value v is shown as ValueNames[v + 1].
+	ValueNames: { string }?,
 }
 
 local DEFAULT_BASE_COST = 100
 local DEFAULT_GROWTH = 2.85
+
+local shooterTierNames: { string } = {}
+for _, tier in Gameplay.Shooters.Tiers do
+	table.insert(shooterTierNames, tier.Name)
+end
+local projectileTierNames: { string } = {}
+for _, id in Projectiles.Tiers do
+	table.insert(projectileTierNames, Projectiles.Defs[id].DisplayName)
+end
 
 local defs: { [string]: UpgradeDef } = {
 	MoveSpeed = {
@@ -73,9 +86,36 @@ local defs: { [string]: UpgradeDef } = {
 		StepKind = "Add",
 		Format = "Plain",
 	},
+	ShooterTier = {
+		Id = "ShooterTier",
+		DisplayName = "Shiba Tier",
+		Description = "Evolve all your Shibas: new look, more points per bonk.",
+		BaseCost = 5000,
+		Growth = 12,
+		MaxLevel = #shooterTierNames - 1,
+		BaseValue = 0,
+		Step = 1,
+		StepKind = "Add",
+		Format = "Name",
+		ValueNames = shooterTierNames,
+	},
+	ProjectileTier = {
+		Id = "ProjectileTier",
+		DisplayName = "Projectile Tier",
+		Description = "Better projectiles: new look, more points per bonk.",
+		BaseCost = 1500,
+		Growth = 10,
+		MaxLevel = #projectileTierNames - 1,
+		BaseValue = 0,
+		Step = 1,
+		StepKind = "Add",
+		Format = "Name",
+		ValueNames = projectileTierNames,
+	},
 }
 
-local order: { Types.UpgradeId } = { "MoveSpeed", "ProjectileSize", "FireRate", "Shooters" }
+local order: { Types.UpgradeId } =
+	{ "MoveSpeed", "ProjectileSize", "FireRate", "Shooters", "ProjectileTier", "ShooterTier" }
 
 local Upgrades = {
 	Defs = defs,

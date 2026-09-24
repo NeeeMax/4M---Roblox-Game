@@ -85,13 +85,14 @@ local function makeRoom(owner: Player)
 	end
 end
 
-function ProjectileService.GetDef(): Projectiles.ProjectileDef
-	return Projectiles.Defs[Projectiles.DefaultId]
+-- The projectile this player's shooters fire (their ProjectileTier level).
+function ProjectileService.GetDef(player: Player): Projectiles.ProjectileDef
+	return Projectiles.ForTier(UpgradeService.GetLevel(player, "ProjectileTier"))
 end
 
 -- Projectile diameter for this player's current ProjectileSize level.
 function ProjectileService.GetDiameter(player: Player): number
-	return ProjectileService.GetDef().Diameter * UpgradeService.GetValue(player, "ProjectileSize")
+	return ProjectileService.GetDef(player).Diameter * UpgradeService.GetValue(player, "ProjectileSize")
 end
 
 -- Unit vector from `from` toward `to` (horizontally), tilted up by the launch angle.
@@ -109,7 +110,7 @@ function ProjectileService.Plan(owner: Player, from: Vector3, target: Vector3): 
 	if not island then
 		return nil
 	end
-	local def = ProjectileService.GetDef()
+	local def = ProjectileService.GetDef(owner)
 	local sizeScale = UpgradeService.GetValue(owner, "ProjectileSize")
 	local radius = def.Diameter * sizeScale / 2
 	-- Bigger projectiles fly slower: that is the price of the easier, bigger-paying hit.

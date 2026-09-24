@@ -75,6 +75,8 @@ local function formatValue(def: Upgrades.UpgradeDef, value: number): string
 		return string.format("×%.2f", value)
 	elseif def.Format == "Seconds" then
 		return string.format("%.2f s", value)
+	elseif def.Format == "Name" and def.ValueNames then
+		return def.ValueNames[math.floor(value + 0.5) + 1] or "?"
 	end
 	return tostring(math.floor(value + 0.5))
 end

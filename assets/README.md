@@ -6,12 +6,19 @@ Only models that code depends on. Keep this folder small; the world lives in the
 
 | File | Studio name (`ReplicatedStorage/Assets/…`) | Used by |
 |------|---------------------------------------------|---------|
-| `Shooter.fbx` | `Shooter` — Galaxy Shiba (`Body`, `Stars`) holding a `Stick` in its raised paw | NPC shooters (`Config/Gameplay → Shooters`) |
-| `Stick.fbx` | `Stick` | the thrown projectile (`Config/Projectiles`) |
+| `Shiba.fbx` | `Shiba` — orange standard Shiba holding a `Stick` | Shiba Tier 1 (`Config/Gameplay → Shooters.Tiers`) |
+| `GalaxyShiba.fbx` | `GalaxyShiba` — Galaxy Shiba (`Body`, `Stars`) holding a `Stick` in its raised paw | Shiba Tier 2 |
+| — | `GodShiba` (not built yet) | Shiba Tier 3 |
+| `Stick.fbx` | `Stick` | projectile tier 1 (`Config/Projectiles`) |
+| — | `Bone`, `GoldenStick`, `DiamondStick` (not built yet) | projectile tiers 2–4 |
+
+A tier without its own model uses the next lower tier's model (shooters get an outline in the tier colour,
+projectiles a trail). The old name `Shooter` still works as the last fallback for shooters. Output lists found and
+missing models when a playtest starts.
 
 Colours are baked into vertex colours because Roblox ignores FBX material colours (Blender 5.2).
 
-`Shooter.fbx` is Marco's Galaxy Shiba, made from `galaxy_shiba.obj` + `.mtl` (three-d-stage export, kept outside git)
+`GalaxyShiba.fbx` is Marco's Galaxy Shiba, made from `galaxy_shiba.obj` + `.mtl` (three-d-stage export, kept outside git)
 with `build_galaxy_shiba.py`. It paints the fur with a galaxy gradient and joins the ~1,000 source objects into
 three meshes. Re-export:
 
@@ -19,7 +26,7 @@ three meshes. Re-export:
 blender --background --factory-startup --python build_galaxy_shiba.py -- galaxy_shiba.obj <output folder> export
 ```
 
-`Stick.fbx` (and the earlier orange Shiba) come from `shiba_bonk_default.blend` with `build_shiba.py`:
+`Shiba.fbx` and `Stick.fbx` come from `shiba_bonk_default.blend` with `build_shiba.py`:
 
 ```
 blender --background --disable-autoexec shiba_bonk_default.blend --python build_shiba.py -- <output folder> export

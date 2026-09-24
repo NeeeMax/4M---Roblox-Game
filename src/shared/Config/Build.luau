@@ -3,5 +3,5 @@
 -- Bump the label with every change that should be visible in a playtest.
 
 return {
-	Label = "2026-09-24 #11: smooth client-drawn sticks",
+	Label = "2026-09-24 #12: head bonus, combo, bonk effects, Shiba + projectile tiers",
 }

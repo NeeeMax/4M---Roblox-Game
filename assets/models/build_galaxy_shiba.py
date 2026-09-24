@@ -107,7 +107,7 @@ else:
     bpy.ops.object.select_all(action='DESELECT')
     for j in joined.values():
         j.select_set(True)
-    bpy.ops.export_scene.fbx(filepath=os.path.join(OUT, "Shooter.fbx"), axis_forward='Z', axis_up='Y',
+    bpy.ops.export_scene.fbx(filepath=os.path.join(OUT, "GalaxyShiba.fbx"), axis_forward='Z', axis_up='Y',
                              use_selection=True, object_types={'MESH'}, colors_type='SRGB',
                              apply_scale_options='FBX_SCALE_ALL', mesh_smooth_type='FACE', add_leaf_bones=False)
     print("exported", os.listdir(OUT))
