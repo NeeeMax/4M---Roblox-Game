@@ -1,7 +1,15 @@
 --!strict
 -- Text formatting helpers for UI.
 
+local Economy = require(script.Parent.Parent.Config.Economy)
+
+local SYMBOL = Economy.Currency.Symbol
+
 local Format = {}
+
+-- The currency's name and plain-text symbol ("Bonk Dollars", "B$"), see Config/Economy → Currency.
+Format.CurrencyName = Economy.Currency.Name
+Format.CurrencySymbol = SYMBOL
 
 -- 1234567 → "1,234,567"
 function Format.Number(value: number): string
@@ -106,6 +114,16 @@ function Format.Short(value: number): string
 	text = string.gsub(text, "0+$", "")
 	text = string.gsub(text, "%.$", "")
 	return `{sign}{text}{SHORT[group]}`
+end
+
+-- A Bonk Dollars amount as plain text: 1234 → "B$ 1,234". Menus draw the symbol (Widgets.SetMoneyText).
+function Format.Money(value: number): string
+	return `{SYMBOL} {Format.Number(value)}`
+end
+
+-- Short form for tight spots: 1234 → "B$ 1.23K".
+function Format.MoneyShort(value: number): string
+	return `{SYMBOL} {Format.Short(value)}`
 end
 
 return Format

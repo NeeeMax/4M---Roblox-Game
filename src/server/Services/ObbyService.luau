@@ -1,10 +1,11 @@
 --!strict
 -- Jump and run in the hub centre (Config/Obby, docs/GAME_DESIGN.md → Obby): builds a spiral tower of platforms with
 -- the Shiba statue on top, times each player's climb and pays a reward at most every RewardCooldown seconds.
--- Start, checkpoints and finish are detected on the server from the character's position (10 times a second):
+-- Start, progress and finish are detected on the server from the character's position (10 times a second):
 -- stepping off the start pad starts a run (ObbyStarted), reaching the top after MinTime seconds with enough
--- checkpoints passed finishes it (ObbyFinished). The FASTEST CLIMBERS board next to the start shows the top 10
--- times of all servers (OrderedDataStore; this server's players when DataStores are unavailable).
+-- platforms passed (invisible zones above every platform) finishes it (ObbyFinished). No checkpoints: landing back on
+-- the plaza after climbing drops the run (start over from the START pad). The FASTEST CLIMBERS board next to the start
+-- shows the top 10 times of all servers (OrderedDataStore; this server's players when DataStores are unavailable).
 
 local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
@@ -32,6 +33,8 @@ local THICKNESS = COURSE.Thickness
 local POLL_INTERVAL = 0.1
 -- How high above a pad's top the character's root may be and still count as "on it" (root sits ~3 studs up).
 local ZONE_HEIGHT = 8
+-- Extra studs around a platform's footprint that still count as passing it.
+local STAGE_MARGIN = 0.5
 
 local TOWER_COLORS = { Color3.fromRGB(95, 215, 60), Color3.fromRGB(255, 210, 40) }
 local START_COLOR = Color3.fromRGB(95, 230, 60)
@@ -39,6 +42,15 @@ local FINISH_COLOR = Color3.fromRGB(255, 200, 40)
 local BOARD_COLOR = Color3.fromRGB(255, 150, 40)
 
 type Zone = { Top: Vector3, Radius: number }
+
+-- Invisible progress zone above one platform; follows the platform when it moves.
+type StageZone = {
+	Part: Part,
+	Round: boolean,
+	-- Half the footprint across (X) and along the path (Z); a pad's radius in both.
+	HalfWidth: number,
+	HalfLength: number,
+}
 
 type Mover = {
 	Part: Part,
@@ -50,15 +62,18 @@ type Mover = {
 
 type Run = {
 	StartedAt: number,
+	-- Platforms (index in Course.Stages) passed since the start.
 	Passed: { [number]: boolean },
 	PassedCount: number,
+	-- Stood on a floor above Obby.FallHeight: landing below it again drops the run.
+	Climbed: boolean,
 }
 
 type Row = { Name: string, Value: number }
 
 local startZone: Zone
 local finishZone: Zone
-local checkpointZones: { Zone } = {}
+local stageZones: { StageZone } = {}
 local movers: { Mover } = {}
 
 local runs: { [Player]: Run } = {}
@@ -109,7 +124,7 @@ local function pad(name: string, radius: number, top: Vector3, color: Color3, pa
 	return part
 end
 
--- A glowing ring just under a round pad's edge.
+-- A coloured trim ring just under a round pad's edge (plastic, not Neon: the hub centre glowed too much).
 local function rim(radius: number, top: Vector3, color: Color3, parent: Instance)
 	local ring = newPart(
 		"Rim",
@@ -119,20 +134,12 @@ local function rim(radius: number, top: Vector3, color: Color3, parent: Instance
 		parent
 	)
 	ring.Shape = Enum.PartType.Cylinder
-	ring.Material = Enum.Material.Neon
 end
 
--- A sign board with a neon frame; `cframe` faces the readers (text on the front, mirrored on the back).
+-- A sign board with a coloured frame; `cframe` faces the readers (text on the front, mirrored on the back).
 local function signBoard(name: string, size: Vector2, cframe: CFrame, text: string, color: Color3, parent: Instance)
 	local board = newPart(name, Vector3.new(size.X, size.Y, 0.5), cframe, Color3.fromRGB(25, 22, 36), parent)
-	local frame = newPart(
-		`{name}Frame`,
-		Vector3.new(size.X + 0.8, size.Y + 0.8, 0.3),
-		cframe * CFrame.new(0, 0, 0.3),
-		color,
-		parent
-	)
-	frame.Material = Enum.Material.Neon
+	newPart(`{name}Frame`, Vector3.new(size.X + 0.8, size.Y + 0.8, 0.3), cframe * CFrame.new(0, 0, 0.3), color, parent)
 	local label = Signs.Text(board, Enum.NormalId.Front, text, color)
 	Signs.Mirror(board, label)
 	return board
@@ -223,11 +230,12 @@ local function buildStage(index: number, stage: Obby.Stage, parent: Instance)
 	part.Material = Enum.Material.Plastic
 	part.TopSurface = Enum.SurfaceType.Studs
 
-	if stage.Checkpoint then
-		rim(stage.Length / 2, top, Color3.fromRGB(255, 255, 255), parent)
-		table.insert(checkpointZones, { Top = top, Radius = stage.Length / 2 + 0.5 })
-		Signs.Billboard(part, `CHECKPOINT {#checkpointZones}`, stage.Color, Vector2.new(200, 34), 4, 90)
-	end
+	stageZones[index] = {
+		Part = part,
+		Round = stage.Shape == "Pad",
+		HalfWidth = (if stage.Shape == "Pad" then stage.Length else stage.Width) / 2,
+		HalfLength = stage.Length / 2,
+	}
 
 	local move = stage.Move
 	if move then
@@ -249,7 +257,6 @@ local function buildBoard(parent: Instance)
 	local board = newPart("TimesBoard", Vector3.new(10, 8, 0.5), facing, Color3.fromRGB(30, 28, 42), parent)
 	local frame =
 		newPart("TimesBoardFrame", Vector3.new(10.8, 8.8, 0.3), facing * CFrame.new(0, 0, 0.3), BOARD_COLOR, parent)
-	frame.Material = Enum.Material.Neon
 	for _, x in { -4.2, 4.2 } do
 		newPart(
 			"Leg",
@@ -399,6 +406,36 @@ local function inZone(position: Vector3, zone: Zone): boolean
 	return Vector3.new(offset.X, 0, offset.Z).Magnitude <= zone.Radius
 end
 
+local function inStage(position: Vector3, zone: StageZone): boolean
+	local part = zone.Part
+	-- Platforms are centred THICKNESS / 2 below their top surface.
+	local offset = position - (part.Position + Vector3.new(0, THICKNESS / 2, 0))
+	if offset.Y < -0.5 or offset.Y > ZONE_HEIGHT then
+		return false
+	end
+	local flat = Vector3.new(offset.X, 0, offset.Z)
+	if zone.Round then
+		return flat.Magnitude <= zone.HalfLength + STAGE_MARGIN
+	end
+	-- Blocks only turn around the vertical axis: local X is across the path, local Z along it.
+	local localOffset = part.CFrame:VectorToObjectSpace(flat)
+	return math.abs(localOffset.X) <= zone.HalfWidth + STAGE_MARGIN
+		and math.abs(localOffset.Z) <= zone.HalfLength + STAGE_MARGIN
+end
+
+local floorParams = RaycastParams.new()
+floorParams.FilterType = Enum.RaycastFilterType.Exclude
+floorParams.RespectCanCollide = true
+
+-- Height above the hub ground of the floor the character stands on, nil while in the air.
+local function floorHeight(character: Model, root: BasePart, humanoid: Humanoid): number?
+	floorParams.FilterDescendantsInstances = { character }
+	-- Root to feet: HipHeight + half the root (R15); R6 has HipHeight 0 and ~3 studs of legs and root.
+	local reach = math.max(humanoid.HipHeight + root.Size.Y / 2, 3) + 1.2
+	local result = Workspace:Raycast(root.Position, Vector3.new(0, -reach, 0), floorParams)
+	return if result then result.Position.Y - HUB.Center.Y else nil
+end
+
 local function formatTime(seconds: number): string
 	return string.format("%.1f s", seconds)
 end
@@ -406,7 +443,7 @@ end
 local function finish(player: Player, run: Run)
 	runs[player] = nil
 	local elapsed = os.clock() - run.StartedAt
-	local needed = math.ceil(#checkpointZones * Obby.MinCheckpointShare)
+	local needed = math.ceil(#stageZones * Obby.MinStageShare)
 	if elapsed < Obby.MinTime or run.PassedCount < needed then
 		NotifyService.Send(player, "That run didn't count: climb all the way up from the START pad!", "Bad")
 		return
@@ -439,7 +476,7 @@ local function updatePlayer(player: Player)
 	local character = player.Character
 	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
 	local humanoid = if character then character:FindFirstChildOfClass("Humanoid") else nil
-	if not root or not root:IsA("BasePart") or not humanoid or humanoid.Health <= 0 then
+	if not character or not root or not root:IsA("BasePart") or not humanoid or humanoid.Health <= 0 then
 		runs[player] = nil
 		onStartPad[player] = nil
 		return
@@ -454,7 +491,7 @@ local function updatePlayer(player: Player)
 	end
 	if onStartPad[player] then
 		onStartPad[player] = nil
-		runs[player] = { StartedAt = os.clock(), Passed = {}, PassedCount = 0 }
+		runs[player] = { StartedAt = os.clock(), Passed = {}, PassedCount = 0, Climbed = false }
 		startedRemote:FireClient(player)
 		return
 	end
@@ -471,8 +508,19 @@ local function updatePlayer(player: Player)
 		runs[player] = nil
 		return
 	end
-	for index, zone in checkpointZones do
-		if not run.Passed[index] and inZone(position, zone) then
+	-- No checkpoints: back on the plaza after climbing means starting over.
+	local floor = floorHeight(character, root, humanoid)
+	if floor then
+		if floor > Obby.FallHeight then
+			run.Climbed = true
+		elseif run.Climbed then
+			runs[player] = nil
+			NotifyService.Send(player, "You fell! Start again from the START pad.", "Info")
+			return
+		end
+	end
+	for index, zone in stageZones do
+		if not run.Passed[index] and inStage(position, zone) then
 			run.Passed[index] = true
 			run.PassedCount += 1
 		end

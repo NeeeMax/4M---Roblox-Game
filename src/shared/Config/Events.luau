@@ -36,8 +36,8 @@ local defs: { [string]: EventDef } = {
 	},
 	DoublePoints = {
 		Id = "DoublePoints",
-		DisplayName = "DOUBLE POINTS",
-		Description = "All Bonk Points x2!",
+		DisplayName = "DOUBLE DOLLARS",
+		Description = "All Bonk Dollars x2!",
 		Duration = 120,
 		Weight = 1,
 		Color = Color3.fromRGB(70, 200, 100),

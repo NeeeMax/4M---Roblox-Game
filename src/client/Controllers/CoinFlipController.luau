@@ -38,7 +38,7 @@ local CoinFlipController = {}
 -- Spins the coin (squashing it flat and back a few times) and lands on `result`.
 local function animate(result: "Heads" | "Tails", onDone: () -> ())
 	flipping = true
-	resultLabel.Text = ""
+	Widgets.SetMoneyText(resultLabel, "")
 	local flips = 7
 	local duration = FLIP.FlipTime / (flips * 2)
 	task.spawn(function()
@@ -68,7 +68,7 @@ local function refreshChoices()
 	for index, button in betButtons do
 		local fraction = FLIP.BetFractions[index]
 		local label = if fraction == 1 then "ALL" else `{math.floor(fraction * 100)}%`
-		button.Text = `{label}\n{Format.Number(math.floor(points * fraction))}`
+		Widgets.SetMoneyText(button, `{label}\n{Format.Money(math.floor(points * fraction))}`)
 	end
 end
 
@@ -185,7 +185,8 @@ local function build()
 	for index, amount in DUEL.Stakes do
 		local column = (index - 1) % 2
 		local rowIndex = (index - 1) // 2
-		local button = Widgets.Button(duels, Format.Number(amount), Theme.CardLight, 16)
+		local button = Widgets.Button(duels, "", Theme.CardLight, 16)
+		Widgets.SetMoneyText(button, Format.Money(amount))
 		button.Position = UDim2.new(column * 0.5, if column == 0 then 10 else 4, 0, 60 + rowIndex * 44)
 		button.Size = UDim2.new(0.5, -14, 0, 38)
 		button.Activated:Connect(function()
@@ -218,11 +219,13 @@ local function showInvite(duelId: number, challenger: string, amount: number)
 	frame.Parent = gui
 	Widgets.Corner(frame, 14)
 	Widgets.Stroke(frame, 3, Color3.fromRGB(255, 120, 40))
-	local text = Widgets.Label(frame, `{challenger} challenges you to a coin flip for {Format.Number(amount)}!`, 20)
+	local text = Widgets.Label(frame, "", 20)
 	text.Position = UDim2.fromOffset(14, 8)
 	text.Size = UDim2.new(1, -28, 0, 56)
 	text.TextWrapped = true
 	text.TextXAlignment = Enum.TextXAlignment.Center
+	-- Two fixed lines (money text doesn't wrap).
+	Widgets.SetMoneyText(text, `{challenger} challenges you\nto a coin flip for {Format.Money(amount)}!`)
 	local function answer(accept: boolean)
 		Net.Get(Net.DuelRespond):FireServer(duelId, accept)
 		gui:Destroy()
@@ -258,8 +261,11 @@ function CoinFlipController.Start()
 	end)
 	Net.Get(Net.CoinFlipResult).OnClientEvent:Connect(function(won: boolean, result: "Heads" | "Tails", amount: number)
 		animate(result, function()
-			resultLabel.Text = if won then `WON +{Format.Number(amount)}!` else `Lost {Format.Number(amount)}`
 			resultLabel.TextColor3 = if won then Theme.Good else Theme.Bad
+			Widgets.SetMoneyText(
+				resultLabel,
+				if won then `WON +{Format.Money(amount)}!` else `Lost {Format.Money(amount)}`
+			)
 		end)
 	end)
 	Net.Get(Net.DuelInvite).OnClientEvent:Connect(showInvite)
@@ -267,10 +273,11 @@ function CoinFlipController.Start()
 		:Connect(function(won: boolean, opponent: string, amount: number, result: "Heads" | "Tails")
 			Widgets.Open("CoinFlip")
 			animate(result, function()
-				resultLabel.Text = if won
-					then `Beat {opponent}! +{Format.Number(amount)}`
-					else `{opponent} won {Format.Number(amount)}`
 				resultLabel.TextColor3 = if won then Theme.Good else Theme.Bad
+				Widgets.SetMoneyText(
+					resultLabel,
+					if won then `Beat {opponent}! +{Format.Money(amount)}` else `{opponent} won {Format.Money(amount)}`
+				)
 			end)
 		end)
 end
