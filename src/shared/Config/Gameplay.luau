@@ -42,13 +42,17 @@ return {
 		-- Server cleanup delay after first contact. Clients already hide the projectile the moment they see it reach
 		-- the island surface, so this only has to outlast the network delay.
 		LifetimeAfterContact = 0.5,
+		-- The server keeps a projectile's flight data this long after first contact, so hit reports that arrive
+		-- after the part is gone (network delay) can still be validated.
+		ReportGracePeriod = 2,
 		-- Client: a projectile counts as "on the ground" when its bottom is this close to the island surface.
 		GroundTolerance = 0.25,
 		MaxLifetime = 8,
 		MaxPerIsland = 60,
 		-- Random spin in radians/s, purely visual.
 		MaxSpin = 10,
-		LandedTransparency = 0.5,
+		-- A ball that already paid out keeps flying (it passes through the player) at this transparency.
+		PaidTransparency = 0.5,
 		-- Attributes set on each projectile part, read by the client.
 		IdAttribute = "ProjectileId",
 		LandedAttribute = "Landed",

@@ -102,35 +102,53 @@ local function knockback(direction: Vector3)
 	end)
 end
 
-local function checkHits(projectileFolder: Instance, reportHit: RemoteEvent)
+-- True if this projectile can hit the local character right now (alive, not immune).
+local function getHittableCharacter(): (Model?, BasePart?)
 	if os.clock() < immuneUntil then
-		return
+		return nil, nil
 	end
 	local character = player.Character
 	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
 	local humanoid = if character then character:FindFirstChildOfClass("Humanoid") else nil
 	if not character or not root or not root:IsA("BasePart") or not humanoid or humanoid.Health <= 0 then
-		return
+		return nil, nil
+	end
+	return character, root
+end
+
+-- Reports a touch if the projectile overlaps the character. Returns true if it reported.
+local function tryReport(part: BasePart, character: Model, root: BasePart, reportHit: RemoteEvent): boolean
+	local id = part:GetAttribute(PROJECTILES.IdAttribute)
+	local radius = part.Size.X / 2
+	if typeof(id) ~= "number" or (part.Position - root.Position).Magnitude > radius + HITS.BroadPhaseDistance then
+		return false
 	end
 	overlapParams.FilterDescendantsInstances = { character }
+	if #Workspace:GetPartBoundsInRadius(part.Position, radius, overlapParams) == 0 then
+		return false
+	end
+	reported[part] = true
+	-- Same immunity as the server, so we don't report hits it would reject anyway.
+	immuneUntil = os.clock() + HITS.ImmunityTime
+	reportHit:FireServer(id)
+	return true
+end
 
+local function update(projectileFolder: Instance, reportHit: RemoteEvent)
+	local character, root = getHittableCharacter()
 	for _, part in projectileFolder:GetChildren() do
-		-- No "Landed" check: that attribute can arrive before the ball visibly lands here. The server only
+		if not part:IsA("BasePart") or reported[part] or part.LocalTransparencyModifier >= 1 then
+			continue
+		end
+		-- Hit check first, so a ball landing right at the player's feet still counts.
+		-- No "Landed" attribute check: it can arrive before the ball visibly lands here. The server only
 		-- accepts hits on the flight path anyway.
-		if not part:IsA("BasePart") or reported[part] then
-			continue
+		if character and root and tryReport(part, character, root, reportHit) then
+			character, root = nil, nil
 		end
-		local id = part:GetAttribute(PROJECTILES.IdAttribute)
-		local radius = part.Size.X / 2
-		if typeof(id) ~= "number" or (part.Position - root.Position).Magnitude > radius + HITS.BroadPhaseDistance then
-			continue
-		end
-		if #Workspace:GetPartBoundsInRadius(part.Position, radius, overlapParams) > 0 then
-			reported[part] = true
-			-- Same immunity as the server, so we don't report hits it would reject anyway.
-			immuneUntil = os.clock() + HITS.ImmunityTime
-			reportHit:FireServer(id)
-			return
+		-- Hide the ball the moment it reaches the ground as seen here; the server removes it shortly after.
+		if part.Position.Y - part.Size.Y / 2 <= ISLAND.SurfaceY + PROJECTILES.GroundTolerance then
+			part.LocalTransparencyModifier = 1
 		end
 	end
 end
@@ -157,7 +175,7 @@ function BonkController.Start()
 		local island = islands:WaitForChild(`{ISLAND.ModelPrefix}{player.UserId}`)
 		local projectileFolder = island:WaitForChild("Projectiles")
 		RunService.Heartbeat:Connect(function()
-			checkHits(projectileFolder, reportHit)
+			update(projectileFolder, reportHit)
 		end)
 	end)
 end

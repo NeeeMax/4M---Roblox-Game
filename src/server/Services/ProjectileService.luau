@@ -30,6 +30,7 @@ export type ProjectileInfo = {
 	-- Launch speed without jitter. Used for the reward's speed multiplier.
 	NominalSpeed: number,
 	SizeScale: number,
+	Radius: number,
 	LaunchPosition: Vector3,
 	LaunchVelocity: Vector3,
 	-- Downward acceleration of this projectile (studs/s²).
@@ -66,9 +67,9 @@ local function setCharacterGroup(character: Model)
 	end)
 end
 
+-- Removes the part. The flight data stays in `byId` for ReportGracePeriod so late hit reports still validate.
 local function destroy(info: ProjectileInfo)
 	live[info.Part] = nil
-	byId[info.Id] = nil
 	info.Part:Destroy()
 end
 
@@ -94,7 +95,7 @@ local function markLanded(info: ProjectileInfo)
 		return
 	end
 	info.LandedAt = os.clock()
-	info.Part.Transparency = CONFIG.LandedTransparency
+	-- No transparency change here: clients hide the ball themselves when they see it land (see BonkController).
 	info.Part:SetAttribute(CONFIG.LandedAttribute, true)
 end
 
@@ -134,7 +135,7 @@ function ProjectileService.Fire(owner: Player, from: Vector3, target: Vector3)
 	local def = ProjectileService.GetDef()
 	local sizeScale = UpgradeService.GetValue(owner, "ProjectileSize")
 	-- Bigger projectiles fly slower: that is the price of the easier, bigger-paying hit.
-	local nominalSpeed = def.BaseSpeed * UpgradeService.GetValue(owner, "ProjectileSpeed") * sizeScale ^ -0.5
+	local nominalSpeed = def.BaseSpeed * sizeScale ^ -0.5
 	local speed = nominalSpeed * (1 + random:NextNumber(-CONFIG.SpeedJitter, CONFIG.SpeedJitter))
 
 	-- Solve for the gravity that makes a launch at this speed and angle land on the target:
@@ -189,6 +190,7 @@ function ProjectileService.Fire(owner: Player, from: Vector3, target: Vector3)
 		LaunchSpeed = speed,
 		NominalSpeed = nominalSpeed,
 		SizeScale = sizeScale,
+		Radius = part.Size.X / 2,
 		LaunchPosition = from,
 		LaunchVelocity = velocity,
 		Gravity = gravity,
@@ -215,7 +217,9 @@ end
 -- After this the projectile can't pay out again.
 function ProjectileService.MarkPaid(info: ProjectileInfo)
 	info.Paid = true
-	info.Part.Transparency = CONFIG.LandedTransparency
+	if live[info.Part] then
+		info.Part.Transparency = CONFIG.PaidTransparency
+	end
 end
 
 function ProjectileService.Init()
@@ -254,6 +258,11 @@ function ProjectileService.Start()
 			local landedLongEnough = landedAt ~= nil and now - landedAt >= CONFIG.LifetimeAfterContact
 			if landedLongEnough or now - info.LaunchedAt >= CONFIG.MaxLifetime or part.Parent == nil then
 				destroy(info)
+			end
+		end
+		for id, info in byId do
+			if not live[info.Part] and now - (info.LandedAt or info.LaunchedAt) >= CONFIG.ReportGracePeriod then
+				byId[id] = nil
 			end
 		end
 	end)

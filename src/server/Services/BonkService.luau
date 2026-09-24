@@ -78,7 +78,7 @@ local function onReportHit(player: Player, projectileId: unknown)
 		return
 	end
 
-	local radius = info.Part.Size.X / 2
+	local radius = info.Radius
 	local distance, projectileVelocity = closestApproach(info, root.Position)
 	if distance > radius + HITS.HitTolerance then
 		return
