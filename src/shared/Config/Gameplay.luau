@@ -155,7 +155,7 @@ return {
 		-- Whatever is in the paw is hidden for HandStickHideTime after each throw.
 		HandProjectile = {
 			Name = "HandProjectile",
-			LengthScale = 1,
+			LengthScale = 0.75,
 			GripAtNegativeEnd = true,
 		},
 		HandStickHideTime = 0.4,
