@@ -6,6 +6,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Admin = require(ReplicatedStorage.Shared.Config.Admin)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Upgrades = require(ReplicatedStorage.Shared.Config.Upgrades)
@@ -191,6 +192,35 @@ local function buildShooterRow(parent: Instance, order: number)
 	end)
 end
 
+-- Testing tool. Only shown to admins; the server checks admin rights again (AdminAddPoints).
+local function buildAdminRow(parent: Instance, order: number)
+	local adminAddPoints = Net.Get(Net.AdminAddPoints)
+
+	local frame = Instance.new("Frame")
+	frame.Name = "Admin"
+	frame.LayoutOrder = order
+	frame.Size = UDim2.new(1, 0, 0, 56)
+	frame.BackgroundColor3 = Color3.fromRGB(70, 40, 40)
+	frame.Parent = parent
+	round(frame, 10)
+
+	local label = newLabel(frame, "ADMIN", 20, COLOR_TEXT)
+	label.Position = UDim2.fromOffset(12, 0)
+	label.Size = UDim2.new(0, 80, 1, 0)
+
+	-- Buttons line up against the right edge, in PointAmounts order.
+	for index, amount in Admin.PointAmounts do
+		local button = newButton(frame, `+{Format.Number(amount)}`, Color3.fromRGB(150, 70, 70))
+		button.AnchorPoint = Vector2.new(1, 0.5)
+		button.Position = UDim2.new(1, -10 - (#Admin.PointAmounts - index) * 126, 0.5, 0)
+		button.Size = UDim2.fromOffset(116, 40)
+		button.TextSize = 18
+		button.Activated:Connect(function()
+			adminAddPoints:FireServer(amount)
+		end)
+	end
+end
+
 function UIController.Init()
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "BonkUI"
@@ -260,6 +290,9 @@ function UIController.Init()
 		buildUpgradeRow(list, id, index)
 	end
 	buildShooterRow(list, #Upgrades.Order + 1)
+	if Admin.IsAdmin(player.UserId) then
+		buildAdminRow(list, #Upgrades.Order + 2)
+	end
 
 	openButton.Activated:Connect(function()
 		menu.Visible = not menu.Visible
