@@ -15,6 +15,7 @@ local RunService = game:GetService("RunService")
 local Assets = require(ReplicatedStorage.Shared.Util.Assets)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local Projectiles = require(ReplicatedStorage.Shared.Config.Projectiles)
+local ShibaEffects = require(ReplicatedStorage.Shared.Config.ShibaEffects)
 
 local IslandService = require(script.Parent.IslandService)
 local ProjectileService = require(script.Parent.ProjectileService)
@@ -33,8 +34,10 @@ type Shooter = {
 	Model: Model,
 	-- Custom model only: the imported model inside Model. Only this turns when aiming, so the platform stays put.
 	Visual: Model?,
-	-- Point on the island-surface height where the shooter stands.
+	-- Point on top of the platform where the shooter stands.
 	Ground: Vector3,
+	-- Model height in studs (the tier's Height).
+	Height: number,
 	-- Custom model: height of its pivot above its bottom. Fallback block: nil (uses Body and Barrel).
 	PivotHeight: number?,
 	Body: BasePart?,
@@ -116,8 +119,8 @@ local function throwPoint(shooter: Shooter, target: Vector3): Vector3
 		return barrel.Position + barrel.CFrame.LookVector * (CONFIG.BarrelLength / 2)
 	end
 	return shooter.Ground
-		+ Vector3.new(0, CONFIG.Height * MODEL_THROW_HEIGHT, 0)
-		+ flatDirection(shooter.Ground, target) * MODEL_THROW_FORWARD
+		+ Vector3.new(0, shooter.Height * MODEL_THROW_HEIGHT, 0)
+		+ flatDirection(shooter.Ground, target) * MODEL_THROW_FORWARD * shooter.Height / CONFIG.Height
 end
 
 local function isSafeFromStandingPlayer(plan: ProjectileService.ShotPlan, playerPosition: Vector3): boolean
@@ -187,9 +190,85 @@ local function cloneTierModel(tier: number): (Model?, boolean)
 	return Assets.CloneModel(CONFIG.LegacyAssetName), false
 end
 
+-- An invisible, non-physical part that particles and light come from.
+local function effectPart(name: string, cframe: CFrame, size: Vector3, parent: Instance): Part
+	local part = newShooterPart(name, size, Color3.new(1, 1, 1), parent)
+	part.Transparency = 1
+	part.CastShadow = false
+	part.Massless = true
+	part.CFrame = cframe
+	return part
+end
+
+-- Glow and particles for the higher tiers (Config/ShibaEffects), sized to the model. Added after the model is scaled,
+-- so the parts turn with it when it aims.
+local function addEffects(model: Model, effect: ShibaEffects.Effect?, height: number)
+	if not effect then
+		return
+	end
+	local scale = height / CONFIG.Height
+	local box, size = model:GetBoundingBox()
+	local body = effectPart("EffectBody", box, size * 1.1, model)
+	local feet = effectPart(
+		"EffectFeet",
+		box - Vector3.new(0, size.Y / 2 - 0.1, 0),
+		Vector3.new(size.X * 1.1, 0.2, size.Z * 1.1),
+		model
+	)
+	local light = effect.Light
+	if light then
+		local pointLight = Instance.new("PointLight")
+		pointLight.Color = light.Color
+		pointLight.Brightness = light.Brightness
+		pointLight.Range = light.Range * scale
+		pointLight.Shadows = false
+		pointLight.Parent = body
+	end
+	for _, particles in effect.Particles do
+		local emitter = Instance.new("ParticleEmitter")
+		emitter.Texture = ShibaEffects.Textures[particles.Texture]
+		local colorKeys = {}
+		for index, color in particles.Colors do
+			local time = if #particles.Colors == 1 then 0 else (index - 1) / (#particles.Colors - 1)
+			table.insert(colorKeys, ColorSequenceKeypoint.new(time, color))
+		end
+		if #colorKeys == 1 then
+			table.insert(colorKeys, ColorSequenceKeypoint.new(1, particles.Colors[1]))
+		end
+		emitter.Color = ColorSequence.new(colorKeys)
+		local particleSize = particles.Size * scale
+		emitter.Size = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, particleSize),
+			NumberSequenceKeypoint.new(0.6, particleSize),
+			NumberSequenceKeypoint.new(1, 0),
+		})
+		-- Fade in and out instead of popping.
+		emitter.Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 1),
+			NumberSequenceKeypoint.new(0.15, particles.Transparency),
+			NumberSequenceKeypoint.new(0.8, particles.Transparency),
+			NumberSequenceKeypoint.new(1, 1),
+		})
+		emitter.Rate = particles.Rate
+		emitter.Lifetime = NumberRange.new(particles.Lifetime * 0.7, particles.Lifetime)
+		emitter.Speed = NumberRange.new(particles.Speed * scale)
+		emitter.SpreadAngle = Vector2.new(180, 180)
+		emitter.Acceleration = Vector3.new(0, particles.Rise * scale, 0)
+		emitter.LightEmission = particles.LightEmission
+		emitter.Rotation = NumberRange.new(0, 360)
+		emitter.RotSpeed = NumberRange.new(-40, 40)
+		emitter.Parent = if particles.Area == "Feet" then feet else body
+	end
+end
+
 local function buildShooter(parent: Instance, center: Vector3, angle: number, tier: number): Shooter
-	-- Angle 0 is north (−Z), then clockwise.
-	local ground = center + Vector3.new(math.sin(angle), 0, -math.cos(angle)) * CONFIG.RingRadius
+	local def = CONFIG.Tiers[tier + 1]
+	local height = if def then def.Height else CONFIG.Height
+	-- Angle 0 is north (−Z), then clockwise. The Shiba stands on the platform, which is lifted a little off the
+	-- island surface (equal heights flicker).
+	local ground = center
+		+ Vector3.new(math.sin(angle), 0, -math.cos(angle)) * CONFIG.RingRadius
+		+ Vector3.new(0, CONFIG.PlatformLift, 0)
 
 	local model = Instance.new("Model")
 	local asset, isOwnModel = cloneTierModel(tier)
@@ -203,16 +282,19 @@ local function buildShooter(parent: Instance, center: Vector3, angle: number, ti
 		outline.Parent = asset
 	end
 	if asset then
-		Assets.ScaleTo(asset, CONFIG.Height, true)
+		Assets.ScaleTo(asset, height, true)
 		Assets.MakeVisualOnly(asset, true)
 		local box, size = asset:GetBoundingBox()
+		local pivotHeight = asset:GetPivot().Position.Y - (box.Position.Y - size.Y / 2)
+		addEffects(asset, if def then ShibaEffects.Effects[def.AssetName] else nil, height)
 		local muzzle = asset:FindFirstChild(CONFIG.MuzzleName, true)
 		asset.Parent = model
 		shooter = {
 			Model = model,
 			Visual = asset,
 			Ground = ground,
-			PivotHeight = asset:GetPivot().Position.Y - (box.Position.Y - size.Y / 2),
+			Height = height,
+			PivotHeight = pivotHeight,
 			Muzzle = if muzzle and muzzle:IsA("Attachment") then muzzle else nil,
 			HandStick = collectHandStick(asset),
 			NextFireAt = 0,
@@ -235,6 +317,7 @@ local function buildShooter(parent: Instance, center: Vector3, angle: number, ti
 		shooter = {
 			Model = model,
 			Ground = ground,
+			Height = CONFIG.Height,
 			Body = body,
 			Barrel = barrel,
 			HandStick = {},
@@ -243,12 +326,10 @@ local function buildShooter(parent: Instance, center: Vector3, angle: number, ti
 	end
 	model.Name = "Shooter"
 
-	local platform = newShooterPart(
-		"Platform",
-		Vector3.new(1, CONFIG.PlatformDiameter, CONFIG.PlatformDiameter),
-		Color3.fromRGB(120, 120, 130),
-		model
-	)
+	-- Bigger Shibas get a bigger platform.
+	local diameter = CONFIG.PlatformDiameter * math.max(1, height / CONFIG.Height)
+	local platform =
+		newShooterPart("Platform", Vector3.new(1, diameter, diameter), Color3.fromRGB(120, 120, 130), model)
 	platform.Shape = Enum.PartType.Cylinder
 	platform.CFrame = CFrame.new(ground - Vector3.new(0, 0.5, 0)) * CFrame.Angles(0, 0, math.rad(90))
 

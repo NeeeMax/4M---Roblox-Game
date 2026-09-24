@@ -28,6 +28,9 @@ return {
 	Shooters = {
 		RingRadius = 56,
 		PlatformDiameter = 8,
+		-- The platform's top sits this far above the island surface (equal heights flicker: z-fighting); the Shiba
+		-- stands on it. Platforms of Shibas taller than Height grow with them.
+		PlatformLift = 0.2,
 		-- The shooter turns toward its target this long before firing.
 		AimTime = 0.5,
 		-- Delay before a freshly placed ring of shooters fires for the first time.
@@ -40,65 +43,92 @@ return {
 		BarrelLength = 3,
 
 		-- Shiba tiers (ShooterTier level n = Tiers[n + 1]). Each tier throws faster (FireInterval: seconds between two
-		-- throws of one Shiba) and pays more (RewardMultiplier). Model: ReplicatedStorage.Assets.<AssetName>, scaled to
-		-- Height studs, bottom on the platform. A tier without its own model uses the next lower tier's model (then
-		-- LegacyAssetName) with an outline in its Color. To add a tier: add a line (the upgrade follows automatically).
+		-- throws of one Shiba) and pays more (RewardMultiplier). Model: ReplicatedStorage.Assets.<AssetName>, scaled to the
+		-- tier's Height in studs, bottom on the platform; effects in Config/ShibaEffects. A tier without its own model uses
+		-- the next lower tier's model (then LegacyAssetName) with an outline in its Color. To add a tier: add a line (the
+		-- upgrade follows automatically).
 		Tiers = {
 			{
 				Name = "Shiba",
 				AssetName = "Shiba",
+				Height = 6,
 				FireInterval = 5,
 				RewardMultiplier = 1,
 				Color = Color3.fromRGB(255, 170, 60),
 			},
+			-- Tiers 2-10: FireInterval and RewardMultiplier spread geometrically over the same range as before
+			-- (5 s -> 1.3 s, x1 -> x60), so the endgame balance is unchanged.
+			{
+				Name = "Shades Shiba",
+				AssetName = "ShadesShiba",
+				Height = 6,
+				FireInterval = 4.3,
+				RewardMultiplier = 1.6,
+				Color = Color3.fromRGB(160, 160, 185),
+			},
+			{
+				Name = "Buff Shiba",
+				AssetName = "BuffShiba",
+				Height = 7.5,
+				FireInterval = 3.7,
+				RewardMultiplier = 2.5,
+				Color = Color3.fromRGB(255, 110, 90),
+			},
+			{
+				Name = "Chef Shiba",
+				AssetName = "ChefShiba",
+				Height = 7.5,
+				FireInterval = 3.2,
+				RewardMultiplier = 3.9,
+				Color = Color3.fromRGB(250, 250, 250),
+			},
+			{
+				Name = "Police Shiba",
+				AssetName = "PoliceShiba",
+				Height = 6.5,
+				FireInterval = 2.7,
+				RewardMultiplier = 6.2,
+				Color = Color3.fromRGB(70, 130, 255),
+			},
+			{
+				Name = "Ninja Shiba",
+				AssetName = "NinjaShiba",
+				Height = 5.5,
+				FireInterval = 2.4,
+				RewardMultiplier = 9.7,
+				Color = Color3.fromRGB(220, 40, 60),
+			},
+			{
+				Name = "Gold Shiba",
+				AssetName = "GoldShiba",
+				Height = 6.5,
+				FireInterval = 2,
+				RewardMultiplier = 15,
+				Color = Color3.fromRGB(255, 200, 40),
+			},
 			{
 				Name = "Galaxy Shiba",
 				AssetName = "GalaxyShiba",
-				FireInterval = 4.2,
-				RewardMultiplier = 1.8,
+				Height = 7,
+				FireInterval = 1.8,
+				RewardMultiplier = 24,
 				Color = Color3.fromRGB(170, 90, 255),
 			},
 			{
-				Name = "Lava Shiba",
-				AssetName = "LavaShiba",
-				FireInterval = 3.5,
-				RewardMultiplier = 3.2,
-				Color = Color3.fromRGB(255, 80, 30),
+				Name = "Giant Shiba",
+				AssetName = "GiantShiba",
+				Height = 16,
+				FireInterval = 1.5,
+				RewardMultiplier = 38,
+				Color = Color3.fromRGB(255, 130, 40),
 			},
 			{
-				Name = "Ice Shiba",
-				AssetName = "IceShiba",
-				FireInterval = 2.9,
-				RewardMultiplier = 5.8,
-				Color = Color3.fromRGB(140, 220, 255),
-			},
-			{
-				Name = "Robo Shiba",
-				AssetName = "RoboShiba",
-				FireInterval = 2.4,
-				RewardMultiplier = 10.5,
-				Color = Color3.fromRGB(160, 170, 185),
-			},
-			{
-				Name = "Angel Shiba",
-				AssetName = "AngelShiba",
-				FireInterval = 2,
-				RewardMultiplier = 19,
-				Color = Color3.fromRGB(255, 250, 220),
-			},
-			{
-				Name = "Demon Shiba",
-				AssetName = "DemonShiba",
-				FireInterval = 1.6,
-				RewardMultiplier = 34,
-				Color = Color3.fromRGB(200, 20, 60),
-			},
-			{
-				Name = "God Shiba",
-				AssetName = "GodShiba",
+				Name = "Cheems God",
+				AssetName = "CheemsGod",
+				Height = 12,
 				FireInterval = 1.3,
 				RewardMultiplier = 60,
-				Color = Color3.fromRGB(255, 215, 60),
+				Color = Color3.fromRGB(255, 240, 170),
 			},
 		},
 		-- Older single-model name, still used when no tier model exists.
