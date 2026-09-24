@@ -25,9 +25,8 @@ local ISLAND = Gameplay.Island
 export type ShotPlan = {
 	Def: Projectiles.ProjectileDef,
 	From: Vector3,
-	SizeScale: number,
 	Radius: number,
-	-- Launch speed without jitter. Used for the reward's speed multiplier.
+	-- Launch speed without jitter.
 	NominalSpeed: number,
 	-- Actual launch speed including jitter. Hit quality is measured against it.
 	Speed: number,
@@ -90,9 +89,9 @@ function ProjectileService.GetDef(player: Player): Projectiles.ProjectileDef
 	return Projectiles.ForTier(UpgradeService.GetLevel(player, "ProjectileTier"))
 end
 
--- Projectile diameter for this player's current ProjectileSize level.
+-- Projectile diameter (the same at every level).
 function ProjectileService.GetDiameter(player: Player): number
-	return ProjectileService.GetDef(player).Diameter * UpgradeService.GetValue(player, "ProjectileSize")
+	return ProjectileService.GetDef(player).Diameter
 end
 
 -- Unit vector from `from` toward `to` (horizontally), tilted up by the launch angle.
@@ -111,10 +110,8 @@ function ProjectileService.Plan(owner: Player, from: Vector3, target: Vector3): 
 		return nil
 	end
 	local def = ProjectileService.GetDef(owner)
-	local sizeScale = UpgradeService.GetValue(owner, "ProjectileSize")
-	local radius = def.Diameter * sizeScale / 2
-	-- Bigger projectiles fly slower: that is the price of the easier, bigger-paying hit.
-	local nominalSpeed = def.BaseSpeed * sizeScale ^ -0.5
+	local radius = def.Diameter / 2
+	local nominalSpeed = def.BaseSpeed
 	local speed = nominalSpeed * (1 + random:NextNumber(-CONFIG.SpeedJitter, CONFIG.SpeedJitter))
 
 	-- Solve for the gravity that makes a launch at this speed and angle land on the target:
@@ -159,7 +156,6 @@ function ProjectileService.Plan(owner: Player, from: Vector3, target: Vector3): 
 	return {
 		Def = def,
 		From = from,
-		SizeScale = sizeScale,
 		Radius = radius,
 		NominalSpeed = nominalSpeed,
 		Speed = speed,

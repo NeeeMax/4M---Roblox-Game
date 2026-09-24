@@ -15,22 +15,52 @@ local Net = {
 	-- C→S (projectileId: number, onHead: boolean) — "this projectile touched me (on the head)"; the server validates it
 	-- (docs/decisions/0003)
 	ReportHit = "ReportHit",
-	-- C→S (amount: number) — admin-only testing tool, see Config/Admin
-	AdminAddPoints = "AdminAddPoints",
+	-- C→S (command: string, argument: string | number | nil) — admin-only testing tools, see Config/Admin
+	AdminCommand = "AdminCommand",
 	-- S→C (reward: number, quality: HitQuality, knockbackDirection: Vector3, onHead: boolean, combo: number,
 	-- comboWindow: number)
 	BonkHit = "BonkHit",
-	-- S→C (bonkPoints: number, upgradeLevels: { [UpgradeId]: number }, activeShooters: number)
+	-- S→C (state: PlayerState) — a copy of the player's whole saved state
 	StateChanged = "StateChanged",
+	-- S→C (message: string, kind: "Info" | "Good" | "Bad") — short on-screen message
+	Notify = "Notify",
+	-- C→S () — spin the daily wheel
+	RequestSpin = "RequestSpin",
+	-- S→C (segmentIndex: number, text: string)
+	SpinResult = "SpinResult",
+	-- C→S (betFraction: number, side: "Heads" | "Tails") — coin flip against the house
+	CoinFlip = "CoinFlip",
+	-- S→C (won: boolean, side: "Heads" | "Tails", amount: number)
+	CoinFlipResult = "CoinFlipResult",
+	-- C→S (targetUserId: number, amount: number) — challenge another player to a coin flip duel
+	DuelChallenge = "DuelChallenge",
+	-- S→C (duelId: number, challengerName: string, amount: number)
+	DuelInvite = "DuelInvite",
+	-- C→S (duelId: number, accept: boolean)
+	DuelRespond = "DuelRespond",
+	-- S→C (won: boolean, opponentName: string, amount: number, side: "Heads" | "Tails")
+	DuelResult = "DuelResult",
+	-- C→S (questIndex: number)
+	ClaimQuest = "ClaimQuest",
 }
 
 local ALL_NAMES = {
 	Net.RequestPurchase,
 	Net.SetActiveShooters,
 	Net.ReportHit,
-	Net.AdminAddPoints,
+	Net.AdminCommand,
 	Net.BonkHit,
 	Net.StateChanged,
+	Net.Notify,
+	Net.RequestSpin,
+	Net.SpinResult,
+	Net.CoinFlip,
+	Net.CoinFlipResult,
+	Net.DuelChallenge,
+	Net.DuelInvite,
+	Net.DuelRespond,
+	Net.DuelResult,
+	Net.ClaimQuest,
 }
 
 function Net.CreateRemotes()

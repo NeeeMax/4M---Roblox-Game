@@ -28,6 +28,7 @@ local stateChanged = Net.Get(Net.StateChanged)
 local store: DataStore? = nil
 local sessions: { [Player]: Session } = {}
 local loadedCallbacks: { (Player, PlayerState) -> () } = {}
+local replicatedCallbacks: { (Player) -> () } = {}
 
 local DataService = {}
 
@@ -38,9 +39,18 @@ local function defaultState(): PlayerState
 	end
 	return {
 		BonkPoints = Economy.StartingPoints,
+		TotalEarned = 0,
 		UpgradeLevels = levels,
 		ActiveShooters = Upgrades.GetValue("Shooters", 0),
+		LastSpinAt = 0,
+		Boosts = {},
+		Quests = { Day = 0, Ids = {}, Progress = {}, Claimed = {} },
 	}
+end
+
+local function isNumber(value: unknown): boolean
+	-- `value == value` rejects NaN.
+	return typeof(value) == "number" and value == value and value ~= math.huge and value ~= -math.huge
 end
 
 -- Saved data is never trusted blindly: unknown fields are dropped, numbers are clamped to valid ranges.
@@ -51,20 +61,46 @@ local function stateFromSaved(saved: unknown): PlayerState
 	end
 	local data = saved :: { [string]: any }
 
-	if typeof(data.BonkPoints) == "number" and data.BonkPoints == data.BonkPoints then
+	if isNumber(data.BonkPoints) then
 		state.BonkPoints = math.max(0, math.floor(data.BonkPoints))
+	end
+	if isNumber(data.TotalEarned) then
+		state.TotalEarned = math.max(0, math.floor(data.TotalEarned))
+	end
+	if isNumber(data.LastSpinAt) then
+		state.LastSpinAt = math.max(0, data.LastSpinAt)
+	end
+	if typeof(data.Boosts) == "table" then
+		for id, expiresAt in data.Boosts do
+			if typeof(id) == "string" and isNumber(expiresAt) then
+				state.Boosts[id] = expiresAt
+			end
+		end
+	end
+	local quests = data.Quests
+	if typeof(quests) == "table" and isNumber(quests.Day) and typeof(quests.Ids) == "table" then
+		local ids, progress, claimed = {}, {}, {}
+		for index, id in quests.Ids do
+			if typeof(id) == "string" then
+				table.insert(ids, id)
+				local value = if typeof(quests.Progress) == "table" then quests.Progress[index] else nil
+				table.insert(progress, if isNumber(value) then math.max(0, value) else 0)
+				table.insert(claimed, typeof(quests.Claimed) == "table" and quests.Claimed[index] == true)
+			end
+		end
+		state.Quests = { Day = quests.Day, Ids = ids, Progress = progress, Claimed = claimed }
 	end
 	if typeof(data.UpgradeLevels) == "table" then
 		for _, id in Upgrades.Order do
 			local level = data.UpgradeLevels[id]
-			if typeof(level) == "number" and level == level then
+			if isNumber(level) then
 				state.UpgradeLevels[id] = math.clamp(math.floor(level), 0, Upgrades.Defs[id].MaxLevel)
 			end
 		end
 	end
 	local owned = Upgrades.GetValue("Shooters", state.UpgradeLevels.Shooters)
 	state.ActiveShooters = owned
-	if typeof(data.ActiveShooters) == "number" and data.ActiveShooters == data.ActiveShooters then
+	if isNumber(data.ActiveShooters) then
 		state.ActiveShooters = math.clamp(math.floor(data.ActiveShooters), 1, owned)
 	end
 	return state
@@ -104,8 +140,17 @@ local function save(player: Player, session: Session)
 	local data = {
 		Version = SAVE_VERSION,
 		BonkPoints = state.BonkPoints,
+		TotalEarned = state.TotalEarned,
 		UpgradeLevels = table.clone(state.UpgradeLevels),
 		ActiveShooters = state.ActiveShooters,
+		LastSpinAt = state.LastSpinAt,
+		Boosts = table.clone(state.Boosts),
+		Quests = {
+			Day = state.Quests.Day,
+			Ids = table.clone(state.Quests.Ids),
+			Progress = table.clone(state.Quests.Progress),
+			Claimed = table.clone(state.Quests.Claimed),
+		},
 	}
 	withRetries(`Saving {player.Name}`, function()
 		-- No session locking in MVP: the latest save wins.
@@ -171,8 +216,30 @@ function DataService.Replicate(player: Player)
 	if not session then
 		return
 	end
-	local state = session.State
-	stateChanged:FireClient(player, state.BonkPoints, table.clone(state.UpgradeLevels), state.ActiveShooters)
+	stateChanged:FireClient(player, session.State)
+	for _, callback in replicatedCallbacks do
+		callback(player)
+	end
+end
+
+-- Runs `callback` after every state change of any player (e.g. to update the player list).
+function DataService.OnReplicated(callback: (Player) -> ())
+	table.insert(replicatedCallbacks, callback)
+end
+
+-- Admin testing tool: puts the player back to a brand-new save (keeps TotalEarned for the leaderboard).
+function DataService.Reset(player: Player)
+	local session = sessions[player]
+	if not session then
+		return
+	end
+	local fresh = defaultState()
+	fresh.TotalEarned = session.State.TotalEarned
+	session.State = fresh
+	DataService.Replicate(player)
+	for _, callback in loadedCallbacks do
+		task.spawn(callback, player, fresh)
+	end
 end
 
 function DataService.Init()

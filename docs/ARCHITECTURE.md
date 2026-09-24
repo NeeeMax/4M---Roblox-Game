@@ -52,8 +52,8 @@ Work is split by feature area. The owner reviews changes in their area and decid
 | Area | Owner | Notes |
 |------|-------|-------|
 | `shared/Net`, `shared/Types`, `CLAUDE.md`, `docs/CONVENTIONS.md` | both | contract files — changes in separate PRs, both approve |
-| Islands, NPC shooters, projectiles, hit detection, bonk effects (knockback, popup, sound) | Max | calls EconomyService to award Bonk Points, reads upgrade values from UpgradeService |
-| Economy, upgrades, shop, HUD, saving | Marco | the only code that changes Bonk Points or upgrade levels |
+| World (hub + islands), NPC shooters, projectiles, hit detection, bonk effects, hub features (daily spin, coin flip + duels, quests, leaderboard, boosts), admin tools | Max | calls EconomyService to award Bonk Points, reads upgrade values from UpgradeService |
+| Economy, upgrades, upgrade menu, HUD, saving, shared UI kit (`client/UI`) | Marco | DataService owns the saved state; Bonk Points change only through EconomyService, levels only through UpgradeService; other services (quests, spin, boosts) change their own fields via DataService.GetState + Replicate |
 | 3D models and other visual assets (`ReplicatedStorage/Assets` in the place) | Marco | built in Studio, not in git (see *World vs code*); code finds them by stable names |
 
 ## World vs code

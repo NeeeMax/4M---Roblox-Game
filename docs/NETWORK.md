@@ -17,9 +17,19 @@ Every RemoteEvent and RemoteFunction is listed here. A PR that adds or changes a
 | `RequestPurchase` | RemoteEvent | C→S | `upgradeId: string` | string, known upgrade id, below max level, enough Bonk Points, ≤ 5/s | Marco |
 | `SetActiveShooters` | RemoteEvent | C→S | `count: number` | integer, 1 ≤ count ≤ owned shooters, ≤ 5/s | Marco |
 | `ReportHit` | RemoteEvent | C→S | `projectileId: number, onHead: boolean` | number (+ boolean, anything else = false), projectile exists and belongs to the player, not paid, player alive and not immune, flight path passed within radius + 6 studs of the server-side root, ≤ 10/s (see `docs/decisions/0003`); `onHead` only counts if the path also passed within radius + `HeadTolerance` of the server-side head | Max |
-| `AdminAddPoints` | RemoteEvent | C→S | `amount: number` | sender is admin (`Config/Admin.IsAdmin`, checked on the server), amount is one of `Admin.PointAmounts`, ≤ 5/s | Marco |
+| `AdminCommand` | RemoteEvent | C→S | `command: string, argument: string \| number \| nil` | sender is admin (`Config/Admin.IsAdmin`, checked on the server), known command, argument validated per command (point amounts only from `Admin.PointAmounts`, upgrade ids only from `Upgrades.Order`), ≤ 10/s | both |
 | `BonkHit` | RemoteEvent | S→C | `reward: number, quality: HitQuality, knockbackDirection: Vector3, onHead: boolean, combo: number, comboWindow: number` | — (server → client) | Max |
-| `StateChanged` | RemoteEvent | S→C | `bonkPoints: number, upgradeLevels: { [UpgradeId]: number }, activeShooters: number` | — (server → client) | Marco |
+| `StateChanged` | RemoteEvent | S→C | `state: PlayerState` (a copy of the whole saved state, `Types.PlayerState`) | — | Marco |
+| `Notify` | RemoteEvent | S→C | `message: string, kind: "Info" \| "Good" \| "Bad"` | — | both |
+| `RequestSpin` | RemoteEvent | C→S | — | daily cooldown passed (server time), ≤ 2/s | Max |
+| `SpinResult` | RemoteEvent | S→C | `segmentIndex: number, text: string` | — | Max |
+| `CoinFlip` | RemoteEvent | C→S | `betFraction: number, side: "Heads" \| "Tails"` | fraction is one of `Hub.CoinFlip.BetFractions`, side valid, bet ≥ MinBet, ≤ 2/s | Max |
+| `CoinFlipResult` | RemoteEvent | S→C | `won: boolean, side: "Heads" \| "Tails", amount: number` | — | Max |
+| `DuelChallenge` | RemoteEvent | C→S | `targetUserId: number, amount: number` | target in server and not self, amount one of `Hub.Duel.Stakes`, challenger can afford it, no open duel on either side, ≤ 2/s | Max |
+| `DuelInvite` | RemoteEvent | S→C | `duelId: number, challengerName: string, amount: number` | — | Max |
+| `DuelRespond` | RemoteEvent | C→S | `duelId: number, accept: boolean` | duel exists, sender is its target, not expired, both can still afford it, ≤ 2/s | Max |
+| `DuelResult` | RemoteEvent | S→C | `won: boolean, opponentName: string, amount: number, side: "Heads" \| "Tails"` | — | Max |
+| `ClaimQuest` | RemoteEvent | C→S | `questIndex: number` | quest exists today, finished, not claimed, ≤ 5/s | Max |
 
 Remotes live in `ReplicatedStorage/Remotes`, created by `Net.CreateRemotes()` from `Main.server.luau`. Get one with `Net.Get(Net.BonkHit)`.
 `StateChanged` is sent after the player's data loads and after every change to points, levels or active shooters.
