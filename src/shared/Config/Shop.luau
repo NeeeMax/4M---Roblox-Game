@@ -90,7 +90,7 @@ local passes: { Pass } = {
 		Id = "Manage",
 		GamePassId = 0,
 		DisplayName = "Manage",
-		Description = "Manage all upgrades from one place: open the upgrade menu anywhere.",
+		Description = "Manage all income sources from one place: open the upgrade menu anywhere.",
 		Robux = 199,
 		Color = Color3.fromRGB(255, 190, 60),
 	},
@@ -114,7 +114,7 @@ local passes: { Pass } = {
 		Id = "AutoCatch",
 		GamePassId = 0,
 		DisplayName = "Auto-Catch",
-		Description = "A magnet catches sticks near you automatically.",
+		Description = "A magnet catches every stick within 10 studs of you. No aiming needed!",
 		Robux = 249,
 		Color = Color3.fromRGB(120, 200, 255),
 	},
@@ -341,6 +341,10 @@ local Shop = {
 		VIPDailySpins = 2,
 		LuckyGoldenChance = 0.15,
 		ExtraShibas = 2,
+		-- Auto-Catch pass (AutoCatchService): every AutoCatchInterval seconds, sticks within AutoCatchRadius studs of
+		-- the character are collected as a Normal bonk (no head bonus; the combo still counts).
+		AutoCatchRadius = 10,
+		AutoCatchInterval = 0.25,
 	},
 }
 

@@ -32,4 +32,20 @@ return {
 	DataStoreName = "PlayerData_v1",
 	AutosaveInterval = 60,
 	DataStoreAttempts = 3,
+
+	-- Shiba Bank (docs/GAME_DESIGN.md → Offline Shiba Bank): while the player is away, their Shibas keep earning
+	-- Share × their recent Bonk Points per minute, for at most MaxHours. Shorter absences than MinSeconds pay nothing.
+	OfflineBank = {
+		Share = 0.1,
+		MaxHours = 8,
+		MinSeconds = 60,
+		-- The income rate is sampled every SampleSeconds of play and smoothed: rate += Smoothing × (sample − rate).
+		-- Samples shorter than MinSampleSeconds (a player who just joined or is leaving) are skipped.
+		SampleSeconds = 60,
+		MinSampleSeconds = 30,
+		Smoothing = 0.3,
+		-- A sample counts at most this many normal bonks per Shiba throw (quality, head, combo, golden, boosts and
+		-- passes fit below it), so a big coin-flip win can't blow up the offline rate.
+		MaxBonksPerThrow = 8,
+	},
 }
