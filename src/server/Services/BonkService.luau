@@ -15,6 +15,7 @@ local Shop = require(ReplicatedStorage.Shared.Config.Shop)
 local BoostService = require(script.Parent.BoostService)
 local EconomyService = require(script.Parent.EconomyService)
 local EventService = require(script.Parent.EventService)
+local IndexService = require(script.Parent.IndexService)
 local ProjectileService = require(script.Parent.ProjectileService)
 local QuestService = require(script.Parent.QuestService)
 local RewardService = require(script.Parent.RewardService)
@@ -142,6 +143,9 @@ local function onReportHit(player: Player, projectileId: unknown, onHeadClaim: u
 		)
 	)
 	EconomyService.AddPoints(player, reward)
+	if plan.Golden then
+		IndexService.DiscoverGolden(player) -- Shiba-Index: first golden catch
+	end
 	QuestService.Record(player, "Hit", 1)
 	QuestService.Record(player, "Combo", combo)
 	if onHead then
