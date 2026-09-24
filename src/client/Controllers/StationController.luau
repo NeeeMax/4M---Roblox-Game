@@ -177,7 +177,7 @@ local function buildBoard(id: string, anchor: BasePart): Board
 	gui.Name = `StationBoard_{id}`
 	gui.Adornee = anchor
 	-- Sized in studs, so it shrinks with distance like a real sign.
-	gui.Size = UDim2.fromScale(10, 7)
+	gui.Size = UDim2.fromScale(7, 4.9)
 	gui.StudsOffset = BOARD_OFFSET
 	gui.LightInfluence = 0
 	gui.MaxDistance = Stations.BillboardMaxDistance
