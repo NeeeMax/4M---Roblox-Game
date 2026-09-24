@@ -142,6 +142,25 @@ Shiba tiers (`Config/Gameplay → Shooters.Tiers`):
 - MoveSpeed exists so the player can **reach impact points in time** (not to dodge). It also raises the achievable hit quality.
 - **Active Shibas:** buying adds a Shiba; the "More Shibas" card sets how many are active (1 … owned) for free.
 - Purchases are validated on the server: known upgrade id, below max level, enough Bonk Points, max 5 requests/s.
+- **Upgrade stands** (main way to buy, tycoon style, `Config/Stations`): on every player island one market-stall stand
+  per upgrade (`Prop_UpgradeStand_<UpgradeId>`, part-built until a model exists) on both sides of the path from the
+  bridge to the field (Shiba Tier / Projectile Tier nearer the field, More Shibas / Move Speed nearer the bridge).
+  Above each stand floats a billboard: upgrade name, current value (tier name in its colour / number), level badge
+  `xN`, level bar, a big UPGRADE button look (green when affordable, grey when not, gold MAXED at the top) with the
+  cost (green / grey) and an **E** key hint. Only the island owner can use their stands and sees the billboards.
+  - **E "Upgrade"** buys one level. With the **Stack Upgrade** pass one press buys as many levels as affordable, up to 10
+    (the button then says `UPGRADE ×N` with the total cost).
+  - **F "Buy with R$"** buys the next level with Robux (products `Instant<UpgradeId>` in `Config/Shop`).
+  - **More Shibas** also has a glowing green **NEW SHIBA** pad with its cost on the Shiba ring, where the next Shiba will
+    stand (of the new ring's spots, the one farthest from the Shibas standing now). Stepping on it buys the Shiba
+    (2 s cooldown). The pad disappears at the max.
+  - **Hints** (off with Settings → Hints): a bouncing **NEW** arrow over every stand whose next level you can afford, and
+    once per upgrade level a popup "You can afford a new upgrade! [SHOW ME]" (only when you are not already at that
+    stand; several newly affordable upgrades give one popup, for the cheapest). SHOW ME draws a glowing line from your
+    character to the stand for 8 s (or until you arrive).
+  - The big round **yellow arrow button** at the bottom centre does the same as SHOW ME for the cheapest affordable
+    upgrade ("Nothing affordable yet" otherwise).
+- **Run Faster** pass: WalkSpeed ×1.5 on top of Move Speed.
 - Upgrade menu: one card per upgrade with level badge, current → next value (tier names in their colours), what the next
   level gives, one dot per level, buy button (green when affordable). The UPGRADES button shows "!" when something is affordable.
 
@@ -238,7 +257,7 @@ Explicitly not in MVP:
 - Projectile types that fly differently (tiers only change look and reward), "Unlock New Projectile" upgrade
 - More than 8 shooters, multiple shots per second per shooter
 - Ragdoll, complex animations, polished art, visual island progression
-- Physical shop area on the island (shop is a UI menu in MVP)
+- Physical shop area on the island for the Robux shop (upgrades have stands on the island, the shop is a UI menu)
 - HUD stats beyond Bonk Points (Bonks/second, speed, projectile tier, shooter count)
 - Anything to do on other players' islands (you can walk there, but projectiles only exist for the owner)
 - Cosmetics, additional upgrade trees
