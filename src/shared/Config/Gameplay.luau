@@ -3,6 +3,9 @@
 
 return {
 	Island = {
+		-- Names the client relies on to find its own island: Workspace.<FolderName>.<ModelPrefix><UserId>.Projectiles
+		FolderName = "Islands",
+		ModelPrefix = "Island_",
 		-- Islands sit on a grid so one player's projectiles can never reach another island.
 		GridSpacing = 500,
 		GridColumns = 8,
@@ -41,7 +44,10 @@ return {
 		MaxPerIsland = 60,
 		-- Random spin in radians/s, purely visual.
 		MaxSpin = 10,
-		SpentTransparency = 0.5,
+		LandedTransparency = 0.5,
+		-- Attributes set on each projectile part, read by the client.
+		IdAttribute = "ProjectileId",
+		LandedAttribute = "Landed",
 	},
 
 	Hits = {
@@ -49,8 +55,14 @@ return {
 		-- Player velocity used for hit quality is clamped to this vertically (and to WalkSpeed horizontally),
 		-- so knockback or a spoofed client velocity can't inflate the quality.
 		MaxVerticalPlayerSpeed = 50,
-		-- Projectiles farther than projectile radius + this from the root part skip the exact overlap check.
+		-- Client: projectiles farther than projectile radius + this from the root part skip the exact overlap check.
 		BroadPhaseDistance = 6,
+		-- Server: a reported hit counts if the flight path passed within projectile radius + this of the root part.
+		-- Covers body size plus network delay (docs/decisions/0003).
+		HitTolerance = 6,
+		-- Server: time step when searching the flight path for its closest point to the player.
+		FlightSampleStep = 0.02,
+		MaxReportsPerSecond = 10,
 	},
 
 	Character = {

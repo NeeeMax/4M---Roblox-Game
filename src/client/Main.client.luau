@@ -7,6 +7,12 @@ type Module = {
 	Start: (() -> ())?,
 }
 
+-- Script Sync creates this file as a Script with RunContext "Client". Such a script also runs from the
+-- StarterPlayerScripts template, not only from the player's own copy, so the template copy stops here.
+if script:FindFirstAncestorOfClass("StarterPlayerScripts") then
+	return
+end
+
 -- Controllers index ReplicatedStorage.Shared directly, so wait until the initial replication is done.
 if not game:IsLoaded() then
 	game.Loaded:Wait()
