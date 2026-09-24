@@ -14,8 +14,10 @@ local Workspace = game:GetService("Workspace")
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local ProjectilePath = require(ReplicatedStorage.Shared.Util.ProjectilePath)
 local Projectiles = require(ReplicatedStorage.Shared.Config.Projectiles)
+local Shop = require(ReplicatedStorage.Shared.Config.Shop)
 
 local IslandService = require(script.Parent.IslandService)
+local RewardService = require(script.Parent.RewardService)
 local UpgradeService = require(script.Parent.UpgradeService)
 
 local CONFIG = Gameplay.Projectiles
@@ -32,6 +34,8 @@ export type ShotPlan = {
 	Speed: number,
 	-- Flight and bounces, as the clients draw it.
 	Path: ProjectilePath.Path,
+	-- Golden projectiles glow and pay Gameplay.Projectiles.GoldenMultiplier times as much.
+	Golden: boolean,
 }
 
 export type ProjectileInfo = {
@@ -104,36 +108,26 @@ end
 
 -- Plans a shot for `owner` from `from` that first lands on `target` (a point at projectile-centre height).
 -- Returns nil if the owner has no island.
-function ProjectileService.Plan(owner: Player, from: Vector3, target: Vector3): ShotPlan?
-	local island = IslandService.GetIsland(owner)
-	if not island then
-		return nil
-	end
-	local def = ProjectileService.GetDef(owner)
-	local radius = def.Diameter / 2
-	local nominalSpeed = def.BaseSpeed
-	local speed = nominalSpeed * (1 + random:NextNumber(-CONFIG.SpeedJitter, CONFIG.SpeedJitter))
-
-	-- Solve for the gravity that makes a launch at this speed and angle land on the target:
-	-- horizontal: distance = vH·t  →  t = distance / vH;  vertical: dy = vY·t − ½·g·t²  →  g = 2(vY·t − dy) / t².
-	local angle = math.rad(CONFIG.LaunchAngleDegrees)
-	local distance = math.max(Vector3.new(target.X - from.X, 0, target.Z - from.Z).Magnitude, 1)
-	local flightTime = distance / (speed * math.cos(angle))
-	local gravity = 2 * (speed * math.sin(angle) * flightTime - (target.Y - from.Y)) / (flightTime * flightTime)
-
+-- Flight from `from` with `velocity` under `gravity`, then the bounces on the island (or the fall off its edge).
+local function buildPath(
+	center: Vector3,
+	radius: number,
+	from: Vector3,
+	velocity: Vector3,
+	gravity: number
+): ProjectilePath.Path
 	local acceleration = Vector3.new(0, -gravity, 0)
 	local groundHeight = ISLAND.SurfaceY + radius
 	local segments: { ProjectilePath.Segment } = {}
 	local startTime = 0
 	local position = from
-	local velocity = ProjectileService.GetLaunchDirection(from, target) * speed
 	local endTime = 0
 
 	for contact = 1, CONFIG.Bounces + 1 do
 		table.insert(segments, { StartTime = startTime, StartPosition = position, StartVelocity = velocity })
 		local time = timeToHeight(position.Y, velocity.Y, gravity, groundHeight)
 		local contactPosition = position + velocity * time + acceleration * (0.5 * time * time)
-		if not isOverIsland(island.Center, contactPosition) then
+		if not isOverIsland(center, contactPosition) then
 			-- Bounced off the edge: it keeps falling until it is well below the island.
 			local fallHeight = ISLAND.SurfaceY - CONFIG.FallDespawnDepth
 			endTime = startTime + timeToHeight(position.Y, velocity.Y, gravity, fallHeight)
@@ -152,6 +146,36 @@ function ProjectileService.Plan(owner: Player, from: Vector3, target: Vector3): 
 			contactVelocity.Z * CONFIG.BounceFriction
 		)
 	end
+	return { Gravity = gravity, Segments = segments, EndTime = endTime }
+end
+
+-- Rolls whether the next projectile of `owner` is golden (Lucky Sticks pass: more often).
+local function rollGolden(owner: Player): boolean
+	local chance = if RewardService.HasPass(owner, "LuckySticks")
+		then Shop.Pass.LuckyGoldenChance
+		else CONFIG.GoldenChance
+	return random:NextNumber() < chance
+end
+
+-- Plans a shot for `owner` from `from` that first lands on `target` (a point at projectile-centre height).
+-- Returns nil if the owner has no island.
+function ProjectileService.Plan(owner: Player, from: Vector3, target: Vector3): ShotPlan?
+	local island = IslandService.GetIsland(owner)
+	if not island then
+		return nil
+	end
+	local def = ProjectileService.GetDef(owner)
+	local radius = def.Diameter / 2
+	local nominalSpeed = def.BaseSpeed
+	local speed = nominalSpeed * (1 + random:NextNumber(-CONFIG.SpeedJitter, CONFIG.SpeedJitter))
+
+	-- Solve for the gravity that makes a launch at this speed and angle land on the target:
+	-- horizontal: distance = vH·t  →  t = distance / vH;  vertical: dy = vY·t − ½·g·t²  →  g = 2(vY·t − dy) / t².
+	local angle = math.rad(CONFIG.LaunchAngleDegrees)
+	local distance = math.max(Vector3.new(target.X - from.X, 0, target.Z - from.Z).Magnitude, 1)
+	local flightTime = distance / (speed * math.cos(angle))
+	local gravity = 2 * (speed * math.sin(angle) * flightTime - (target.Y - from.Y)) / (flightTime * flightTime)
+	local velocity = ProjectileService.GetLaunchDirection(from, target) * speed
 
 	return {
 		Def = def,
@@ -159,7 +183,33 @@ function ProjectileService.Plan(owner: Player, from: Vector3, target: Vector3): 
 		Radius = radius,
 		NominalSpeed = nominalSpeed,
 		Speed = speed,
-		Path = { Gravity = gravity, Segments = segments, EndTime = endTime },
+		Path = buildPath(island.Center, radius, from, velocity, gravity),
+		Golden = rollGolden(owner),
+	}
+end
+
+-- Bonk Rain: a projectile dropping from `height` above `target` (slightly sideways), then bouncing as usual.
+function ProjectileService.PlanDrop(owner: Player, target: Vector3, height: number): ShotPlan?
+	local island = IslandService.GetIsland(owner)
+	if not island then
+		return nil
+	end
+	local def = ProjectileService.GetDef(owner)
+	local radius = def.Diameter / 2
+	local gravity = 60
+	local fallTime = math.sqrt(2 * height / gravity)
+	local drift = Vector3.new(random:NextNumber(-1, 1), 0, random:NextNumber(-1, 1)) * 6
+	local from = target + Vector3.new(0, height, 0) - drift
+	local velocity = drift / fallTime
+	return {
+		Def = def,
+		From = from,
+		Radius = radius,
+		NominalSpeed = def.BaseSpeed,
+		-- Hit quality compares against launch speed; a drop lands at about this speed.
+		Speed = gravity * fallTime,
+		Path = buildPath(island.Center, radius, from, velocity, gravity),
+		Golden = rollGolden(owner),
 	}
 end
 
@@ -210,6 +260,7 @@ function ProjectileService.Fire(owner: Player, plan: ShotPlan)
 	marker.CanQuery = false
 	marker.CFrame = CFrame.new(plan.From)
 	marker:SetAttribute(CONFIG.IdAttribute, id)
+	marker:SetAttribute(CONFIG.GoldenAttribute, plan.Golden)
 	ProjectilePath.Write(marker, plan.Path, Workspace:GetServerTimeNow(), plan.Radius * 2)
 	marker.Parent = island.ProjectileFolder
 

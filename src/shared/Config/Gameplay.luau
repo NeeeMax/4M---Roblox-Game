@@ -7,20 +7,26 @@ return {
 		FolderName = "Islands",
 		ModelPrefix = "Island_",
 		SurfaceY = 100,
-		Radius = 30,
-		Thickness = 4,
-		-- Shots land inside this radius (2-stud margin to the edge).
+		-- The whole island: the Shibas stand on it, the field is in the middle. Sticks bounce anywhere on it.
+		Radius = 80,
+		Thickness = 6,
+		-- The field in the middle (with a low border around it). Shots land inside TargetRadius.
+		FieldRadius = 30,
 		TargetRadius = 28,
+		BorderHeight = 1.5,
+		BorderWidth = 2,
+		-- Gap in the border toward the bridge, in degrees.
+		BorderGapDegrees = 30,
 		-- Below this height the character is put back on its island (or the hub).
 		FallOffY = 50,
 		-- Shooters only fire while the owner is within this distance of their island's centre (not on the hub).
-		ActiveDistance = 45,
+		ActiveDistance = 80,
 		SpawnHeight = 4,
 		FallCheckInterval = 0.5,
 	},
 
 	Shooters = {
-		RingRadius = 60,
+		RingRadius = 56,
 		PlatformDiameter = 8,
 		-- The shooter turns toward its target this long before firing.
 		AimTime = 0.5,
@@ -130,6 +136,11 @@ return {
 		MaxPerIsland = 60,
 		-- Random spin in radians/s, purely visual.
 		MaxSpin = 10,
+		-- Golden projectiles: rarer, glow gold, pay GoldenMultiplier times as much (chance: Lucky Sticks pass raises it).
+		GoldenChance = 0.05,
+		GoldenMultiplier = 5,
+		GoldenColor = Color3.fromRGB(255, 205, 40),
+		GoldenAttribute = "Golden",
 		-- A projectile that already paid out keeps flying (it passes through the player) at this transparency.
 		PaidTransparency = 0.5,
 		-- Attribute set on each projectile marker, read by the client (the path itself: Util/ProjectilePath).

@@ -35,3 +35,21 @@ blender --background --disable-autoexec shiba_bonk_default.blend --python build_
 Import in Studio: **Import** (Home tab) → pick the `.fbx` → Import, then move the model into
 `ReplicatedStorage/Assets` and name it exactly as in the table. The code scales and orients it; without these models it
 falls back to plain parts.
+
+## Props (world models, not in git)
+
+Built in Studio by Marco and put into `ReplicatedStorage/Assets` with exactly these names. Until then `PropService` builds
+a placeholder (pink box + "MODEL: <name>" label in Studio). Models are scaled to the height the code asks for; their
+bottom sits on the ground, their front (-Z / LookVector) faces the way the placeholder faces.
+
+| Name | What | Height (studs) |
+|------|------|----------------|
+| `Prop_Tree` | tree on islands and hub | 11–16 |
+| `Prop_Flowers` | small flower patch | 1.5 |
+| `Prop_Lamp` | lamp post on bridges (should contain a light) | 7 |
+| `Prop_IslandRock` | rocky cone under a floating island (hangs down from its top) | 70–72 |
+| `Prop_Cloud` | cloud | 12–22 |
+| `Prop_SmallIsland` | small floating deco island with a tree | 10–18 |
+| `Prop_ShibaStatue` | big Shiba statue in the hub centre | 16 |
+| `Prop_DailySpinMachine`, `Prop_CoinFlipMachine`, `Prop_ShopMachine`, `Prop_QuestsMachine` | hub station machines, front toward the hub centre | 12 |
+| `Trophy_Wood`, `Trophy_Bronze`, `Trophy_Silver`, `Trophy_Gold`, `Trophy_Galaxy`, `Trophy_Starter`, `Trophy_Streak`, `Trophy_VIP`, `Trophy_Diamond`, `Trophy_Rainbow` | trophies on the island pedestals | 4 |

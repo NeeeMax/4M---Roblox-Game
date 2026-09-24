@@ -3,5 +3,5 @@
 -- Bump the label with every change that should be visible in a playtest.
 
 return {
-	Label = "2026-09-24 #13: hub island, admin menu, new upgrades, daily spin, coin flip, quests, leaderboard",
+	Label = "2026-09-24 #14: big islands with field, prettier map, golden sticks, pie wheel, shop, gifts, bonk rain, trophies",
 }

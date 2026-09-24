@@ -21,20 +21,21 @@ Casual Roblox players, roughly 8–14. Understandable in under 10 seconds withou
 
 | Thing | Value |
 |-------|-------|
-| Layout | a big **hub island** (radius 70) in the middle, **5 player islands** around it at 230 studs, each connected to the hub by a plank bridge with rails (tycoon style). Config: `Config/World` |
-| Hub | stations between the bridges: Daily Spin, Coin Flip, Top Bonkers leaderboard, Daily Quests, How to play; "GET BONKED" title pillar in the middle. Menus open via ProximityPrompt |
-| Islands | one per player, assigned on join (first free plot), freed on leave; owner name floats above it; more than 5 players = the extra ones stay on the hub. Set Max Players = 5 in Game Settings |
-| Island | flat disc, radius 30 studs, surface at Y = 100 |
-| Target area | disc radius 28 (2-stud margin to the edge) |
-| Player spawn | own island centre, facing the hub (hub if no island) |
-| Shooter ring | shooters stand on small platforms at radius 60 from the centre, at island surface height, evenly spaced (360°/n), with the bridge side exactly between two shooters |
+| Layout | a big **hub island** (radius 70) in the middle, **5 player islands** (radius 80) around it at 280 studs, each joined to the hub by a plank bridge with rails and lamps (tycoon style). Config: `Config/World` |
+| Hub | stations between the bridges: Daily Spin, Coin Flip, Shop, Daily Quests, Top Bonkers leaderboard; Shiba statue with "GET BONKED" in the middle; how-to-play board in front of the hub spawn. Menus open via ProximityPrompt |
+| Player island | grass island; in the middle the **field** (sand, radius 30, low white border with a gap toward the bridge) where sticks land; Shibas stand on the island around it; trophies on lit pedestals behind the field; trees and flowers on the outer ring; owner name on a sign where the bridge arrives |
+| Islands | one per player, assigned on join (first free plot), freed on leave; more than 5 players = the extra ones stay on the hub. **Max Players must be 5** (Creator Hub → Configure → Places) |
+| Target area | disc radius 28 inside the field; bounces can continue anywhere on the island |
+| Player spawn | own island centre, facing the hub (hub spawn in front of the how-to board if no island) |
+| Shooter ring | Shibas on small platforms at radius 56, evenly spaced, with the bridge side exactly between two of them |
 | Shooter look | per Shiba Tier (see Upgrades): `ReplicatedStorage/Assets/Shiba`, `GalaxyShiba`, `LavaShiba`, `IceShiba`, `RoboShiba`, `AngelShiba`, `DemonShiba`, `GodShiba` (6 studs tall); a missing model falls back to the next lower tier's model with an outline in the tier colour, then `Shooter`, then a red block with barrel |
+| Looks | warm lighting with atmosphere, bloom and sun rays; real terrain water far below (surface Y = 40); clouds and small floating islands in the distance; rocky cones under every island |
+| Props | everything that should become a 3D model is a `PropService` prop: `ReplicatedStorage/Assets/<name>` if it exists, else a part-built placeholder. In Studio placeholders get a pink box and a "MODEL: <name>" label (list in `assets/README.md`) |
 | Fall-off | below Y = 50 → back to own island (or hub), no penalty |
-
-Players never affect each other: projectiles only exist for their owner's island, only the owner's character can be hit, and projectiles never physically collide with anything — the server moves them along their planned path, knockback comes from the hit code only.
 
 ## NPC shooters
 
+- **Golden sticks:** 5 % of all projectiles are golden (15 % with the Lucky Sticks pass): gold outline and trail, pay ×5.
 - Shooters **never aim at the player**. Each shot picks a random target point, uniformly distributed in the target area.
 - **Anti-farm rule:** the projectile's whole path (flight and both bounces) must stay at least `projectile radius + 6` studs away from the player's position at fire time; otherwise pick again (max 30 tries, then skip the turn). Standing still therefore earns 0 points.
 - **Spread:** the random target point is the spread; additionally the launch speed varies ±10 % per shot.
@@ -76,6 +77,8 @@ HeadMult      = 2 if the projectile touched the head, else 1
 ComboMult     = 1 + 0.1 × (combo − 1), at most 3
 ShibaTierMult = see Upgrades (1 → 60)
 BoostMult     = 2 while the 2× points boost runs, else 1
+GoldenMult    = 5 for golden projectiles, else 1
+PassMult      = 2 with the 2× Bonk Points pass, × 1.25 with VIP
 ```
 
 ### Hit quality — one rule
@@ -143,9 +146,16 @@ Shiba tiers (`Config/Gameplay → Shooters.Tiers`):
 All rewards in "bonks" = what one normal bonk pays right now (projectile BaseReward × Shiba tier multiplier), so they stay
 worth it at every stage. Config: `Config/Hub`.
 
-- **Daily Spin:** one free spin every 24 h (also from the SPIN button). Wheel: 25 / 50 / 100 bonks, JACKPOT 500 bonks,
-  2× points 10 min, 2× fire rate 10 min, 2× points 30 min (weighted). The server picks the prize; boosts are saved and keep
-  running across rejoins; running boosts show under the points.
+- **Daily Spin:** 1 free spin per UTC day (VIP: 2), also from the SPIN button. A pie-chart wheel (segment size = chance,
+  every chance listed next to it): 5 bonks 26 %, Nothing 16 %, 10 bonks 20 %, 2× points 5 min 12 %, 20 bonks 12 %,
+  2× fire 5 min 8 %, Bonk Rain 4 %, JACKPOT 50 bonks 2 %. Small on purpose: a daily treat, not the main income.
+  Spins are never sold for Robux. The server picks the prize; boosts are saved and keep running across rejoins.
+- **Login streak (GIFTS):** consecutive login days climb a 7-day reward track (10 / 20 bonks, 2× points 10 min, 40 bonks,
+  Bonk Rain, 80 bonks, Streak trophy + 150 bonks); missing a day starts over; one claim per day.
+- **Playtime gifts (GIFTS):** after 5 / 10 / 20 / 30 / 60 minutes played per UTC day: 5 bonks, 10 bonks, 2× fire 5 min,
+  25 bonks, Bonk Rain.
+- **Bonk Rain:** 30 s of sticks dropping all over your field (5 per second, normal rules, golden chance). Collected from the
+  shop, wheel and gifts; started with the BONK RAIN button while on your island.
 - **Coin Flip vs house:** pick heads/tails, bet 10 % / 25 % / 50 % / all of your Bonk Points (min 10), 50:50, win = bet doubled.
 - **Duels:** challenge another player in the server for 100 / 1,000 / 10,000 / 100,000; they get a popup (20 s) to accept;
   both pay the stake, a fair coin decides, the winner gets both. One open duel per player.
@@ -156,11 +166,34 @@ worth it at every stage. Config: `Config/Hub`.
   Admin gifts and coin-flip stakes coming back don't count, only real earnings.
 - Only earned points can be bet. Bonk Points must never be sold for Robux while coin flips exist (Roblox rules on paid random items).
 
+## Shop (monetisation)
+
+Goal: earn well without being a scam. Robux buys time savers, boosts and cosmetics; Bonk Points are **never** sold for
+Robux (coin flips exist) and wheel spins are never sold. Prices shown in the shop must match the Creator Hub.
+Roblox ids live in `Config/Shop` (0 = not created yet: free test purchase in Studio, "Coming soon" live).
+
+| Kind | Item | Robux | Effect |
+|------|------|-------|--------|
+| Pass | 2× Bonk Points | 199 | every bonk ×2 |
+| Pass | VIP | 299 | +25 % points, golden VIP tag, VIP trophy, 2 daily spins |
+| Pass | Lucky Sticks | 149 | golden chance 5 % → 15 % |
+| Pass | +2 Shiba Slots | 249 | More Shibas max 7 → 9 (10 Shibas) |
+| Product | Bonk Rain | 49 | +1 Bonk Rain (starts right away when on your island) |
+| Product | 2× Points 30 min / 2× Fire Rate 30 min | 39 each | boost |
+| Product | Shiba Tier Skip | 99 | next Shiba tier now (blocked at the top tier) |
+| Product | Starter Pack | 49 | once: 2× points 1 h + 3 Bonk Rains + Starter trophy; offered in a popup for 48 h after the first join |
+| Product | Diamond / Rainbow trophy | 99 / 249 | exclusive trophies |
+
+Trophies stand on your island for everyone to see: Wooden 5K, Bronze 50K, Silver 500K, Golden 5M, Galaxy 100M Bonk
+Points (long-term goals), plus exclusive ones (Starter, 7-Day Streak, VIP, Diamond, Rainbow).
+Receipts are granted exactly once (handled purchase ids are saved); pass ownership is checked with Roblox on every join.
+
 ## Admin (testing)
 
 - Admins get an **ADMIN** button (left) with: +1K / +100K / +10M / +1B points, set points to 0; each upgrade −/+ and MAX ALL;
   reset daily spin, new quests, finish quests; 2× points / 2× fire rate boost (10 min), clear boosts; teleport to hub / own
-  island, all Shibas fire now; RESET EVERYTHING (second click confirms; keeps the leaderboard total).
+  island, all Shibas fire now; toggle each pass, +1 Bonk Rain, start a rain, all trophies, unlock gifts, show the
+  starter offer again; RESET EVERYTHING (second click confirms; keeps the leaderboard total and Robux purchases).
 - Admins: everyone in Studio playtests, the experience owner, and the UserIds in `src/shared/Config/Admin.luau`.
 - The server checks admin rights on every request (`AdminCommand`, `AdminService`); the client check only hides the button.
 
@@ -176,7 +209,7 @@ worth it at every stage. Config: `Config/Hub`.
 
 ## Saving
 
-Per player (DataStore, key = UserId): Bonk Points, total earned, level per upgrade, active shooter count, last daily spin, boost end times, today's quests. Loaded on join, saved on leave, every 60 s, and on server shutdown.
+Per player (DataStore, key = UserId): the whole `Types.PlayerState` (Bonk Points, total earned, levels, active Shibas, spins used today, boost end times, quests, login streak, playtime, trophies, Bonk Rains, first join, starter pack, passes, handled receipts). Loaded on join, saved on leave, every 60 s, and on server shutdown.
 
 ## Scope of the first playable version (MVP)
 
@@ -226,7 +259,8 @@ Explicitly not in MVP:
 
 ## Monetisation
 
-_TBD (decide late, but decide before building shops beyond the MVP upgrade menu)_
+See **Shop (monetisation)** above. Before going live: create the passes and products on the Creator Hub, paste their ids
+into `Config/Shop`, and answer the experience questionnaire honestly (the coin flip counts as chance-based content).
 
 ## Open questions
 

@@ -104,9 +104,11 @@ local function buildCard(list: Instance, id: string, order: number)
 	dotLayout.Padding = UDim.new(0, 5)
 	dotLayout.Parent = dotRow
 	local dots: { Frame } = {}
-	for level = 1, def.MaxLevel do
+	-- Dots up to the highest level any player can reach (More Shibas: +2 with the pass; extra dots hide without it).
+	local dotCount = Upgrades.GetMaxLevel(id, { ExtraShibas = true })
+	for level = 1, dotCount do
 		local dot = Instance.new("Frame")
-		dot.Size = UDim2.fromOffset(if def.MaxLevel > 8 then 16 else 26, 12)
+		dot.Size = UDim2.fromOffset(if dotCount > 8 then 16 else 26, 12)
 		dot.BackgroundColor3 = valueColor(id, level)
 		dot.Parent = dotRow
 		Widgets.Corner(dot, 6)
@@ -182,12 +184,12 @@ local function refresh()
 	end
 	for _, card in cards do
 		local id = card.Id
-		local def = Upgrades.Defs[id]
 		local level = state.UpgradeLevels[id] or 0
-		card.Level.Text = if level >= def.MaxLevel then "MAX" else `Lv {level}`
+		local maxLevel = Upgrades.GetMaxLevel(id, state.Passes)
+		card.Level.Text = if level >= maxLevel then "MAX" else `Lv {level}`
 		local current = Upgrades.FormatValue(id, level)
 		local currentColor = valueColor(id, level):ToHex()
-		if level >= def.MaxLevel then
+		if level >= maxLevel then
 			card.Value.Text = `<font color="#{currentColor}">{current}</font>`
 			card.Detail.Text = describe(id, level)
 			card.Button.Text = "MAX"
@@ -205,6 +207,7 @@ local function refresh()
 			Widgets.SetButtonColor(card.Button, if card.CanBuy then Theme.Good else Theme.Disabled)
 		end
 		for index, dot in card.Dots do
+			dot.Visible = index <= maxLevel
 			dot.BackgroundTransparency = if index <= level then 0 else 0.75
 		end
 		if card.ActiveLabel then

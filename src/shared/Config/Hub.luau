@@ -1,18 +1,29 @@
 --!strict
--- Hub features (docs/GAME_DESIGN.md → Hub): daily spin, coin flip + duels, daily quests, leaderboard, boosts.
+-- Hub features (docs/GAME_DESIGN.md → Hub): daily spin, coin flip + duels, daily quests, leaderboard, boosts,
+-- login streak and playtime gifts.
 -- "Hits" as a reward unit = what one normal bonk currently pays the player (projectile tier × Shiba tier),
 -- so rewards stay worth it at every stage of the game.
 
 export type SpinSegment = {
 	Text: string,
-	Kind: "Points" | "Boost",
+	Kind: "Points" | "Boost" | "BonkRain" | "Nothing",
 	-- Points: this many hits' worth. Boost: which boost, for how many seconds.
 	Hits: number?,
 	Boost: string?,
 	Seconds: number?,
-	-- Relative chance.
+	-- Relative chance (the wheel shows each segment's chance in %).
 	Weight: number,
 	Color: Color3,
+}
+
+-- A reward from the login streak or a playtime gift.
+export type Reward = {
+	Text: string,
+	Kind: "Points" | "Boost" | "BonkRain" | "Trophy",
+	Hits: number?,
+	Boost: string?,
+	Seconds: number?,
+	Trophy: string?,
 }
 
 export type QuestDef = {
@@ -25,35 +36,50 @@ export type QuestDef = {
 	RewardHits: number,
 }
 
+-- Clockwise from the top. Small wins on purpose: the wheel is a daily treat, not the main income.
 local spinSegments: { SpinSegment } = {
-	{ Text = "25 Bonks", Kind = "Points", Hits = 25, Weight = 30, Color = Color3.fromRGB(90, 180, 255) },
+	{ Text = "5 Bonks", Kind = "Points", Hits = 5, Weight = 26, Color = Color3.fromRGB(90, 180, 255) },
+	{ Text = "Nothing", Kind = "Nothing", Weight = 16, Color = Color3.fromRGB(90, 90, 110) },
+	{ Text = "10 Bonks", Kind = "Points", Hits = 10, Weight = 20, Color = Color3.fromRGB(120, 220, 120) },
 	{
-		Text = "2× Points 10 min",
+		Text = "2× Points 5 min",
 		Kind = "Boost",
 		Boost = "Points",
-		Seconds = 600,
-		Weight = 15,
+		Seconds = 300,
+		Weight = 12,
 		Color = Color3.fromRGB(255, 200, 40),
 	},
-	{ Text = "50 Bonks", Kind = "Points", Hits = 50, Weight = 22, Color = Color3.fromRGB(120, 220, 120) },
+	{ Text = "20 Bonks", Kind = "Points", Hits = 20, Weight = 12, Color = Color3.fromRGB(190, 110, 255) },
 	{
-		Text = "2× Fire Rate 10 min",
+		Text = "2× Fire 5 min",
 		Kind = "Boost",
 		Boost = "FireRate",
-		Seconds = 600,
-		Weight = 15,
+		Seconds = 300,
+		Weight = 8,
 		Color = Color3.fromRGB(255, 110, 60),
 	},
-	{ Text = "100 Bonks", Kind = "Points", Hits = 100, Weight = 12, Color = Color3.fromRGB(190, 110, 255) },
-	{ Text = "JACKPOT 500", Kind = "Points", Hits = 500, Weight = 2, Color = Color3.fromRGB(255, 60, 120) },
-	{
-		Text = "2× Points 30 min",
-		Kind = "Boost",
-		Boost = "Points",
-		Seconds = 1800,
-		Weight = 4,
-		Color = Color3.fromRGB(255, 230, 120),
-	},
+	{ Text = "Bonk Rain", Kind = "BonkRain", Weight = 4, Color = Color3.fromRGB(60, 200, 230) },
+	{ Text = "JACKPOT 50", Kind = "Points", Hits = 50, Weight = 2, Color = Color3.fromRGB(255, 60, 120) },
+}
+
+-- Day 1 … 7 of the login streak; after day 7 it starts over at day 1.
+local streakRewards: { Reward } = {
+	{ Text = "10 Bonks", Kind = "Points", Hits = 10 },
+	{ Text = "20 Bonks", Kind = "Points", Hits = 20 },
+	{ Text = "2× Points 10 min", Kind = "Boost", Boost = "Points", Seconds = 600 },
+	{ Text = "40 Bonks", Kind = "Points", Hits = 40 },
+	{ Text = "Bonk Rain", Kind = "BonkRain" },
+	{ Text = "80 Bonks", Kind = "Points", Hits = 80 },
+	{ Text = "Streak Trophy + 150 Bonks", Kind = "Trophy", Trophy = "Streak", Hits = 150 },
+}
+
+-- Gifts after this many minutes of play in one UTC day.
+local playtimeGifts: { { Minutes: number, Reward: Reward } } = {
+	{ Minutes = 5, Reward = { Text = "5 Bonks", Kind = "Points", Hits = 5 } },
+	{ Minutes = 10, Reward = { Text = "10 Bonks", Kind = "Points", Hits = 10 } },
+	{ Minutes = 20, Reward = { Text = "2× Fire 5 min", Kind = "Boost", Boost = "FireRate", Seconds = 300 } },
+	{ Minutes = 30, Reward = { Text = "25 Bonks", Kind = "Points", Hits = 25 } },
+	{ Minutes = 60, Reward = { Text = "Bonk Rain", Kind = "BonkRain" } },
 }
 
 local quests: { QuestDef } = {
@@ -70,8 +96,17 @@ local quests: { QuestDef } = {
 
 return {
 	DailySpin = {
-		Cooldown = 24 * 60 * 60,
+		-- Free spins per UTC day (VIP: Shop.Pass.VIPDailySpins).
+		FreeSpins = 1,
 		Segments = spinSegments,
+	},
+
+	LoginStreak = {
+		Rewards = streakRewards,
+	},
+
+	Playtime = {
+		Gifts = playtimeGifts,
 	},
 
 	CoinFlip = {

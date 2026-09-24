@@ -110,6 +110,16 @@ local function tryStart(marker: BasePart): boolean
 		return false
 	end
 	local model = buildModel(Projectiles.Defs[marker.Name], diameter)
+	if marker:GetAttribute(CONFIG.GoldenAttribute) == true then
+		-- Golden projectile: gold outline and a gold trail (it pays GoldenMultiplier times as much).
+		local outline = Instance.new("Highlight")
+		outline.FillColor = CONFIG.GoldenColor
+		outline.FillTransparency = 0.55
+		outline.OutlineColor = CONFIG.GoldenColor
+		outline.DepthMode = Enum.HighlightDepthMode.Occluded
+		outline.Parent = model
+		addTrail(model, CONFIG.GoldenColor, diameter * 1.6)
+	end
 	local box = model:GetBoundingBox()
 	local baseTransparency: { [BasePart]: number } = {}
 	for _, descendant in model:GetDescendants() do

@@ -10,6 +10,7 @@ local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local Net = require(ReplicatedStorage.Shared.Net)
 local RateLimiter = require(ReplicatedStorage.Shared.Util.RateLimiter)
+local Shop = require(ReplicatedStorage.Shared.Config.Shop)
 
 local BoostService = require(script.Parent.BoostService)
 local EconomyService = require(script.Parent.EconomyService)
@@ -118,6 +119,10 @@ local function onReportHit(player: Player, projectileId: unknown, onHeadClaim: u
 
 	local combo, comboMultiplier, window = registerCombo(player, os.clock())
 	local tier = RewardService.GetShooterTier(player)
+	local goldenMultiplier = if plan.Golden then Gameplay.Projectiles.GoldenMultiplier else 1
+	local passMultiplier = (
+		if RewardService.HasPass(player, "DoublePoints") then Shop.Pass.DoublePointsMultiplier else 1
+	) * (if RewardService.HasPass(player, "VIP") then Shop.Pass.VIPMultiplier else 1)
 	local headMultiplier = if onHead then HITS.HeadMultiplier else 1
 	local reward = math.max(
 		1,
@@ -128,6 +133,8 @@ local function onReportHit(player: Player, projectileId: unknown, onHeadClaim: u
 				* comboMultiplier
 				* tier.RewardMultiplier
 				* BoostService.GetMultiplier(player, "Points")
+				* goldenMultiplier
+				* passMultiplier
 		)
 	)
 	EconomyService.AddPoints(player, reward)
@@ -142,7 +149,7 @@ local function onReportHit(player: Player, projectileId: unknown, onHeadClaim: u
 
 	local flat = Vector3.new(projectileVelocity.X, 0, projectileVelocity.Z)
 	local knockbackDirection = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.zero
-	bonkHit:FireClient(player, reward, quality.Name, knockbackDirection, onHead, combo, window)
+	bonkHit:FireClient(player, reward, quality.Name, knockbackDirection, onHead, combo, window, plan.Golden)
 end
 
 function BonkService.Start()

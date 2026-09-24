@@ -70,7 +70,7 @@ function UpgradeService.SetLevel(player: Player, id: string, level: number)
 	if not state or not def then
 		return
 	end
-	state.UpgradeLevels[id] = math.clamp(math.floor(level), 0, def.MaxLevel)
+	state.UpgradeLevels[id] = math.clamp(math.floor(level), 0, Upgrades.GetMaxLevel(id, state.Passes))
 	local owned = Upgrades.GetValue("Shooters", state.UpgradeLevels.Shooters or 0)
 	if id == "Shooters" then
 		state.ActiveShooters = owned
@@ -93,7 +93,7 @@ local function onRequestPurchase(player: Player, upgradeId: unknown)
 		return
 	end
 	local level = state.UpgradeLevels[def.Id] or 0
-	if level >= def.MaxLevel then
+	if level >= Upgrades.GetMaxLevel(def.Id, state.Passes) then
 		return
 	end
 	local cost = Upgrades.GetCost(def.Id, level)
