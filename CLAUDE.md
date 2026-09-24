@@ -5,8 +5,8 @@ Read this file fully before any task. It overrides your defaults.
 
 ## Staying in sync (merging is automatic)
 
-Every push to any branch except `main` opens a pull request into `main` by itself and merges it as soon as CI is green
-(`.github/workflows/auto-merge.yml`). Nobody merges by hand. Consequences for you:
+Every push to any branch except `main` runs CI; when it is green, CI opens a pull request into `main` and merges it
+(`.github/workflows/ci.yml`, job "Merge into main"). Nobody merges by hand. Consequences for you:
 
 - **Before starting a task and before every push**, bring in the other developer's work:
   `git fetch origin` then `git merge --no-edit origin/main`. Resolve conflicts, re-run the checks.

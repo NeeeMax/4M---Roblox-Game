@@ -90,7 +90,7 @@ Only one person does this at a time; say so in chat first.
 
 - `main` is protected and always playable. No direct pushes.
 - **Merging is automatic:** every push to another branch opens a PR into `main` and merges it (merge commit) as soon as
-  CI is green (`.github/workflows/auto-merge.yml`). A red check blocks the merge: fix it and push again.
+  CI is green (`.github/workflows/ci.yml`, job "Merge into main"). A red check blocks the merge: fix it and push again.
 - Each developer may keep one long-lived branch; bigger features get their own.
   - Branch names: `feat/<area>-<name>`, `fix/<area>-<name>`, `docs/<name>`, `chore/<name>`
 - Bring in `main` before every task and every push (merge, not rebase: branches are shared with GitHub):
@@ -111,11 +111,10 @@ Only one person does this at a time; say so in chat first.
 
 ### Automatic merging: one-time GitHub setup (repo owner)
 
-1. **Settings → General → Pull Requests:** tick **Allow merge commits** and **Allow auto-merge**.
-2. **Settings → Actions → General → Workflow permissions:** choose **Read and write permissions** and tick
+1. **Settings → Actions → General → Workflow permissions:** choose **Read and write permissions** and tick
    **Allow GitHub Actions to create and approve pull requests** → Save.
-3. **Settings → Branches → Add branch protection rule** (or Rules → Rulesets) for `main`: tick **Require status checks
-   to pass** and add the check **StyLua, selene, luau-lsp**. Do **not** require approvals (that would block auto-merge).
+2. **Settings → General → Pull Requests:** **Allow merge commits** must be ticked (it is by default).
+3. If `main` has a branch protection rule or ruleset that **requires approvals**, turn that off; it would block the merge.
 5. From time to time, one person loads `main` into the main place (section 3) and publishes. Say so in chat first.
 
 Playing together: in the main place, **Test → Team Test** starts a server you can both join. The published game gives everyone their own island.

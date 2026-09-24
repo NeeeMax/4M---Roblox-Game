@@ -2,8 +2,7 @@ name: CI
 
 on:
   pull_request:
-  # Also on every push: pull requests opened by the auto-merge workflow don't trigger pull_request runs
-  # (GitHub never starts workflows from its own token), so this push run is the check auto-merge waits for.
+  # Also on every push: the merge job below merges branches into main once the checks pass.
   push:
 
 jobs:
@@ -47,3 +46,37 @@ jobs:
           curl -sSfL -o globalTypes.d.luau \
             https://raw.githubusercontent.com/JohnnyMorganz/luau-lsp/main/scripts/globalTypes.None.d.luau
           luau-lsp analyze --definitions=globalTypes.d.luau --sourcemap=sourcemap.json src
+
+  # Automatic merging: when the checks pass on a push to any branch except main, open a pull request into main
+  # (if there isn't one) and merge it right away. Nobody has to click Merge. A red check means no merge.
+  # Needs the repo setting "Allow GitHub Actions to create and approve pull requests" (CONTRIBUTING.md, section 5).
+  merge:
+    name: Merge into main
+    needs: checks
+    if: ${{ github.event_name == 'push' && github.ref_name != 'main' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Open pull request and merge it
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          if [ -z "$(git log --oneline origin/main..HEAD)" ]; then
+            echo "$BRANCH has nothing that main doesn't have yet."
+            exit 0
+          fi
+          if [ -z "$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[].number')" ]; then
+            printf '%s\n\n%s\n' \
+              "Opened and merged automatically after the checks passed on push." \
+              "The author's Claude Code may replace this text with the filled-in PR template." > body.md
+            gh pr create --head "$BRANCH" --base main --title "$BRANCH: $(git log -1 --format=%s)" --body-file body.md
+          fi
+          # Merge commit (not squash) so everyone can keep working on their own long-lived branch.
+          gh pr merge "$BRANCH" --merge
