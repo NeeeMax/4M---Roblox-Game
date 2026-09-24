@@ -3,5 +3,5 @@
 -- Bump the label with every change that should be visible in a playtest.
 
 return {
-	Label = "2026-09-25 #17: Shibas swing their arm to throw (ThrowArm + ShibaController), original Shiba colours",
+	Label = "2026-09-25 #18: no arm swing when a throw is cancelled",
 }
