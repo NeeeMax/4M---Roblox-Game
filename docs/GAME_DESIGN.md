@@ -45,14 +45,14 @@ MVP has one projectile type: **Ball**.
 | Field | Ball |
 |-------|------|
 | Diameter | 2 studs |
-| Base launch speed | 45 studs/s |
+| Base launch speed | 36 studs/s |
 | BaseReward | 10 Bonk Points |
 
-**Flight (visible arc):** launched at a fixed 45° angle toward the target point. Per projectile, gravity is set (with a `VectorForce`) to `g = v² / d` (v = launch speed, d = horizontal distance) so it lands exactly on the target. Every shot has the same readable arc shape (apex = d / 4); higher speed only shortens the flight time. At base speed a 60-stud shot flies 1.9 s.
+**Flight (visible arc):** launched at a fixed 45° angle toward the target point. Per projectile, gravity is set (with a `VectorForce`) to `g = v² / d` (v = launch speed, d = horizontal distance) so it lands exactly on the target. Every shot has the same readable arc shape (apex = d / 4); higher speed only shortens the flight time. At base speed a 60-stud shot flies 2.4 s.
 
-**Size vs speed:** projectile diameter = `2 × sizeScale`, launch speed = `45 × speedScale × sizeScale^-0.5`. Bigger projectiles are easier to hit but fly slower and therefore pay a lower speed multiplier.
+**Size vs speed:** projectile diameter = `2 × sizeScale`, launch speed = `36 × sizeScale^-0.5`. Bigger projectiles are easier to hit but fly slower and therefore pay a lower speed multiplier.
 
-**Lifetime / cleanup:** a projectile's flight ends at its first contact with anything (ground or other); only the flight counts for hits. Destroyed 1.5 s after first contact, or 8 s after launch at the latest. Max 60 live projectiles per island; the oldest is destroyed first. All projectiles of a player are destroyed when they leave.
+**Lifetime / cleanup:** a projectile's flight ends at its first contact with anything (ground or other); only the flight counts for hits. It disappears the moment it touches the ground: each client hides it as soon as it sees it reach the island surface (the client shows server objects slightly delayed, so a server-side delete would make balls vanish just before they land). The server destroys it 0.5 s after first contact, or 8 s after launch at the latest. Max 60 live projectiles per island; the oldest is destroyed first. All projectiles of a player are destroyed when they leave.
 
 ## Hits (server decides)
 
@@ -68,7 +68,7 @@ MVP has one projectile type: **Ball**.
 Reward = floor(BaseReward × SizeMult × SpeedMult × QualityMult), at least 1
 
 SizeMult  = sizeScale                   (1.2 ^ sizeLevel)
-SpeedMult = launch speed / 45           (includes the size slowdown, excludes the ±10 % jitter)
+SpeedMult = launch speed / 36           (= the size slowdown sizeScale^-0.5; excludes the ±10 % jitter)
 ```
 
 ### Hit quality — one rule
@@ -79,11 +79,11 @@ The player velocity is clamped before use: horizontal ≤ current WalkSpeed, ver
 
 | Quality | r | Multiplier | How you get it (base stats) |
 |---------|---|-----------|-----------------------------|
-| Normal | < 1.2 | 1× | walk under it (r ≈ 1.0) |
-| Good | 1.2 – < 1.5 | 2× | run into it (r ≈ 1.28) |
-| Hard | 1.5 – < 1.8 | 5× | run + jump into it (r ≈ 1.65) |
-| Massive | 1.8 – < 2.2 | 10× | run + jump, well timed (max ≈ 2.1) |
-| Legendary | ≥ 2.2 | 50× | needs MoveSpeed upgrades + perfect timing |
+| Normal | < 1.2 | 1× | walk under it (r ≈ 1.1) |
+| Good | 1.2 – < 1.5 | 2× | run into it (r ≈ 1.35) |
+| Hard | 1.5 – < 1.8 | 5× | run + jump into it (r ≈ 1.6) |
+| Massive | 1.8 – < 2.2 | 10× | run + jump, well timed (r ≈ 1.9) |
+| Legendary | ≥ 2.2 | 50× | run + jump right at take-off, perfect timing (max ≈ 2.4 at base stats) |
 
 ## Feedback (client)
 
@@ -98,15 +98,20 @@ Default series: 100 → 285 → 812 → 2,314 → 6,597 → 18,802 → …
 | Id | Effect per level | Level 0 | Max level | At max | BaseCost | Growth |
 |----|-----------------|---------|-----------|--------|----------|--------|
 | `MoveSpeed` | WalkSpeed +3 | 16 | 10 | 46 | 100 | 2.85 |
-| `ProjectileSpeed` | speedScale ×1.15 | 1.0 | 10 | 4.05 | 100 | 2.85 |
 | `ProjectileSize` | sizeScale ×1.2 | 1.0 | 10 | 6.19 (12.4-stud ball, 0.40× speed) | 100 | 2.85 |
 | `FireRate` | fire interval ×0.85 | 5.0 s | 12 | 0.71 s | 100 | 2.85 |
 | `Shooters` | +1 shooter | 1 | 7 | 8 | 500 | 4.0 |
 
 - MoveSpeed exists so the player can **reach impact points in time** (not to dodge). It also raises the achievable hit quality.
-- ProjectileSpeed and ProjectileSize change difficulty, but both raise the reward per hit, so they are worth buying.
+- ProjectileSize makes hits easier and pays more per hit (net ×1.2^0.5 ≈ 1.1 per level), but balls fly slower. There is no projectile speed upgrade (removed after the first playtest).
 - **Shooters add/remove:** buying adds a shooter. In the upgrade menu the player can set the number of active shooters between 1 and the owned count for free.
 - Purchases are validated on the server: known upgrade id, below max level, enough Bonk Points, max 5 requests/s.
+
+## Admin (testing)
+
+- Admins see an **ADMIN** row in the upgrade menu: **+1,000** and **+100,000** Bonk Points.
+- Admins: everyone in Studio playtests, the experience owner, and the UserIds in `src/shared/Config/Admin.luau`.
+- The server checks admin rights on every request (`AdminAddPoints`); the client check only hides the row.
 
 ## Economy
 
@@ -135,13 +140,13 @@ Must have (= "Prototype Scope – Required" from the concept):
 - Basic currency UI
 - Basic upgrade shop
 - Movement speed upgrade
-- Projectile speed upgrade
 - Projectile size upgrade
 - Shooting frequency upgrade
 - Add/remove NPC shooter upgrade
 - Basic save structure if practical
 
 Explicitly not in MVP:
+- Projectile speed upgrade (was in the concept's list; removed after the first playtest, 2026-09-24)
 - More projectile types, projectile tiers 1–5, "Unlock New Projectile" upgrade
 - More than 8 shooters, multiple shots per second per shooter
 - Ragdoll, complex animations, polished art, visual island progression
