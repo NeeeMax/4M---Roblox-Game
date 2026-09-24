@@ -4,7 +4,15 @@
 -- purchase; in a live server the button says "Coming soon".
 -- Bonk Points are never sold for Robux (coin flips exist): Robux buys boosts, cosmetics and time savers only.
 
-export type PassId = "DoublePoints" | "VIP" | "LuckySticks" | "ExtraShibas"
+export type PassId =
+	"DoublePoints"
+	| "VIP"
+	| "LuckySticks"
+	| "ExtraShibas"
+	| "Manage"
+	| "RunFaster"
+	| "StackUpgrade"
+	| "AutoCatch"
 
 export type Pass = {
 	Id: PassId,
@@ -26,7 +34,10 @@ export type Product = {
 	Robux: number,
 	Color: Color3,
 	-- What buying it gives (ShopService.Grant).
-	Kind: "BonkRain" | "Boost" | "TierSkip" | "StarterPack" | "Trophy",
+	-- InstantUpgrade: one level of `Upgrade` (an UpgradeId) right away. DoubleOffline: doubles the pending
+	-- offline earnings.
+	Kind: "BonkRain" | "Boost" | "TierSkip" | "StarterPack" | "Trophy" | "InstantUpgrade" | "DoubleOffline",
+	Upgrade: string?,
 	Boost: string?,
 	Seconds: number?,
 	Trophy: string?,
@@ -74,6 +85,38 @@ local passes: { Pass } = {
 		Description = "Up to 10 Shibas around your island instead of 8.",
 		Robux = 249,
 		Color = Color3.fromRGB(255, 140, 60),
+	},
+	{
+		Id = "Manage",
+		GamePassId = 0,
+		DisplayName = "Manage",
+		Description = "Manage all upgrades from one place: open the upgrade menu anywhere.",
+		Robux = 199,
+		Color = Color3.fromRGB(255, 190, 60),
+	},
+	{
+		Id = "RunFaster",
+		GamePassId = 0,
+		DisplayName = "Run Faster",
+		Description = "Gotta go fast! Walk speed x1.5.",
+		Robux = 99,
+		Color = Color3.fromRGB(240, 240, 250),
+	},
+	{
+		Id = "StackUpgrade",
+		GamePassId = 0,
+		DisplayName = "Stack Upgrade",
+		Description = "Upgrade multiple times at once (hold E / buy x10).",
+		Robux = 149,
+		Color = Color3.fromRGB(255, 220, 60),
+	},
+	{
+		Id = "AutoCatch",
+		GamePassId = 0,
+		DisplayName = "Auto-Catch",
+		Description = "A magnet catches sticks near you automatically.",
+		Robux = 249,
+		Color = Color3.fromRGB(120, 200, 255),
 	},
 }
 
@@ -146,6 +189,55 @@ local products: { Product } = {
 		Color = Color3.fromRGB(255, 90, 200),
 		Kind = "Trophy",
 		Trophy = "Rainbow",
+	},
+	{
+		Id = "DoubleOffline",
+		ProductId = 0,
+		DisplayName = "Double Offline Earnings",
+		Description = "Double what your Shibas earned while you were away.",
+		Robux = 39,
+		Color = Color3.fromRGB(80, 220, 120),
+		Kind = "DoubleOffline",
+	},
+	{
+		Id = "InstantShooterTier",
+		ProductId = 0,
+		DisplayName = "Instant Shiba Tier",
+		Description = "Buy the next Shiba tier right now.",
+		Robux = 99,
+		Color = Color3.fromRGB(190, 110, 255),
+		Kind = "InstantUpgrade",
+		Upgrade = "ShooterTier",
+	},
+	{
+		Id = "InstantProjectileTier",
+		ProductId = 0,
+		DisplayName = "Instant Projectile Tier",
+		Description = "Buy the next projectile tier right now.",
+		Robux = 79,
+		Color = Color3.fromRGB(255, 200, 40),
+		Kind = "InstantUpgrade",
+		Upgrade = "ProjectileTier",
+	},
+	{
+		Id = "InstantShooters",
+		ProductId = 0,
+		DisplayName = "Instant Shiba",
+		Description = "Get your next Shiba right now.",
+		Robux = 49,
+		Color = Color3.fromRGB(255, 140, 60),
+		Kind = "InstantUpgrade",
+		Upgrade = "Shooters",
+	},
+	{
+		Id = "InstantMoveSpeed",
+		ProductId = 0,
+		DisplayName = "Instant Speed",
+		Description = "Buy the next Move Speed level right now.",
+		Robux = 25,
+		Color = Color3.fromRGB(80, 200, 255),
+		Kind = "InstantUpgrade",
+		Upgrade = "MoveSpeed",
 	},
 }
 

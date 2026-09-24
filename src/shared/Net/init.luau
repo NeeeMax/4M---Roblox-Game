@@ -52,6 +52,20 @@ local Net = {
 	ClaimStreak = "ClaimStreak",
 	-- C→S (giftIndex: number) — claim a playtime gift
 	ClaimPlaytime = "ClaimPlaytime",
+	-- S→C (amount: number, seconds: number) — "Welcome back": offline earnings waiting to be claimed
+	OfflineEarnings = "OfflineEarnings",
+	-- C→S (double: boolean) — claim offline earnings; double = true opens the Robux purchase to double them
+	ClaimOffline = "ClaimOffline",
+	-- S→C () — the jump and run timer started (player touched the start)
+	ObbyStarted = "ObbyStarted",
+	-- S→C (time: number, reward: number, bestTime: number, nextRewardAt: number) — finished the jump and run
+	ObbyFinished = "ObbyFinished",
+	-- S→C (eventId: string, endsAt: number) — a server event started (eventId "" = the event ended)
+	ServerEvent = "ServerEvent",
+	-- C→S (entryId: string) — claim the discovery reward of a Shiba-Index entry
+	ClaimIndex = "ClaimIndex",
+	-- C→S (music: number, effects: number, hints: boolean) — save the settings menu
+	SaveSettings = "SaveSettings",
 }
 
 local ALL_NAMES = {
@@ -76,6 +90,13 @@ local ALL_NAMES = {
 	Net.BonkRainStarted,
 	Net.ClaimStreak,
 	Net.ClaimPlaytime,
+	Net.OfflineEarnings,
+	Net.ClaimOffline,
+	Net.ObbyStarted,
+	Net.ObbyFinished,
+	Net.ServerEvent,
+	Net.ClaimIndex,
+	Net.SaveSettings,
 }
 
 function Net.CreateRemotes()

@@ -55,6 +55,10 @@ local function defaultState(): PlayerState
 		StarterPackBought = false,
 		Passes = {},
 		Receipts = {},
+		Bank = { LastSeenAt = 0, IncomePerMinute = 0, Pending = 0, PendingSeconds = 0 },
+		Obby = { LastRewardAt = 0, BestTime = 0 },
+		Index = { Seen = {}, Claimed = {} },
+		Settings = { Music = 0.5, Effects = 1, Hints = true },
 	}
 end
 
@@ -136,6 +140,47 @@ local function stateFromSaved(saved: unknown): PlayerState
 				state.Passes[id] = true
 			end
 		end
+	end
+	local bank = data.Bank
+	if typeof(bank) == "table" then
+		state.Bank = {
+			LastSeenAt = if isNumber(bank.LastSeenAt) then bank.LastSeenAt else 0,
+			IncomePerMinute = if isNumber(bank.IncomePerMinute) then math.max(0, bank.IncomePerMinute) else 0,
+			Pending = if isNumber(bank.Pending) then math.max(0, math.floor(bank.Pending)) else 0,
+			PendingSeconds = if isNumber(bank.PendingSeconds) then math.max(0, bank.PendingSeconds) else 0,
+		}
+	end
+	local obby = data.Obby
+	if typeof(obby) == "table" then
+		state.Obby = {
+			LastRewardAt = if isNumber(obby.LastRewardAt) then obby.LastRewardAt else 0,
+			BestTime = if isNumber(obby.BestTime) then math.max(0, obby.BestTime) else 0,
+		}
+	end
+	local savedIndex = data.Index
+	if typeof(savedIndex) == "table" then
+		if typeof(savedIndex.Seen) == "table" then
+			for id, value in savedIndex.Seen do
+				if typeof(id) == "string" and value == true then
+					state.Index.Seen[id] = true
+				end
+			end
+		end
+		if typeof(savedIndex.Claimed) == "table" then
+			for id, value in savedIndex.Claimed do
+				if typeof(id) == "string" and value == true then
+					state.Index.Claimed[id] = true
+				end
+			end
+		end
+	end
+	local settings = data.Settings
+	if typeof(settings) == "table" then
+		state.Settings = {
+			Music = if isNumber(settings.Music) then math.clamp(settings.Music, 0, 1) else 0.5,
+			Effects = if isNumber(settings.Effects) then math.clamp(settings.Effects, 0, 1) else 1,
+			Hints = settings.Hints ~= false,
+		}
 	end
 	if typeof(data.Receipts) == "table" then
 		for _, receipt in data.Receipts do
