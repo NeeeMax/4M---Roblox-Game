@@ -49,13 +49,16 @@ To refresh a dev place with the latest world: in the main place, save the world 
 
 ## 3. Connecting Studio (Script Sync)
 
-In your **dev place**, create these folders if they don't exist, then right-click each → **Sync to…** → choose the local folder:
+In your **dev place**, create these three folders (hover over the parent in the Explorer → **⊕** → Folder), then right-click each → **Sync to…** → choose the repo's **`src`** folder for all three.
+Studio adds the Studio folder's name itself, so `Server` ends up as `src/server` (Windows ignores the case). Choosing `src/server` directly creates an empty `src/server/Server` instead.
 
-| Studio folder | Local folder |
-|---------------|--------------|
-| `ServerScriptService/Server` | `src/server` |
-| `StarterPlayer/StarterPlayerScripts/Client` | `src/client` |
-| `ReplicatedStorage/Shared` | `src/shared` |
+| Studio folder | Sync to… | Resulting local folder |
+|---------------|----------|------------------------|
+| `ServerScriptService/Server` | `src` | `src/server` |
+| `StarterPlayer/StarterPlayerScripts/Client` | `src` | `src/client` |
+| `ReplicatedStorage/Shared` | `src` | `src/shared` |
+
+After syncing, `Server` must contain `Main` and `Services`. If a folder stays empty, the sync points to the wrong place.
 
 Studio remembers the sync for that place. If Studio shows the conflict dialog on start, choose **Keep Disk** — git is the source of truth for code.
 
