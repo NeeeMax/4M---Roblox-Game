@@ -75,6 +75,7 @@ local function isPermanentError(message: string): boolean
 	return string.find(message, "403", 1, true) ~= nil
 		or string.find(message, "publish", 1, true) ~= nil
 		or string.find(message, "StudioAccessToApisNotAllowed", 1, true) ~= nil
+		or string.find(message, "Studio access to APIs is not allowed", 1, true) ~= nil
 end
 
 -- Calls `attempt` up to DataStoreAttempts times with 1 s, 2 s, ... backoff. Returns success and the result.
