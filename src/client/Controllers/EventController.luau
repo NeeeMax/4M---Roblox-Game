@@ -13,7 +13,7 @@ local Net = require(ReplicatedStorage.Shared.Net)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 
--- Below the points counter and boost line of the HUD.
+-- Below the Bonk Dollars counter and boost line of the HUD.
 local BANNER_TOP = 92
 local SPLASH_SECONDS = 2.5
 

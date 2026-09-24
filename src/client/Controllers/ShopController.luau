@@ -1,7 +1,7 @@
 --!strict
 -- The shop menu (Config/Shop): tabs for POWERS (the gameplay passes, big cards with yellow Robux prices), other
--- game passes, items (Robux products) and trophies (Bonk Points or Robux), plus the starter-pack offer popup for new
--- players. Every button sends ShopBuy; the server prompts the Roblox purchase or checks the Bonk Points, and grants
+-- game passes, items (Robux products) and trophies (Bonk Dollars or Robux), plus the starter-pack offer popup for new
+-- players. Every button sends ShopBuy; the server prompts the Roblox purchase or checks the Bonk Dollars, and grants
 -- the item. Other code opens a tab with ShopController.OpenTab("POWERS").
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -297,7 +297,7 @@ local function build()
 				end
 				if trophy.Points then
 					local canBuy = state ~= nil and state.BonkPoints >= trophy.Points
-					return Format.Number(trophy.Points), if canBuy then Theme.Good else Theme.CardLight
+					return Format.Money(trophy.Points), if canBuy then Theme.Good else Theme.CardLight
 				end
 				return "EXCLUSIVE", Theme.CardLight
 			end,
@@ -313,8 +313,9 @@ end
 function ShopController.Refresh()
 	for _, entry in cards do
 		local text, color, textColor = entry.Refresh()
-		entry.Button.Text = text
 		entry.Button.TextColor3 = textColor or Theme.Text
+		-- Bonk Dollars prices ("B$ 5,000") show the symbol.
+		Widgets.SetMoneyText(entry.Button, text)
 		Widgets.SetButtonColor(entry.Button, color)
 	end
 end

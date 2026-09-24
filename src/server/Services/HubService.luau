@@ -3,6 +3,8 @@
 -- a ProximityPrompt named after the menu it opens (HudController opens it). The leaderboard board is filled by
 -- LeaderboardService. The centre is the jump and run tower (ObbyService builds it). Machines and trees are props
 -- (PropService) that Marco can replace with models.
+-- Glow: only small accents are Neon (the thin station rings, the shop's orbs); sign and board frames are plastic,
+-- big Neon surfaces made the hub centre glare under the bloom (DecorService).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
@@ -57,7 +59,7 @@ local STATIONS: { StationDef } = {
 	{
 		Id = "Leaderboard",
 		Title = "TOP BONKERS",
-		Subtitle = "Most Bonk Points earned",
+		Subtitle = "Most Bonk Dollars earned",
 		Color = Color3.fromRGB(120, 200, 255),
 		Prompt = false,
 	},
@@ -140,7 +142,7 @@ local MACHINE_BUILDERS: { [string]: PropService.Builder } = {
 		)
 		local wheel =
 			disc("Wheel", height * 0.35, 0.8, CFrame.new(0, height * 0.62, -1.2), Color3.fromRGB(255, 200, 40), model)
-		wheel.Material = Enum.Material.Neon
+		wheel.Material = Enum.Material.SmoothPlastic
 		disc("Cap", height * 0.08, 1.2, CFrame.new(0, height * 0.62, -1.4), Color3.fromRGB(255, 80, 80), model)
 	end,
 	CoinFlip = function(model, height)
@@ -243,7 +245,7 @@ local function buildStation(def: StationDef, angle: number, parent: Instance)
 		local board =
 			newPart("Board", Vector3.new(16, 18, 0.6), facing * CFrame.new(0, 11, 1), Color3.fromRGB(30, 28, 42), model)
 		local frame = newPart("Frame", Vector3.new(17, 19, 0.4), facing * CFrame.new(0, 11, 1.4), def.Color, model)
-		frame.Material = Enum.Material.Neon
+		frame.Material = Enum.Material.SmoothPlastic
 		stationParts[def.Id] = board
 	else
 		local machine =
@@ -262,7 +264,7 @@ local function buildStation(def: StationDef, angle: number, parent: Instance)
 	)
 	local signFrame =
 		newPart("SignFrame", Vector3.new(15.8, 4.4, 0.4), facing * CFrame.new(0, signHeight, 0.3), def.Color, model)
-	signFrame.Material = Enum.Material.Neon
+	signFrame.Material = Enum.Material.SmoothPlastic
 	local title = Signs.Text(sign, Enum.NormalId.Front, def.Title, def.Color)
 	Signs.Mirror(sign, title)
 	Signs.Billboard(sign, def.Subtitle, Color3.fromRGB(240, 240, 250), Vector2.new(280, 30), -3, 90)
@@ -354,7 +356,7 @@ function HubService.Init()
 		Color3.fromRGB(230, 120, 255),
 		folder
 	)
-	howToFrame.Material = Enum.Material.Neon
+	howToFrame.Material = Enum.Material.SmoothPlastic
 	for _, x in { -4.2, 4.2 } do
 		newPart(
 			"Leg",

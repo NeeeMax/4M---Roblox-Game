@@ -91,7 +91,7 @@ local function onClaimOffline(player: Player, double: unknown)
 	end
 	local paid = EconomyService.PayOffline(player, 1)
 	if paid > 0 then
-		NotifyService.Send(player, `Your Shibas earned {Format.Number(paid)} Bonk Points while you were away!`, "Good")
+		NotifyService.Send(player, `Your Shibas earned {Format.Money(paid)} while you were away!`, "Good")
 	end
 end
 

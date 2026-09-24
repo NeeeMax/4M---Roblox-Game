@@ -17,6 +17,7 @@ local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local Net = require(ReplicatedStorage.Shared.Net)
 
 local ProjectileController = require(script.Parent.ProjectileController)
+local Widgets = require(script.Parent.Parent.UI.Widgets)
 
 local BONK = Gameplay.Bonk
 local COMBO = Gameplay.Combo
@@ -76,19 +77,21 @@ local function showPopup(reward: number, quality: Economy.HitQualityDef, onHead:
 	if quality.Name ~= "Normal" then
 		prefix ..= `{string.upper(quality.Name)} `
 	end
-	label.Text = if prefix == "" and not onHead
-		then `+{Format.Number(reward)} BONK`
-		else `{prefix}{bonk}! +{Format.Number(reward)}`
 	if golden then
 		label.TextColor3 = PROJECTILES.GoldenColor
 	end
 	label.Parent = billboard
+	-- The amount shows the Bonk Dollars symbol.
+	Widgets.SetMoneyText(
+		label,
+		if prefix == "" and not onHead then `+{Format.Money(reward)}` else `{prefix}{bonk}! +{Format.Money(reward)}`
+	)
 	-- In PlayerGui so only this player sees it.
 	billboard.Parent = player:WaitForChild("PlayerGui")
 
 	local tweenInfo = TweenInfo.new(BONK.PopupTime, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 	TweenService:Create(billboard, tweenInfo, { StudsOffset = Vector3.new(0, 2.5 + BONK.PopupRise, 0) }):Play()
-	TweenService:Create(label, tweenInfo, { TextTransparency = 1, TextStrokeTransparency = 1 }):Play()
+	Widgets.FadeOut(label, BONK.PopupTime)
 	task.delay(BONK.PopupTime, function()
 		billboard:Destroy()
 	end)

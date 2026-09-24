@@ -1,5 +1,5 @@
 --!strict
--- Leaderboards (Config/Hub → Leaderboard): "Bonk Points" in the Roblox player list (leaderstats), and the
+-- Leaderboards (Config/Hub → Leaderboard): "Bonk Dollars" in the Roblox player list (leaderstats), and the
 -- TOP BONKERS board on the hub, ranked by TotalEarned across all servers (OrderedDataStore). Without DataStore
 -- access (Studio without API access) the board ranks the players in this server instead.
 
@@ -136,7 +136,7 @@ local function refreshBoard()
 	rows = rows or serverRows()
 	for rank, label in rowLabels do
 		local row = (rows :: { Row })[rank]
-		label.Text = if row then `{rank}.  {row.Name}  ·  {Format.Number(row.Value)}` else `{rank}.  —`
+		label.Text = if row then `{rank}.  {row.Name}  ·  {Format.Money(row.Value)}` else `{rank}.  —`
 	end
 end
 
@@ -144,7 +144,7 @@ local function onPlayerAdded(player: Player)
 	local leaderstats = Instance.new("Folder")
 	leaderstats.Name = "leaderstats"
 	local points = Instance.new("IntValue")
-	points.Name = "Bonk Points"
+	points.Name = Format.CurrencyName
 	points.Parent = leaderstats
 	leaderstats.Parent = player
 end
@@ -153,7 +153,7 @@ end
 function LeaderboardService.UpdatePlayer(player: Player)
 	local state = DataService.GetState(player)
 	local leaderstats = player:FindFirstChild("leaderstats")
-	local points = if leaderstats then leaderstats:FindFirstChild("Bonk Points") else nil
+	local points = if leaderstats then leaderstats:FindFirstChild(Format.CurrencyName) else nil
 	if state and points and points:IsA("IntValue") then
 		points.Value = state.BonkPoints
 	end

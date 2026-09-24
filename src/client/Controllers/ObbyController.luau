@@ -32,6 +32,12 @@ local nextLabel: TextLabel
 
 -- os.clock() when the running timer started; nil while no run is going.
 local startedAt: number? = nil
+-- Stood above Obby.FallHeight during this run (landing lower again ends it).
+local climbed = false
+
+local floorParams = RaycastParams.new()
+floorParams.FilterType = Enum.RaycastFilterType.Exclude
+floorParams.RespectCanCollide = true
 local nextRewardAt = 0
 local popupToken = 0
 
@@ -117,18 +123,39 @@ local function stopTimer()
 	timerFrame.Visible = false
 end
 
--- Mirrors the server's rules for dropping a run: too long, or walked away from the hub centre.
+-- Height above the hub ground of the floor the character stands on, nil while in the air (same ray as ObbyService).
+local function floorHeight(character: Model, root: BasePart, humanoid: Humanoid): number?
+	floorParams.FilterDescendantsInstances = { character }
+	local reach = math.max(humanoid.HipHeight + root.Size.Y / 2, 3) + 1.2
+	local result = Workspace:Raycast(root.Position, Vector3.new(0, -reach, 0), floorParams)
+	return if result then result.Position.Y - World.Hub.Center.Y else nil
+end
+
+-- Mirrors the server's rules for dropping a run: too long, walked away from the hub centre, or fell back down to the
+-- plaza after climbing (no checkpoints: start over).
 local function runStillCounts(elapsed: number): boolean
 	if elapsed > Obby.MaxRunTime then
 		return false
 	end
 	local character = player.Character
 	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
-	if not root or not root:IsA("BasePart") then
+	local humanoid = if character then character:FindFirstChildOfClass("Humanoid") else nil
+	if not character or not root or not root:IsA("BasePart") or not humanoid then
 		return false
 	end
 	local offset = root.Position - World.Hub.Center
-	return Vector3.new(offset.X, 0, offset.Z).Magnitude <= Obby.LeaveRadius
+	if Vector3.new(offset.X, 0, offset.Z).Magnitude > Obby.LeaveRadius then
+		return false
+	end
+	local floor = floorHeight(character, root, humanoid)
+	if floor then
+		if floor > Obby.FallHeight then
+			climbed = true
+		elseif climbed then
+			return false
+		end
+	end
+	return true
 end
 
 local function updateNextLabel()
@@ -138,6 +165,7 @@ end
 
 local function onStarted()
 	startedAt = os.clock()
+	climbed = false
 	timerLabel.Text = "0.0"
 	timerFrame.Visible = true
 end
@@ -155,11 +183,11 @@ local function onFinished(time: unknown, reward: unknown, bestTime: unknown, nex
 	nextRewardAt = nextAt
 	timeLabel.Text = string.format("%.1f s", time)
 	if reward > 0 then
-		rewardLabel.Text = `+{Format.Number(reward)} Bonk Points · 2× points {Obby.BoostSeconds // 60} min`
+		Widgets.SetMoneyText(rewardLabel, `+{Format.Money(reward)} · 2× dollars {Obby.BoostSeconds // 60} min`)
 	elseif bestTime >= time then
-		rewardLabel.Text = "NEW BEST TIME!"
+		Widgets.SetMoneyText(rewardLabel, "NEW BEST TIME!")
 	else
-		rewardLabel.Text = string.format("Best: %.1f s", bestTime)
+		Widgets.SetMoneyText(rewardLabel, string.format("Best: %.1f s", bestTime))
 	end
 	updateNextLabel()
 

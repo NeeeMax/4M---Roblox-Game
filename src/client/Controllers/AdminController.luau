@@ -72,7 +72,7 @@ local function build()
 	local panel = Widgets.Panel("Admin", "ADMIN", Vector2.new(560, 620), Theme.Admin)
 	local list = Widgets.List(panel.Content, 10)
 
-	local points = section(list, "Bonk Points", 1)
+	local points = section(list, Format.CurrencyName, 1)
 	local amounts: { { string } } = {}
 	for _, amount in Admin.PointAmounts do
 		table.insert(amounts, { `+{Format.Number(amount)}` })
@@ -134,7 +134,7 @@ local function build()
 
 	local boosts = section(list, "Boosts (10 min)", 4)
 	local boostButtons =
-		buttonRow(boosts, 1, { { "2× Points" }, { "2× Fire rate" }, { "Clear" } }, Color3.fromRGB(255, 170, 40))
+		buttonRow(boosts, 1, { { "2× Dollars" }, { "2× Fire rate" }, { "Clear" } }, Color3.fromRGB(255, 170, 40))
 	boostButtons[1].Activated:Connect(function()
 		send("BoostPoints")
 	end)
@@ -147,7 +147,7 @@ local function build()
 
 	local shop = section(list, "Shop · Gifts (Studio tests)", 5)
 	local passButtons =
-		buttonRow(shop, 1, { { "2× Points" }, { "VIP" }, { "Lucky" }, { "+2 Shibas" } }, Color3.fromRGB(70, 200, 120))
+		buttonRow(shop, 1, { { "2× Dollars" }, { "VIP" }, { "Lucky" }, { "+2 Shibas" } }, Color3.fromRGB(70, 200, 120))
 	for index, passId in { "DoublePoints", "VIP", "LuckySticks", "ExtraShibas" } do
 		passButtons[index].Activated:Connect(function()
 			send("TogglePass", passId)

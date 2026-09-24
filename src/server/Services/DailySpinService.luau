@@ -83,7 +83,7 @@ local function onRequestSpin(player: Player)
 	else
 		local amount = RewardService.Hits(player, segment.Hits or 1)
 		EconomyService.AddPoints(player, amount)
-		text = `+{Format.Number(amount)} Bonk Points`
+		text = `+{Format.Money(amount)}`
 	end
 	DataService.Replicate(player)
 	spinResult:FireClient(player, index, text)
