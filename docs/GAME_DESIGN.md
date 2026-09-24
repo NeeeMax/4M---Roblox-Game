@@ -45,7 +45,7 @@ Casual Roblox players, roughly 8–14. Understandable in under 10 seconds withou
 
 ## Projectiles
 
-Projectile tiers (upgrade `ProjectileTier`): **Stick** (BaseReward 10) → **Bone** (20) → **Golden Stick** (40) → **Diamond Stick** (80). They fly the same; only look and reward differ. Models `ReplicatedStorage/Assets/Stick`, `Bone`, `GoldenStick`, `DiamondStick`; a missing model uses the next lower tier's model, tiers above Stick draw a trail in their colour, no model at all = coloured sphere. Hits use an invisible sphere of the projectile's diameter; the model is scaled so its longest side equals that diameter and spins in flight.
+Projectile tiers (upgrade `ProjectileTier`): **Stick** (BaseReward 10) → **Newspaper** (13) → **Baguette** (16) → **Rolling Pin** (20) → **Baseball Bat** (25) → **Giant Bone** (32) → **Squeaky Hammer** (40) → **BONK Sign** (50) → **Neon Stick** (63) → **Legendary Stick** (80). They fly the same; only look and reward differ. Models `ReplicatedStorage/Assets/Stick`, `Bone`, `GoldenStick`, `DiamondStick`; a missing model uses the next lower tier's model, tiers above Stick draw a trail in their colour, no model at all = coloured sphere. Hits use an invisible sphere of the projectile's diameter; the model is scaled so its longest side equals that diameter and spins in flight.
 
 | Field | Bonk Stick |
 |-------|------|
@@ -72,7 +72,7 @@ Projectile tiers (upgrade `ProjectileTier`): **Stick** (BaseReward 10) → **Bon
 ```
 Reward = floor(BaseReward × QualityMult × HeadMult × ComboMult × ShibaTierMult × BoostMult), at least 1
 
-BaseReward    = projectile tier: 10 / 20 / 40 / 80
+BaseReward    = projectile tier: 10 / 13 / 16 / 20 / 25 / 32 / 40 / 50 / 63 / 80
 HeadMult      = 2 if the projectile touched the head, else 1
 ComboMult     = 1 + 0.1 × (combo − 1), at most 3
 ShibaTierMult = see Upgrades (1 → 60)
@@ -117,8 +117,8 @@ fire rate were removed on 2026-09-24: projectiles always have the same size, the
 
 | Id | Menu name | Effect per level | Level 0 | Max level | BaseCost | Growth |
 |----|-----------|-----------------|---------|-----------|----------|--------|
-| `ShooterTier` | Shiba Tier | all Shibas evolve: new model, faster throws, more points | Shiba | 7 | 2,000 | 7 |
-| `ProjectileTier` | Projectile Tier | next projectile (see Projectiles) | Stick | 3 | 1,500 | 10 |
+| `ShooterTier` | Shiba Tier | all Shibas evolve: new model, faster throws, more points | Shiba | 9 | 2,000 | 4.3 |
+| `ProjectileTier` | Projectile Tier | next projectile (see Projectiles) | Stick | 9 | 1,500 | 1.78 |
 | `Shooters` | More Shibas | +1 Shiba | 1 | 7 (8 Shibas) | 500 | 4 |
 | `MoveSpeed` | Move Speed | WalkSpeed +3 | 16 | 10 (46) | 100 | 2.6 |
 
@@ -127,13 +127,15 @@ Shiba tiers (`Config/Gameplay → Shooters.Tiers`):
 | Tier | Throws every | Points × |
 |------|-------------|----------|
 | Shiba | 5.0 s | 1 |
-| Galaxy Shiba | 4.2 s | 1.8 |
-| Lava Shiba | 3.5 s | 3.2 |
-| Ice Shiba | 2.9 s | 5.8 |
-| Robo Shiba | 2.4 s | 10.5 |
-| Angel Shiba | 2.0 s | 19 |
-| Demon Shiba | 1.6 s | 34 |
-| God Shiba | 1.3 s | 60 |
+| Shades Shiba | 4.3 s | 1.6 |
+| Buff Shiba | 3.7 s | 2.5 |
+| Chef Shiba | 3.2 s | 3.9 |
+| Police Shiba | 2.7 s | 6.2 |
+| Ninja Shiba | 2.4 s | 9.7 |
+| Gold Shiba | 2.0 s | 15 |
+| Galaxy Shiba | 1.8 s | 24 |
+| Giant Shiba | 1.5 s | 38 |
+| Cheems God | 1.3 s | 60 |
 
 - MoveSpeed exists so the player can **reach impact points in time** (not to dodge). It also raises the achievable hit quality.
 - **Active Shibas:** buying adds a Shiba; the "More Shibas" card sets how many are active (1 … owned) for free.
