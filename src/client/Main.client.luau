@@ -13,7 +13,7 @@ if not game:IsLoaded() then
 end
 
 local modules: { Module } = {}
-local controllersFolder = script.Parent:FindFirstChild("Controllers")
+local controllersFolder = script.Parent:WaitForChild("Controllers", 10)
 if controllersFolder then
 	local children = controllersFolder:GetChildren()
 	table.sort(children, function(a, b)

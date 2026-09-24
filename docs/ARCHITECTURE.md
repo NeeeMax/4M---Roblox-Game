@@ -59,4 +59,5 @@ Work is split by feature area. The owner reviews changes in their area and decid
 
 - **In git:** all Luau code.
 - **In the Roblox place (not git):** maps, models, parts, UI layouts, lighting, sounds.
+- **MVP exception:** islands, shooters, projectiles and the HUD/upgrade menu are created by code, so the prototype runs in an empty Baseplate place. Moving them to Studio-built assets later is fine.
 - Code references world objects by stable names/paths. When you rename something in the world that code uses, update the code in the same session and mention it in the PR.

@@ -1,8 +1,9 @@
-# 4M
+# 4M — GET BONKED
 
+NPCs lob silly objects at your own floating island; run and jump into them to get bonked and earn Bonk Points.
 A Roblox game built by two developers with Roblox Studio, GitHub, Claude Code and Studio Script Sync.
 
-> Status: project setup — no game code yet.
+> Status: playable MVP prototype (one island per player, shooters, hits, upgrade shop, saving).
 
 ## Where things are
 
