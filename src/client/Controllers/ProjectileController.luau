@@ -42,8 +42,47 @@ local random = Random.new()
 
 local ProjectileController = {}
 
+-- A trail in the def's colour behind the model's biggest part.
+local function addTrail(model: Model, color: Color3, diameter: number)
+	local biggest: BasePart? = nil
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") and (not biggest or descendant.Size.Magnitude > biggest.Size.Magnitude) then
+			biggest = descendant
+		end
+	end
+	if not biggest then
+		return
+	end
+	local top = Instance.new("Attachment")
+	top.Position = Vector3.new(0, diameter * 0.12, 0)
+	top.Parent = biggest
+	local bottom = Instance.new("Attachment")
+	bottom.Position = Vector3.new(0, -diameter * 0.12, 0)
+	bottom.Parent = biggest
+	local trail = Instance.new("Trail")
+	trail.Attachment0 = top
+	trail.Attachment1 = bottom
+	trail.Color = ColorSequence.new(color)
+	trail.Transparency = NumberSequence.new(0.3, 1)
+	trail.WidthScale = NumberSequence.new(1, 0)
+	trail.Lifetime = 0.2
+	trail.LightEmission = 0.6
+	trail.FaceCamera = true
+	trail.Parent = biggest
+end
+
+local function cloneFirst(names: { string }): Model?
+	for _, name in names do
+		local model = Assets.CloneModel(name)
+		if model then
+			return model
+		end
+	end
+	return nil
+end
+
 local function buildModel(def: Projectiles.ProjectileDef?, diameter: number): Model
-	local model = if def and def.AssetName then Assets.CloneModel(def.AssetName) else nil
+	local model = if def then cloneFirst(Projectiles.AssetCandidates(def.Id)) else nil
 	if model then
 		Assets.ScaleTo(model, diameter)
 	else
@@ -58,6 +97,9 @@ local function buildModel(def: Projectiles.ProjectileDef?, diameter: number): Mo
 		ball.Parent = model
 	end
 	Assets.MakeVisualOnly(model :: Model, true)
+	if def and def.Trail then
+		addTrail(model :: Model, def.Color, diameter)
+	end
 	return model :: Model
 end
 

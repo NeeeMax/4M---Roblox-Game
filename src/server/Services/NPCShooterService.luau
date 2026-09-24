@@ -3,7 +3,8 @@
 -- and its whole path (flight + bounces) must stay away from where the player stands, so standing still earns
 -- nothing (docs/decisions/0002). Shooters take turns: with n shooters, one fires every interval / n seconds.
 -- Each shooter turns toward its target AimTime before it fires.
--- Looks: ReplicatedStorage.Assets.Shooter if it exists (see Config/Gameplay → Shooters), else a red block.
+-- Looks: the ShooterTier's model from ReplicatedStorage.Assets (see Config/Gameplay → Shooters.Tiers), else a lower
+-- tier's model with an outline in the tier colour, else a red block.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -11,6 +12,7 @@ local RunService = game:GetService("RunService")
 
 local Assets = require(ReplicatedStorage.Shared.Util.Assets)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
+local Projectiles = require(ReplicatedStorage.Shared.Config.Projectiles)
 
 local IslandService = require(script.Parent.IslandService)
 local ProjectileService = require(script.Parent.ProjectileService)
@@ -45,6 +47,8 @@ type Shooter = {
 type Ring = {
 	Shooters: { Shooter },
 	Interval: number,
+	-- ShooterTier level the models were built for.
+	Tier: number,
 }
 
 local rings: { [Player]: Ring } = {}
@@ -169,13 +173,33 @@ local function collectHandStick(model: Model): { [BasePart]: number }
 	return parts
 end
 
-local function buildShooter(parent: Instance, center: Vector3, angle: number): Shooter
+-- The best model for this tier: its own, else a lower tier's (then the legacy name). Second result: true if it
+-- is the tier's own model.
+local function cloneTierModel(tier: number): (Model?, boolean)
+	for index = tier + 1, 1, -1 do
+		local candidate = CONFIG.Tiers[index]
+		if candidate and Assets.Has(candidate.AssetName) then
+			return Assets.CloneModel(candidate.AssetName), index == tier + 1
+		end
+	end
+	return Assets.CloneModel(CONFIG.LegacyAssetName), false
+end
+
+local function buildShooter(parent: Instance, center: Vector3, angle: number, tier: number): Shooter
 	-- Angle 0 is north (−Z), then clockwise.
 	local ground = center + Vector3.new(math.sin(angle), 0, -math.cos(angle)) * CONFIG.RingRadius
 
 	local model = Instance.new("Model")
-	local asset = Assets.CloneModel(CONFIG.AssetName)
+	local asset, isOwnModel = cloneTierModel(tier)
 	local shooter: Shooter
+	if asset and not isOwnModel and tier > 0 then
+		-- Placeholder look until the tier has its own model: an outline in the tier colour.
+		local outline = Instance.new("Highlight")
+		outline.FillTransparency = 0.75
+		outline.FillColor = CONFIG.Tiers[tier + 1].Color
+		outline.OutlineColor = CONFIG.Tiers[tier + 1].Color
+		outline.Parent = asset
+	end
 	if asset then
 		Assets.ScaleTo(asset, CONFIG.Height, true)
 		Assets.MakeVisualOnly(asset, true)
@@ -244,8 +268,9 @@ end
 local function syncRing(player: Player, island: IslandService.Island, now: number): Ring
 	local wanted = UpgradeService.GetActiveShooters(player)
 	local interval = UpgradeService.GetValue(player, "FireRate")
+	local tier = UpgradeService.GetLevel(player, "ShooterTier")
 	local ring = rings[player]
-	if ring and #ring.Shooters == wanted then
+	if ring and #ring.Shooters == wanted and ring.Tier == tier then
 		if ring.Interval ~= interval then
 			ring.Interval = interval
 			schedule(ring, now)
@@ -257,10 +282,10 @@ local function syncRing(player: Player, island: IslandService.Island, now: numbe
 			shooter.Model:Destroy()
 		end
 	end
-	local rebuilt: Ring = { Shooters = {}, Interval = interval }
+	local rebuilt: Ring = { Shooters = {}, Interval = interval, Tier = tier }
 	for index = 1, wanted do
 		local angle = (index - 1) / wanted * 2 * math.pi
-		table.insert(rebuilt.Shooters, buildShooter(island.ShooterFolder, island.Center, angle))
+		table.insert(rebuilt.Shooters, buildShooter(island.ShooterFolder, island.Center, angle, tier))
 	end
 	schedule(rebuilt, now)
 	rings[player] = rebuilt
@@ -309,16 +334,25 @@ local function updatePlayer(player: Player, now: number)
 end
 
 function NPCShooterService.Start()
-	-- Tells whoever playtests whether the custom models are in place (docs: assets/README.md).
-	local modelNames: { string } = { CONFIG.AssetName }
-	local projectileAsset = ProjectileService.GetDef().AssetName
-	if projectileAsset then
-		table.insert(modelNames, projectileAsset)
+	-- Tells whoever playtests which custom models are in place (docs: assets/README.md).
+	local modelNames: { string } = {}
+	for _, tier in CONFIG.Tiers do
+		table.insert(modelNames, tier.AssetName)
 	end
+	table.insert(modelNames, CONFIG.LegacyAssetName)
+	for _, id in Projectiles.Tiers do
+		local assetName = Projectiles.Defs[id].AssetName
+		if assetName then
+			table.insert(modelNames, assetName)
+		end
+	end
+	local found: { string } = {}
+	local missing: { string } = {}
 	for _, name in modelNames do
-		local status = if Assets.Has(name) then "found" else "MISSING (using plain parts)"
-		print(`[4M] Model ReplicatedStorage.Assets.{name}: {status}`)
+		table.insert(if Assets.Has(name) then found else missing, name)
 	end
+	print(`[4M] Models found: {table.concat(found, ", ")}`)
+	print(`[4M] Models missing (placeholders used): {table.concat(missing, ", ")}`)
 
 	Players.PlayerRemoving:Connect(function(player)
 		-- The models go with the island; only forget the bookkeeping.

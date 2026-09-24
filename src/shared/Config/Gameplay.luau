@@ -34,8 +34,22 @@ return {
 		-- Fallback shooter (red block with a barrel) when there is no ReplicatedStorage.Assets.Shooter model.
 		BarrelLength = 3,
 
-		-- Custom shooter model: ReplicatedStorage.Assets.<AssetName>. Scaled to Height studs, bottom on the platform.
-		AssetName = "Shooter",
+		-- Shooter looks per ShooterTier level (level n = Tiers[n + 1]). Model: ReplicatedStorage.Assets.<AssetName>,
+		-- scaled to Height studs, bottom on the platform. A tier without its own model uses the next lower tier's
+		-- model (then LegacyAssetName) with an outline in its Color. RewardMultiplier scales every bonk.
+		-- To add a tier: add a line here (the upgrade's max level follows automatically).
+		Tiers = {
+			{ Name = "Shiba", AssetName = "Shiba", RewardMultiplier = 1, Color = Color3.fromRGB(255, 170, 60) },
+			{
+				Name = "Galaxy Shiba",
+				AssetName = "GalaxyShiba",
+				RewardMultiplier = 2,
+				Color = Color3.fromRGB(170, 90, 255),
+			},
+			{ Name = "God Shiba", AssetName = "GodShiba", RewardMultiplier = 4, Color = Color3.fromRGB(255, 230, 120) },
+		},
+		-- Older single-model name, still used when no tier model exists.
+		LegacyAssetName = "Shooter",
 		Height = 6,
 		-- Turn the model by this many degrees if it doesn't face its target (try 90, 180 or 270).
 		YawOffsetDegrees = 0,
@@ -85,6 +99,10 @@ return {
 		-- Server: a reported hit counts if the flight path passed within projectile radius + this of the root part.
 		-- Covers body size plus network delay (docs/decisions/0003).
 		HitTolerance = 6,
+		-- A hit that touches the head pays HeadMultiplier times as much. The server accepts the client's head claim
+		-- if the path passed within projectile radius + HeadTolerance of the server-side head.
+		HeadMultiplier = 2,
+		HeadTolerance = 4,
 		-- Server: time step when searching the flight path for its closest point to the player.
 		FlightSampleStep = 0.02,
 		MaxReportsPerSecond = 10,
@@ -93,6 +111,15 @@ return {
 	Character = {
 		-- Matches MaxVerticalPlayerSpeed: the jump take-off speed.
 		JumpPower = 50,
+	},
+
+	-- Hits in a row: each hit within the window adds Step to the multiplier (up to MaxMultiplier).
+	-- Window = BaseWindow + ShotsWindow × time between two shots, so it stays fair with more or faster shooters.
+	Combo = {
+		BaseWindow = 2,
+		ShotsWindow = 1.5,
+		Step = 0.1,
+		MaxMultiplier = 3,
 	},
 
 	Knockback = {
@@ -110,5 +137,12 @@ return {
 		SoundVolume = 1,
 		-- Playback speed goes up by this per hit-quality tier above Normal.
 		PitchStepPerTier = 0.1,
+		-- Stars bursting from the head: Stars at Normal, plus StarsPerTier per quality tier above it.
+		Stars = 6,
+		StarsPerTier = 6,
+		-- Camera shake from this quality tier on (1 = Normal, 3 = Hard), stronger per tier above it.
+		ShakeFromTier = 3,
+		ShakeTime = 0.25,
+		ShakeStrength = 0.25,
 	},
 }

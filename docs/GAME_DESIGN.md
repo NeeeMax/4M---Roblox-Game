@@ -26,7 +26,7 @@ Casual Roblox players, roughly 8–14. Understandable in under 10 seconds withou
 | Target area | disc radius 28 (2-stud margin to the edge) |
 | Player spawn | island centre |
 | Shooter ring | shooters stand on small platforms at radius 60 from the centre, at island surface height, evenly spaced (360°/n), first one at north |
-| Shooter look | the Shiba model `ReplicatedStorage/Assets/Shooter` (6 studs tall), fallback: red block with barrel |
+| Shooter look | per Shiba Tier (see Upgrades): `ReplicatedStorage/Assets/Shiba`, `GalaxyShiba`, `GodShiba` (6 studs tall); a missing model falls back to the next lower tier's model with an outline in the tier colour, then `Shooter`, then a red block with barrel |
 | Fall-off | below Y = 50 → respawn at island centre, no penalty |
 
 Players never affect each other: projectiles only exist for their owner's island, only the owner's character can be hit, and projectiles never physically collide with anything — the server moves them along their planned path, knockback comes from the hit code only.
@@ -42,7 +42,7 @@ Players never affect each other: projectiles only exist for their owner's island
 
 ## Projectiles
 
-MVP has one projectile type: the **Bonk Stick** (model `ReplicatedStorage/Assets/Stick`, fallback: brown sphere). Hits use an invisible sphere of the projectile's diameter; the model is scaled so its longest side equals that diameter and spins in flight.
+Projectile tiers (upgrade `ProjectileTier`): **Stick** (BaseReward 10) → **Bone** (20) → **Golden Stick** (40) → **Diamond Stick** (80). They fly the same; only look and reward differ. Models `ReplicatedStorage/Assets/Stick`, `Bone`, `GoldenStick`, `DiamondStick`; a missing model uses the next lower tier's model, tiers above Stick draw a trail in their colour, no model at all = coloured sphere. Hits use an invisible sphere of the projectile's diameter; the model is scaled so its longest side equals that diameter and spins in flight.
 
 | Field | Bonk Stick |
 |-------|------|
@@ -69,10 +69,13 @@ MVP has one projectile type: the **Bonk Stick** (model `ReplicatedStorage/Assets
 ### Reward
 
 ```
-Reward = floor(BaseReward × SizeMult × SpeedMult × QualityMult), at least 1
+Reward = floor(BaseReward × SizeMult × SpeedMult × QualityMult × HeadMult × ComboMult × ShibaTierMult), at least 1
 
 SizeMult  = sizeScale                   (1.2 ^ sizeLevel)
 SpeedMult = launch speed / 36           (= the size slowdown sizeScale^-0.5; excludes the ±10 % jitter)
+HeadMult  = 2 if the projectile touched the head, else 1
+ComboMult = 1 + 0.1 × (combo − 1), at most 3
+ShibaTierMult = Shiba 1, Galaxy Shiba 2, God Shiba 4
 ```
 
 ### Hit quality — one rule
@@ -89,10 +92,20 @@ The player velocity is clamped before use: horizontal ≤ current WalkSpeed, ver
 | Massive | 1.8 – < 2.2 | 10× | run + jump, well timed (r ≈ 1.9) |
 | Legendary | ≥ 2.2 | 50× | run + jump right at take-off, perfect timing (max ≈ 2.4 at base stats) |
 
+### Head hits and combo
+
+- **Head hit (×2):** the client reports whether the projectile touched the head; the server accepts it if the path also
+  passed within projectile radius + 4 studs of the server-side head.
+- **Combo:** every hit within the combo window of the previous hit adds 0.1 to the multiplier (max ×3 at 21 hits).
+  Window = 2 s + 1.5 × time between two shots (interval / active shooters), so it stays fair with more or faster shooters.
+  The HUD shows `COMBO xN ×M` with a bar that runs out when the window ends.
+
 ## Feedback (client)
 
 - Popup above the character: `+X BONK` for 1.0 s; for Good and above prefixed with the quality, e.g. `HARD BONK! +50`.
 - One bonk sound; pitch 1.0 + 0.1 per quality tier above Normal.
+- Head hits say `HEADBONK!` instead of `BONK`.
+- Stars burst from the head in the quality colour (6 + 6 per tier above Normal); from Hard on the camera shakes briefly.
 
 ## Upgrades
 
@@ -105,6 +118,8 @@ Default series: 100 → 285 → 812 → 2,314 → 6,597 → 18,802 → …
 | `ProjectileSize` | sizeScale ×1.2 | 1.0 | 10 | 6.19 (12.4-stud ball, 0.40× speed) | 100 | 2.85 |
 | `FireRate` | fire interval ×0.85 | 5.0 s | 12 | 0.71 s | 100 | 2.85 |
 | `Shooters` | +1 shooter | 1 | 7 | 8 | 500 | 4.0 |
+| `ProjectileTier` | next projectile (see Projectiles) | Stick | 3 | Diamond Stick | 1,500 | 10 |
+| `ShooterTier` ("Shiba Tier") | all Shibas evolve: new model, reward ×2 then ×4 | Shiba | 2 | God Shiba | 5,000 | 12 |
 
 - MoveSpeed exists so the player can **reach impact points in time** (not to dodge). It also raises the achievable hit quality.
 - ProjectileSize makes hits easier and pays more per hit (net ×1.2^0.5 ≈ 1.1 per level), but balls fly slower. There is no projectile speed upgrade (removed after the first playtest).
@@ -151,7 +166,7 @@ Must have (= "Prototype Scope – Required" from the concept):
 
 Explicitly not in MVP:
 - Projectile speed upgrade (was in the concept's list; removed after the first playtest, 2026-09-24)
-- More projectile types, projectile tiers 1–5, "Unlock New Projectile" upgrade
+- Projectile types that fly differently (tiers only change look and reward), "Unlock New Projectile" upgrade
 - More than 8 shooters, multiple shots per second per shooter
 - Ragdoll, complex animations, polished art, visual island progression
 - Physical shop area on the island (shop is a UI menu in MVP)
