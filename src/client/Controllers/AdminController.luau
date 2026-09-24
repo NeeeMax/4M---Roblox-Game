@@ -15,6 +15,8 @@ local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 
 local levelLabels: { [string]: TextLabel } = {}
+-- Pass toggle buttons show green while the pass is on.
+local passButtonsById: { [string]: TextButton } = {}
 
 local AdminController = {}
 
@@ -143,7 +145,36 @@ local function build()
 		send("ClearBoosts")
 	end)
 
-	local world = section(list, "World", 5)
+	local shop = section(list, "Shop · Gifts (Studio tests)", 5)
+	local passButtons =
+		buttonRow(shop, 1, { { "2× Points" }, { "VIP" }, { "Lucky" }, { "+2 Shibas" } }, Color3.fromRGB(70, 200, 120))
+	for index, passId in { "DoublePoints", "VIP", "LuckySticks", "ExtraShibas" } do
+		passButtons[index].Activated:Connect(function()
+			send("TogglePass", passId)
+		end)
+		passButtonsById[passId] = passButtons[index]
+	end
+	local shopButtons =
+		buttonRow(shop, 2, { { "+1 Bonk Rain" }, { "Start rain" }, { "All trophies" } }, Color3.fromRGB(60, 170, 255))
+	shopButtons[1].Activated:Connect(function()
+		send("GiveRain")
+	end)
+	shopButtons[2].Activated:Connect(function()
+		send("StartRain")
+	end)
+	shopButtons[3].Activated:Connect(function()
+		send("AllTrophies")
+	end)
+	local giftButtons =
+		buttonRow(shop, 3, { { "Unlock gifts" }, { "Starter offer again" } }, Color3.fromRGB(255, 110, 150))
+	giftButtons[1].Activated:Connect(function()
+		send("ResetGifts")
+	end)
+	giftButtons[2].Activated:Connect(function()
+		send("ResetStarter")
+	end)
+
+	local world = section(list, "World", 6)
 	local worldButtons =
 		buttonRow(world, 1, { { "To hub" }, { "To my island" }, { "All Shibas fire" } }, Color3.fromRGB(120, 110, 220))
 	worldButtons[1].Activated:Connect(function()
@@ -156,7 +187,7 @@ local function build()
 		send("FireNow")
 	end)
 
-	local danger = section(list, "Danger zone", 6)
+	local danger = section(list, "Danger zone", 7)
 	local reset = buttonRow(danger, 1, { { "RESET EVERYTHING" } }, Theme.Bad)[1]
 	local armedAt = 0
 	reset.Activated:Connect(function()
@@ -181,9 +212,12 @@ local function refresh()
 	if not state then
 		return
 	end
+	for passId, button in passButtonsById do
+		Widgets.SetButtonColor(button, if state.Passes[passId] then Theme.Good else Theme.Disabled)
+	end
 	for id, label in levelLabels do
 		local level = state.UpgradeLevels[id] or 0
-		label.Text = `Lv {level}/{Upgrades.Defs[id].MaxLevel}`
+		label.Text = `Lv {level}/{Upgrades.GetMaxLevel(id, state.Passes)}`
 	end
 end
 

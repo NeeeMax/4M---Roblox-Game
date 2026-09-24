@@ -16,8 +16,8 @@ return {
 	Plots = {
 		-- One island per player; more players than plots wait on the hub.
 		Count = 5,
-		-- Distance from the hub centre to each island centre. Neighbouring shooter rings must not overlap.
-		Distance = 230,
+		-- Distance from the hub centre to each island centre (island radius 80, bridge in between).
+		Distance = 280,
 	},
 
 	Bridge = {
@@ -26,6 +26,22 @@ return {
 		RailHeight = 2.5,
 		Color = Color3.fromRGB(160, 120, 80),
 		RailColor = Color3.fromRGB(110, 80, 55),
+	},
+
+	-- Ocean far below the islands (real terrain water). Falling in puts you back on your island.
+	Ocean = {
+		SurfaceY = 40,
+		Size = 1800,
+		Depth = 16,
+	},
+
+	-- Decoration counts (placeholders until Marco builds the models, see PropService).
+	Decor = {
+		TreesPerIsland = 7,
+		LampsPerBridge = 4,
+		Clouds = 26,
+		CloudHeight = { 150, 230 },
+		SmallIslands = 10,
 	},
 
 	-- Island colours per plot (the owner's name floats above the island in the same colour).

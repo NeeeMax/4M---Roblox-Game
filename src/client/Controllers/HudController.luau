@@ -15,6 +15,8 @@ local Hub = require(ReplicatedStorage.Shared.Config.Hub)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Upgrades = require(ReplicatedStorage.Shared.Config.Upgrades)
 
+local GiftsController = require(script.Parent.GiftsController)
+local SpinController = require(script.Parent.SpinController)
 local State = require(script.Parent.Parent.UI.State)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
@@ -24,6 +26,8 @@ local player = Players.LocalPlayer
 local pointsLabel: TextLabel
 local boostLabel: TextLabel
 local toastHolder: Frame
+local rainButton: TextButton
+local rainBanner: TextLabel
 local badges: { [string]: TextLabel } = {}
 local shownPoints = 0
 -- Bumped per update so an older count-up animation stops when a newer one starts.
@@ -86,7 +90,7 @@ local function build()
 	local column = Instance.new("Frame")
 	column.AnchorPoint = Vector2.new(0, 0.5)
 	column.Position = UDim2.new(0, 14, 0.5, 0)
-	column.Size = UDim2.fromOffset(160, 300)
+	column.Size = UDim2.fromOffset(160, 400)
 	column.BackgroundTransparency = 1
 	column.Parent = gui
 	local layout = Instance.new("UIListLayout")
@@ -95,11 +99,33 @@ local function build()
 	layout.VerticalAlignment = Enum.VerticalAlignment.Center
 	layout.Parent = column
 	sideButton(column, "UPGRADES", Color3.fromRGB(255, 150, 30), 1, "Upgrades")
-	sideButton(column, "QUESTS", Color3.fromRGB(70, 190, 90), 2, "Quests")
-	sideButton(column, "SPIN", Color3.fromRGB(255, 190, 40), 3, "DailySpin")
+	sideButton(column, "SHOP", Color3.fromRGB(70, 200, 120), 2, "Shop")
+	sideButton(column, "GIFTS", Color3.fromRGB(255, 110, 150), 3, "Gifts")
+	sideButton(column, "QUESTS", Color3.fromRGB(70, 170, 230), 4, "Quests")
+	sideButton(column, "SPIN", Color3.fromRGB(255, 190, 40), 5, "DailySpin")
 	if Admin.IsAdmin(player.UserId) then
-		sideButton(column, "ADMIN", Theme.Admin, 4, "Admin")
+		sideButton(column, "ADMIN", Theme.Admin, 6, "Admin")
 	end
+
+	-- Bonk Rain: a big button while the player has some, and a banner while one falls.
+	rainButton = Widgets.Button(gui, "", Color3.fromRGB(60, 170, 255), 24)
+	rainButton.AnchorPoint = Vector2.new(1, 1)
+	rainButton.Position = UDim2.new(1, -20, 1, -120)
+	rainButton.Size = UDim2.fromOffset(230, 64)
+	rainButton.Visible = false
+	rainButton.Activated:Connect(function()
+		Net.Get(Net.UseBonkRain):FireServer()
+	end)
+	rainBanner = Widgets.Label(gui, "", 34, Color3.fromRGB(120, 210, 255))
+	rainBanner.AnchorPoint = Vector2.new(0.5, 0)
+	rainBanner.Position = UDim2.new(0.5, 0, 0, 130)
+	rainBanner.Size = UDim2.fromOffset(600, 44)
+	rainBanner.TextXAlignment = Enum.TextXAlignment.Center
+	rainBanner.Visible = false
+	local bannerStroke = Instance.new("UIStroke")
+	bannerStroke.Thickness = 3
+	bannerStroke.Color = Theme.Stroke
+	bannerStroke.Parent = rainBanner
 
 	-- Messages, bottom centre (newest at the bottom).
 	toastHolder = Instance.new("Frame")
@@ -175,7 +201,7 @@ local function refresh()
 	local canBuy = false
 	for _, id in Upgrades.Order do
 		local level = state.UpgradeLevels[id] or 0
-		if level < Upgrades.Defs[id].MaxLevel and state.BonkPoints >= Upgrades.GetCost(id, level) then
+		if level < Upgrades.GetMaxLevel(id, state.Passes) and state.BonkPoints >= Upgrades.GetCost(id, level) then
 			canBuy = true
 		end
 	end
@@ -190,6 +216,22 @@ local function refresh()
 		end
 	end
 	badges.Quests.Visible = claimable
+	badges.Gifts.Visible = GiftsController.HasClaimable()
+
+	rainButton.Visible = state.BonkRains > 0
+	rainButton.Text = `☔ BONK RAIN ×{state.BonkRains}`
+end
+
+local function showRain(seconds: number)
+	rainBanner.Visible = true
+	local endsAt = os.clock() + seconds
+	task.spawn(function()
+		while os.clock() < endsAt do
+			rainBanner.Text = `☔ BONK RAIN! {math.ceil(endsAt - os.clock())}s`
+			task.wait(0.2)
+		end
+		rainBanner.Visible = false
+	end)
 end
 
 -- Boost timers and the spin badge tick every second.
@@ -209,7 +251,8 @@ local function tick()
 		table.insert(parts, `2× FIRE RATE {Widgets.Duration(fireLeft)}`)
 	end
 	boostLabel.Text = table.concat(parts, "   ·   ")
-	badges.DailySpin.Visible = now >= state.LastSpinAt + Hub.DailySpin.Cooldown
+	badges.DailySpin.Visible = SpinController.SpinsLeft() > 0
+	badges.Gifts.Visible = GiftsController.HasClaimable()
 end
 
 function HudController.Init()
@@ -223,6 +266,7 @@ function HudController.Start()
 	Net.Get(Net.Notify).OnClientEvent:Connect(function(message: string, kind: string)
 		HudController.Toast(message, kind)
 	end)
+	Net.Get(Net.BonkRainStarted).OnClientEvent:Connect(showRain)
 	-- Hub stations: each prompt is named after the menu it opens.
 	ProximityPromptService.PromptTriggered:Connect(function(prompt: ProximityPrompt)
 		Widgets.Open(prompt.Name)

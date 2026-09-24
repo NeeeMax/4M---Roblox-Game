@@ -1,12 +1,15 @@
 --!strict
 -- Builds the hub island in the middle (Config/World → Hub) with its stations between the bridges. Each station has
--- a ProximityPrompt named after it; the client opens the matching menu when it is triggered (HudController).
--- The leaderboard station's board is filled by LeaderboardService.
+-- a ProximityPrompt named after the menu it opens (HudController opens it). The leaderboard board is filled by
+-- LeaderboardService. Machines, statue and trees are props (PropService) that Marco can replace with models.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local World = require(ReplicatedStorage.Shared.Config.World)
+
+local PropService = require(script.Parent.PropService)
+local Signs = require(script.Parent.Parent.World.Signs)
 
 local HUB = World.Hub
 local PLOTS = World.Plots
@@ -16,7 +19,7 @@ type StationDef = {
 	Title: string,
 	Subtitle: string,
 	Color: Color3,
-	-- True: a ProximityPrompt opens a menu with this Id. False: just a board to read.
+	-- True: a ProximityPrompt opens the menu with this Id.
 	Prompt: boolean,
 }
 
@@ -25,7 +28,7 @@ local STATIONS: { StationDef } = {
 	{
 		Id = "DailySpin",
 		Title = "DAILY SPIN",
-		Subtitle = "1 free spin every day",
+		Subtitle = "Free spin every day!",
 		Color = Color3.fromRGB(255, 200, 40),
 		Prompt = true,
 	},
@@ -37,11 +40,11 @@ local STATIONS: { StationDef } = {
 		Prompt = true,
 	},
 	{
-		Id = "Leaderboard",
-		Title = "TOP BONKERS",
-		Subtitle = "Most Bonk Points earned",
-		Color = Color3.fromRGB(120, 200, 255),
-		Prompt = false,
+		Id = "Shop",
+		Title = "SHOP",
+		Subtitle = "Passes · Boosts · Trophies",
+		Color = Color3.fromRGB(90, 220, 140),
+		Prompt = true,
 	},
 	{
 		Id = "Quests",
@@ -50,15 +53,21 @@ local STATIONS: { StationDef } = {
 		Color = Color3.fromRGB(120, 230, 120),
 		Prompt = true,
 	},
-	{ Id = "HowTo", Title = "HOW TO PLAY", Subtitle = "", Color = Color3.fromRGB(230, 120, 255), Prompt = false },
+	{
+		Id = "Leaderboard",
+		Title = "TOP BONKERS",
+		Subtitle = "Most Bonk Points earned",
+		Color = Color3.fromRGB(120, 200, 255),
+		Prompt = false,
+	},
 }
 
 local HOW_TO = table.concat({
 	"1. Walk over a bridge to YOUR island.",
-	"2. Shibas throw sticks at it: run and catch them with your body.",
-	"3. Head hits pay x2, running + jumping into sticks pays up to x50, hits in a row build a combo.",
-	"4. Spend Bonk Points on upgrades: better Shibas, better sticks, more Shibas, speed.",
-	"5. Come back here for your daily spin, quests and coin flips!",
+	"2. Shibas throw sticks onto your field: catch them with your body!",
+	"3. HEAD hits pay x2, running + jumping in pays up to x50, golden sticks x5.",
+	"4. Upgrade your Shibas, sticks and speed.",
+	"5. Come back for the daily spin, quests, gifts and coin flips!",
 }, "\n")
 
 local stationParts: { [string]: BasePart } = {}
@@ -76,31 +85,6 @@ local function newPart(name: string, size: Vector3, cframe: CFrame, color: Color
 	part.BottomSurface = Enum.SurfaceType.Smooth
 	part.Parent = parent
 	return part
-end
-
-local function addText(
-	part: BasePart,
-	face: Enum.NormalId,
-	text: string,
-	color: Color3,
-	pixelsPerStud: number
-): TextLabel
-	local gui = Instance.new("SurfaceGui")
-	gui.Face = face
-	gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-	gui.PixelsPerStud = pixelsPerStud
-	gui.Parent = part
-	local label = Instance.new("TextLabel")
-	label.Size = UDim2.fromScale(1, 1)
-	label.BackgroundTransparency = 1
-	label.Font = Enum.Font.FredokaOne
-	label.TextScaled = true
-	label.TextWrapped = true
-	label.TextColor3 = color
-	label.TextStrokeTransparency = 0
-	label.Text = text
-	label.Parent = gui
-	return label
 end
 
 local function cylinder(
@@ -122,7 +106,7 @@ local function cylinder(
 	return part
 end
 
--- An upright disc whose flat side faces the same way as `cframe`'s front (its +X face points there).
+-- An upright disc whose flat side faces the same way as `cframe`'s front.
 local function disc(
 	name: string,
 	radius: number,
@@ -142,7 +126,106 @@ local function disc(
 	return part
 end
 
--- Pedestal + sign + decoration + prompt, facing the hub centre.
+-- Placeholder machines (Prop_<Id>Machine) standing on each station's pedestal, front toward the hub centre.
+local MACHINE_BUILDERS: { [string]: PropService.Builder } = {
+	DailySpin = function(model, height)
+		PropService.Part(
+			model,
+			Enum.PartType.Block,
+			Vector3.new(2, height * 0.55, 2),
+			CFrame.new(0, height * 0.275, 0),
+			Color3.fromRGB(60, 50, 70),
+			Enum.Material.Metal
+		)
+		local wheel =
+			disc("Wheel", height * 0.35, 0.8, CFrame.new(0, height * 0.62, -1.2), Color3.fromRGB(255, 200, 40), model)
+		wheel.Material = Enum.Material.Neon
+		disc("Cap", height * 0.08, 1.2, CFrame.new(0, height * 0.62, -1.4), Color3.fromRGB(255, 80, 80), model)
+	end,
+	CoinFlip = function(model, height)
+		PropService.Part(
+			model,
+			Enum.PartType.Block,
+			Vector3.new(6, height * 0.3, 4),
+			CFrame.new(0, height * 0.15, 0),
+			Color3.fromRGB(120, 40, 40),
+			Enum.Material.Wood
+		)
+		local coin =
+			disc("Coin", height * 0.25, 0.6, CFrame.new(0, height * 0.65, 0), Color3.fromRGB(255, 200, 40), model)
+		coin.Material = Enum.Material.Foil
+	end,
+	Shop = function(model, height)
+		PropService.Part(
+			model,
+			Enum.PartType.Block,
+			Vector3.new(10, height * 0.4, 4),
+			CFrame.new(0, height * 0.2, 0),
+			Color3.fromRGB(150, 100, 60),
+			Enum.Material.WoodPlanks
+		)
+		PropService.Part(
+			model,
+			Enum.PartType.Block,
+			Vector3.new(11, 0.6, 5),
+			CFrame.new(0, height * 0.95, 0),
+			Color3.fromRGB(90, 220, 140),
+			Enum.Material.SmoothPlastic
+		)
+		for _, x in { -4.8, 4.8 } do
+			PropService.Part(
+				model,
+				Enum.PartType.Block,
+				Vector3.new(0.5, height * 0.55, 0.5),
+				CFrame.new(x, height * 0.67, 0),
+				Color3.fromRGB(110, 75, 45),
+				Enum.Material.Wood
+			)
+		end
+		for index = -1, 1 do
+			PropService.Part(
+				model,
+				Enum.PartType.Ball,
+				Vector3.one * 1.4,
+				CFrame.new(index * 3, height * 0.4 + 0.7, 0),
+				Color3.fromHSV((index + 1) / 3, 0.7, 1),
+				Enum.Material.Neon
+			)
+		end
+	end,
+	Quests = function(model, height)
+		PropService.Part(
+			model,
+			Enum.PartType.Block,
+			Vector3.new(9, height * 0.6, 0.5),
+			CFrame.new(0, height * 0.55, 0),
+			Color3.fromRGB(140, 100, 60),
+			Enum.Material.WoodPlanks
+		)
+		for _, x in { -4, 4 } do
+			PropService.Part(
+				model,
+				Enum.PartType.Block,
+				Vector3.new(0.6, height * 0.85, 0.6),
+				CFrame.new(x, height * 0.425, 0.4),
+				Color3.fromRGB(100, 70, 45),
+				Enum.Material.Wood
+			)
+		end
+		for index = -1, 1 do
+			PropService.Part(
+				model,
+				Enum.PartType.Block,
+				Vector3.new(2, 2.4, 0.1),
+				CFrame.new(index * 2.6, height * 0.55, -0.3),
+				Color3.fromRGB(245, 240, 220),
+				Enum.Material.SmoothPlastic
+			)
+		end
+	end,
+}
+
+-- Pedestal + machine + title sign + prompt, facing the hub centre.
 local function buildStation(def: StationDef, angle: number, parent: Instance)
 	local dir = Vector3.new(math.sin(angle), 0, -math.cos(angle))
 	local position = HUB.Center + dir * HUB.StationRadius
@@ -150,71 +233,38 @@ local function buildStation(def: StationDef, angle: number, parent: Instance)
 
 	local model = Instance.new("Model")
 	model.Name = def.Id
-	local pedestal = cylinder("Pedestal", 7, 1, facing * CFrame.new(0, 0.5, 0), Color3.fromRGB(70, 70, 85), model)
+	local pedestal = cylinder("Pedestal", 8, 1, facing * CFrame.new(0, 0.5, 0), Color3.fromRGB(70, 68, 85), model)
 	pedestal.Material = Enum.Material.Slate
+	local ring = cylinder("Ring", 8.4, 0.6, facing * CFrame.new(0, 0.3, 0), def.Color, model)
+	ring.Material = Enum.Material.Neon
 
-	if def.Id == "DailySpin" then
-		-- A big wheel standing upright, facing the hub.
-		local wheel = disc("Wheel", 5, 0.8, facing * CFrame.new(0, 7, 0), def.Color, model)
-		wheel.Material = Enum.Material.Neon
-		stationParts[def.Id] = wheel
-	elseif def.Id == "CoinFlip" then
-		local coin = disc("Coin", 3.5, 0.6, facing * CFrame.new(0, 6, 0), Color3.fromRGB(255, 200, 40), model)
-		coin.Material = Enum.Material.Foil
-		addText(coin, Enum.NormalId.Right, "B", Color3.fromRGB(120, 80, 0), 40)
-		stationParts[def.Id] = coin
-	else
-		-- A board: text on the side facing the hub (the part's front).
-		local height = if def.Id == "Leaderboard" then 16 else 11
-		local board = newPart(
-			"Board",
-			Vector3.new(14, height, 0.6),
-			facing * CFrame.new(0, 1 + height / 2 + 1, 0),
-			Color3.fromRGB(35, 35, 45),
-			model
-		)
-		if def.Id == "HowTo" then
-			local gui = Instance.new("SurfaceGui")
-			gui.Face = Enum.NormalId.Front
-			gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-			gui.PixelsPerStud = 30
-			gui.Parent = board
-			local text = Instance.new("TextLabel")
-			text.Size = UDim2.fromScale(0.92, 0.72)
-			text.Position = UDim2.fromScale(0.04, 0.24)
-			text.BackgroundTransparency = 1
-			text.Font = Enum.Font.GothamBold
-			text.TextScaled = true
-			text.TextWrapped = true
-			text.TextXAlignment = Enum.TextXAlignment.Left
-			text.TextYAlignment = Enum.TextYAlignment.Top
-			text.TextColor3 = Color3.fromRGB(240, 240, 250)
-			text.Text = HOW_TO
-			text.Parent = gui
-		end
+	if def.Id == "Leaderboard" then
+		local board =
+			newPart("Board", Vector3.new(16, 18, 0.6), facing * CFrame.new(0, 11, 1), Color3.fromRGB(30, 28, 42), model)
+		local frame = newPart("Frame", Vector3.new(17, 19, 0.4), facing * CFrame.new(0, 11, 1.4), def.Color, model)
+		frame.Material = Enum.Material.Neon
 		stationParts[def.Id] = board
+	else
+		local machine =
+			PropService.Place(`Prop_{def.Id}Machine`, facing * CFrame.new(0, 1, 2), 12, MACHINE_BUILDERS[def.Id], model)
+		stationParts[def.Id] = machine.PrimaryPart :: BasePart
 	end
 
-	-- Title sign above everything.
-	local sign =
-		newPart("Sign", Vector3.new(14, 3, 0.6), facing * CFrame.new(0, 17.5, 0), Color3.fromRGB(25, 25, 35), model)
-	addText(sign, Enum.NormalId.Front, def.Title, def.Color, 30)
-	if def.Subtitle ~= "" then
-		local subtitle = Instance.new("BillboardGui")
-		subtitle.Size = UDim2.fromOffset(260, 30)
-		subtitle.StudsOffset = Vector3.new(0, -2.4, 0)
-		subtitle.MaxDistance = 90
-		subtitle.Parent = sign
-		local label = Instance.new("TextLabel")
-		label.Size = UDim2.fromScale(1, 1)
-		label.BackgroundTransparency = 1
-		label.Font = Enum.Font.FredokaOne
-		label.TextScaled = true
-		label.TextColor3 = Color3.fromRGB(230, 230, 240)
-		label.TextStrokeTransparency = 0.3
-		label.Text = def.Subtitle
-		label.Parent = subtitle
-	end
+	-- Title sign above everything, readable from both sides.
+	local signHeight = if def.Id == "Leaderboard" then 23 else 17
+	local sign = newPart(
+		"Sign",
+		Vector3.new(15, 3.6, 0.6),
+		facing * CFrame.new(0, signHeight, 0),
+		Color3.fromRGB(25, 22, 36),
+		model
+	)
+	local signFrame =
+		newPart("SignFrame", Vector3.new(15.8, 4.4, 0.4), facing * CFrame.new(0, signHeight, 0.3), def.Color, model)
+	signFrame.Material = Enum.Material.Neon
+	local title = Signs.Text(sign, Enum.NormalId.Front, def.Title, def.Color)
+	Signs.Mirror(sign, title)
+	Signs.Billboard(sign, def.Subtitle, Color3.fromRGB(240, 240, 250), Vector2.new(280, 30), -3, 90)
 
 	if def.Prompt then
 		local prompt = Instance.new("ProximityPrompt")
@@ -222,7 +272,7 @@ local function buildStation(def: StationDef, angle: number, parent: Instance)
 		prompt.ActionText = "Open"
 		prompt.ObjectText = def.Title
 		prompt.HoldDuration = 0
-		prompt.MaxActivationDistance = 14
+		prompt.MaxActivationDistance = 16
 		prompt.RequiresLineOfSight = false
 		prompt.Parent = pedestal
 	end
@@ -230,7 +280,7 @@ local function buildStation(def: StationDef, angle: number, parent: Instance)
 	model.Parent = parent
 end
 
--- The part a station shows its content on (the leaderboard board, the wheel, the coin …).
+-- The part a station shows its content on (the leaderboard board, the machine …).
 function HubService.GetStationPart(id: string): BasePart?
 	return stationParts[id]
 end
@@ -248,44 +298,149 @@ function HubService.Init()
 		folder
 	)
 	ground.Material = Enum.Material.Grass
+	local rim = cylinder(
+		"Rim",
+		HUB.Radius + 1,
+		HUB.Thickness + 0.4,
+		CFrame.new(HUB.Center - Vector3.new(0, HUB.Thickness / 2 + 0.3, 0)),
+		Color3.fromRGB(255, 190, 40),
+		folder
+	)
+	rim.Material = Enum.Material.SmoothPlastic
 	local plaza = cylinder(
 		"Plaza",
-		18,
+		24,
 		0.4,
 		CFrame.new(HUB.Center + Vector3.new(0, 0.2, 0)),
-		Color3.fromRGB(200, 190, 170),
+		Color3.fromRGB(210, 200, 180),
 		folder
 	)
 	plaza.Material = Enum.Material.Cobblestone
+	-- Paths from the plaza to each bridge.
+	for slot = 1, PLOTS.Count do
+		local angle = (slot - 1) / PLOTS.Count * 2 * math.pi
+		local dir = Vector3.new(math.sin(angle), 0, -math.cos(angle))
+		local middle = HUB.Center + dir * (24 + (HUB.Radius - 24) / 2) + Vector3.new(0, 0.15, 0)
+		local path = newPart(
+			"Path",
+			Vector3.new(10, 0.3, HUB.Radius - 22),
+			CFrame.lookAt(middle, middle + dir),
+			Color3.fromRGB(200, 190, 170),
+			folder
+		)
+		path.Material = Enum.Material.Cobblestone
+	end
 
-	-- Title pillar in the middle.
-	local pillar = newPart(
-		"Pillar",
-		Vector3.new(4, 14, 4),
-		CFrame.new(HUB.Center + Vector3.new(0, 7, 0)),
-		Color3.fromRGB(60, 60, 75),
+	PropService.Place(
+		"Prop_IslandRock",
+		CFrame.new(HUB.Center - Vector3.new(0, HUB.Thickness, 0)),
+		HUB.Radius,
+		PropService.Builders.IslandRock,
 		folder
 	)
-	pillar.Material = Enum.Material.Slate
-	local title = Instance.new("BillboardGui")
-	title.Size = UDim2.fromOffset(500, 110)
-	title.StudsOffset = Vector3.new(0, 11, 0)
-	title.MaxDistance = 600
-	title.Parent = pillar
-	local titleLabel = Instance.new("TextLabel")
-	titleLabel.Size = UDim2.fromScale(1, 1)
-	titleLabel.BackgroundTransparency = 1
-	titleLabel.Font = Enum.Font.FredokaOne
-	titleLabel.TextScaled = true
-	titleLabel.TextColor3 = Color3.fromRGB(255, 190, 40)
-	titleLabel.TextStrokeTransparency = 0
-	titleLabel.Text = "GET BONKED"
-	titleLabel.Parent = title
+
+	-- Big Shiba statue in the middle with the game title above it.
+	local statue = PropService.Place(
+		"Prop_ShibaStatue",
+		CFrame.new(HUB.Center + Vector3.new(0, 0.4, 0)),
+		16,
+		function(model, _height)
+			PropService.Part(
+				model,
+				Enum.PartType.Cylinder,
+				Vector3.new(3, 12, 12),
+				CFrame.new(0, 1.5, 0) * CFrame.Angles(0, 0, math.rad(90)),
+				Color3.fromRGB(80, 78, 95),
+				Enum.Material.Slate
+			)
+			PropService.Part(
+				model,
+				Enum.PartType.Ball,
+				Vector3.new(7, 8, 7),
+				CFrame.new(0, 7, 0),
+				Color3.fromRGB(255, 170, 60),
+				Enum.Material.SmoothPlastic
+			)
+			PropService.Part(
+				model,
+				Enum.PartType.Ball,
+				Vector3.one * 5.5,
+				CFrame.new(0, 12.5, -1),
+				Color3.fromRGB(255, 170, 60),
+				Enum.Material.SmoothPlastic
+			)
+			for _, x in { -1.6, 1.6 } do
+				PropService.Part(
+					model,
+					Enum.PartType.Block,
+					Vector3.new(1.3, 2.2, 0.6),
+					CFrame.new(x, 15.4, -1) * CFrame.Angles(0, 0, math.rad(x * 8)),
+					Color3.fromRGB(230, 140, 40),
+					Enum.Material.SmoothPlastic
+				)
+			end
+			PropService.Part(
+				model,
+				Enum.PartType.Cylinder,
+				Vector3.new(9, 0.8, 0.8),
+				CFrame.new(3.5, 12, 0) * CFrame.Angles(0, 0, math.rad(60)),
+				Color3.fromRGB(150, 100, 60),
+				Enum.Material.Wood
+			)
+		end,
+		folder
+	)
+	Signs.Billboard(
+		statue.PrimaryPart :: BasePart,
+		"GET BONKED",
+		Color3.fromRGB(255, 190, 40),
+		Vector2.new(520, 110),
+		22,
+		700
+	)
+
+	-- How-to-play board on the plaza, facing the spawn point.
+	local boardCFrame = CFrame.lookAt(HUB.Center + Vector3.new(0, 6, 20), HUB.Center + Vector3.new(0, 6, 40))
+	local howTo = newPart("HowTo", Vector3.new(14, 9, 0.5), boardCFrame, Color3.fromRGB(30, 28, 42), folder)
+	local howToFrame = newPart(
+		"HowToFrame",
+		Vector3.new(14.8, 9.8, 0.3),
+		boardCFrame * CFrame.new(0, 0, 0.3),
+		Color3.fromRGB(230, 120, 255),
+		folder
+	)
+	howToFrame.Material = Enum.Material.Neon
+	for _, x in { -6, 6 } do
+		newPart(
+			"Leg",
+			Vector3.new(0.6, 6, 0.6),
+			CFrame.new(HUB.Center + Vector3.new(x, 1.5, 20.4)),
+			Color3.fromRGB(60, 55, 70),
+			folder
+		)
+	end
+	local text = Signs.Text(howTo, Enum.NormalId.Front, HOW_TO, Color3.fromRGB(245, 245, 255), 40, Enum.Font.GothamBold)
+	text.TextXAlignment = Enum.TextXAlignment.Left
+	Signs.Billboard(howToFrame, "HOW TO PLAY", Color3.fromRGB(230, 120, 255), Vector2.new(260, 40), 6.2, 120)
 
 	for index, def in STATIONS do
 		-- Halfway between bridge `index` and the next one.
 		local angle = (index - 0.5) / PLOTS.Count * 2 * math.pi
 		buildStation(def, angle, folder)
+	end
+
+	-- Trees on the rim, halfway between each bridge and the next station (never on a path).
+	local random = Random.new(42)
+	for index = 1, PLOTS.Count * 2 do
+		local angle = (index - 0.5) / (PLOTS.Count * 2) * 2 * math.pi
+		local position = HUB.Center + Vector3.new(math.sin(angle), 0, -math.cos(angle)) * (HUB.Radius - 7)
+		PropService.Place(
+			"Prop_Tree",
+			CFrame.new(position) * CFrame.Angles(0, random:NextNumber(0, 6.28), 0),
+			random:NextNumber(12, 16),
+			PropService.Builders.Tree,
+			folder
+		)
 	end
 
 	folder.Parent = Workspace

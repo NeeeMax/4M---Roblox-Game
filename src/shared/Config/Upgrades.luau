@@ -6,6 +6,7 @@
 
 local Gameplay = require(script.Parent.Gameplay)
 local Projectiles = require(script.Parent.Projectiles)
+local Shop = require(script.Parent.Shop)
 local Types = require(script.Parent.Parent.Types)
 
 export type ValueFormat = "Plain" | "Name"
@@ -114,6 +115,15 @@ end
 function Upgrades.GetValue(id: string, level: number): number
 	local def = defs[id]
 	return def.BaseValue + def.Step * level
+end
+
+-- Highest level this player can reach: the +2 Shiba Slots pass lifts More Shibas past its MaxLevel.
+function Upgrades.GetMaxLevel(id: string, passes: { [string]: boolean }): number
+	local max = defs[id].MaxLevel
+	if id == "Shooters" and passes.ExtraShibas then
+		max += Shop.Pass.ExtraShibas
+	end
+	return max
 end
 
 -- The text shown for a level's value ("Galaxy Shiba", "19", …).

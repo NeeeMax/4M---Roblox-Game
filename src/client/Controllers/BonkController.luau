@@ -48,7 +48,7 @@ local function findQuality(name: string): (Economy.HitQualityDef, number)
 	return Economy.HitQualities[1], 1
 end
 
-local function showPopup(reward: number, quality: Economy.HitQualityDef, onHead: boolean)
+local function showPopup(reward: number, quality: Economy.HitQualityDef, onHead: boolean, golden: boolean)
 	local character = player.Character
 	local head = if character then character:FindFirstChild("Head") else nil
 	if not head or not head:IsA("BasePart") then
@@ -69,10 +69,16 @@ local function showPopup(reward: number, quality: Economy.HitQualityDef, onHead:
 	label.TextColor3 = quality.Color
 	label.TextStrokeTransparency = 0
 	local bonk = if onHead then "HEADBONK" else "BONK"
-	label.Text = if quality.Name == "Normal" and not onHead
+	local prefix = if golden then "GOLDEN " else ""
+	if quality.Name ~= "Normal" then
+		prefix ..= `{string.upper(quality.Name)} `
+	end
+	label.Text = if prefix == "" and not onHead
 		then `+{Format.Number(reward)} BONK`
-		elseif quality.Name == "Normal" then `{bonk}! +{Format.Number(reward)}`
-		else `{string.upper(quality.Name)} {bonk}! +{Format.Number(reward)}`
+		else `{prefix}{bonk}! +{Format.Number(reward)}`
+	if golden then
+		label.TextColor3 = PROJECTILES.GoldenColor
+	end
 	label.Parent = billboard
 	-- In PlayerGui so only this player sees it.
 	billboard.Parent = player:WaitForChild("PlayerGui")
@@ -152,7 +158,7 @@ local function buildComboDisplay()
 
 	comboLabel = Instance.new("TextLabel")
 	comboLabel.AnchorPoint = Vector2.new(0.5, 0)
-	comboLabel.Position = UDim2.new(0.5, 0, 0, 70)
+	comboLabel.Position = UDim2.new(0.5, 0, 0, 94)
 	comboLabel.Size = UDim2.fromOffset(300, 36)
 	comboLabel.BackgroundTransparency = 1
 	comboLabel.Font = Enum.Font.FredokaOne
@@ -295,10 +301,11 @@ function BonkController.Start()
 			direction: Vector3,
 			onHead: boolean,
 			combo: number,
-			window: number
+			window: number,
+			golden: boolean
 		)
 			local quality, tier = findQuality(qualityName)
-			showPopup(reward, quality, onHead)
+			showPopup(reward, quality, onHead, golden == true)
 			playSound(tier)
 			burstStars(quality, tier)
 			shakeCamera(tier)

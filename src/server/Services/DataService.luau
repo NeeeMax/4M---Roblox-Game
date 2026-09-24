@@ -8,6 +8,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Economy = require(ReplicatedStorage.Shared.Config.Economy)
+local Shop = require(ReplicatedStorage.Shared.Config.Shop)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Types = require(ReplicatedStorage.Shared.Types)
 local Upgrades = require(ReplicatedStorage.Shared.Config.Upgrades)
@@ -42,10 +43,31 @@ local function defaultState(): PlayerState
 		TotalEarned = 0,
 		UpgradeLevels = levels,
 		ActiveShooters = Upgrades.GetValue("Shooters", 0),
-		LastSpinAt = 0,
+		SpinDay = 0,
+		SpinsUsed = 0,
 		Boosts = {},
 		Quests = { Day = 0, Ids = {}, Progress = {}, Claimed = {} },
+		Streak = { Day = 0, Count = 0, ClaimedDay = 0 },
+		Playtime = { Day = 0, Seconds = 0, Claimed = {} },
+		Trophies = {},
+		BonkRains = 0,
+		FirstJoinAt = os.time(),
+		StarterPackBought = false,
+		Passes = {},
+		Receipts = {},
 	}
+end
+
+-- A copy of a saved-state table (nested tables copied too), for saving and for the client.
+local function deepCopy<T>(value: T): T
+	if typeof(value) ~= "table" then
+		return value
+	end
+	local copy = {}
+	for key, item in value :: any do
+		copy[key] = deepCopy(item)
+	end
+	return copy :: any
 end
 
 local function isNumber(value: unknown): boolean
@@ -67,8 +89,60 @@ local function stateFromSaved(saved: unknown): PlayerState
 	if isNumber(data.TotalEarned) then
 		state.TotalEarned = math.max(0, math.floor(data.TotalEarned))
 	end
-	if isNumber(data.LastSpinAt) then
-		state.LastSpinAt = math.max(0, data.LastSpinAt)
+	if isNumber(data.SpinDay) and isNumber(data.SpinsUsed) then
+		state.SpinDay = data.SpinDay
+		state.SpinsUsed = math.max(0, math.floor(data.SpinsUsed))
+	end
+	local streak = data.Streak
+	if
+		typeof(streak) == "table"
+		and isNumber(streak.Day)
+		and isNumber(streak.Count)
+		and isNumber(streak.ClaimedDay)
+	then
+		state.Streak =
+			{ Day = streak.Day, Count = math.clamp(math.floor(streak.Count), 0, 7), ClaimedDay = streak.ClaimedDay }
+	end
+	local playtime = data.Playtime
+	if typeof(playtime) == "table" and isNumber(playtime.Day) and isNumber(playtime.Seconds) then
+		local claimed = {}
+		if typeof(playtime.Claimed) == "table" then
+			for index, value in playtime.Claimed do
+				if typeof(index) == "number" then
+					claimed[index] = value == true
+				end
+			end
+		end
+		state.Playtime = { Day = playtime.Day, Seconds = math.max(0, playtime.Seconds), Claimed = claimed }
+	end
+	if typeof(data.Trophies) == "table" then
+		for id, owned in data.Trophies do
+			if typeof(id) == "string" and owned == true then
+				state.Trophies[id] = true
+			end
+		end
+	end
+	if isNumber(data.BonkRains) then
+		state.BonkRains = math.clamp(math.floor(data.BonkRains), 0, 999)
+	end
+	if isNumber(data.FirstJoinAt) then
+		state.FirstJoinAt = data.FirstJoinAt
+	end
+	state.StarterPackBought = data.StarterPackBought == true
+	-- Passes are re-checked with Roblox on join (ShopService); the saved copy only matters for Studio tests.
+	if typeof(data.Passes) == "table" then
+		for id, owned in data.Passes do
+			if typeof(id) == "string" and owned == true then
+				state.Passes[id] = true
+			end
+		end
+	end
+	if typeof(data.Receipts) == "table" then
+		for _, receipt in data.Receipts do
+			if typeof(receipt) == "string" then
+				table.insert(state.Receipts, receipt)
+			end
+		end
 	end
 	if typeof(data.Boosts) == "table" then
 		for id, expiresAt in data.Boosts do
@@ -94,7 +168,9 @@ local function stateFromSaved(saved: unknown): PlayerState
 		for _, id in Upgrades.Order do
 			local level = data.UpgradeLevels[id]
 			if isNumber(level) then
-				state.UpgradeLevels[id] = math.clamp(math.floor(level), 0, Upgrades.Defs[id].MaxLevel)
+				-- Shooters may go past MaxLevel with the +2 Shiba Slots pass.
+				local bonus = if id == "Shooters" then Shop.Pass.ExtraShibas else 0
+				state.UpgradeLevels[id] = math.clamp(math.floor(level), 0, Upgrades.Defs[id].MaxLevel + bonus)
 			end
 		end
 	end
@@ -136,22 +212,8 @@ local function save(player: Player, session: Session)
 	if not session.CanSave or not currentStore then
 		return
 	end
-	local state = session.State
-	local data = {
-		Version = SAVE_VERSION,
-		BonkPoints = state.BonkPoints,
-		TotalEarned = state.TotalEarned,
-		UpgradeLevels = table.clone(state.UpgradeLevels),
-		ActiveShooters = state.ActiveShooters,
-		LastSpinAt = state.LastSpinAt,
-		Boosts = table.clone(state.Boosts),
-		Quests = {
-			Day = state.Quests.Day,
-			Ids = table.clone(state.Quests.Ids),
-			Progress = table.clone(state.Quests.Progress),
-			Claimed = table.clone(state.Quests.Claimed),
-		},
-	}
+	local data = deepCopy(session.State) :: any
+	data.Version = SAVE_VERSION
 	withRetries(`Saving {player.Name}`, function()
 		-- No session locking in MVP: the latest save wins.
 		return currentStore:UpdateAsync(tostring(player.UserId), function()
@@ -216,7 +278,7 @@ function DataService.Replicate(player: Player)
 	if not session then
 		return
 	end
-	stateChanged:FireClient(player, session.State)
+	stateChanged:FireClient(player, deepCopy(session.State))
 	for _, callback in replicatedCallbacks do
 		callback(player)
 	end
@@ -227,6 +289,14 @@ function DataService.OnReplicated(callback: (Player) -> ())
 	table.insert(replicatedCallbacks, callback)
 end
 
+-- Saves right away (after Robux purchases), in the background.
+function DataService.SaveNow(player: Player)
+	local session = sessions[player]
+	if session then
+		task.spawn(save, player, session)
+	end
+end
+
 -- Admin testing tool: puts the player back to a brand-new save (keeps TotalEarned for the leaderboard).
 function DataService.Reset(player: Player)
 	local session = sessions[player]
@@ -235,6 +305,9 @@ function DataService.Reset(player: Player)
 	end
 	local fresh = defaultState()
 	fresh.TotalEarned = session.State.TotalEarned
+	-- Robux purchases survive a reset: owned passes stay, and handled receipts must never be granted again.
+	fresh.Passes = session.State.Passes
+	fresh.Receipts = session.State.Receipts
 	session.State = fresh
 	DataService.Replicate(player)
 	for _, callback in loadedCallbacks do

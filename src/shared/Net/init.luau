@@ -18,7 +18,7 @@ local Net = {
 	-- C→S (command: string, argument: string | number | nil) — admin-only testing tools, see Config/Admin
 	AdminCommand = "AdminCommand",
 	-- S→C (reward: number, quality: HitQuality, knockbackDirection: Vector3, onHead: boolean, combo: number,
-	-- comboWindow: number)
+	-- comboWindow: number, golden: boolean)
 	BonkHit = "BonkHit",
 	-- S→C (state: PlayerState) — a copy of the player's whole saved state
 	StateChanged = "StateChanged",
@@ -42,6 +42,16 @@ local Net = {
 	DuelResult = "DuelResult",
 	-- C→S (questIndex: number)
 	ClaimQuest = "ClaimQuest",
+	-- C→S (itemId: string) — buy a shop item (Config/Shop); Robux items open Roblox's purchase prompt
+	ShopBuy = "ShopBuy",
+	-- C→S () — start one of your Bonk Rains
+	UseBonkRain = "UseBonkRain",
+	-- S→C (seconds: number) — a Bonk Rain started on your island
+	BonkRainStarted = "BonkRainStarted",
+	-- C→S () — claim today's login-streak reward
+	ClaimStreak = "ClaimStreak",
+	-- C→S (giftIndex: number) — claim a playtime gift
+	ClaimPlaytime = "ClaimPlaytime",
 }
 
 local ALL_NAMES = {
@@ -61,6 +71,11 @@ local ALL_NAMES = {
 	Net.DuelRespond,
 	Net.DuelResult,
 	Net.ClaimQuest,
+	Net.ShopBuy,
+	Net.UseBonkRain,
+	Net.BonkRainStarted,
+	Net.ClaimStreak,
+	Net.ClaimPlaytime,
 }
 
 function Net.CreateRemotes()

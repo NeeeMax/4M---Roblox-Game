@@ -8,6 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Admin = require(ReplicatedStorage.Shared.Config.Admin)
 local Net = require(ReplicatedStorage.Shared.Net)
 local RateLimiter = require(ReplicatedStorage.Shared.Util.RateLimiter)
+local Shop = require(ReplicatedStorage.Shared.Config.Shop)
 local Types = require(ReplicatedStorage.Shared.Types)
 local Upgrades = require(ReplicatedStorage.Shared.Config.Upgrades)
 
@@ -19,6 +20,9 @@ local IslandService = require(script.Parent.IslandService)
 local NPCShooterService = require(script.Parent.NPCShooterService)
 local NotifyService = require(script.Parent.NotifyService)
 local QuestService = require(script.Parent.QuestService)
+local RainService = require(script.Parent.RainService)
+local ShopService = require(script.Parent.ShopService)
+local StreakService = require(script.Parent.StreakService)
 local UpgradeService = require(script.Parent.UpgradeService)
 
 local limiter = RateLimiter.New(10, 1)
@@ -43,7 +47,8 @@ end
 
 local function maxUpgrades(player: Player)
 	for _, id: Types.UpgradeId in Upgrades.Order do
-		UpgradeService.SetLevel(player, id, Upgrades.Defs[id].MaxLevel)
+		-- SetLevel clamps to the player's own max (the +2 Shiba Slots pass raises it).
+		UpgradeService.SetLevel(player, id, math.huge)
 	end
 end
 
@@ -94,6 +99,33 @@ local HANDLERS: { [string]: Handler } = {
 	end,
 	FireNow = function(player)
 		NPCShooterService.FireNow(player)
+	end,
+	GiveRain = function(player)
+		RainService.Give(player)
+	end,
+	StartRain = function(player)
+		RainService.Give(player)
+		RainService.TryStart(player)
+	end,
+	TogglePass = function(player, argument)
+		if typeof(argument) == "string" then
+			ShopService.TogglePass(player, argument)
+		end
+	end,
+	ResetStarter = function(player)
+		ShopService.ResetStarterPack(player)
+	end,
+	ResetGifts = function(player)
+		StreakService.Reset(player)
+	end,
+	AllTrophies = function(player)
+		local state = DataService.GetState(player)
+		if state then
+			for _, trophy in Shop.Trophies do
+				state.Trophies[trophy.Id] = true
+			end
+			DataService.Replicate(player)
+		end
 	end,
 }
 

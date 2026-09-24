@@ -1,6 +1,6 @@
 --!strict
--- The daily wheel on the hub (Config/Hub → DailySpin): one free spin per Cooldown. The server picks the segment
--- (weighted) and pays it out at once; the client only animates the wheel to that segment.
+-- The daily wheel (Config/Hub → DailySpin): FreeSpins per UTC day (VIP: Shop.Pass.VIPDailySpins). The server picks
+-- the segment (weighted; the wheel shows every chance) and pays it out at once; the client only animates the wheel.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -9,6 +9,7 @@ local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Hub = require(ReplicatedStorage.Shared.Config.Hub)
 local Net = require(ReplicatedStorage.Shared.Net)
 local RateLimiter = require(ReplicatedStorage.Shared.Util.RateLimiter)
+local Shop = require(ReplicatedStorage.Shared.Config.Shop)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local BoostService = require(script.Parent.BoostService)
@@ -19,12 +20,17 @@ local QuestService = require(script.Parent.QuestService)
 local RewardService = require(script.Parent.RewardService)
 
 local CONFIG = Hub.DailySpin
+local SECONDS_PER_DAY = 24 * 60 * 60
 
 local spinLimiter = RateLimiter.New(2, 1)
 local random = Random.new()
 local spinResult = Net.Get(Net.SpinResult)
 
 local DailySpinService = {}
+
+local function today(): number
+	return os.time() // SECONDS_PER_DAY
+end
 
 local function pickSegment(): number
 	local total = 0
@@ -41,6 +47,10 @@ local function pickSegment(): number
 	return #CONFIG.Segments
 end
 
+function DailySpinService.SpinsPerDay(player: Player): number
+	return if RewardService.HasPass(player, "VIP") then Shop.Pass.VIPDailySpins else CONFIG.FreeSpins
+end
+
 local function onRequestSpin(player: Player)
 	if not RateLimiter.Allow(spinLimiter, player) then
 		return
@@ -49,14 +59,15 @@ local function onRequestSpin(player: Player)
 	if not state then
 		return
 	end
-	local now = os.time()
-	local readyAt = state.LastSpinAt + CONFIG.Cooldown
-	if now < readyAt then
-		local minutes = math.ceil((readyAt - now) / 60)
-		NotifyService.Send(player, `Next spin in {minutes // 60} h {minutes % 60} min`, "Bad")
+	if state.SpinDay ~= today() then
+		state.SpinDay = today()
+		state.SpinsUsed = 0
+	end
+	if state.SpinsUsed >= DailySpinService.SpinsPerDay(player) then
+		NotifyService.Send(player, "No spins left today, come back tomorrow!", "Bad")
 		return
 	end
-	state.LastSpinAt = now
+	state.SpinsUsed += 1
 
 	local index = pickSegment()
 	local segment = CONFIG.Segments[index]
@@ -64,6 +75,11 @@ local function onRequestSpin(player: Player)
 	if segment.Kind == "Boost" and segment.Boost and segment.Seconds then
 		BoostService.Give(player, segment.Boost :: Types.BoostId, segment.Seconds)
 		text = segment.Text
+	elseif segment.Kind == "BonkRain" then
+		state.BonkRains += 1
+		text = "a Bonk Rain! Start it from your HUD"
+	elseif segment.Kind == "Nothing" then
+		text = "nothing this time"
 	else
 		local amount = RewardService.Hits(player, segment.Hits or 1)
 		EconomyService.AddPoints(player, amount)
@@ -78,7 +94,7 @@ end
 function DailySpinService.ResetCooldown(player: Player)
 	local state = DataService.GetState(player)
 	if state then
-		state.LastSpinAt = 0
+		state.SpinsUsed = 0
 		DataService.Replicate(player)
 	end
 end
