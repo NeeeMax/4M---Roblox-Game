@@ -89,23 +89,33 @@ Only one person does this at a time; say so in chat first.
 ## 4. Git workflow
 
 - `main` is protected and always playable. No direct pushes.
-- One issue → one branch → one PR.
+- **Merging is automatic:** every push to another branch opens a PR into `main` and merges it (merge commit) as soon as
+  CI is green (`.github/workflows/auto-merge.yml`). A red check blocks the merge: fix it and push again.
+- Each developer may keep one long-lived branch; bigger features get their own.
   - Branch names: `feat/<area>-<name>`, `fix/<area>-<name>`, `docs/<name>`, `chore/<name>`
-- Keep branches short-lived (ideally merged within a few days). Rebase on `main` often:
+- Bring in `main` before every task and every push (merge, not rebase: branches are shared with GitHub):
   ```
   git fetch origin
-  git rebase origin/main
+  git merge --no-edit origin/main
   ```
-- The **other developer** reviews every PR. Squash-merge.
+- Reviews are optional: look at merged PRs on GitHub to see what the other developer changed.
 - Contract changes (`src/shared/Net/`, `src/shared/Types/`, `docs/CONVENTIONS.md`) get their own small PR, merged first.
 - Never commit place files (`.rbxl`, `.rbxlx`). Export single models as `.rbxm` into `assets/` only when really needed.
 
 ## 5. Daily workflow
 
-1. Pick an issue in your area (ownership: `docs/ARCHITECTURE.md`). `git checkout main && git pull`, then create the branch.
+1. Pick a task in your area (ownership: `docs/ARCHITECTURE.md`). Bring in `main` (section 4).
 2. Code (with Claude Code if you like) and test in **your own dev place**. Don't switch branches while you playtest — Studio loads whatever is on disk.
-3. Run the checks (section 1b), commit, push, open a PR and fill in the template.
-4. The other developer reviews, then squash-merge. Everyone pulls `main`.
+3. Run the checks (section 1b), commit, bring in `main` again, push. GitHub opens and merges the PR by itself.
+4. The other developer brings in `main` before their next task; their Studio updates on its own (Stop → Play).
+
+### Automatic merging: one-time GitHub setup (repo owner)
+
+1. **Settings → General → Pull Requests:** tick **Allow merge commits** and **Allow auto-merge**.
+2. **Settings → Actions → General → Workflow permissions:** choose **Read and write permissions** and tick
+   **Allow GitHub Actions to create and approve pull requests** → Save.
+3. **Settings → Branches → Add branch protection rule** (or Rules → Rulesets) for `main`: tick **Require status checks
+   to pass** and add the check **StyLua, selene, luau-lsp**. Do **not** require approvals (that would block auto-merge).
 5. From time to time, one person loads `main` into the main place (section 3) and publishes. Say so in chat first.
 
 Playing together: in the main place, **Test → Team Test** starts a server you can both join. The published game gives everyone their own island.

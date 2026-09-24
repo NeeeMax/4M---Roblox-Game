@@ -1,0 +1,55 @@
+name: Auto merge
+
+# Every push to a branch other than main opens a pull request into main (if there isn't one yet) and turns on
+# auto-merge. GitHub then merges it by itself as soon as the required CI check is green; nobody has to click Merge.
+# Needs these repo settings (CONTRIBUTING.md, "Automatic merging"): "Allow auto-merge", Actions may create pull
+# requests, and a rule on main that requires the "StyLua, selene, luau-lsp" check.
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    name: Open PR and enable auto-merge
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Open pull request if needed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          open_pr=$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[].number')
+          if [ -n "$open_pr" ]; then
+            echo "Pull request #$open_pr for $BRANCH is already open."
+            exit 0
+          fi
+          if [ -z "$(git log --oneline "origin/main..HEAD")" ]; then
+            echo "$BRANCH has nothing that main doesn't have yet."
+            exit 0
+          fi
+          subject=$(git log -1 --format=%s)
+          printf '%s\n\n%s\n' \
+            "Opened automatically on push. It merges into main by itself as soon as CI is green." \
+            "The author's Claude Code may replace this text with the filled-in PR template." > body.md
+          gh pr create --head "$BRANCH" --base main --title "$BRANCH: $subject" --body-file body.md
+
+      - name: Enable auto-merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          if [ -z "$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[].number')" ]; then
+            exit 0
+          fi
+          # Merge commits (not squash) so everyone can keep working on their own long-lived branch.
+          gh pr merge "$BRANCH" --auto --merge

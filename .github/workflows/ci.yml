@@ -2,6 +2,9 @@ name: CI
 
 on:
   pull_request:
+  # Also on every push: pull requests opened by the auto-merge workflow don't trigger pull_request runs
+  # (GitHub never starts workflows from its own token), so this push run is the check auto-merge waits for.
+  push:
 
 jobs:
   checks:

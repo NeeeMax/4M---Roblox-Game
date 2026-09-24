@@ -3,5 +3,5 @@
 -- Bump the label with every change that should be visible in a playtest.
 
 return {
-	Label = "2026-09-24 #7: shiba shooter, stick, 2 bounces, shooters take turns, soft knockback",
+	Label = "2026-09-24 #8: automatic merging into main",
 }
