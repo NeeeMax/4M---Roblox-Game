@@ -74,19 +74,21 @@ def landmarks(parts):
     hv = [head.matrix_world @ v.co for v in head.data.vertices]
     l.skull_top = max(p.z for p in hv if abs(p.x) < 0.06)
     l.head_c = (l.head_min + l.head_max) / 2
-    dark = []
-    for poly in head.data.polygons:
-        if head.data.materials[poly.material_index].name == 'fur_dark':
-            cen = head.matrix_world @ poly.center
-            if abs(cen.x) > 0.05: dark.append(cen)
-    # The eyes are the upper half of the dark faces off the centre line (the mouth line sits lower).
-    dark.sort(key=lambda p: p.z)
-    eyes = dark[len(dark) // 2:]
-    l.eye_z = sum(p.z for p in eyes) / len(eyes) + 0.055
-    l.eye_y = min(p.y for p in eyes) - 0.01
-    l.eye_x = max(0.08, sum(abs(p.x) for p in eyes) / len(eyes))
-    l.mouth = Vector((0.0, l.head_min.y + 0.07, l.eye_z - 0.17))
+    # Dark faces on the head: two closed-eye lines (off-centre, high), the round nose (centre), the mouth (low).
+    dark = [head.matrix_world @ poly.center for poly in head.data.polygons
+            if head.data.materials[poly.material_index].name == 'fur_dark']
+    head_top_dark = max(p.z for p in dark)
+    eyes = [p for p in dark if abs(p.x) > 0.06 and p.z > head_top_dark - 0.05]
+    nose = [p for p in dark if abs(p.x) <= 0.045 and p.z > 0.87]
+    mouth = [p for p in dark if p not in eyes and p not in nose]
+    l.eye_z = sum(p.z for p in eyes) / len(eyes)
+    l.eye_x = sum(abs(p.x) for p in eyes) / len(eyes)
+    l.eye_y = min(p.y for p in eyes)
+    l.nose = sum(nose, Vector()) / len(nose)
+    l.mouth = sum(mouth, Vector()) / len(mouth) if mouth else l.nose - Vector((0, -0.05, 0.09))
     l.neck_z = l.head_min.z + 0.04
+    l.head_verts = hv
+    l.head = head
     tv = [tail.matrix_world @ v.co for v in tail.data.vertices]
     l.tail_tip = max(tv, key=lambda p: p.z)
     l.back_y = l.torso_max.y; l.shoulder_z = l.torso_max.z - 0.12
@@ -181,65 +183,162 @@ ORANGE, CREAM, DARK = srgb(190, 90, 25), srgb(247, 232, 205), srgb(25, 22, 25)
 def default_cols():
     return {"fur_orange": lambda p: ORANGE, "fur_cream": lambda p: CREAM, "fur_dark": lambda p: DARK}
 
+def surface_y(obj, x, z):
+    """Front surface of obj at (x, z), found by casting a ray from the front (-Y) toward +Y."""
+    mwi = obj.matrix_world.inverted()
+    origin = mwi @ Vector((x, -5.0, z))
+    direction = (mwi.to_3x3() @ Vector((0, 1, 0))).normalized()
+    hit, loc, _, _ = obj.ray_cast(origin, direction)
+    return (obj.matrix_world @ loc).y if hit else None
+
+def face_y(l, x, z, r=0.045):
+    """Front-most y of the head surface at (x, z): where something worn on the face must sit."""
+    y = surface_y(l.head, x, z)
+    if y is not None:
+        return y
+    near = [v.y for v in l.head_verts if abs(v.x - x) < r and abs(v.z - z) < r]
+    return min(near) if near else l.eye_y
+
+def front_y(obj, z, half_width=0.1, r=0.05, x=0.0):
+    y = surface_y(obj, x, z)
+    if y is not None:
+        return y
+    vs = [obj.matrix_world @ v.co for v in obj.data.vertices]
+    near = [v.y for v in vs if abs(v.x - x) < half_width and abs(v.z - z) < r]
+    return min(near) if near else min(v.y for v in vs)
+
+def head_section(l, z):
+    """Centre y and half-extents (x, y) of the head's cross-section at height z: to fit bands around it."""
+    vs = [v for v in l.head_verts if abs(v.z - z) < 0.035]
+    ys = [v.y for v in vs]
+    return (min(ys) + max(ys)) / 2, max(abs(v.x) for v in vs), (max(ys) - min(ys)) / 2
+
+def shell(src_obj, keep, offset, fn):
+    """A thin layer copied from src_obj's faces where keep(world_centre, world_normal) is true, pushed out by
+    `offset`: clothing that follows the body exactly (apron, mask)."""
+    import bmesh
+    o = src_obj.copy(); o.data = src_obj.data.copy(); coll.objects.link(o)
+    mw = o.matrix_world; rot = mw.to_3x3()
+    bm = bmesh.new(); bm.from_mesh(o.data)
+    drop = [f for f in bm.faces if not keep(mw @ f.calc_center_median(), (rot @ f.normal).normalized())]
+    bmesh.ops.delete(bm, geom=drop, context='FACES')
+    bm.normal_update()
+    s = mw.to_scale(); local = offset / ((s.x + s.y + s.z) / 3)
+    for v in bm.verts:
+        v.co += v.normal * local
+    bm.to_mesh(o.data); bm.free()
+    paint(o, fn)
+    return o
+
+def chain(points, color, link=0.028):
+    """Chain of alternating links along a polyline."""
+    out, k = [], 0
+    for a, b in zip(points, points[1:]):
+        a, b = Vector(a), Vector(b)
+        seg = b - a
+        n = max(1, int(seg.length / (link * 1.25)))
+        t = seg.normalized()
+        side = t.cross(Vector((0, 1, 0)))
+        if side.length < 1e-3: side = Vector((1, 0, 0))
+        side.normalize()
+        for i in range(n):
+            c = a + seg * ((i + 0.5) / n)
+            axis = t.cross(side) if k % 2 else side
+            other = axis.cross(t).normalized()
+            m = Matrix((t, other, axis.normalized())).transposed()
+            out.append(prim("torus", c, m.to_euler(), scale=(1.5, 1, 1), color=color, major_radius=link * 0.45,
+                            minor_radius=link * 0.14, major_segments=8, minor_segments=4))
+            k += 1
+    return out
+
 def shades(parts, hs):
     l = landmarks(parts); ex = []
-    black, gold = srgb(12, 12, 16), srgb(255, 200, 40)
+    black, white, gold = srgb(14, 14, 18), srgb(255, 255, 255), srgb(255, 196, 45)
+    # "Deal with it" pixel shades: a flat pixel plate resting on the snout in front of the eyes (2 = white glint).
+    rows = ["1111111111111111",
+            "0111111001111110",
+            "0121111001211110",
+            "0011110000111100"]
+    px = 0.032
+    plate_y = min(face_y(l, l.eye_x, l.eye_z), face_y(l, -l.eye_x, l.eye_z)) - 0.05
+    top = l.eye_z + 0.07
+    for r, line in enumerate(rows):
+        for k, bit in enumerate(line):
+            if bit != "0":
+                x = (k - (len(line) - 1) / 2) * px
+                ex.append(box((x, plate_y, top - r * px), (px, 0.03, px), white if bit == "2" else black))
+    edge = len(rows[0]) / 2 * px
     for s in (-1, 1):
-        x = s * (l.eye_x + 0.02)
-        ex.append(box((x, l.eye_y - 0.03, l.eye_z), (0.17, 0.03, 0.075), black))
-        ex.append(box((x + s * 0.03, l.eye_y - 0.03, l.eye_z - 0.06), (0.1, 0.03, 0.05), black))
-        ex += sparkle((x - s * 0.04, l.eye_y - 0.05, l.eye_z + 0.01), 0.05, srgb(255, 255, 255))
-    ex.append(box((0, l.eye_y - 0.03, l.eye_z + 0.03), (l.eye_x * 2 + 0.2, 0.03, 0.03), black))
-    for s in (-1, 1):
-        ex.append(box((s * (l.eye_x + 0.12), l.eye_y + 0.1, l.eye_z + 0.03), (0.02, 0.22, 0.025), black))
-    ex.append(ring((0, l.head_c.y + 0.06, l.neck_z), 0.25, 0.028, gold, rot=(math.radians(-18), 0, 0), segments=20))
-    medal = l.chest + Vector((0, -0.03, 0.02))
-    ex.append(prim("cyl", medal, (math.radians(90), 0, 0), color=gold, vertices=12, radius=0.12, depth=0.03))
-    ex += pixel_text("$", medal + Vector((-0.045, -0.02, 0.105)), (1, 0, 0), (0, 0, -1), 0.03, (0, -1, 0),
-                     srgb(40, 140, 60))
-    tip = l.mouth + Vector((0.12, -0.14, -0.02))
-    ex.append(rod(l.mouth + Vector((0.04, -0.02, 0)), tip, 0.025, srgb(120, 70, 35), verts=6))
-    ex.append(prim("ico", tip, color=srgb(255, 90, 20), subdivisions=1, radius=0.03))
+        ex.append(box((s * edge, (plate_y + l.head_c.y + 0.05) / 2, top), (0.022, abs(l.head_c.y + 0.05 - plate_y), 0.024),
+                      black))
+    # Gold chain draped from the neck down to a big dollar-sign pendant.
+    chest_z = l.neck_z - 0.12
+    pts = []
+    for i in range(13):
+        t = -1 + i / 6
+        pts.append((0.21 * t, front_y(parts["Torso"], chest_z + 0.1 * t * t, x=0.21 * t) - 0.015,
+                    chest_z + 0.1 * t * t))
+    ex += chain(pts, gold)
+    pend_y = front_y(parts["Torso"], chest_z - 0.12) - 0.03
+    ex += pixel_text("$", Vector((-0.0525, pend_y, chest_z - 0.02)), (1, 0, 0), (0, 0, -1), 0.035, (0, -1, 0), gold)
+    # Cigar-shaped dog treat in the mouth corner.
+    start = l.mouth + Vector((0.05, -0.03, 0.0))
+    tip = start + Vector((0.1, -0.09, -0.03))
+    ex.append(rod(start, tip, 0.022, srgb(125, 72, 35), verts=6))
+    ex.append(prim("ico", tip, color=srgb(255, 100, 25), subdivisions=1, radius=0.026))
     return default_cols(), ex
 
 def buff(parts, hs):
     l0 = landmarks(parts)
     tz = l0.torso_max.z - l0.torso_min.z
-    grow = 1.2
+    torso_scale = (1.3, 1.15, 1.08)
     transform_about(parts['Torso'], (0, (l0.torso_min.y + l0.torso_max.y) / 2, l0.torso_min.z),
-                    Matrix.Diagonal((grow, grow, grow, 1)))
-    dz = tz * (grow - 1)
+                    Matrix.Diagonal((*torso_scale, 1)))
+    dz = tz * (torso_scale[2] - 1)
     transform_about(parts['Head'], (0, l0.head_c.y, l0.head_min.z),
-                    Matrix.Translation((0, 0, dz)) @ Matrix.Diagonal((0.72, 0.72, 0.72, 1)))
-    for side, arm_scale, push in (("Right", 1.7, 0.14), ("Left", 1.25, 0.06)):
+                    Matrix.Translation((0, 0, dz)) @ Matrix.Diagonal((0.85, 0.85, 0.85, 1)))
+    half = (l0.torso_max.x - l0.torso_min.x) / 2
+    for side, thick in (("Right", 1.9), ("Left", 1.45)):
         names = [f"{side}UpperArm", f"{side}LowerArm", f"{side}Hand"]
         up_min, up_max = wb(parts[names[0]])
         shoulder = Vector(((up_min.x + up_max.x) / 2, (up_min.y + up_max.y) / 2, up_max.z))
         s = 1 if side == "Right" else -1
-        m = Matrix.Translation((s * push, 0, dz * 0.8)) @ Matrix.Diagonal((arm_scale, arm_scale, arm_scale, 1))
-        moved = [parts[n] for n in names] + ([hs] if side == "Right" else [])
-        for o in moved: transform_about(o, shoulder, m)
+        hmin, hmax = wb(parts[f"{side}Hand"]); hand_before = (hmin + hmax) / 2
+        # Thicker, not longer: scale across the arm only, then move it out by the torso's extra width.
+        m = Matrix.Translation((s * half * (torso_scale[0] - 1) * 0.9, 0, dz)) @ Matrix.Diagonal((thick, thick, 1.05, 1))
+        for n in names: transform_about(parts[n], shoulder, m)
         bpy.context.view_layer.update()
-        # The bigger arm hangs lower; lift it so the paw (and the stick) stays above the ground.
-        low = min(wb(o)[0].z for o in moved)
-        if low < 0.03:
-            for o in moved: o.location.z += 0.03 - low
+        if side == "Right":
+            hmin, hmax = wb(parts["RightHand"])
+            hs.location += (hmin + hmax) / 2 - hand_before
+    for n in ("LeftLeg", "RightLeg"):
+        lmin, lmax = wb(parts[n])
+        transform_about(parts[n], ((lmin.x + lmax.x) / 2, (lmin.y + lmax.y) / 2, lmin.z), Matrix.Diagonal((1.2, 1.1, 1.0, 1)))
     bpy.context.view_layer.update()
     l = landmarks(parts); ex = []
-    ex.append(ring((0, l.head_c.y, l.eye_z + 0.08), 0.21, 0.035, srgb(230, 30, 40), scale=(1, 1.1, 1)))
-    muscle = srgb(235, 215, 180)
+    band_z = l.eye_z + 0.07
+    hw = (l.head_max.x - l.head_min.x) / 2
+    cy, rx, ry = head_section(l, band_z)
+    ex.append(ring((0, cy, band_z), rx + 0.012, 0.03, srgb(225, 35, 45), scale=(1, (ry + 0.012) / (rx + 0.012), 1),
+                   segments=20))
     for s in (-1, 1):
-        ex.append(box(l.chest + Vector((s * 0.12, -0.01, 0.04)), (0.22, 0.05, 0.14), muscle,
-                      rot=(0, s * math.radians(-8), 0)))
+        ex.append(box((s * (l.eye_x - 0.005), face_y(l, s * l.eye_x, l.eye_z + 0.04) - 0.01, l.eye_z + 0.045),
+                      (0.075, 0.02, 0.018), DARK, rot=(0, s * math.radians(-18), 0)))
+    torso = parts['Torso']
+    muscle, abs_col = srgb(236, 214, 178), srgb(228, 202, 160)
+    pec_z = l.torso_min.z + (l.torso_max.z - l.torso_min.z) * 0.72
+    for s in (-1, 1):
+        ex.append(ball((s * 0.12, front_y(torso, pec_z, x=s * 0.12) + 0.006, pec_z), 1, muscle, scale=(0.15, 0.03, 0.08),
+                       rot=(0, s * math.radians(-10), 0)))
     for row in range(3):
+        z = pec_z - 0.17 - row * 0.075
         for s in (-1, 1):
-            ex.append(box(Vector((s * 0.055, l.chest.y + 0.01, l.chest.z - 0.14 - row * 0.085)), (0.09, 0.04, 0.07),
-                          muscle))
+            ex.append(box((s * 0.047, front_y(torso, z, x=s * 0.047) - 0.004, z), (0.075, 0.02, 0.058), abs_col))
     return default_cols(), ex
 
 def chef(parts, hs):
     l = landmarks(parts); ex = []
-    white, grey = srgb(255, 255, 255), srgb(225, 225, 230)
+    white, stain = srgb(255, 255, 255), srgb(222, 218, 210)
     base = l.skull_top - 0.03
     ex.append(prim("cyl", (0, l.head_c.y, base + 0.2), color=white, vertices=12, radius=0.19, depth=0.4))
     for k in range(7):
@@ -247,44 +346,54 @@ def chef(parts, hs):
         ex.append(ball((math.cos(a) * 0.14, l.head_c.y + math.sin(a) * 0.14, base + 0.44), 0.13, white))
     ex.append(ball((0, l.head_c.y, base + 0.5), 0.15, white))
     brown = srgb(60, 32, 18)
+    stache = l.nose + Vector((0, 0.02, -0.055))
     for s in (-1, 1):
-        ex.append(ball(l.mouth + Vector((s * 0.08, -0.03, 0.03)), 0.08, brown, scale=(1, 0.35, 0.35),
-                       rot=(0, s * math.radians(-15), 0)))
-        ex.append(ball(l.mouth + Vector((s * 0.16, -0.03, 0.07)), 0.035, brown))
+        ex.append(ball(stache + Vector((s * 0.06, 0, 0)), 1, brown, scale=(0.065, 0.028, 0.026),
+                       rot=(0, s * math.radians(-12), 0)))
+        ex.append(ball(stache + Vector((s * 0.125, 0.015, 0.03)), 0.028, brown))
     red = srgb(215, 30, 35)
     ex.append(ring((0, l.head_c.y + 0.06, l.neck_z), 0.24, 0.035, red, rot=(math.radians(-18), 0, 0), segments=16))
-    ex.append(prim("cone", l.chest + Vector((0, -0.04, 0.08)), (math.radians(-90), 0, 0), color=red,
-                   vertices=3, radius1=0.14, radius2=0, depth=0.03))
-    apron = Vector((0, l.torso_min.y - 0.015, l.torso_min.z + 0.3))
-    ex.append(box(apron, (0.34, 0.02, 0.4), white))
-    for _ in range(5):
-        ex.append(ball(apron + Vector((random.uniform(-0.12, 0.12), -0.015, random.uniform(-0.15, 0.15))), 0.03,
-                       grey, scale=(1, 0.3, 0.8)))
-    for _ in range(9):
-        a = random.uniform(0, math.tau); r = random.uniform(0.4, 0.55)
-        ex.append(ball((math.cos(a) * r, math.sin(a) * r * 0.8, random.uniform(0.02, 0.2)), random.uniform(0.06, 0.1),
-                       random.choice([white, grey])))
+    ex.append(prim("cone", Vector((0, front_y(parts['Torso'], l.neck_z - 0.1) - 0.02, l.neck_z - 0.1)),
+                   (math.radians(-90), 0, 0), color=red, vertices=3, radius1=0.12, radius2=0, depth=0.03))
+    # Apron: a layer copied from the belly, so it follows the body instead of floating in front of it.
+    lo = l.torso_min.z + 0.06; hi = l.neck_z - 0.2
+    stains = set(random.sample(range(4000), 300))
+    ex.append(shell(parts['Torso'], lambda c, nrm: nrm.y < -0.3 and lo < c.z < hi and abs(c.x) < 0.24, 0.012,
+                    lambda p, n, i: stain if i in stains else white))
     return default_cols(), ex
 
 def police(parts, hs):
     l = landmarks(parts); ex = []
-    navy, black = srgb(25, 45, 110), srgb(15, 15, 20)
-    cap = l.skull_top + 0.02
-    ex.append(prim("cyl", (0, l.head_c.y, cap), color=navy, vertices=14, radius=0.23, depth=0.13))
-    ex.append(prim("cyl", (0, l.head_c.y - 0.16, cap - 0.06), (math.radians(-8), 0, 0), color=black, vertices=14,
-                   radius=0.16, depth=0.02))
-    ex.append(prim("cone", (0, l.head_c.y - 0.22, cap + 0.01), (math.radians(90), 0, 0), color=srgb(255, 200, 40),
-                   vertices=5, radius1=0.045, radius2=0, depth=0.02))
-    ex.append(box((0, l.head_c.y, cap + 0.08), (0.2, 0.08, 0.03), srgb(230, 230, 235)))
-    ex.append(box((-0.05, l.head_c.y, cap + 0.13), (0.09, 0.08, 0.09), srgb(255, 30, 30)))
-    ex.append(box((0.05, l.head_c.y, cap + 0.13), (0.09, 0.08, 0.09), srgb(30, 90, 255)))
-    mirror = lambda p, n, i: mix(srgb(120, 170, 220), srgb(235, 245, 255), max(0.0, min(1.0, (p.z - l.eye_z + 0.05) / 0.1)))
+    navy, black, gold = srgb(28, 48, 115), srgb(15, 15, 20), srgb(255, 200, 45)
+    # Cap: a band around the top of the skull, a flat crown on it, the visor over the eyes.
+    band_z = l.skull_top - 0.03
+    ex.append(prim("cyl", (0, l.head_c.y + 0.01, band_z), (math.radians(-6), 0, 0), color=navy, vertices=16,
+                   radius=0.2, depth=0.08))
+    ex.append(ball((0, l.head_c.y - 0.01, band_z + 0.06), 1, navy, scale=(0.24, 0.26, 0.07),
+                   rot=(math.radians(-6), 0, 0)))
+    ex.append(ball((0, l.head_c.y - 0.19, band_z - 0.035), 1, black, scale=(0.15, 0.09, 0.018),
+                   rot=(math.radians(-14), 0, 0)))
+    ex.append(prim("cone", (0, l.head_c.y - 0.205, band_z + 0.01), (math.radians(90), 0, 0), color=gold,
+                   vertices=5, radius1=0.04, radius2=0, depth=0.015))
+    top = band_z + 0.12
+    ex.append(box((0, l.head_c.y, top), (0.14, 0.06, 0.025), srgb(230, 230, 235)))
+    ex.append(ball((-0.035, l.head_c.y, top + 0.03), 0.035, srgb(255, 35, 35)))
+    ex.append(ball((0.035, l.head_c.y, top + 0.03), 0.035, srgb(40, 100, 255)))
+    # Mirrored aviators resting on the face.
+    mirror = lambda p, n, i: mix(srgb(90, 140, 200), srgb(230, 242, 255), max(0.0, min(1.0, (p.z - l.eye_z + 0.05) / 0.09)))
+    lens_y = {}
     for s in (-1, 1):
-        ex.append(ball((s * (l.eye_x + 0.02), l.eye_y - 0.03, l.eye_z - 0.01), 0.1, None, scale=(0.95, 0.25, 0.7),
+        x = s * (l.eye_x + 0.01)
+        y = face_y(l, x, l.eye_z) - 0.03
+        lens_y[s] = y
+        ex.append(ball((x, y, l.eye_z - 0.01), 1, None, scale=(0.08, 0.016, 0.062), rot=(0, 0, s * math.radians(22)),
                        fn=mirror))
-    ex.append(box((0, l.eye_y - 0.03, l.eye_z + 0.04), (l.eye_x * 2, 0.02, 0.02), srgb(200, 170, 60)))
-    ex.append(prim("cone", l.chest + Vector((0.12, -0.02, 0.05)), (math.radians(90), 0, 0), color=srgb(255, 205, 50),
-                   vertices=5, radius1=0.07, radius2=0.035, depth=0.025))
+    bridge_y = face_y(l, 0, l.eye_z + 0.03) - 0.015
+    ex.append(rod((-l.eye_x + 0.06, lens_y[-1], l.eye_z + 0.035), (0, bridge_y, l.eye_z + 0.04), 0.009, gold, verts=4))
+    ex.append(rod((0, bridge_y, l.eye_z + 0.04), (l.eye_x - 0.06, lens_y[1], l.eye_z + 0.035), 0.009, gold, verts=4))
+    badge_z = l.neck_z - 0.13
+    ex.append(prim("cone", (0.12, front_y(parts['Torso'], badge_z, 0.2) - 0.015, badge_z), (math.radians(90), 0, 0),
+                   color=gold, vertices=5, radius1=0.065, radius2=0.03, depth=0.022))
     donut = l.left_hand + Vector((-0.04, -0.1, 0.1))
     frosting = lambda p, n, i: srgb(255, 120, 190) if p.y < donut.y - 0.005 else srgb(215, 150, 80)
     ex.append(prim("torus", donut, (math.radians(80), 0, 0), fn=frosting, major_radius=0.08, minor_radius=0.04,
@@ -293,29 +402,35 @@ def police(parts, hs):
 
 def ninja(parts, hs):
     l = landmarks(parts); ex = []
-    cols = {"fur_orange": lambda p: srgb(24, 24, 30), "fur_cream": lambda p: srgb(58, 58, 70),
-            "fur_dark": lambda p: srgb(255, 30, 40)}
+    mask = srgb(28, 28, 36)
+    lo, hi = l.eye_z - 0.055, l.eye_z + 0.06
+    # Hood and face mask on the head only; the eye slit keeps the Shiba's own fur and eyes. Decided per face (by its
+    # centre), so the mask edge is crisp instead of blending across faces.
+    head = parts['Head']
+    in_slit = {poly.index for poly in head.data.polygons if lo < (head.matrix_world @ poly.center).z < hi}
+    fur = {"fur_orange": ORANGE, "fur_cream": CREAM, "fur_dark": DARK}
+    cols = default_cols()
+    cols["Head:*"] = lambda p, n, i: fur.get(n, ORANGE) if i in in_slit else mask
     red = srgb(210, 25, 35)
-    band_z = l.eye_z + 0.09
-    ex.append(ring((0, l.head_c.y, band_z), 0.285, 0.035, red, scale=(1, 1.12, 1), segments=20))
-    knot = Vector((0, l.head_max.y - 0.02, band_z))
+    band_z = hi + 0.01
+    hw = (l.head_max.x - l.head_min.x) / 2
+    cy, rx, ry = head_section(l, band_z)
+    ex.append(ring((0, cy, band_z), rx + 0.012, 0.032, red, scale=(1, (ry + 0.012) / (rx + 0.012), 1), segments=20))
+    knot = Vector((0, l.head_max.y - 0.03, band_z))
     for s, drop in ((-1, 0.1), (1, 0.18)):
         end = knot + Vector((s * 0.12, 0.45, -drop))
         ex.append(box((knot + end) / 2, (0.07, (end - knot).length, 0.015), red,
                       rot=(math.atan2(drop, 0.45), 0, -s * math.radians(14))))
-    ex.append(prim("cone", (l.head_max.x - 0.01, l.head_c.y, band_z), (0, math.radians(90), 0), color=srgb(190, 195, 205),
+    ex.append(prim("cone", (hw + 0.005, l.head_c.y + 0.03, band_z), (0, math.radians(90), 0), color=srgb(190, 195, 205),
                    vertices=4, radius1=0.07, radius2=0, depth=0.015))
+    ex.append(ring((0, l.head_c.y + 0.07, l.neck_z), 0.24, 0.04, mask, rot=(math.radians(-18), 0, 0), segments=16))
     back = Vector((0, l.back_y + 0.04, l.torso_min.z + 0.45))
     d = Vector((-0.55, 0, 0.85)).normalized()
     ex.append(rod(back - d * 0.35, back + d * 0.35, 0.02, srgb(215, 220, 230), verts=4))
     ex.append(prim("cyl", back + d * 0.37, tilt(d), color=srgb(255, 200, 40), vertices=10, radius=0.055, depth=0.02))
     ex.append(rod(back + d * 0.38, back + d * 0.56, 0.025, srgb(30, 20, 20), verts=6))
-    for _ in range(10):
-        a = random.uniform(0, math.tau); r = random.uniform(0.3, 0.5)
-        ex.append(prim("ico", (math.cos(a) * r, math.sin(a) * r * 0.8 - 0.05, random.uniform(0.0, 0.18)),
-                       color=random.choice([srgb(90, 30, 140), srgb(60, 20, 100), srgb(130, 50, 180)]),
-                       subdivisions=1, radius=random.uniform(0.06, 0.11)))
     return cols, ex
+
 
 def gold(parts, hs):
     l = landmarks(parts); ex = []
@@ -335,8 +450,6 @@ def gold(parts, hs):
         ex.append(prim("cyl", (math.cos(a) * r, math.sin(a) * r * 0.8, random.uniform(0.0, 0.06)),
                        (random.uniform(-0.5, 0.5), random.uniform(-0.5, 0.5), 0), color=srgb(255, 195, 40),
                        vertices=10, radius=0.065, depth=0.018))
-    for loc in ((0.3, -0.35, 1.2), (-0.35, -0.3, 0.8), (0.4, -0.3, 0.45), (-0.2, -0.4, 1.35)):
-        ex += sparkle(loc, 0.09, srgb(255, 255, 230))
     return cols, ex
 
 def giant(parts, hs):
@@ -444,8 +557,9 @@ for asset, design in DESIGNS:
     bpy.context.view_layer.update()
     cols, extras = design(parts, hs)
     bpy.context.view_layer.update()
-    for cp in parts.values():
-        paint(cp, lambda p, n, i: cols.get(n, lambda q: srgb(200, 200, 200))(p))
+    for base_name, cp in parts.items():
+        whole = cols.get(f"{base_name}:*")  # full paint override for this part: fn(position, material, face)
+        paint(cp, whole or (lambda p, n, i: (cols.get(n) or (lambda q: srgb(200, 200, 200)))(p)))
     body = join(list(parts.values()) + extras, f"{asset}_Body")
     paint(hs, lambda p, n, i: WOOD)
     hs.data.materials.clear(); hs.data.materials.append(one)
@@ -520,15 +634,19 @@ def baseball_bat():
     return ex
 
 def giant_bone():
-    ivory, shade = srgb(245, 238, 215), srgb(215, 202, 170)
-    ex = [prim("cyl", (0, 0, 0), color=ivory, vertices=10, radius=0.09, depth=0.7)]
-    for x in (-0.1, 0.1):
-        for z in (-0.37, 0.37):
-            ex.append(ball((x, 0, z), 0.13, None, fn=lambda p, n, i: shade if abs(p.z) > 0.44 else ivory))
-    for z in (-0.1, 0.0, 0.12):
-        ex.append(ball((0.07, -0.05, z), 0.03, srgb(160, 145, 115), scale=(1, 0.6, 1.3)))
-    for loc in ((0.22, -0.05, 0.2), (-0.22, 0.05, -0.1), (0.15, 0.05, -0.4)):
-        ex += sparkle(loc, 0.08, srgb(255, 210, 60))
+    # Chunky cartoon bone in the Shiba's faceted style: thick shaft, double knobs, a row of tooth dents.
+    ivory, light, dent = srgb(240, 228, 198), srgb(250, 244, 226), srgb(140, 118, 85)
+    tone = lambda p, n, i: mix(ivory, light, max(0.0, min(1.0, (p.x + 0.15) / 0.3)))
+    ex = [prim("cyl", (0, 0, 0), fn=tone, vertices=12, radius=0.1, depth=0.64)]
+    for z in (-0.34, 0.34):
+        ex.append(ball((0, 0, z), 0.12, None, fn=tone))
+        for x in (-0.1, 0.1):
+            ex.append(prim("uv", (x, 0, z + (0.04 if z > 0 else -0.04)), fn=tone, segments=12, ring_count=8,
+                           radius=0.14))
+    # Bite: three tooth dents in the rim of one knob.
+    for k in range(3):
+        a = math.radians(-25 + k * 25)
+        ex.append(ball((0.1 + math.sin(a) * 0.125, -math.cos(a) * 0.125, 0.42), 1, dent, scale=(0.028, 0.018, 0.03)))
     return ex
 
 def squeaky_hammer():
