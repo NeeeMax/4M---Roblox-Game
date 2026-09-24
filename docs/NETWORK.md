@@ -35,6 +35,8 @@ Every RemoteEvent and RemoteFunction is listed here. A PR that adds or changes a
 | `BonkRainStarted` | RemoteEvent | S→C | `seconds: number` | — | Max |
 | `ClaimStreak` | RemoteEvent | C→S | — | today's streak reward not claimed yet, ≤ 5/s | Max |
 | `ClaimPlaytime` | RemoteEvent | C→S | `giftIndex: number` | gift exists, enough play time today, not claimed, ≤ 5/s | Max |
+| `ObbyStarted` | RemoteEvent | S→C | — | — (server → client). Sent when the server sees the character's root leave the start pad (position check 10×/s, alive character) | Max |
+| `ObbyFinished` | RemoteEvent | S→C | `time: number, reward: number, bestTime: number, nextRewardAt: number` | — (server → client). Sent only when the server-side run is valid: started from the start pad, root inside the finish zone, ≥ `Obby.MinTime` (8 s), ≥ half of the checkpoints passed, ≤ `MaxRunTime`, never left `LeaveRadius`; time measured on the server; reward only if `RewardCooldown` passed since `state.Obby.LastRewardAt` | Max |
 
 Remotes live in `ReplicatedStorage/Remotes`, created by `Net.CreateRemotes()` from `Main.server.luau`. Get one with `Net.Get(Net.BonkHit)`.
 `StateChanged` is sent after the player's data loads and after every change to points, levels or active shooters.

@@ -30,7 +30,8 @@ export type QuestDef = {
 	Id: string,
 	-- "{n}" is replaced by the goal.
 	Text: string,
-	-- Event counted by QuestService.Record: "Hit", "HeadHit", "HardHit", "Combo" (highest), "CoinWin", "Spin", "Upgrade".
+	-- Event counted by QuestService.Record: "Hit", "HeadHit", "HardHit", "Combo" (highest), "CoinWin", "Spin", "Upgrade",
+	-- "Obby" (finished the jump and run).
 	Event: string,
 	Goal: number,
 	RewardHits: number,
@@ -92,6 +93,7 @@ local quests: { QuestDef } = {
 	{ Id = "Coin2", Text = "Win {n} coin flips", Event = "CoinWin", Goal = 2, RewardHits = 30 },
 	{ Id = "Spin1", Text = "Spin the daily wheel", Event = "Spin", Goal = 1, RewardHits = 20 },
 	{ Id = "Upgrade3", Text = "Buy {n} upgrades", Event = "Upgrade", Goal = 3, RewardHits = 40 },
+	{ Id = "Obby1", Text = "Climb the obby tower", Event = "Obby", Goal = 1, RewardHits = 30 },
 }
 
 return {

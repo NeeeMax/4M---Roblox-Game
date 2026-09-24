@@ -1,7 +1,8 @@
 --!strict
 -- Builds the hub island in the middle (Config/World → Hub) with its stations between the bridges. Each station has
 -- a ProximityPrompt named after the menu it opens (HudController opens it). The leaderboard board is filled by
--- LeaderboardService. Machines, statue and trees are props (PropService) that Marco can replace with models.
+-- LeaderboardService. The centre is the jump and run tower (ObbyService builds it). Machines and trees are props
+-- (PropService) that Marco can replace with models.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
@@ -339,89 +340,33 @@ function HubService.Init()
 		folder
 	)
 
-	-- Big Shiba statue in the middle with the game title above it.
-	local statue = PropService.Place(
-		"Prop_ShibaStatue",
-		CFrame.new(HUB.Center + Vector3.new(0, 0.4, 0)),
-		16,
-		function(model, _height)
-			PropService.Part(
-				model,
-				Enum.PartType.Cylinder,
-				Vector3.new(3, 12, 12),
-				CFrame.new(0, 1.5, 0) * CFrame.Angles(0, 0, math.rad(90)),
-				Color3.fromRGB(80, 78, 95),
-				Enum.Material.Slate
-			)
-			PropService.Part(
-				model,
-				Enum.PartType.Ball,
-				Vector3.new(7, 8, 7),
-				CFrame.new(0, 7, 0),
-				Color3.fromRGB(255, 170, 60),
-				Enum.Material.SmoothPlastic
-			)
-			PropService.Part(
-				model,
-				Enum.PartType.Ball,
-				Vector3.one * 5.5,
-				CFrame.new(0, 12.5, -1),
-				Color3.fromRGB(255, 170, 60),
-				Enum.Material.SmoothPlastic
-			)
-			for _, x in { -1.6, 1.6 } do
-				PropService.Part(
-					model,
-					Enum.PartType.Block,
-					Vector3.new(1.3, 2.2, 0.6),
-					CFrame.new(x, 15.4, -1) * CFrame.Angles(0, 0, math.rad(x * 8)),
-					Color3.fromRGB(230, 140, 40),
-					Enum.Material.SmoothPlastic
-				)
-			end
-			PropService.Part(
-				model,
-				Enum.PartType.Cylinder,
-				Vector3.new(9, 0.8, 0.8),
-				CFrame.new(3.5, 12, 0) * CFrame.Angles(0, 0, math.rad(60)),
-				Color3.fromRGB(150, 100, 60),
-				Enum.Material.Wood
-			)
-		end,
-		folder
-	)
-	Signs.Billboard(
-		statue.PrimaryPart :: BasePart,
-		"GET BONKED",
-		Color3.fromRGB(255, 190, 40),
-		Vector2.new(520, 110),
-		22,
-		700
-	)
+	-- The hub centre is the jump and run tower (ObbyService); the Shiba statue stands on its top.
 
-	-- How-to-play board on the plaza, facing the spawn point.
-	local boardCFrame = CFrame.lookAt(HUB.Center + Vector3.new(0, 6, 20), HUB.Center + Vector3.new(0, 6, 40))
-	local howTo = newPart("HowTo", Vector3.new(14, 9, 0.5), boardCFrame, Color3.fromRGB(30, 28, 42), folder)
+	-- How-to-play board on the plaza, right of the obby entrance, facing the spawn point (the best-times board
+	-- of ObbyService stands on the left).
+	local boardCenter = HUB.Center + Vector3.new(8, 6, 19)
+	local boardCFrame = CFrame.lookAt(boardCenter, boardCenter + Vector3.new(0, 0, 20))
+	local howTo = newPart("HowTo", Vector3.new(10, 8, 0.5), boardCFrame, Color3.fromRGB(30, 28, 42), folder)
 	local howToFrame = newPart(
 		"HowToFrame",
-		Vector3.new(14.8, 9.8, 0.3),
+		Vector3.new(10.8, 8.8, 0.3),
 		boardCFrame * CFrame.new(0, 0, 0.3),
 		Color3.fromRGB(230, 120, 255),
 		folder
 	)
 	howToFrame.Material = Enum.Material.Neon
-	for _, x in { -6, 6 } do
+	for _, x in { -4.2, 4.2 } do
 		newPart(
 			"Leg",
 			Vector3.new(0.6, 6, 0.6),
-			CFrame.new(HUB.Center + Vector3.new(x, 1.5, 20.4)),
+			CFrame.new(boardCenter + Vector3.new(x, -4.5, 0.4)),
 			Color3.fromRGB(60, 55, 70),
 			folder
 		)
 	end
 	local text = Signs.Text(howTo, Enum.NormalId.Front, HOW_TO, Color3.fromRGB(245, 245, 255), 40, Enum.Font.GothamBold)
 	text.TextXAlignment = Enum.TextXAlignment.Left
-	Signs.Billboard(howToFrame, "HOW TO PLAY", Color3.fromRGB(230, 120, 255), Vector2.new(260, 40), 6.2, 120)
+	Signs.Billboard(howToFrame, "HOW TO PLAY", Color3.fromRGB(230, 120, 255), Vector2.new(260, 40), 5.6, 120)
 
 	for index, def in STATIONS do
 		-- Halfway between bridge `index` and the next one.
