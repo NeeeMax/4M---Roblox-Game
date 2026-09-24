@@ -6,16 +6,22 @@
 -- before it fires. Shooters only fire while their owner is on (or next to) their island. The ring leaves a gap
 -- where the bridge from the hub arrives.
 -- Looks: the ShooterTier's model from ReplicatedStorage.Assets (see Config/Gameplay → Shooters.Tiers), else a lower
--- tier's model with an outline in the tier colour, else a red block.
+-- tier's model with an outline in the tier colour, else a red block. Each Shiba stands on its tier's platform
+-- (Config/ShibaPlatforms) inside an invisible wall, and holds the player's current projectile in its paw.
+-- The server places a custom model once and then only publishes where it should face (attribute
+-- Shooters.Motion.AimYawAttribute); clients turn it smoothly (Controllers/ShibaController). Throw points are
+-- computed from the aim, never read from the (client-turned) model.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
 
 local Assets = require(ReplicatedStorage.Shared.Util.Assets)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local Projectiles = require(ReplicatedStorage.Shared.Config.Projectiles)
 local ShibaEffects = require(ReplicatedStorage.Shared.Config.ShibaEffects)
+local ShibaPlatforms = require(ReplicatedStorage.Shared.Config.ShibaPlatforms)
 
 local IslandService = require(script.Parent.IslandService)
 local ProjectileService = require(script.Parent.ProjectileService)
@@ -23,16 +29,19 @@ local UpgradeService = require(script.Parent.UpgradeService)
 
 local CONFIG = Gameplay.Shooters
 local ISLAND = Gameplay.Island
+local HAND = CONFIG.HandProjectile
+local MOTION = CONFIG.Motion
 local BODY_SIZE = Vector3.new(2, 4, 2)
 local BARREL_SIZE = Vector3.new(0.8, 0.8, CONFIG.BarrelLength)
 -- Without a Muzzle attachment, custom models throw from this fraction of their height, a bit in front of them.
 local MODEL_THROW_HEIGHT = 0.8
 local MODEL_THROW_FORWARD = 1.5
+local AXES = { Vector3.xAxis, Vector3.yAxis, Vector3.zAxis }
 
 type Shooter = {
-	-- Holds everything of this shooter (platform included); destroyed when the ring shrinks.
+	-- Holds everything of this shooter (platform and barrier included); destroyed when the ring is rebuilt.
 	Model: Model,
-	-- Custom model only: the imported model inside Model. Only this turns when aiming, so the platform stays put.
+	-- Custom model only: the imported model inside Model. Clients turn only this, so the platform stays put.
 	Visual: Model?,
 	-- Point on top of the platform where the shooter stands.
 	Ground: Vector3,
@@ -40,10 +49,12 @@ type Shooter = {
 	Height: number,
 	-- Custom model: height of its pivot above its bottom. Fallback block: nil (uses Body and Barrel).
 	PivotHeight: number?,
+	-- Custom model with a Muzzle attachment: its position relative to the model's pivot.
+	MuzzleOffset: Vector3?,
 	Body: BasePart?,
 	Barrel: BasePart?,
-	Muzzle: Attachment?,
-	-- The stick in the model's hand and its normal transparency, hidden for a moment after each throw.
+	-- What the model holds in its paw (hand projectile or stick) and its normal transparency, hidden for a moment
+	-- after each throw.
 	HandStick: { [BasePart]: number },
 	NextFireAt: number,
 	Plan: ProjectileService.ShotPlan?,
@@ -52,8 +63,9 @@ type Shooter = {
 type Ring = {
 	Shooters: { Shooter },
 	Interval: number,
-	-- ShooterTier level the models were built for.
+	-- ShooterTier and ProjectileTier levels the models were built for.
 	Tier: number,
+	ProjectileTier: number,
 }
 
 local rings: { [Player]: Ring } = {}
@@ -88,13 +100,24 @@ local function flatDirection(from: Vector3, to: Vector3): Vector3
 	return if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(0, 0, -1)
 end
 
-local function aimAt(shooter: Shooter, target: Vector3)
+-- Yaw of a custom model's pivot facing `target` from `ground`: CFrame.Angles(0, yaw, 0) looks along the flat
+-- direction, turned by YawOffsetDegrees.
+local function aimYaw(ground: Vector3, target: Vector3): number
+	local direction = flatDirection(ground, target)
+	return math.atan2(-direction.X, -direction.Z) + math.rad(CONFIG.YawOffsetDegrees)
+end
+
+-- The custom model's pivot while it faces `target`.
+local function pivotFrame(ground: Vector3, pivotHeight: number, target: Vector3): CFrame
+	return CFrame.new(ground + Vector3.new(0, pivotHeight, 0)) * CFrame.Angles(0, aimYaw(ground, target), 0)
+end
+
+-- Turns the shooter toward `target`: a custom model gets the new yaw (clients turn it), the fallback block snaps.
+local function faceTarget(shooter: Shooter, target: Vector3)
 	local ground = shooter.Ground
-	local pivotHeight, visual = shooter.PivotHeight, shooter.Visual
-	if pivotHeight and visual then
-		local pivot = ground + Vector3.new(0, pivotHeight, 0)
-		local facing = CFrame.lookAt(pivot, pivot + flatDirection(ground, target))
-		visual:PivotTo(facing * CFrame.Angles(0, math.rad(CONFIG.YawOffsetDegrees), 0))
+	local visual = shooter.Visual
+	if visual then
+		visual:SetAttribute(MOTION.AimYawAttribute, aimYaw(ground, target))
 		return
 	end
 	local body, barrel = shooter.Body, shooter.Barrel
@@ -108,15 +131,17 @@ local function aimAt(shooter: Shooter, target: Vector3)
 	end
 end
 
--- Where the projectile starts, for the shooter's current aim at `target`.
+-- Where the projectile starts when the shooter faces `target`. Pure math: it doesn't depend on how the model is
+-- currently turned (clients turn it smoothly, the server never does).
 local function throwPoint(shooter: Shooter, target: Vector3): Vector3
-	local muzzle = shooter.Muzzle
-	if muzzle then
-		return muzzle.WorldPosition
+	local muzzleOffset, pivotHeight = shooter.MuzzleOffset, shooter.PivotHeight
+	if muzzleOffset and pivotHeight then
+		return pivotFrame(shooter.Ground, pivotHeight, target) * muzzleOffset
 	end
-	local barrel = shooter.Barrel
-	if barrel then
-		return barrel.Position + barrel.CFrame.LookVector * (CONFIG.BarrelLength / 2)
+	if shooter.Barrel then
+		-- The barrel's tip: it starts at the top of the body and points along the launch direction.
+		local pivot = shooter.Ground + Vector3.new(0, BODY_SIZE.Y, 0)
+		return pivot + ProjectileService.GetLaunchDirection(pivot, target) * CONFIG.BarrelLength
 	end
 	return shooter.Ground
 		+ Vector3.new(0, shooter.Height * MODEL_THROW_HEIGHT, 0)
@@ -142,16 +167,16 @@ local function findShot(
 		local distance = ISLAND.TargetRadius * math.sqrt(random:NextNumber())
 		local angle = random:NextNumber() * 2 * math.pi
 		local target = center + Vector3.new(math.cos(angle) * distance, radius, math.sin(angle) * distance)
-		aimAt(shooter, target)
 		local plan = ProjectileService.Plan(player, throwPoint(shooter, target), target)
 		if plan and isSafeFromStandingPlayer(plan, playerPosition) then
+			faceTarget(shooter, target)
 			return plan
 		end
 	end
 	return nil
 end
 
--- Hides the stick in the shooter's hand for a moment, so it looks like that stick was thrown.
+-- Hides what is in the shooter's paw for a moment, so it looks like that was thrown.
 local function hideHandStick(shooter: Shooter)
 	for part in shooter.HandStick do
 		part.Transparency = 1
@@ -163,19 +188,24 @@ local function hideHandStick(shooter: Shooter)
 	end)
 end
 
-local function collectHandStick(model: Model): { [BasePart]: number }
+local function collectParts(instance: Instance): { [BasePart]: number }
 	local parts: { [BasePart]: number } = {}
-	local stick = model:FindFirstChild(CONFIG.HandStickName, true)
-	if stick and stick:IsA("BasePart") then
-		parts[stick] = stick.Transparency
-	elseif stick then
-		for _, descendant in stick:GetDescendants() do
-			if descendant:IsA("BasePart") then
-				parts[descendant] = descendant.Transparency
-			end
+	if instance:IsA("BasePart") then
+		parts[instance] = instance.Transparency
+	end
+	for _, descendant in instance:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			parts[descendant] = descendant.Transparency
 		end
 	end
 	return parts
+end
+
+local function hideMarker(model: Model, name: string)
+	local marker = model:FindFirstChild(name, true)
+	if marker and marker:IsA("BasePart") then
+		marker.Transparency = 1
+	end
 end
 
 -- The best model for this tier: its own, else a lower tier's (then the legacy name). Second result: true if it
@@ -188,6 +218,81 @@ local function cloneTierModel(tier: number): (Model?, boolean)
 		end
 	end
 	return Assets.CloneModel(CONFIG.LegacyAssetName), false
+end
+
+-- The model of the projectile fired at this ProjectileTier level (else a lower tier's), or nil if none exists.
+local function cloneProjectileModel(level: number): Model?
+	for _, name in Projectiles.AssetCandidates(Projectiles.ForTier(level).Id) do
+		if Assets.Has(name) then
+			return Assets.CloneModel(name)
+		end
+	end
+	return nil
+end
+
+local function component(vector: Vector3, index: number): number
+	return if index == 1 then vector.X elseif index == 2 then vector.Y else vector.Z
+end
+
+local function longestAxis(size: Vector3): number
+	if size.X >= size.Y and size.X >= size.Z then
+		return 1
+	end
+	return if size.Y >= size.Z then 2 else 3
+end
+
+-- Puts `projectile` where `stick` is in the paw of a model facing `facing`: its longest side along the stick's,
+-- LengthScale × as long, its grip end on the stick's lower end, its first other side along the model's right.
+local function placeInPaw(projectile: Model, stick: BasePart, facing: CFrame)
+	local stickAxis = longestAxis(stick.Size)
+	local stickLength = component(stick.Size, stickAxis)
+	local up = stick.CFrame:VectorToWorldSpace(AXES[stickAxis])
+	if up.Y < 0 then
+		up = -up
+	end
+	local grip = stick.Position - up * stickLength / 2
+
+	local _, size = projectile:GetBoundingBox()
+	local axis = longestAxis(size)
+	local length = component(size, axis)
+	if length <= 0 then
+		return
+	end
+	projectile:ScaleTo(projectile:GetScale() * stickLength * HAND.LengthScale / length)
+	local box, scaledSize = projectile:GetBoundingBox()
+	-- In the projectile's box: from the grip toward the other end, and a side axis for the roll.
+	local along = AXES[axis] * (if HAND.GripAtNegativeEnd then 1 else -1)
+	local side = if axis == 1 then Vector3.zAxis else Vector3.xAxis
+	local gripEnd = box:PointToWorldSpace(-along * component(scaledSize, axis) / 2)
+	local from = CFrame.fromMatrix(gripEnd, box:VectorToWorldSpace(side), box:VectorToWorldSpace(along))
+
+	local right = facing.RightVector - up * facing.RightVector:Dot(up)
+	if right.Magnitude < 1e-3 then
+		-- The stick points sideways: roll by the model's forward instead.
+		right = facing.LookVector - up * facing.LookVector:Dot(up)
+	end
+	local to = CFrame.fromMatrix(grip, right.Unit, up)
+	projectile:PivotTo(to * from:ToObjectSpace(projectile:GetPivot()))
+end
+
+-- Replaces the model's stick with the current projectile. Returns what is in the paw now (for hideHandStick).
+local function equipHandProjectile(asset: Model, projectileLevel: number): { [BasePart]: number }
+	local stick = asset:FindFirstChild(CONFIG.HandStickName, true)
+	if not stick then
+		return {}
+	end
+	local stickPart = if stick:IsA("BasePart") then stick else nil
+	local projectile = if stickPart then cloneProjectileModel(projectileLevel) else nil
+	if not (stickPart and projectile) then
+		-- No projectile model (or a stick that is not a single part): the model's own stick stays.
+		return collectParts(stick)
+	end
+	Assets.MakeVisualOnly(projectile, true)
+	placeInPaw(projectile, stickPart, asset:GetPivot())
+	projectile.Name = HAND.Name
+	projectile.Parent = asset
+	stickPart.Transparency = 1
+	return collectParts(projectile)
 end
 
 -- An invisible, non-physical part that particles and light come from.
@@ -261,14 +366,59 @@ local function addEffects(model: Model, effect: ShibaEffects.Effect?, height: nu
 	end
 end
 
-local function buildShooter(parent: Instance, center: Vector3, angle: number, tier: number): Shooter
+-- Builds the platform's pieces around `frame` (on the island surface, facing the island centre).
+local function buildPlatform(platform: ShibaPlatforms.Platform, frame: CFrame, parent: Instance)
+	local folder = Instance.new("Model")
+	folder.Name = "Platform"
+	for index, piece in platform.Pieces do
+		local cframe = frame * CFrame.new(piece.Offset) * CFrame.Angles(0, math.rad(piece.Yaw or 0), 0)
+		local size = piece.Size
+		local part = newShooterPart(`Piece{index}`, size, piece.Color, folder)
+		if piece.Shape == "Cylinder" then
+			-- A cylinder's axis is its X axis, so lay the height along X and stand it up.
+			part.Shape = Enum.PartType.Cylinder
+			part.Size = Vector3.new(size.Y, size.X, size.X)
+			cframe *= CFrame.Angles(0, 0, math.rad(90))
+		elseif piece.Shape == "Ball" then
+			part.Shape = Enum.PartType.Ball
+			part.Size = Vector3.new(size.X, size.X, size.X)
+		end
+		part.Material = piece.Material
+		part.Transparency = piece.Transparency or 0
+		part.CFrame = cframe
+	end
+	folder.Parent = parent
+end
+
+-- Invisible wall around platform and Shiba, so players can't walk through it. Only characters collide with it:
+-- no touches, no spatial queries (hit checks, camera), no shadow.
+local function buildBarrier(platform: ShibaPlatforms.Platform, surface: Vector3, height: number, parent: Instance)
+	local diameter = platform.Diameter + 2 * CONFIG.Barrier.Padding
+	-- From a little under the surface (no gap to squeeze through) up past the Shiba's head.
+	local sink = CONFIG.Barrier.Sink
+	local tall = sink + platform.Top + height + CONFIG.Barrier.ExtraHeight
+	local barrier = newShooterPart("Barrier", Vector3.new(tall, diameter, diameter), Color3.new(1, 1, 1), parent)
+	barrier.Shape = Enum.PartType.Cylinder
+	barrier.Transparency = 1
+	barrier.CastShadow = false
+	barrier.CanCollide = true
+	barrier.CFrame = CFrame.new(surface + Vector3.new(0, tall / 2 - sink, 0)) * CFrame.Angles(0, 0, math.rad(90))
+end
+
+local function buildShooter(
+	parent: Instance,
+	center: Vector3,
+	angle: number,
+	tier: number,
+	projectileLevel: number
+): Shooter
 	local def = CONFIG.Tiers[tier + 1]
 	local height = if def then def.Height else CONFIG.Height
-	-- Angle 0 is north (−Z), then clockwise. The Shiba stands on the platform, which is lifted a little off the
-	-- island surface (equal heights flicker).
-	local ground = center
-		+ Vector3.new(math.sin(angle), 0, -math.cos(angle)) * CONFIG.RingRadius
-		+ Vector3.new(0, CONFIG.PlatformLift, 0)
+	local platform = (if def then ShibaPlatforms.Platforms[def.AssetName] else nil) or ShibaPlatforms.Default
+	-- Angle 0 is north (−Z), then clockwise. The Shiba stands on top of its platform, which ends at least
+	-- PlatformLift above the island surface (equal heights flicker).
+	local surface = center + Vector3.new(math.sin(angle), 0, -math.cos(angle)) * CONFIG.RingRadius
+	local ground = surface + Vector3.new(0, math.max(CONFIG.PlatformLift, platform.Top), 0)
 
 	local model = Instance.new("Model")
 	local asset, isOwnModel = cloneTierModel(tier)
@@ -282,28 +432,35 @@ local function buildShooter(parent: Instance, center: Vector3, angle: number, ti
 		outline.Parent = asset
 	end
 	if asset then
+		-- Clients pose the whole model every frame: it has to arrive (and leave) in one piece.
+		asset.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 		Assets.ScaleTo(asset, height, true)
 		Assets.MakeVisualOnly(asset, true)
 		local box, size = asset:GetBoundingBox()
 		local pivotHeight = asset:GetPivot().Position.Y - (box.Position.Y - size.Y / 2)
 		addEffects(asset, if def then ShibaEffects.Effects[def.AssetName] else nil, height)
-		-- The shoulder marker only tells the client where the throwing arm turns.
-		local shoulder = asset:FindFirstChild(CONFIG.Throw.ShoulderName, true)
-		if shoulder and shoulder:IsA("BasePart") then
-			shoulder.Transparency = 1
-		end
+		-- Markers only tell the client where the throwing arm turns and what the orbit spins around.
+		hideMarker(asset, CONFIG.Throw.ShoulderName)
+		hideMarker(asset, MOTION.OrbitCenterName)
+		-- An invisible part at the pivot (and the model's PrimaryPart): clients read the rest pose from its CFrame,
+		-- which replicates reliably (unlike a Model's WorldPivot).
+		asset.PrimaryPart = effectPart(MOTION.PivotName, asset:GetPivot(), Vector3.one * 0.2, asset)
+		asset:PivotTo(pivotFrame(ground, pivotHeight, center))
+		asset:SetAttribute(MOTION.AimYawAttribute, aimYaw(ground, center))
 		local muzzle = asset:FindFirstChild(CONFIG.MuzzleName, true)
-		asset.Parent = model
 		shooter = {
 			Model = model,
 			Visual = asset,
 			Ground = ground,
 			Height = height,
 			PivotHeight = pivotHeight,
-			Muzzle = if muzzle and muzzle:IsA("Attachment") then muzzle else nil,
-			HandStick = collectHandStick(asset),
+			MuzzleOffset = if muzzle and muzzle:IsA("Attachment")
+				then asset:GetPivot():PointToObjectSpace(muzzle.WorldPosition)
+				else nil,
+			HandStick = equipHandProjectile(asset, projectileLevel),
 			NextFireAt = 0,
 		}
+		asset.Parent = model
 	else
 		local body = newShooterPart("Body", BODY_SIZE, Color3.fromRGB(220, 50, 50), model)
 		local barrel = newShooterPart("Barrel", BARREL_SIZE, Color3.fromRGB(40, 40, 40), model)
@@ -328,18 +485,14 @@ local function buildShooter(parent: Instance, center: Vector3, angle: number, ti
 			HandStick = {},
 			NextFireAt = 0,
 		}
+		faceTarget(shooter, center)
 	end
 	model.Name = "Shooter"
 
-	-- Bigger Shibas get a bigger platform.
-	local diameter = CONFIG.PlatformDiameter * math.max(1, height / CONFIG.Height)
-	local platform =
-		newShooterPart("Platform", Vector3.new(1, diameter, diameter), Color3.fromRGB(120, 120, 130), model)
-	platform.Shape = Enum.PartType.Cylinder
-	platform.CFrame = CFrame.new(ground - Vector3.new(0, 0.5, 0)) * CFrame.Angles(0, 0, math.rad(90))
+	buildPlatform(platform, CFrame.lookAt(surface, Vector3.new(center.X, surface.Y, center.Z)), model)
+	buildBarrier(platform, surface, shooter.Height, model)
 
 	model.Parent = parent
-	aimAt(shooter, center)
 	return shooter
 end
 
@@ -352,13 +505,14 @@ local function schedule(ring: Ring, now: number)
 	end
 end
 
--- Keeps the ring in sync with the active-shooter count and the fire interval. Returns the player's ring.
+-- Keeps the ring in sync with the active-shooter count, the tiers and the fire interval. Returns the player's ring.
 local function syncRing(player: Player, island: IslandService.Island, now: number): Ring
 	local wanted = UpgradeService.GetActiveShooters(player)
 	local interval = UpgradeService.GetFireInterval(player)
 	local tier = UpgradeService.GetLevel(player, "ShooterTier")
+	local projectileTier = UpgradeService.GetLevel(player, "ProjectileTier")
 	local ring = rings[player]
-	if ring and #ring.Shooters == wanted and ring.Tier == tier then
+	if ring and #ring.Shooters == wanted and ring.Tier == tier and ring.ProjectileTier == projectileTier then
 		if ring.Interval ~= interval then
 			ring.Interval = interval
 			schedule(ring, now)
@@ -370,11 +524,11 @@ local function syncRing(player: Player, island: IslandService.Island, now: numbe
 			shooter.Model:Destroy()
 		end
 	end
-	local rebuilt: Ring = { Shooters = {}, Interval = interval, Tier = tier }
+	local rebuilt: Ring = { Shooters = {}, Interval = interval, Tier = tier, ProjectileTier = projectileTier }
 	for index = 1, wanted do
 		-- Evenly spaced, with the bridge side (HubAngle) exactly between two shooters.
 		local angle = island.HubAngle + (index - 0.5) / wanted * 2 * math.pi
-		table.insert(rebuilt.Shooters, buildShooter(island.ShooterFolder, island.Center, angle, tier))
+		table.insert(rebuilt.Shooters, buildShooter(island.ShooterFolder, island.Center, angle, tier, projectileTier))
 	end
 	schedule(rebuilt, now)
 	rings[player] = rebuilt
@@ -412,7 +566,7 @@ local function updatePlayer(player: Player, now: number)
 			elseif shooter.Visual then
 				-- Clients swing the throwing arm toward this moment (Controllers/ShibaController).
 				local releaseIn = math.max(0, shooter.NextFireAt - now)
-				shooter.Visual:SetAttribute(CONFIG.Throw.ThrowAtAttribute, workspace:GetServerTimeNow() + releaseIn)
+				shooter.Visual:SetAttribute(CONFIG.Throw.ThrowAtAttribute, Workspace:GetServerTimeNow() + releaseIn)
 			end
 		end
 		local plan = shooter.Plan

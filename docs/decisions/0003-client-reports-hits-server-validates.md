@@ -26,3 +26,13 @@ several studs further along. GET BONKED is about catching projectiles precisely,
 - A cheater can claim near misses within the tolerance, but cannot create points from nothing, pay a projectile twice,
   or hit projectiles far away. The anti-farm rule (targets ≥ radius + 8 from the player) still keeps honest AFK players at 0.
 - Revisit if exploiters abuse the tolerance (lower it, or keep a short history of server-side character positions).
+
+## Amendment 2026-09-25 — pickup padding and collectable window
+
+- Projectiles are collected with a **pickup sphere of radius + `Hits.PickupPadding` (2 studs)** on the client, so they are
+  easier to catch without bigger models. The server adds the same padding: a report counts if the path passed within
+  `radius + PickupPadding + HitTolerance` (= radius + 8) of the root, head claims within `radius + PickupPadding + HeadTolerance`.
+- A report is only validated until `ReportGracePeriod` (2 s) after the projectile stopped being collectable
+  (`ProjectilePath.GetCollectEndTime`: the end of its motion, or of its landing fade if `CollectableWhileFading`).
+- Consequence: a cheater's near-miss margin grows by 2 studs; the anti-farm distance (radius + 6 from the standing player)
+  still keeps honest AFK players at 0. Revisit together with the tolerance if exploiters abuse it.

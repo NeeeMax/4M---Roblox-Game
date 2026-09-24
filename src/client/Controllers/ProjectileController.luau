@@ -1,8 +1,9 @@
 --!strict
 -- Draws every projectile on this client. The server only places an invisible marker that carries the planned path
 -- (Util/ProjectilePath); this controller moves a local copy of the model along that path every frame, using the
--- synced server clock. That keeps flights and bounces perfectly smooth. BonkController reads the drawn positions
--- for its hit checks, so what the player sees is what counts. See docs/decisions/0004.
+-- synced server clock. That keeps flights and bounces perfectly smooth. After its last settling hop the projectile
+-- lies still and fades out over the path's FadeTime. BonkController reads the drawn positions for its hit checks, so
+-- what the player sees is what counts. See docs/decisions/0004.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -21,18 +22,28 @@ export type Drawn = {
 	Path: ProjectilePath.Path,
 	LaunchTime: number,
 	Radius: number,
-	-- Centre of the projectile this frame.
+	-- Centre of the projectile's hit sphere this frame (on the path; near the ground the model sits a bit lower).
+	-- See place.
 	Position: Vector3,
-	-- False once the path has ended (the model is gone).
+	-- False once the landing fade has ended (the model is gone).
 	Visible: boolean,
+	-- True while it can still be collected (ProjectilePath.GetCollectEndTime); BonkController only checks these.
+	Collectable: boolean,
 	Model: Model,
-	-- Model pivot relative to the centre of its bounding box.
+	-- Model pivot relative to the centre of its bounding box, and the bounding box size.
 	PivotOffset: CFrame,
+	BoxSize: Vector3,
 	SpinAxis: Vector3,
 	SpinSpeed: number,
-	-- Each part's own transparency, so a paid projectile can be faded on top of it.
-	BaseTransparency: { [BasePart]: number },
-	Faded: boolean,
+	-- Orientation it settles into: lying flat, its longest side along its last direction of travel.
+	RestRotation: CFrame,
+	-- Each part's / decal's own transparency, so the paid look and the landing fade are applied on top of it.
+	BaseParts: { [BasePart]: number },
+	BaseDecals: { [Decal]: number },
+	Highlight: Highlight?,
+	-- What is currently applied: Paid attribute seen, landing fade progress (0..1).
+	Paid: boolean,
+	FadeAlpha: number,
 }
 
 local drawn: { [BasePart]: Drawn } = {}
@@ -103,6 +114,37 @@ local function buildModel(def: Projectiles.ProjectileDef?, diameter: number): Mo
 	return model :: Model
 end
 
+-- Orientation of a box of `size` lying flat on the ground: thinnest side up, longest side along `travel`.
+local function restRotation(size: Vector3, travel: Vector3): CFrame
+	local flat = Vector3.new(travel.X, 0, travel.Z)
+	local forward = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(0, 0, -1)
+	local sizes = { size.X, size.Y, size.Z }
+	local order = { 1, 2, 3 }
+	table.sort(order, function(a: number, b: number): boolean
+		return sizes[a] < sizes[b]
+	end)
+	-- World direction of each box axis (X, Y, Z).
+	local axes = { Vector3.xAxis, Vector3.yAxis, Vector3.zAxis }
+	axes[order[1]] = Vector3.yAxis
+	axes[order[3]] = forward
+	axes[order[2]] = forward:Cross(Vector3.yAxis)
+	if axes[1]:Cross(axes[2]):Dot(axes[3]) < 0 then
+		-- Keep it a proper rotation (right-handed), not a mirror image.
+		axes[order[2]] = -axes[order[2]]
+	end
+	return CFrame.fromMatrix(Vector3.zero, axes[1], axes[2], axes[3])
+end
+
+-- Half the vertical extent of a box of `size` turned by `rotation`: how far its lowest point is below its centre.
+local function halfHeight(rotation: CFrame, size: Vector3): number
+	return 0.5
+		* (
+			math.abs(rotation.XVector.Y) * size.X
+			+ math.abs(rotation.YVector.Y) * size.Y
+			+ math.abs(rotation.ZVector.Y) * size.Z
+		)
+end
+
 -- Starts drawing a marker once its path attributes are readable. Returns false to retry next frame.
 local function tryStart(marker: BasePart): boolean
 	local path, launchTime, diameter = ProjectilePath.Read(marker)
@@ -110,24 +152,30 @@ local function tryStart(marker: BasePart): boolean
 		return false
 	end
 	local model = buildModel(Projectiles.Defs[marker.Name], diameter)
+	local highlight: Highlight? = nil
 	if marker:GetAttribute(CONFIG.GoldenAttribute) == true then
 		-- Golden projectile: gold outline and a gold trail (it pays GoldenMultiplier times as much).
 		local outline = Instance.new("Highlight")
 		outline.FillColor = CONFIG.GoldenColor
-		outline.FillTransparency = 0.55
+		outline.FillTransparency = CONFIG.GoldenFillTransparency
 		outline.OutlineColor = CONFIG.GoldenColor
 		outline.DepthMode = Enum.HighlightDepthMode.Occluded
 		outline.Parent = model
+		highlight = outline
 		addTrail(model, CONFIG.GoldenColor, diameter * 1.6)
 	end
-	local box = model:GetBoundingBox()
-	local baseTransparency: { [BasePart]: number } = {}
+	local box, boxSize = model:GetBoundingBox()
+	local baseParts: { [BasePart]: number } = {}
+	local baseDecals: { [Decal]: number } = {}
 	for _, descendant in model:GetDescendants() do
 		if descendant:IsA("BasePart") then
-			baseTransparency[descendant] = descendant.Transparency
+			baseParts[descendant] = descendant.Transparency
+		elseif descendant:IsA("Decal") then
+			baseDecals[descendant] = descendant.Transparency
 		end
 	end
 	local position = path.Segments[1].StartPosition
+	local lastVelocity = path.Segments[#path.Segments].StartVelocity
 	drawn[marker] = {
 		Marker = marker,
 		Path = path,
@@ -135,12 +183,18 @@ local function tryStart(marker: BasePart): boolean
 		Radius = diameter / 2,
 		Position = position,
 		Visible = true,
+		Collectable = true,
 		Model = model,
 		PivotOffset = box:ToObjectSpace(model:GetPivot()),
+		BoxSize = boxSize,
 		SpinAxis = random:NextUnitVector(),
 		SpinSpeed = random:NextNumber(0.5, 1) * CONFIG.MaxSpin,
-		BaseTransparency = baseTransparency,
-		Faded = false,
+		RestRotation = restRotation(boxSize, lastVelocity),
+		BaseParts = baseParts,
+		BaseDecals = baseDecals,
+		Highlight = highlight,
+		Paid = false,
+		FadeAlpha = 0,
 	}
 	model:PivotTo(CFrame.new(position) * box:ToObjectSpace(model:GetPivot()))
 	model.Parent = visualsFolder
@@ -156,11 +210,46 @@ local function stop(marker: BasePart)
 	end
 end
 
-local function fade(entry: Drawn)
-	entry.Faded = true
-	for part, transparency in entry.BaseTransparency do
-		part.Transparency = math.max(transparency, CONFIG.PaidTransparency)
+-- `start` transparency, faded toward invisible by the landing fade progress.
+local function faded(start: number, alpha: number): number
+	return start + (1 - start) * alpha
+end
+
+-- Applies the paid look (PaidTransparency) and the landing fade on top of each part's own transparency.
+local function applyTransparency(entry: Drawn)
+	local alpha = entry.FadeAlpha
+	local minimum = if entry.Paid then CONFIG.PaidTransparency else 0
+	for part, base in entry.BaseParts do
+		part.Transparency = faded(math.max(base, minimum), alpha)
 	end
+	for decal, base in entry.BaseDecals do
+		decal.Transparency = faded(math.max(base, minimum), alpha)
+	end
+	local highlight = entry.Highlight
+	if highlight then
+		highlight.FillTransparency = faded(CONFIG.GoldenFillTransparency, alpha)
+		highlight.OutlineTransparency = faded(0, alpha)
+	end
+end
+
+-- Places the model for this frame. In flight it spins freely; during the settling hops it turns to lie flat
+-- (RestRotation) and holds still while it fades. Near the ground it is lowered so its lowest point, not its hit
+-- sphere, touches the ground (otherwise a flat stick would bounce and rest in mid-air, a radius above the ground).
+local function place(entry: Drawn, elapsed: number)
+	local path = entry.Path
+	local position = entry.Position
+	local spin = CFrame.fromAxisAngle(entry.SpinAxis, entry.SpinSpeed * math.min(elapsed, path.EndTime))
+	local settleDuration = path.EndTime - path.SettleTime
+	local settle = if settleDuration > 0
+		then math.clamp((elapsed - path.SettleTime) / settleDuration, 0, 1)
+		elseif elapsed >= path.EndTime then 1
+		else 0
+	-- Ease out: it turns quickly at first and eases into its resting pose.
+	local rotation = spin:Lerp(entry.RestRotation, 1 - (1 - settle) ^ 2)
+	local heightAboveGround = position.Y - entry.Radius - ISLAND.SurfaceY
+	local nearGround = 1 - math.clamp(heightAboveGround / entry.Radius, 0, 1)
+	local drop = math.max(entry.Radius - halfHeight(rotation, entry.BoxSize), 0) * nearGround
+	entry.Model:PivotTo(CFrame.new(position - Vector3.new(0, drop, 0)) * rotation * entry.PivotOffset)
 end
 
 local function update()
@@ -174,19 +263,25 @@ local function update()
 		if not entry.Visible then
 			continue
 		end
+		local path = entry.Path
 		local elapsed = now - entry.LaunchTime
-		if elapsed >= entry.Path.EndTime then
-			-- Gone the moment it touches the ground after its last bounce (or has fallen below the island).
+		if elapsed >= ProjectilePath.GetVisibleEndTime(path) then
+			-- Landing fade finished (or it has fallen below the island, which has no fade).
 			entry.Visible = false
+			entry.Collectable = false
 			entry.Model.Parent = nil
 			continue
 		end
-		local position = ProjectilePath.GetState(entry.Path, elapsed)
-		entry.Position = position
-		local spin = CFrame.fromAxisAngle(entry.SpinAxis, entry.SpinSpeed * elapsed)
-		entry.Model:PivotTo(CFrame.new(position) * spin * entry.PivotOffset)
-		if not entry.Faded and marker:GetAttribute(ProjectilePath.Attribute.Paid) then
-			fade(entry)
+		entry.Collectable = elapsed < ProjectilePath.GetCollectEndTime(path)
+		-- GetState holds the resting position after EndTime, while it fades.
+		entry.Position = ProjectilePath.GetState(path, elapsed)
+		place(entry, elapsed)
+		local paid = marker:GetAttribute(ProjectilePath.Attribute.Paid) == true
+		local fadeAlpha = if path.FadeTime > 0 then math.clamp((elapsed - path.EndTime) / path.FadeTime, 0, 1) else 0
+		if paid ~= entry.Paid or fadeAlpha ~= entry.FadeAlpha then
+			entry.Paid = paid
+			entry.FadeAlpha = fadeAlpha
+			applyTransparency(entry)
 		end
 	end
 end
@@ -218,11 +313,11 @@ local function watchIsland(island: Instance)
 	end)
 end
 
--- Every projectile currently drawn in `folder` (a player's island Projectiles folder).
-function ProjectileController.GetVisibleIn(folder: Instance): { Drawn }
+-- Every projectile in `folder` (a player's island Projectiles folder) that is drawn and can still be collected.
+function ProjectileController.GetCollectableIn(folder: Instance): { Drawn }
 	local result: { Drawn } = {}
 	for marker, entry in drawn do
-		if entry.Visible and marker.Parent == folder then
+		if entry.Visible and entry.Collectable and marker.Parent == folder then
 			table.insert(result, entry)
 		end
 	end
