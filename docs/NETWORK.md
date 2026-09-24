@@ -43,6 +43,9 @@ attribute `ProjectileId` (number) so the client can report hits, plus their plan
 clock, `Gravity`, `EndTime`, `Diameter`, `SegmentCount`, `S<n>Time/Position/Velocity`), written and read only by
 `src/shared/Util/ProjectilePath.luau`, and `Paid` (true once it paid out) and `Golden`. Clients draw the model along that path
 (`docs/decisions/0004`).
+Shooter models (the imported Shiba inside `Workspace/Islands/Island_<UserId>/…/Shooter`) carry the attribute `ThrowAt`
+(number, server clock `workspace:GetServerTimeNow()`): when the stick leaves the paw. The server sets it when the Shiba
+starts aiming; `Controllers/ShibaController` swings the `ThrowArm` part toward that moment. Server → client only, purely visual.
 `BonkHit` drives the client-only effects: popup, sound, knockback (the owning client moves its own character), head-hit
 bonus text and the combo counter (`combo` hits in a row; it ends if no hit follows within `comboWindow` seconds).
 
