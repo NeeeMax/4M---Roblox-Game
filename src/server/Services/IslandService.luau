@@ -37,7 +37,7 @@ local function buildIsland(player: Player, slot: number): Island
 	local center = slotCenter(slot)
 
 	local model = Instance.new("Model")
-	model.Name = `Island_{player.UserId}`
+	model.Name = `{ISLAND.ModelPrefix}{player.UserId}`
 
 	-- A cylinder's axis is its X axis, so rotate it upright.
 	local ground = Instance.new("Part")
@@ -121,7 +121,7 @@ end
 
 function IslandService.Init()
 	islandsFolder = Instance.new("Folder")
-	islandsFolder.Name = "Islands"
+	islandsFolder.Name = ISLAND.FolderName
 	islandsFolder.Parent = Workspace
 end
 

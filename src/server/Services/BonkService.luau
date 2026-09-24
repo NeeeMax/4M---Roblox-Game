@@ -1,16 +1,15 @@
 --!strict
--- Server-side hit detection and rewards. Every frame, each live projectile checks whether it overlaps its
--- owner's character. A hit pays once, starts hit immunity, and tells the client to play the bonk effects.
--- See docs/GAME_DESIGN.md → Hits.
+-- Validates hits reported by clients and awards Bonk Points. The client says "this projectile touched me"
+-- (what the player saw); the server checks the claim against the projectile's exact flight path and the
+-- character's position on the server, and alone decides. See docs/decisions/0003.
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local Workspace = game:GetService("Workspace")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local Net = require(ReplicatedStorage.Shared.Net)
+local RateLimiter = require(ReplicatedStorage.Shared.Util.RateLimiter)
 
 local EconomyService = require(script.Parent.EconomyService)
 local ProjectileService = require(script.Parent.ProjectileService)
@@ -18,9 +17,8 @@ local ProjectileService = require(script.Parent.ProjectileService)
 local HITS = Gameplay.Hits
 
 local bonkHit = Net.Get(Net.BonkHit)
+local reportLimiter = RateLimiter.New(HITS.MaxReportsPerSecond, 1)
 local immuneUntil: { [Player]: number } = {}
-local overlapParams = OverlapParams.new()
-overlapParams.FilterType = Enum.RaycastFilterType.Include
 
 local BonkService = {}
 
@@ -44,13 +42,53 @@ local function clampPlayerVelocity(velocity: Vector3, walkSpeed: number): Vector
 	return horizontal + Vector3.new(0, vertical, 0)
 end
 
-local function onHit(player: Player, info: ProjectileService.ProjectileInfo, root: BasePart, humanoid: Humanoid)
-	ProjectileService.MarkSpent(info.Part)
+-- The point of the flight (launch until first contact) closest to `position`: distance and projectile velocity there.
+local function closestApproach(info: ProjectileService.ProjectileInfo, position: Vector3): (number, Vector3)
+	local flightEnd = (info.LandedAt or os.clock()) - info.LaunchedAt
+	local bestDistance = math.huge
+	local bestVelocity = info.LaunchVelocity
+	local time = 0
+	while time <= flightEnd do
+		local point, velocity = ProjectileService.GetFlightState(info, time)
+		local distance = (point - position).Magnitude
+		if distance < bestDistance then
+			bestDistance = distance
+			bestVelocity = velocity
+		end
+		time += HITS.FlightSampleStep
+	end
+	return bestDistance, bestVelocity
+end
+
+local function onReportHit(player: Player, projectileId: unknown)
+	if not RateLimiter.Allow(reportLimiter, player) or typeof(projectileId) ~= "number" then
+		return
+	end
+	local info = ProjectileService.GetById(projectileId)
+	if not info or info.Owner ~= player or info.Paid then
+		return
+	end
+	if (immuneUntil[player] or 0) > os.clock() then
+		return
+	end
+	local character = player.Character
+	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+	local humanoid = if character then character:FindFirstChildOfClass("Humanoid") else nil
+	if not root or not root:IsA("BasePart") or not humanoid or humanoid.Health <= 0 then
+		return
+	end
+
+	local radius = info.Part.Size.X / 2
+	local distance, projectileVelocity = closestApproach(info, root.Position)
+	if distance > radius + HITS.HitTolerance then
+		return
+	end
+
+	ProjectileService.MarkPaid(info)
 	immuneUntil[player] = os.clock() + HITS.ImmunityTime
 
 	-- Hit quality: how hard the impact was compared with the projectile's own launch speed.
 	-- Running and jumping into a projectile raises it; standing under it gives about 1.0.
-	local projectileVelocity = info.Part.AssemblyLinearVelocity
 	local playerVelocity = clampPlayerVelocity(root.AssemblyLinearVelocity, humanoid.WalkSpeed)
 	local ratio = (projectileVelocity - playerVelocity).Magnitude / info.LaunchSpeed
 	local quality = getQuality(ratio)
@@ -65,44 +103,12 @@ local function onHit(player: Player, info: ProjectileService.ProjectileInfo, roo
 	bonkHit:FireClient(player, reward, quality.Name, knockbackDirection)
 end
 
-local function checkHits()
-	local now = os.clock()
-	for part, info in ProjectileService.GetLive() do
-		if info.SpentAt then
-			continue
-		end
-		local player = info.Owner
-		if (immuneUntil[player] or 0) > now then
-			-- Ignored, not spent: it can still hit once immunity ends.
-			continue
-		end
-		local character = player.Character
-		if not character then
-			continue
-		end
-		local root = character:FindFirstChild("HumanoidRootPart")
-		local humanoid = character:FindFirstChildOfClass("Humanoid")
-		if not root or not root:IsA("BasePart") or not humanoid or humanoid.Health <= 0 then
-			continue
-		end
-
-		local radius = part.Size.X / 2
-		-- Cheap distance test first; the exact overlap query only runs for projectiles near the character.
-		if (part.Position - root.Position).Magnitude > radius + HITS.BroadPhaseDistance then
-			continue
-		end
-		overlapParams.FilterDescendantsInstances = { character }
-		if #Workspace:GetPartBoundsInRadius(part.Position, radius, overlapParams) > 0 then
-			onHit(player, info, root, humanoid)
-		end
-	end
-end
-
 function BonkService.Start()
+	Net.Get(Net.ReportHit).OnServerEvent:Connect(onReportHit)
 	Players.PlayerRemoving:Connect(function(player)
 		immuneUntil[player] = nil
+		RateLimiter.Remove(reportLimiter, player)
 	end)
-	RunService.Heartbeat:Connect(checkHits)
 end
 
 return BonkService

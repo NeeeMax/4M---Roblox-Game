@@ -1,11 +1,14 @@
 --!strict
--- Client-side bonk effects when the server confirms a hit: "+X BONK" popup, sound, and knockback.
--- Knockback runs here because the client simulates its own character; points are decided on the server.
+-- Detects when a projectile touches this player's character (as seen on screen) and reports it; the server
+-- validates the report and decides about points (docs/decisions/0003). When the server confirms a hit, plays
+-- the bonk effects: "+X BONK" popup, sound, and knockback (the client simulates its own character).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
+local Workspace = game:GetService("Workspace")
 
 local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
@@ -13,10 +16,18 @@ local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local Net = require(ReplicatedStorage.Shared.Net)
 
 local BONK = Gameplay.Bonk
+local HITS = Gameplay.Hits
+local ISLAND = Gameplay.Island
 local KNOCKBACK = Gameplay.Knockback
+local PROJECTILES = Gameplay.Projectiles
 
 local player = Players.LocalPlayer
 local sound: Sound
+local immuneUntil = 0
+-- Weak keys: destroyed projectiles drop out on their own.
+local reported: { [BasePart]: boolean } = setmetatable({}, { __mode = "k" }) :: any
+local overlapParams = OverlapParams.new()
+overlapParams.FilterType = Enum.RaycastFilterType.Include
 
 local BonkController = {}
 
@@ -91,6 +102,39 @@ local function knockback(direction: Vector3)
 	end)
 end
 
+local function checkHits(projectileFolder: Instance, reportHit: RemoteEvent)
+	if os.clock() < immuneUntil then
+		return
+	end
+	local character = player.Character
+	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+	local humanoid = if character then character:FindFirstChildOfClass("Humanoid") else nil
+	if not character or not root or not root:IsA("BasePart") or not humanoid or humanoid.Health <= 0 then
+		return
+	end
+	overlapParams.FilterDescendantsInstances = { character }
+
+	for _, part in projectileFolder:GetChildren() do
+		-- No "Landed" check: that attribute can arrive before the ball visibly lands here. The server only
+		-- accepts hits on the flight path anyway.
+		if not part:IsA("BasePart") or reported[part] then
+			continue
+		end
+		local id = part:GetAttribute(PROJECTILES.IdAttribute)
+		local radius = part.Size.X / 2
+		if typeof(id) ~= "number" or (part.Position - root.Position).Magnitude > radius + HITS.BroadPhaseDistance then
+			continue
+		end
+		if #Workspace:GetPartBoundsInRadius(part.Position, radius, overlapParams) > 0 then
+			reported[part] = true
+			-- Same immunity as the server, so we don't report hits it would reject anyway.
+			immuneUntil = os.clock() + HITS.ImmunityTime
+			reportHit:FireServer(id)
+			return
+		end
+	end
+end
+
 function BonkController.Init()
 	sound = Instance.new("Sound")
 	sound.Name = "Bonk"
@@ -105,6 +149,16 @@ function BonkController.Start()
 		showPopup(reward, quality)
 		playSound(tier)
 		knockback(direction)
+	end)
+
+	task.spawn(function()
+		local reportHit = Net.Get(Net.ReportHit)
+		local islands = Workspace:WaitForChild(ISLAND.FolderName)
+		local island = islands:WaitForChild(`{ISLAND.ModelPrefix}{player.UserId}`)
+		local projectileFolder = island:WaitForChild("Projectiles")
+		RunService.Heartbeat:Connect(function()
+			checkHits(projectileFolder, reportHit)
+		end)
 	end)
 end
 

@@ -1,7 +1,8 @@
 --!strict
 -- Spawns projectiles and removes them again. Every shot flies a 45° arc; its gravity is set per projectile
--- (VectorForce) so it lands exactly on the target point. A projectile is "spent" on its first contact with
--- anything and never pays after that. See docs/GAME_DESIGN.md → Projectiles.
+-- (VectorForce) so it lands exactly on the target point. Because launch position, velocity and gravity are known,
+-- the server can recompute the whole flight path, which BonkService uses to validate reported hits.
+-- The flight ends at the first contact with anything. See docs/GAME_DESIGN.md → Projectiles.
 
 local PhysicsService = game:GetService("PhysicsService")
 local Players = game:GetService("Players")
@@ -20,6 +21,7 @@ local PROJECTILE_GROUP = "Projectiles"
 local CHARACTER_GROUP = "Characters"
 
 export type ProjectileInfo = {
+	Id: number,
 	Part: BasePart,
 	Owner: Player,
 	Def: Projectiles.ProjectileDef,
@@ -28,11 +30,19 @@ export type ProjectileInfo = {
 	-- Launch speed without jitter. Used for the reward's speed multiplier.
 	NominalSpeed: number,
 	SizeScale: number,
+	LaunchPosition: Vector3,
+	LaunchVelocity: Vector3,
+	-- Downward acceleration of this projectile (studs/s²).
+	Gravity: number,
 	LaunchedAt: number,
-	SpentAt: number?,
+	-- Time of the first contact with anything; the flight (and the chance to hit) ends here.
+	LandedAt: number?,
+	Paid: boolean,
 }
 
 local live: { [BasePart]: ProjectileInfo } = {}
+local byId: { [number]: ProjectileInfo } = {}
+local nextId = 1
 local random = Random.new()
 
 local ProjectileService = {}
@@ -56,9 +66,10 @@ local function setCharacterGroup(character: Model)
 	end)
 end
 
-local function destroy(part: BasePart)
-	live[part] = nil
-	part:Destroy()
+local function destroy(info: ProjectileInfo)
+	live[info.Part] = nil
+	byId[info.Id] = nil
+	info.Part:Destroy()
 end
 
 -- Enforces MaxPerIsland by destroying the owner's oldest projectile.
@@ -74,8 +85,17 @@ local function makeRoom(owner: Player)
 		end
 	end
 	if count >= CONFIG.MaxPerIsland and oldest then
-		destroy(oldest.Part)
+		destroy(oldest)
 	end
+end
+
+local function markLanded(info: ProjectileInfo)
+	if info.LandedAt then
+		return
+	end
+	info.LandedAt = os.clock()
+	info.Part.Transparency = CONFIG.LandedTransparency
+	info.Part:SetAttribute(CONFIG.LandedAttribute, true)
 end
 
 function ProjectileService.GetDef(): Projectiles.ProjectileDef
@@ -93,6 +113,14 @@ function ProjectileService.GetLaunchDirection(from: Vector3, to: Vector3): Vecto
 	local horizontal = if flat.Magnitude > 1e-3 then flat.Unit else Vector3.new(0, 0, -1)
 	local angle = math.rad(CONFIG.LaunchAngleDegrees)
 	return horizontal * math.cos(angle) + Vector3.yAxis * math.sin(angle)
+end
+
+-- Position and velocity on the flight path `time` seconds after launch.
+function ProjectileService.GetFlightState(info: ProjectileInfo, time: number): (Vector3, Vector3)
+	local acceleration = Vector3.new(0, -info.Gravity, 0)
+	local position = info.LaunchPosition + info.LaunchVelocity * time + acceleration * (0.5 * time * time)
+	local velocity = info.LaunchVelocity + acceleration * time
+	return position, velocity
 end
 
 -- Fires one projectile for `owner` from `from` so that it lands on `target`.
@@ -117,6 +145,10 @@ function ProjectileService.Fire(owner: Player, from: Vector3, target: Vector3)
 	local distance = math.max(Vector3.new(target.X - from.X, 0, target.Z - from.Z).Magnitude, 1)
 	local flightTime = distance / horizontalSpeed
 	local gravity = 2 * (verticalSpeed * flightTime - (target.Y - from.Y)) / (flightTime * flightTime)
+	local velocity = ProjectileService.GetLaunchDirection(from, target) * speed
+
+	local id = nextId
+	nextId += 1
 
 	local part = Instance.new("Part")
 	part.Name = def.Id
@@ -128,6 +160,7 @@ function ProjectileService.Fire(owner: Player, from: Vector3, target: Vector3)
 	part.BottomSurface = Enum.SurfaceType.Smooth
 	part.CollisionGroup = PROJECTILE_GROUP
 	part.CFrame = CFrame.new(from)
+	part:SetAttribute(CONFIG.IdAttribute, id)
 
 	local attachment = Instance.new("Attachment")
 	attachment.Parent = part
@@ -138,52 +171,51 @@ function ProjectileService.Fire(owner: Player, from: Vector3, target: Vector3)
 	antiGravity.Parent = part
 
 	part.Parent = island.ProjectileFolder
-	-- Server-owned so the server simulates it and hit checks see the true position.
+	-- Server-owned so the flight matches the path the server uses to validate hits.
 	part:SetNetworkOwner(nil)
 	antiGravity.Force = Vector3.new(0, part.AssemblyMass * (Workspace.Gravity - gravity), 0)
-	part.AssemblyLinearVelocity = ProjectileService.GetLaunchDirection(from, target) * speed
+	part.AssemblyLinearVelocity = velocity
 	part.AssemblyAngularVelocity = Vector3.new(
 		random:NextNumber(-CONFIG.MaxSpin, CONFIG.MaxSpin),
 		random:NextNumber(-CONFIG.MaxSpin, CONFIG.MaxSpin),
 		random:NextNumber(-CONFIG.MaxSpin, CONFIG.MaxSpin)
 	)
 
-	live[part] = {
+	local info: ProjectileInfo = {
+		Id = id,
 		Part = part,
 		Owner = owner,
 		Def = def,
 		LaunchSpeed = speed,
 		NominalSpeed = nominalSpeed,
 		SizeScale = sizeScale,
+		LaunchPosition = from,
+		LaunchVelocity = velocity,
+		Gravity = gravity,
 		LaunchedAt = os.clock(),
+		Paid = false,
 	}
+	live[part] = info
+	byId[id] = info
 
 	part.Touched:Connect(function(other)
-		local info = live[part]
-		if not info or info.SpentAt then
-			return
-		end
-		-- Characters don't collide with projectiles; BonkService decides about hits on the owner.
-		local character = info.Owner.Character
+		-- Characters don't collide with projectiles; hits on the owner come in through ReportHit.
+		local character = owner.Character
 		if character and other:IsDescendantOf(character) then
 			return
 		end
-		ProjectileService.MarkSpent(part)
+		markLanded(info)
 	end)
 end
 
--- After this the projectile can't pay out any more; it fades and is removed after LifetimeAfterContact.
-function ProjectileService.MarkSpent(part: BasePart)
-	local info = live[part]
-	if info and not info.SpentAt then
-		info.SpentAt = os.clock()
-		part.Transparency = CONFIG.SpentTransparency
-	end
+function ProjectileService.GetById(id: number): ProjectileInfo?
+	return byId[id]
 end
 
--- All live projectiles. Read-only for callers.
-function ProjectileService.GetLive(): { [BasePart]: ProjectileInfo }
-	return live
+-- After this the projectile can't pay out again.
+function ProjectileService.MarkPaid(info: ProjectileInfo)
+	info.Paid = true
+	info.Part.Transparency = CONFIG.LandedTransparency
 end
 
 function ProjectileService.Init()
@@ -208,9 +240,9 @@ function ProjectileService.Start()
 	end
 
 	Players.PlayerRemoving:Connect(function(player: Player)
-		for part, info in live do
+		for _, info in live do
 			if info.Owner == player then
-				destroy(part)
+				destroy(info)
 			end
 		end
 	end)
@@ -218,9 +250,10 @@ function ProjectileService.Start()
 	RunService.Heartbeat:Connect(function()
 		local now = os.clock()
 		for part, info in live do
-			local spentLongEnough = info.SpentAt ~= nil and now - info.SpentAt >= CONFIG.LifetimeAfterContact
-			if spentLongEnough or now - info.LaunchedAt >= CONFIG.MaxLifetime or part.Parent == nil then
-				destroy(part)
+			local landedAt = info.LandedAt
+			local landedLongEnough = landedAt ~= nil and now - landedAt >= CONFIG.LifetimeAfterContact
+			if landedLongEnough or now - info.LaunchedAt >= CONFIG.MaxLifetime or part.Parent == nil then
+				destroy(info)
 			end
 		end
 	end)
