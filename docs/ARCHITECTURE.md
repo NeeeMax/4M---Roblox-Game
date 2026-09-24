@@ -52,11 +52,13 @@ Work is split by feature area. The owner reviews changes in their area and decid
 | Area | Owner | Notes |
 |------|-------|-------|
 | `shared/Net`, `shared/Types`, `CLAUDE.md`, `docs/CONVENTIONS.md` | both | contract files — changes in separate PRs, both approve |
-| _TBD_ | Max | |
-| _TBD_ | _friend_ | |
+| Islands, NPC shooters, projectiles, hit detection, bonk effects (knockback, popup, sound) | Max | calls EconomyService to award Bonk Points, reads upgrade values from UpgradeService |
+| Economy, upgrades, shop, HUD, saving | Marco | the only code that changes Bonk Points or upgrade levels |
+| 3D models and other visual assets (`ReplicatedStorage/Assets` in the place) | Marco | built in Studio, not in git (see *World vs code*); code finds them by stable names |
 
 ## World vs code
 
 - **In git:** all Luau code.
 - **In the Roblox place (not git):** maps, models, parts, UI layouts, lighting, sounds.
+- **MVP exception:** islands, shooters, projectiles and the HUD/upgrade menu are created by code, so the prototype runs in an empty Baseplate place. Moving them to Studio-built assets later is fine.
 - Code references world objects by stable names/paths. When you rename something in the world that code uses, update the code in the same session and mention it in the PR.

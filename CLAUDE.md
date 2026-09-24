@@ -3,9 +3,23 @@
 Two developers each run their own Claude Code instance against their own clone of this repo.
 Read this file fully before any task. It overrides your defaults.
 
+## Staying in sync (merging is automatic)
+
+Every push to any branch except `main` runs CI; when it is green, CI opens a pull request into `main` and merges it
+(`.github/workflows/ci.yml`, job "Merge into main"). Nobody merges by hand. Consequences for you:
+
+- **Before starting a task and before every push**, bring in the other developer's work:
+  `git fetch origin` then `git merge --no-edit origin/main`. Resolve conflicts, re-run the checks.
+- **Push after every finished change**: your human expects it, and the other developer only sees merged work.
+- Only push what passes the checks and runs in Studio: it lands in `main` within minutes.
+- Bump `Label` in `src/shared/Config/Build.luau` when a push changes something visible in a playtest; it is printed
+  in Output, so both developers can see which version their Studio runs.
+- Never push to `main` directly, never force-push.
+
 ## Before you start a task
 
-1. `git pull` on `main`, then create a branch from the issue: `feat/<area>-<short-name>` or `fix/<area>-<short-name>`.
+1. Sync (see above). Work on your own branch; one long-lived branch per developer is fine
+   (Max: `feat/bonk-core-loop`, Marco: `feat/economy-admin-marco`). For bigger features create `feat/<area>-<short-name>`.
 2. Read `docs/ARCHITECTURE.md` (ownership + load order) and, if the task touches the network, `docs/NETWORK.md`.
 3. Read the last few merged PRs (`git log --oneline -20 main`) to see what the other developer changed.
 4. If the task touches an area owned by the other developer (see ownership table in `docs/ARCHITECTURE.md`), stop and ask your human first.
@@ -42,8 +56,10 @@ File name → instance type (Script Sync / Rojo convention):
 
 ## PR description (this is how the two instances communicate)
 
-Fill in `.github/pull_request_template.md` completely. The other developer's Claude reads it later —
-be explicit about changed remotes, changed types, and how to test in Studio.
+The pull request is opened automatically. If `gh` is available, replace its body with the filled-in
+`.github/pull_request_template.md` (`gh pr edit <branch> --body-file <file>`). The other developer's Claude reads
+merged PRs later, so be explicit about changed remotes, changed types, and how to test in Studio. Commit messages
+must be clear either way; they are the minimum record.
 
 ## When unsure
 

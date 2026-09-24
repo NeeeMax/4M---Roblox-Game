@@ -1,5 +1,11 @@
 # Contributing to 4M
 
+## 0. Team access (Max, once per new teammate)
+
+1. **GitHub:** repo → Settings → Collaborators → *Add people* → the teammate's GitHub username. They accept the email invite.
+2. **Roblox:** be Roblox friends, then open the main place → **Collaborate** (or File → Game Settings → Permissions)
+   → add their Roblox username with **Edit**. The place then shows up in their Studio.
+
 ## 1. One-time setup (each developer)
 
 1. Clone the repo to a normal local folder — **not** inside Synology Drive, OneDrive, Dropbox or any other sync tool. Sync tools corrupt `.git`.
@@ -40,22 +46,33 @@ while `src/` has no `.luau` files yet — CI skips the step in that case.
 |-------|-----|---------|-----------------|
 | **4M (main)** — Team Create | both | building the world, maps, UI layout, playtests together | `main` only |
 | **4M Dev – Max** | Max | syncing + testing your branch | your local clone |
-| **4M Dev – <friend>** | friend | syncing + testing your branch | your local clone |
+| **4M Dev – Marco** | Marco | syncing + testing your branch | your local clone |
 
 Why separate dev places: Script Sync pushes whatever is on your disk into the place. If you switch git branches
 while synced to the shared Team Create place, your branch's code lands in your teammate's session.
 
 To refresh a dev place with the latest world: in the main place, save the world as a copy or re-publish to the dev place.
 
+### 3D models and other assets
+
+- Models are built in the **main place** and kept in **`ReplicatedStorage/Assets`** with fixed names (e.g. `Ball`, `Shooter`, `Island`).
+  Code uses them by exactly these names (falling back to plain parts if one is missing — wired up per asset as models arrive). Renaming an asset = code change in the same PR.
+- To get them into a dev place: right-click the model → **Convert to Package**, then insert it in the dev place from
+  Toolbox → Inventory → Packages (updates can flow automatically). Quick alternative: copy/paste into the same folder.
+- Owner: Marco (see `docs/ARCHITECTURE.md`).
+
 ## 3. Connecting Studio (Script Sync)
 
-In your **dev place**, create these folders if they don't exist, then right-click each → **Sync to…** → choose the local folder:
+In your **dev place**, create these three folders (hover over the parent in the Explorer → **⊕** → Folder), then right-click each → **Sync to…** → choose the repo's **`src`** folder for all three.
+Studio adds the Studio folder's name itself, so `Server` ends up as `src/server` (Windows ignores the case). Choosing `src/server` directly creates an empty `src/server/Server` instead.
 
-| Studio folder | Local folder |
-|---------------|--------------|
-| `ServerScriptService/Server` | `src/server` |
-| `StarterPlayer/StarterPlayerScripts/Client` | `src/client` |
-| `ReplicatedStorage/Shared` | `src/shared` |
+| Studio folder | Sync to… | Resulting local folder |
+|---------------|----------|------------------------|
+| `ServerScriptService/Server` | `src` | `src/server` |
+| `StarterPlayer/StarterPlayerScripts/Client` | `src` | `src/client` |
+| `ReplicatedStorage/Shared` | `src` | `src/shared` |
+
+After syncing, `Server` must contain `Main` and `Services`. If a folder stays empty, the sync points to the wrong place.
 
 Studio remembers the sync for that place. If Studio shows the conflict dialog on start, choose **Keep Disk** — git is the source of truth for code.
 
@@ -72,18 +89,37 @@ Only one person does this at a time; say so in chat first.
 ## 4. Git workflow
 
 - `main` is protected and always playable. No direct pushes.
-- One issue → one branch → one PR.
+- **Merging is automatic:** every push to another branch opens a PR into `main` and squash-merges it as soon as
+  CI is green (`.github/workflows/ci.yml`, job "Merge into main"). A red check blocks the merge: fix it and push again.
+- Each developer may keep one long-lived branch; bigger features get their own.
   - Branch names: `feat/<area>-<name>`, `fix/<area>-<name>`, `docs/<name>`, `chore/<name>`
-- Keep branches short-lived (ideally merged within a few days). Rebase on `main` often:
+- Bring in `main` before every task and every push (merge, not rebase: branches are shared with GitHub):
   ```
   git fetch origin
-  git rebase origin/main
+  git merge --no-edit origin/main
   ```
-- The **other developer** reviews every PR. Squash-merge.
+- Reviews are optional: look at merged PRs on GitHub to see what the other developer changed.
 - Contract changes (`src/shared/Net/`, `src/shared/Types/`, `docs/CONVENTIONS.md`) get their own small PR, merged first.
 - Never commit place files (`.rbxl`, `.rbxlx`). Export single models as `.rbxm` into `assets/` only when really needed.
 
-## 5. Working with Claude Code
+## 5. Daily workflow
+
+1. Pick a task in your area (ownership: `docs/ARCHITECTURE.md`). Bring in `main` (section 4).
+2. Code (with Claude Code if you like) and test in **your own dev place**. Don't switch branches while you playtest — Studio loads whatever is on disk.
+3. Run the checks (section 1b), commit, bring in `main` again, push. GitHub opens and merges the PR by itself.
+4. The other developer brings in `main` before their next task; their Studio updates on its own (Stop → Play).
+
+### Automatic merging: one-time GitHub setup (repo owner)
+
+1. **Settings → Actions → General → Workflow permissions:** tick
+   **Allow GitHub Actions to create and approve pull requests** → Save.
+2. **Settings → Rules → Rulesets →** the ruleset for `main` → **Require a pull request before merging:** set
+   **Required approvals** to **0** → Save changes. Keep **Require status checks to pass** (StyLua, selene, luau-lsp).
+5. From time to time, one person loads `main` into the main place (section 3) and publishes. Say so in chat first.
+
+Playing together: in the main place, **Test → Team Test** starts a server you can both join. The published game gives everyone their own island.
+
+## 6. Working with Claude Code
 
 - Each developer runs Claude Code only in their own clone, on their own branch.
 - Work is split by **feature area**, not by server vs client. Ownership is listed in `docs/ARCHITECTURE.md`.
