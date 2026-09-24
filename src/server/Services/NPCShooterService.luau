@@ -305,11 +305,14 @@ end
 
 function NPCShooterService.Start()
 	-- Tells whoever playtests whether the custom models are in place (docs: assets/README.md).
-	for _, name in { CONFIG.AssetName, ProjectileService.GetDef().AssetName } do
-		if name then
-			local status = if Assets.Has(name) then "found" else "MISSING (using plain parts)"
-			print(`[4M] Model ReplicatedStorage.Assets.{name}: {status}`)
-		end
+	local modelNames: { string } = { CONFIG.AssetName }
+	local projectileAsset = ProjectileService.GetDef().AssetName
+	if projectileAsset then
+		table.insert(modelNames, projectileAsset)
+	end
+	for _, name in modelNames do
+		local status = if Assets.Has(name) then "found" else "MISSING (using plain parts)"
+		print(`[4M] Model ReplicatedStorage.Assets.{name}: {status}`)
 	end
 
 	Players.PlayerRemoving:Connect(function(player)
