@@ -16,7 +16,7 @@ Every RemoteEvent and RemoteFunction is listed here. A PR that adds or changes a
 |------|------|-----------|---------|-------------------|-------|
 | `RequestPurchase` | RemoteEvent | C→S | `upgradeId: string` | string, known upgrade id, below max level, enough Bonk Points, ≤ 5/s | Marco |
 | `SetActiveShooters` | RemoteEvent | C→S | `count: number` | integer, 1 ≤ count ≤ owned shooters, ≤ 5/s | Marco |
-| `ReportHit` | RemoteEvent | C→S | `projectileId: number, onHead: boolean` | number (+ boolean, anything else = false), projectile exists and belongs to the player, not paid, player alive and not immune, flight path passed within radius + 6 studs of the server-side root, ≤ 10/s (see `docs/decisions/0003`); `onHead` only counts if the path also passed within radius + `HeadTolerance` of the server-side head | Max |
+| `ReportHit` | RemoteEvent | C→S | `projectileId: number, onHead: boolean` | number (+ boolean, anything else = false), projectile exists and belongs to the player, not paid, player alive and not immune, report arrives within `ReportGracePeriod` (2 s) after the projectile stopped being collectable (`ProjectilePath.GetCollectEndTime`), path so far passed within radius + `PickupPadding` (2) + `HitTolerance` (6) studs of the server-side root, ≤ 10/s (see `docs/decisions/0003`); `onHead` only counts if the path also passed within radius + `PickupPadding` + `HeadTolerance` of the server-side head | Max |
 | `AdminCommand` | RemoteEvent | C→S | `command: string, argument: string \| number \| nil` | sender is admin (`Config/Admin.IsAdmin`, checked on the server), known command, argument validated per command (point amounts only from `Admin.PointAmounts`, upgrade ids only from `Upgrades.Order`), ≤ 10/s | both |
 | `BonkHit` | RemoteEvent | S→C | `reward: number, quality: HitQuality, knockbackDirection: Vector3, onHead: boolean, combo: number, comboWindow: number, golden: boolean` | — (server → client) | Max |
 | `StateChanged` | RemoteEvent | S→C | `state: PlayerState` (a copy of the whole saved state, `Types.PlayerState`) | — | Marco |
@@ -40,9 +40,9 @@ Remotes live in `ReplicatedStorage/Remotes`, created by `Net.CreateRemotes()` fr
 `StateChanged` is sent after the player's data loads and after every change to points, levels or active shooters.
 Projectiles are invisible, anchored marker parts in `Workspace/Islands/Island_<UserId>/Projectiles`. They carry the
 attribute `ProjectileId` (number) so the client can report hits, plus their planned path (`LaunchTime` on the server
-clock, `Gravity`, `EndTime`, `Diameter`, `SegmentCount`, `S<n>Time/Position/Velocity`), written and read only by
+clock, `Gravity`, `SettleTime`, `EndTime`, `FadeTime`, `Diameter`, `SegmentCount`, `S<n>Time/Position/Velocity`), written and read only by
 `src/shared/Util/ProjectilePath.luau`, and `Paid` (true once it paid out) and `Golden`. Clients draw the model along that path
-(`docs/decisions/0004`).
+(`docs/decisions/0004`): small settling hops from `SettleTime`, lying still from `EndTime`, fully faded at `EndTime + FadeTime`.
 Shooter models (the imported Shiba inside `Workspace/Islands/Island_<UserId>/…/Shooter`) carry the attribute `ThrowAt`
 (number, server clock `workspace:GetServerTimeNow()`): when the stick leaves the paw. The server sets it when the Shiba
 starts aiming; `Controllers/ShibaController` swings the `ThrowArm` part toward that moment. Server → client only, purely visual.
