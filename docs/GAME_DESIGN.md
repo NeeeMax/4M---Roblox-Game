@@ -54,9 +54,9 @@ MVP has one projectile type: the **Bonk Stick** (model `ReplicatedStorage/Assets
 
 **Size vs speed:** projectile diameter = `3 × sizeScale`, launch speed = `36 × sizeScale^-0.5`. Bigger projectiles are easier to hit but fly slower and therefore pay a lower speed multiplier.
 
-**Bounces:** after landing it bounces **twice**: each bounce keeps 50 % of the vertical and 70 % of the horizontal speed (at base speed: first bounce ≈ 3.7 studs high, second ≈ 1 stud). The whole path is computed when the shot is planned; the server steers the projectile along it. A bounce that leaves the island makes it fall off the edge.
+**Bounces:** after landing it bounces **twice**: each bounce keeps 50 % of the vertical and 70 % of the horizontal speed (at base speed: first bounce ≈ 3.7 studs high, second ≈ 1 stud). The whole path is computed when the shot is planned; every client draws the projectile along it (`docs/decisions/0004`). A bounce that leaves the island makes it fall off the edge.
 
-**Lifetime / cleanup:** it disappears the moment it touches the ground after the second bounce (or drops below the island): each client hides it as soon as it sees that happen (the client shows server objects slightly delayed, so a server-side delete would make it vanish too early). The server destroys it 0.5 s after the path ends, 15 s after launch at the latest, and keeps the path 2 s longer to validate late hit reports. Max 60 live projectiles per island; the oldest is destroyed first. All projectiles of a player are destroyed when they leave.
+**Lifetime / cleanup:** it disappears the moment it touches the ground after the second bounce (or drops below the island): each client hides it when the path ends on the synced server clock. The server destroys its marker 0.5 s after the path ends, 15 s after launch at the latest, and keeps the path 2 s longer to validate late hit reports. Max 60 live projectiles per island; the oldest is destroyed first. All projectiles of a player are destroyed when they leave.
 
 ## Hits (server decides)
 
