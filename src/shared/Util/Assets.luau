@@ -8,6 +8,12 @@ local FOLDER_NAME = "Assets"
 
 local Assets = {}
 
+-- Whether ReplicatedStorage.Assets.<name> exists.
+function Assets.Has(name: string): boolean
+	local folder = ReplicatedStorage:FindFirstChild(FOLDER_NAME)
+	return folder ~= nil and folder:FindFirstChild(name) ~= nil
+end
+
 -- A fresh copy of the asset as a Model (a single part gets wrapped in one), or nil if it doesn't exist.
 function Assets.CloneModel(name: string): Model?
 	local folder = ReplicatedStorage:FindFirstChild(FOLDER_NAME)

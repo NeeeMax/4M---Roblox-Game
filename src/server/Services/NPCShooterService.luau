@@ -304,6 +304,14 @@ local function updatePlayer(player: Player, now: number)
 end
 
 function NPCShooterService.Start()
+	-- Tells whoever playtests whether the custom models are in place (docs: assets/README.md).
+	for _, name in { CONFIG.AssetName, ProjectileService.GetDef().AssetName } do
+		if name then
+			local status = if Assets.Has(name) then "found" else "MISSING (using plain parts)"
+			print(`[4M] Model ReplicatedStorage.Assets.{name}: {status}`)
+		end
+	end
+
 	Players.PlayerRemoving:Connect(function(player)
 		-- The models go with the island; only forget the bookkeeping.
 		rings[player] = nil
