@@ -39,6 +39,8 @@ Every RemoteEvent and RemoteFunction is listed here. A PR that adds or changes a
 | `ClaimIndex` | RemoteEvent | C→S | `entryId: string` | string, known `Config/Index` entry that the player has seen and not claimed yet (or `Index.CompleteId` "Complete": every entry seen, bonus not claimed), ≤ 5/s; reward computed on the server (`RewardService.Hits`) | Max |
 | `OfflineEarnings` | RemoteEvent | S→C | `amount: number, seconds: number` (pending offline earnings, time away they cover) | — (server → client; sent on join when `Bank.Pending` > 0) | Marco |
 | `ClaimOffline` | RemoteEvent | C→S | `double: boolean` | boolean, data loaded, `Bank.Pending` > 0, ≤ 2/s; `false` pays Pending and clears it; `true` only opens the Roblox prompt for the "DoubleOffline" product (Studio with id 0: test grant), 2× Pending is paid in ProcessReceipt (`ShopService.Grant`) | Marco |
+| `ObbyStarted` | RemoteEvent | S→C | — | — (server → client). Sent when the server sees the character's root leave the start pad (position check 10×/s, alive character) | Max |
+| `ObbyFinished` | RemoteEvent | S→C | `time: number, reward: number, bestTime: number, nextRewardAt: number` | — (server → client). Sent only when the server-side run is valid: started from the start pad, root inside the finish zone, ≥ `Obby.MinTime` (8 s), ≥ half of the checkpoints passed, ≤ `MaxRunTime`, never left `LeaveRadius`; time measured on the server; reward only if `RewardCooldown` passed since `state.Obby.LastRewardAt` | Max |
 
 Remotes live in `ReplicatedStorage/Remotes`, created by `Net.CreateRemotes()` from `Main.server.luau`. Get one with `Net.Get(Net.BonkHit)`.
 `StateChanged` is sent after the player's data loads and after every change to points, levels or active shooters.

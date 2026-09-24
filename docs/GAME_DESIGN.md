@@ -252,6 +252,26 @@ show as a dark "???" silhouette. Each found entry pays a one-time discovery rewa
 Hub features): Shibas 20 + 10 per tier, projectiles 15 + 5 per tier, golden stick 50, trophies by rarity (Common 25,
 Rare 50, Epic 100, Legendary 200, Exclusive 300). Finding all entries unlocks a completion bonus of 1,000 bonks.
 A bar on top shows the progress ("12/31 found").
+## Obby (jump and run)
+
+A spiral tower of chunky green / yellow / orange platforms in the hub centre (`ObbyService`, layout in `Config/Obby`),
+with the Shiba statue and the "GET BONKED" title on top. Footprint within ~20 studs of the centre, so the paths to the
+bridges and stations stay free; falling off lands you on the plaza.
+
+- **Course:** start pad on the plaza (south side, facing the spawn point, START sign on the tower), 16 platforms
+  spiralling up ~1.8 turns to the finish pad on top of the tower (42 studs up). Easy blocks first, then smaller blocks,
+  narrow beams and three moving platforms (in/out, up/down, sideways). Three checkpoint pads (cyan, white rim).
+- **Timing (server):** stepping off the start pad starts the run (`ObbyStarted`); reaching the finish pad ends it.
+  A finish only counts after at least 8 s and with at least half of the checkpoints passed since the start (blocks
+  teleporting). A run is dropped after 10 min, on respawn, or when you walk more than 30 studs from the hub centre.
+- **Reward:** at most once per 30 min per player: 40 bonks' worth of Bonk Points + a 5-minute 2× points boost.
+  Finishing during the cooldown still counts for the best time. Best time and last reward time are saved
+  (`state.Obby`). Daily quest "Climb the obby tower" (30 bonks).
+- **FASTEST CLIMBERS board** left of the obby entrance: top 10 best times of all servers (OrderedDataStore
+  `ObbyTimes_v1`, tenths of a second, refreshed every minute; this server's players when DataStores are unavailable).
+- **Client:** timer at the top while running; popup "FINISHED! 23.4 s · +… Bonk Points · next reward in 29:59"
+  (or "Best: …" / "NEW BEST TIME!" during the cooldown).
+- **Testing:** set `RewardCooldown` in `Config/Obby` to e.g. 20 to get the reward again quickly.
 
 ## Shop (monetisation)
 
