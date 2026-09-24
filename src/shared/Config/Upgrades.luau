@@ -15,8 +15,11 @@ export type UpgradeDef = {
 	Id: Types.UpgradeId,
 	DisplayName: string,
 	Description: string,
+	-- Cost of level n → n + 1: BaseCost × Growth^n × (1 + Curve × n²) (Upgrades.GetCost). Curve bends the late levels
+	-- up, so the first buys come fast and the last ones take a while (docs/GAME_DESIGN.md → Pacing).
 	BaseCost: number,
 	Growth: number,
+	Curve: number,
 	MaxLevel: number,
 	-- Value at level n: BaseValue + Step * n.
 	BaseValue: number,
@@ -47,8 +50,9 @@ local defs: { [string]: UpgradeDef } = {
 		Id = "MoveSpeed",
 		DisplayName = "Move Speed",
 		Description = "Run faster to reach every stick in time.",
-		BaseCost = 100,
-		Growth = 2.6,
+		BaseCost = 40,
+		Growth = 3.5,
+		Curve = 0.1,
 		MaxLevel = 10,
 		BaseValue = 16,
 		Step = 3,
@@ -59,8 +63,9 @@ local defs: { [string]: UpgradeDef } = {
 		Id = "Shooters",
 		DisplayName = "More Shibas",
 		Description = "Another Shiba joins the ring around your island.",
-		BaseCost = 500,
-		Growth = 4,
+		BaseCost = 60,
+		Growth = 5.5,
+		Curve = 0.2,
 		MaxLevel = 7,
 		BaseValue = 1,
 		Step = 1,
@@ -71,9 +76,9 @@ local defs: { [string]: UpgradeDef } = {
 		Id = "ShooterTier",
 		DisplayName = "Shiba Tier",
 		Description = "Evolve all your Shibas: they throw faster and every bonk pays more.",
-		BaseCost = 2000,
-		-- Same price for the top tier as with 8 tiers (2,000 × 7^6): 4.3 = 7^(6/8).
-		Growth = 4.3,
+		BaseCost = 400,
+		Growth = 3.5,
+		Curve = 0.1,
 		MaxLevel = #shooterTierNames - 1,
 		BaseValue = 0,
 		Step = 1,
@@ -86,9 +91,9 @@ local defs: { [string]: UpgradeDef } = {
 		Id = "ProjectileTier",
 		DisplayName = "Projectile Tier",
 		Description = "Better projectiles: new look, more points per bonk.",
-		BaseCost = 1500,
-		-- Same price for the top tier as with 4 tiers (1,500 × 10^2): 1.78 = 10^(2/8).
-		Growth = 1.78,
+		BaseCost = 150,
+		Growth = 3.6,
+		Curve = 0.15,
 		MaxLevel = #projectileTierNames - 1,
 		BaseValue = 0,
 		Step = 1,
@@ -107,11 +112,12 @@ local Upgrades = {
 	Order = order,
 }
 
--- Cost of buying the next level when the upgrade is currently at `level`: floor(BaseCost × Growth^level).
+-- Cost of buying the next level when the upgrade is currently at `level`:
+-- floor(BaseCost × Growth^level × (1 + Curve × level²)).
 function Upgrades.GetCost(id: string, level: number): number
 	local def = defs[id]
 	-- The epsilon stops float error (e.g. 284.9999999) from rounding a cost down by one.
-	return math.floor(def.BaseCost * def.Growth ^ level + 1e-6)
+	return math.floor(def.BaseCost * def.Growth ^ level * (1 + def.Curve * level * level) + 1e-6)
 end
 
 function Upgrades.GetValue(id: string, level: number): number

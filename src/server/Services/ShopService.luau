@@ -61,6 +61,16 @@ local function blockedReason(player: Player, product: Shop.Product): string?
 		if level >= Upgrades.GetMaxLevel("ShooterTier", state.Passes) then
 			return "Your Shibas are already at the top tier"
 		end
+	elseif product.Kind == "InstantUpgrade" then
+		local id = product.Upgrade
+		if not id or not Upgrades.Defs[id] then
+			return "Coming soon!"
+		end
+		if (state.UpgradeLevels[id] or 0) >= Upgrades.GetMaxLevel(id, state.Passes) then
+			return `{Upgrades.Defs[id].DisplayName} is already maxed`
+		end
+	elseif product.Kind == "DoubleOffline" and state.Bank.Pending <= 0 then
+		return "No offline earnings to double"
 	elseif product.Kind == "StarterPack" and state.StarterPackBought then
 		return "You already have the Starter Pack"
 	elseif product.Kind == "Trophy" and product.Trophy and state.Trophies[product.Trophy] then
@@ -83,6 +93,13 @@ function ShopService.Grant(player: Player, product: Shop.Product): boolean
 		BoostService.Give(player, product.Boost :: Types.BoostId, product.Seconds)
 	elseif product.Kind == "TierSkip" then
 		UpgradeService.SetLevel(player, "ShooterTier", UpgradeService.GetLevel(player, "ShooterTier") + 1)
+	elseif product.Kind == "InstantUpgrade" and product.Upgrade and Upgrades.Defs[product.Upgrade] then
+		-- Already maxed (bought twice before the first grant): the level stays; Roblox has charged, so still granted.
+		UpgradeService.SetLevel(player, product.Upgrade, UpgradeService.GetLevel(player, product.Upgrade) + 1)
+	elseif product.Kind == "DoubleOffline" then
+		-- 2× the pending Shiba Bank earnings (0 if they were claimed in between).
+		local paid = EconomyService.PayOffline(player, 2)
+		NotifyService.Send(player, `Doubled! +{Format.Number(paid)} Bonk Points`, "Good")
 	elseif product.Kind == "StarterPack" then
 		state.StarterPackBought = true
 		state.BonkRains += Shop.StarterPack.BonkRains
@@ -141,6 +158,8 @@ local function buyPass(player: Player, pass: Shop.Pass)
 	end
 end
 
+-- Opens the Roblox purchase prompt for a developer product (or grants it as a Studio test while its id is 0),
+-- unless blockedReason says no.
 local function buyProduct(player: Player, product: Shop.Product)
 	local reason = blockedReason(player, product)
 	if reason then
@@ -192,6 +211,14 @@ local function onShopBuy(player: Player, itemId: unknown)
 		if trophy then
 			buyTrophy(player, trophy)
 		end
+	end
+end
+
+-- Buys a developer product by its Config/Shop id (e.g. OfflineService: "DoubleOffline").
+function ShopService.BuyProduct(player: Player, productId: string)
+	local product = Shop.GetProduct(productId)
+	if product then
+		buyProduct(player, product)
 	end
 end
 
