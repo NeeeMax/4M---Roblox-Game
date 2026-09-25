@@ -255,16 +255,88 @@ return {
 		-- so quick hits overlap instead of cutting each other off.
 		SoundId = "rbxassetid://92393279714658",
 		SoundVolume = 0.8,
-		-- Playback speed goes up by this per hit-quality tier above Normal (Legendary: 1.2); kept small so the cartoon
-		-- bonk still sounds like itself.
-		PitchStepPerTier = 0.05,
-		-- Stars bursting from the head: Stars at Normal, plus StarsPerTier per quality tier above it.
-		Stars = 6,
-		StarsPerTier = 6,
-		-- Camera shake from this quality tier on (1 = Normal, 3 = Hard), stronger per tier above it.
-		ShakeFromTier = 3,
+		-- Juice per catch quality (Economy.HitQualities names; docs/GAME_DESIGN.md → Feedback). The popup reads
+		-- "<Label><Punctuation> +X" ("AIR BONK! +50"; head hits say HEADBONK instead of BONK), PopupScale × the
+		-- base popup size; Bounce = it pops in at BounceScale and springs back. Pitch = bonk sound playback speed
+		-- (kept close to 1 so the cartoon bonk still sounds like itself). Coins = gold coins bursting from the
+		-- character, Stars = stars from the head, Shake = camera shake strength in studs (0 = none).
+		Qualities = {
+			Normal = { Punctuation = "", PopupScale = 1, Bounce = false, Pitch = 1, Coins = 4, Stars = 6, Shake = 0 },
+			Good = {
+				Punctuation = "!",
+				PopupScale = 1.2,
+				Bounce = false,
+				Pitch = 1.08,
+				Coins = 8,
+				Stars = 10,
+				Shake = 0.08,
+			},
+			Perfect = {
+				Punctuation = "!!",
+				PopupScale = 1.6,
+				Bounce = true,
+				Pitch = 1.18,
+				Coins = 16,
+				Stars = 18,
+				Shake = 0.35,
+			},
+		},
+		-- Popup base size in pixels, and the bounce: starts at BounceScale × its size, back to 1 in BounceTime.
+		PopupWidth = 320,
+		PopupHeight = 60,
+		BounceScale = 1.8,
+		BounceTime = 0.35,
+		-- Head hits and golden sticks shake this much harder (multiplied).
+		HeadShakeScale = 1.3,
+		GoldenShakeScale = 1.3,
 		ShakeTime = 0.25,
-		ShakeStrength = 0.25,
+		-- Coins bursting from the character (local, visual-only parts): thin gold discs flying up and out, spinning,
+		-- gone after Lifetime. At most MaxCoins alive at once (quick hits don't pile up).
+		Coins = {
+			Diameter = 0.9,
+			Thickness = 0.15,
+			Color = Color3.fromRGB(255, 205, 40),
+			OutSpeed = 12,
+			UpSpeed = 22,
+			Lifetime = 0.8,
+			MaxCoins = 40,
+		},
+		-- Combo meter (below the top bar): "COMBO xN ×M" plus a name once the multiplier reaches a tier, in its colour.
+		-- The meter punches (grows briefly) when a new tier is reached.
+		ComboTiers = {
+			{ Multiplier = 1.5, Name = "ON FIRE", Color = Color3.fromRGB(255, 140, 40) },
+			{ Multiplier = 2, Name = "BONKTASTIC", Color = Color3.fromRGB(255, 70, 160) },
+			{ Multiplier = 3, Name = "MAX BONK", Color = Color3.fromRGB(255, 215, 40) },
+		},
+		ComboColor = Color3.fromRGB(255, 120, 60),
+		ComboPunchScale = 1.35,
+		ComboPunchTime = 0.3,
+		-- A new player's very first caught stick: a big splash in the middle of the screen,
+		-- "<Text> ×<EconomyConfig.Bonk.FirstBonkMultiplier>", for Time seconds.
+		FirstBonk = {
+			Text = "FIRST BONK!",
+			Color = Color3.fromRGB(255, 215, 40),
+			Time = 2.5,
+		},
+		-- Impact burst where the projectile hit, in its tier colour (Config/Projectiles Color; golden: GoldenColor):
+		-- Particles + PerTier × (tier − 1) particles, Size + SizePerTier × (tier − 1) studs, so better throwables
+		-- burst bigger. Textures picks a built-in particle look per projectile Id (default Sparkles).
+		Impact = {
+			Particles = 8,
+			PerTier = 3,
+			Size = 0.5,
+			SizePerTier = 0.08,
+			Speed = 14,
+			Lifetime = 0.5,
+			Textures = {
+				Newspaper = "Smoke",
+				Baguette = "Smoke",
+				GiantBone = "Smoke",
+				BonkSign = "Fire",
+				NeonStick = "Sparkles",
+				LegendaryStick = "Fire",
+			} :: { [string]: string },
+		},
 	},
 
 	-- Auto-Catch pass look (Controllers/MagnetController, purely visual; the catching itself is AutoCatchService with
