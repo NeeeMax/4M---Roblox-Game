@@ -31,10 +31,12 @@ return {
 			Color3.fromRGB(255, 215, 60),
 		},
 		-- The basket takes a stick this many seconds after it stopped being collectable, so a hand catch reported
-		-- right at the end of the window (network delay) still wins.
-		CatchDelay = 0.3,
+		-- right at the end of the window (network delay) still wins. CatchDelay + CheckInterval + ping must stay below
+		-- Gameplay.Projectiles.LandingFadeTime (0.6 s), or the stick is no longer drawn when the client hears of the
+		-- catch (it then only gets the sparkles and the popup, no flight into the basket).
+		CatchDelay = 0.2,
 		-- How often the server checks for sticks the basket can take.
-		CheckInterval = 0.25,
+		CheckInterval = 0.15,
 	},
 
 	Intern = {
