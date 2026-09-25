@@ -1,24 +1,27 @@
 --!strict
 -- Rewards, hit quality, purchases and saving (docs/GAME_DESIGN.md → Hits, Economy, Saving).
 
+local EconomyConfig = require(script.Parent.EconomyConfig)
 local Types = require(script.Parent.Parent.Types)
 
 export type HitQualityDef = {
 	Name: Types.HitQuality,
-	-- Lowest impact-speed ratio (relative impact speed / launch speed) that gives this quality.
-	MinRatio: number,
+	-- Popup text ("BONK", "AIR BONK", "PERFECT BONK").
+	Label: string,
+	-- From EconomyConfig.Bonk.QualityMultipliers.
 	Multiplier: number,
 	-- Popup text colour.
 	Color: Color3,
 }
 
--- Sorted from lowest to highest MinRatio; the last entry the ratio reaches wins.
+-- From worst to best (docs/GAME_DESIGN.md → Hits): which one a catch gets depends on WHEN it was caught
+-- (BonkService): after the stick touched the ground = Normal, in the air = Good, in the air within
+-- Gameplay.Hits.PerfectWindow seconds before it lands = Perfect.
+local multipliers = EconomyConfig.Bonk.QualityMultipliers
 local hitQualities: { HitQualityDef } = {
-	{ Name = "Normal", MinRatio = 0, Multiplier = 1, Color = Color3.fromRGB(255, 255, 255) },
-	{ Name = "Good", MinRatio = 1.2, Multiplier = 2, Color = Color3.fromRGB(120, 255, 120) },
-	{ Name = "Hard", MinRatio = 1.5, Multiplier = 5, Color = Color3.fromRGB(80, 180, 255) },
-	{ Name = "Massive", MinRatio = 1.8, Multiplier = 10, Color = Color3.fromRGB(200, 100, 255) },
-	{ Name = "Legendary", MinRatio = 2.2, Multiplier = 50, Color = Color3.fromRGB(255, 200, 0) },
+	{ Name = "Normal", Label = "BONK", Multiplier = multipliers.Normal, Color = Color3.fromRGB(255, 255, 255) },
+	{ Name = "Good", Label = "AIR BONK", Multiplier = multipliers.Good, Color = Color3.fromRGB(120, 255, 120) },
+	{ Name = "Perfect", Label = "PERFECT BONK", Multiplier = multipliers.Perfect, Color = Color3.fromRGB(255, 200, 0) },
 }
 
 return {
@@ -31,7 +34,6 @@ return {
 		Symbol = "B$",
 	},
 
-	StartingPoints = 0,
 	HitQualities = hitQualities,
 
 	-- Per player, for RequestPurchase and SetActiveShooters each.

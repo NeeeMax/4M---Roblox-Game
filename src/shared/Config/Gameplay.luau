@@ -1,6 +1,8 @@
 --!strict
 -- World, shooter, projectile, hit and bonk-effect tuning (docs/GAME_DESIGN.md). Distances in studs, times in seconds.
 
+local EconomyConfig = require(script.Parent.EconomyConfig)
+
 return {
 	Island = {
 		-- Names the client relies on to find its own island: Workspace.<FolderName>.<ModelPrefix><UserId>.Projectiles
@@ -50,96 +52,12 @@ return {
 		-- Fallback shooter (red block with a barrel) when there is no ReplicatedStorage.Assets.Shooter model.
 		BarrelLength = 3,
 
-		-- Shiba tiers (ShooterTier level n = Tiers[n + 1]). Each tier throws faster (FireInterval: seconds between two
-		-- throws of one Shiba) and pays more (RewardMultiplier). Model: ReplicatedStorage.Assets.<AssetName>, scaled to the
-		-- tier's Height in studs, bottom on its platform (Config/ShibaPlatforms); effects and motion in
-		-- Config/ShibaEffects. A tier without its own model uses
-		-- the next lower tier's model (then LegacyAssetName) with an outline in its Color. To add a tier: add a line (the
-		-- upgrade follows automatically).
-		Tiers = {
-			{
-				Name = "Shiba",
-				AssetName = "Shiba",
-				Height = 6,
-				FireInterval = 5,
-				RewardMultiplier = 1,
-				Color = Color3.fromRGB(255, 170, 60),
-			},
-			-- Tiers 2-10: FireInterval and RewardMultiplier spread geometrically over the same range as before
-			-- (5 s -> 1.3 s, x1 -> x60), so the endgame balance is unchanged.
-			{
-				Name = "Shades Shiba",
-				AssetName = "ShadesShiba",
-				Height = 6,
-				FireInterval = 4.3,
-				RewardMultiplier = 1.6,
-				Color = Color3.fromRGB(160, 160, 185),
-			},
-			{
-				Name = "Buff Shiba",
-				AssetName = "BuffShiba",
-				Height = 7.5,
-				FireInterval = 3.7,
-				RewardMultiplier = 2.5,
-				Color = Color3.fromRGB(255, 110, 90),
-			},
-			{
-				Name = "Chef Shiba",
-				AssetName = "ChefShiba",
-				Height = 7.5,
-				FireInterval = 3.2,
-				RewardMultiplier = 3.9,
-				Color = Color3.fromRGB(250, 250, 250),
-			},
-			{
-				Name = "Police Shiba",
-				AssetName = "PoliceShiba",
-				Height = 6.5,
-				FireInterval = 2.7,
-				RewardMultiplier = 6.2,
-				Color = Color3.fromRGB(70, 130, 255),
-			},
-			{
-				Name = "Ninja Shiba",
-				AssetName = "NinjaShiba",
-				Height = 5.5,
-				FireInterval = 2.4,
-				RewardMultiplier = 9.7,
-				Color = Color3.fromRGB(220, 40, 60),
-			},
-			{
-				Name = "Gold Shiba",
-				AssetName = "GoldShiba",
-				Height = 6.5,
-				FireInterval = 2,
-				RewardMultiplier = 15,
-				Color = Color3.fromRGB(255, 200, 40),
-			},
-			{
-				Name = "Galaxy Shiba",
-				AssetName = "GalaxyShiba",
-				Height = 7,
-				FireInterval = 1.8,
-				RewardMultiplier = 24,
-				Color = Color3.fromRGB(170, 90, 255),
-			},
-			{
-				Name = "Giant Shiba",
-				AssetName = "GiantShiba",
-				Height = 16,
-				FireInterval = 1.5,
-				RewardMultiplier = 38,
-				Color = Color3.fromRGB(255, 130, 40),
-			},
-			{
-				Name = "Cheems God",
-				AssetName = "CheemsGod",
-				Height = 12,
-				FireInterval = 1.3,
-				RewardMultiplier = 60,
-				Color = Color3.fromRGB(255, 240, 170),
-			},
-		},
+		-- Shiba tiers (ShooterTier level n = Tiers[n + 1]), defined in Config/EconomyConfig → Shibas (names, models,
+		-- heights, colours, FireInterval, RewardMultiplier). Model: ReplicatedStorage.Assets.<AssetName>, scaled to the
+		-- tier's Height in studs, bottom on its platform (Config/ShibaPlatforms); effects and motion in Config/ShibaEffects.
+		-- Shiny/Mythic editions reuse a base model with an outline and aura in their Color; a missing model falls back to
+		-- the next lower tier's model (then LegacyAssetName) with an outline in its Color.
+		Tiers = EconomyConfig.Shibas,
 		-- Older single-model name, still used when no tier model exists.
 		LegacyAssetName = "Shooter",
 		Height = 6,
@@ -231,7 +149,7 @@ return {
 		MaxSpin = 10,
 		-- Golden projectiles: rarer, glow gold, pay GoldenMultiplier times as much (chance: Lucky Sticks pass raises it).
 		GoldenChance = 0.05,
-		GoldenMultiplier = 5,
+		GoldenMultiplier = EconomyConfig.Bonk.GoldenMultiplier,
 		GoldenColor = Color3.fromRGB(255, 205, 40),
 		GoldenAttribute = "Golden",
 		-- Fill transparency of the gold outline (before the landing fade).
@@ -260,7 +178,7 @@ return {
 		HitTolerance = 6,
 		-- A hit that touches the head pays HeadMultiplier times as much. The server accepts the client's head claim
 		-- if the path passed within projectile radius + PickupPadding + HeadTolerance of the server-side head.
-		HeadMultiplier = 2,
+		HeadMultiplier = EconomyConfig.Bonk.HeadMultiplier,
 		HeadTolerance = 4,
 		-- Server: time step when searching the flight path for its closest point to the player.
 		FlightSampleStep = 0.02,
@@ -277,8 +195,8 @@ return {
 	Combo = {
 		BaseWindow = 2,
 		ShotsWindow = 1.5,
-		Step = 0.1,
-		MaxMultiplier = 3,
+		Step = EconomyConfig.Bonk.ComboStep,
+		MaxMultiplier = EconomyConfig.Bonk.ComboMax,
 	},
 
 	-- Only a small nudge (was 0.25 s at 16 / 12 studs/s, about 4 studs): under a stud sideways and a tiny hop, so the

@@ -10,11 +10,8 @@ local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local Net = require(ReplicatedStorage.Shared.Net)
 local RateLimiter = require(ReplicatedStorage.Shared.Util.RateLimiter)
-local Shop = require(ReplicatedStorage.Shared.Config.Shop)
 
-local BoostService = require(script.Parent.BoostService)
 local EconomyService = require(script.Parent.EconomyService)
-local EventService = require(script.Parent.EventService)
 local IndexService = require(script.Parent.IndexService)
 local ProjectileService = require(script.Parent.ProjectileService)
 local QuestService = require(script.Parent.QuestService)
@@ -23,8 +20,8 @@ local UpgradeService = require(script.Parent.UpgradeService)
 
 local HITS = Gameplay.Hits
 local COMBO = Gameplay.Combo
--- Quality names from Hard up count for "Hard (or better)" quests.
-local HARD_QUALITIES = { Hard = true, Massive = true, Legendary = true }
+-- Qualities that count for the "Hard (or better)" quest.
+local HARD_QUALITIES = { Perfect = true }
 
 type Combo = {
 	Count: number,
@@ -39,14 +36,10 @@ local combos: { [Player]: Combo } = {}
 
 local BonkService = {}
 
+-- TODO(bonk): placeholder until the catch-timing rule lands; maps the old impact ratio onto the new qualities.
 local function getQuality(ratio: number): Economy.HitQualityDef
-	local chosen = Economy.HitQualities[1]
-	for _, quality in Economy.HitQualities do
-		if ratio >= quality.MinRatio then
-			chosen = quality
-		end
-	end
-	return chosen
+	local index = if ratio >= 1.5 then 3 elseif ratio >= 1.2 then 2 else 1
+	return Economy.HitQualities[index]
 end
 
 -- How long after a hit the next one still continues the combo: longer when shots come less often.
@@ -139,26 +132,9 @@ function BonkService.AwardHit(
 	local plan = info.Plan
 
 	local combo, comboMultiplier, window = registerCombo(player, os.clock())
-	local tier = RewardService.GetShooterTier(player)
-	local goldenMultiplier = if plan.Golden then Gameplay.Projectiles.GoldenMultiplier else 1
-	local passMultiplier = (
-		if RewardService.HasPass(player, "DoublePoints") then Shop.Pass.DoublePointsMultiplier else 1
-	) * (if RewardService.HasPass(player, "VIP") then Shop.Pass.VIPMultiplier else 1)
 	local headMultiplier = if onHead then HITS.HeadMultiplier else 1
-	local reward = math.max(
-		1,
-		math.floor(
-			plan.Def.BaseReward
-				* quality.Multiplier
-				* headMultiplier
-				* comboMultiplier
-				* tier.RewardMultiplier
-				* BoostService.GetMultiplier(player, "Points")
-				* goldenMultiplier
-				* passMultiplier
-				* EventService.RewardMultiplier(plan.Mega) -- server events: DoublePoints, MegaStick
-		)
-	)
+	local stickValue = RewardService.GetStickValue(player, plan.Def.BaseReward, plan.Golden, plan.Mega)
+	local reward = math.max(1, math.floor(stickValue * quality.Multiplier * headMultiplier * comboMultiplier))
 	EconomyService.AddPoints(player, reward)
 	if plan.Golden then
 		IndexService.DiscoverGolden(player) -- Shiba-Index: first golden catch
