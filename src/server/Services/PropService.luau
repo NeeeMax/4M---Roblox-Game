@@ -272,6 +272,62 @@ PropService.Builders = {
 		)
 	end :: Builder,
 
+	-- The rebirth shrine on every player island (Config/Stations → Stalls, Kind "Rebirth"): a purple stone altar
+	-- under a golden arch with a glowing orb, front toward −Z, about 7 × 5.4 studs. The orb is named "Orb"
+	-- (StationService dims it while the player can't rebirth yet).
+	RebirthShrine = function(model: Model, height: number)
+		local scale = height / 9
+		local stone = Color3.fromRGB(70, 40, 110)
+		local marble = Color3.fromRGB(125, 75, 185)
+		local gold = Color3.fromRGB(255, 200, 60)
+		local function block(size: Vector3, y: number, z: number, color: Color3, material: Enum.Material): Part
+			return part(model, Enum.PartType.Block, size * scale, CFrame.new(0, y * scale, z * scale), color, material)
+		end
+		-- Base slab (reaches into the island, so no gap shows) with a gold band, then a step and the altar.
+		block(Vector3.new(7, 0.9, 5.4), 0.15, 0, stone, Enum.Material.Slate)
+		block(Vector3.new(7.2, 0.2, 5.6), 0.4, 0, gold, Enum.Material.Foil)
+		block(Vector3.new(5, 0.5, 3.8), 0.85, 0.2, marble, Enum.Material.Marble)
+		block(Vector3.new(2.6, 2.4, 1.8), 2.3, 0.4, marble, Enum.Material.Marble)
+		block(Vector3.new(3, 0.3, 2.2), 3.65, 0.4, gold, Enum.Material.Foil)
+		-- Golden arch behind the altar.
+		for _, x in { -2.8, 2.8 } do
+			part(
+				model,
+				Enum.PartType.Cylinder,
+				Vector3.new(6.3, 0.9, 0.9) * scale,
+				CFrame.new(x * scale, 4.25 * scale, 1.4 * scale) * CFrame.Angles(0, 0, math.rad(90)),
+				gold,
+				Enum.Material.Foil
+			)
+		end
+		block(Vector3.new(6.6, 0.6, 1.1), 7.7, 1.4, gold, Enum.Material.Foil)
+		local gem = part(
+			model,
+			Enum.PartType.Ball,
+			Vector3.one * 0.9 * scale,
+			CFrame.new(0, 8.45 * scale, 1.4 * scale),
+			gold,
+			Enum.Material.Neon
+		)
+		gem.CanCollide = false
+		-- The orb floating over the altar.
+		local orb = part(
+			model,
+			Enum.PartType.Ball,
+			Vector3.one * 1.8 * scale,
+			CFrame.new(0, 5.2 * scale, 0.4 * scale),
+			Color3.fromRGB(200, 110, 255),
+			Enum.Material.Neon
+		)
+		orb.Name = "Orb"
+		orb.CanCollide = false
+		local light = Instance.new("PointLight")
+		light.Color = Color3.fromRGB(200, 110, 255)
+		light.Range = 14
+		light.Brightness = 1.5
+		light.Parent = orb
+	end :: Builder,
+
 	Flowers = function(model: Model, height: number)
 		local colors = { Color3.fromRGB(255, 90, 120), Color3.fromRGB(255, 220, 60), Color3.fromRGB(150, 120, 255) }
 		for index = 1, 5 do
