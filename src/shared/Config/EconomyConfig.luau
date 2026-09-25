@@ -105,26 +105,26 @@ local SHIBA_LIST = {
 	{ Name = "Pirate Shiba", AssetName = "PirateShiba", Height = 7, Color = Color3.fromRGB(150, 85, 40) }, -- 8
 	{ Name = "Ninja Shiba", AssetName = "NinjaShiba", Height = 5.5, Color = Color3.fromRGB(220, 40, 60) }, -- 9
 	{ Name = "Viking Shiba", AssetName = "VikingShiba", Height = 7.5, Color = Color3.fromRGB(165, 170, 180) }, -- 10
-	{ Name = "Knight Shiba", AssetName = "KnightShiba", Height = 7.5, Color = Color3.fromRGB(190, 200, 215) }, -- 11
+	{ Name = "Knight Shiba", AssetName = "KnightShiba", Height = 8, Color = Color3.fromRGB(190, 200, 215) }, -- 11
 	{ Name = "Samurai Shiba", AssetName = "SamuraiShiba", Height = 7.5, Color = Color3.fromRGB(200, 30, 40) }, -- 12
 	{ Name = "Robot Shiba", AssetName = "RobotShiba", Height = 7.5, Color = Color3.fromRGB(70, 240, 255) }, -- 13
 	{ Name = "Astronaut Shiba", AssetName = "AstronautShiba", Height = 7.5, Color = Color3.fromRGB(240, 242, 248) }, -- 14
-	{ Name = "Superhero Shiba", AssetName = "SuperheroShiba", Height = 7.5, Color = Color3.fromRGB(230, 40, 60) }, -- 15
+	{ Name = "Superhero Shiba", AssetName = "SuperheroShiba", Height = 8, Color = Color3.fromRGB(230, 40, 60) }, -- 15
 	{ Name = "Gold Shiba", AssetName = "GoldShiba", Height = 6.5, Color = Color3.fromRGB(255, 200, 40) }, -- 16
 	{ Name = "Wizard Shiba", AssetName = "WizardShiba", Height = 8.5, Color = Color3.fromRGB(70, 80, 220) }, -- 17
 	{ Name = "Vampire Shiba", AssetName = "VampireShiba", Height = 7, Color = Color3.fromRGB(170, 15, 35) }, -- 18
 	{ Name = "Pharaoh Shiba", AssetName = "PharaohShiba", Height = 7.5, Color = Color3.fromRGB(255, 195, 40) }, -- 19
-	{ Name = "Frost Shiba", AssetName = "FrostShiba", Height = 8, Color = Color3.fromRGB(150, 220, 255) }, -- 20
-	{ Name = "Magma Shiba", AssetName = "MagmaShiba", Height = 8, Color = Color3.fromRGB(255, 110, 20) }, -- 21
+	{ Name = "Frost Shiba", AssetName = "FrostShiba", Height = 8.5, Color = Color3.fromRGB(150, 220, 255) }, -- 20
+	{ Name = "Magma Shiba", AssetName = "MagmaShiba", Height = 9, Color = Color3.fromRGB(255, 110, 20) }, -- 21
 	{ Name = "Dragon Shiba", AssetName = "DragonShiba", Height = 8.5, Color = Color3.fromRGB(60, 180, 80) }, -- 22
-	{ Name = "Mecha Shiba", AssetName = "MechaShiba", Height = 9, Color = Color3.fromRGB(120, 140, 170) }, -- 23
+	{ Name = "Mecha Shiba", AssetName = "MechaShiba", Height = 8.5, Color = Color3.fromRGB(120, 140, 170) }, -- 23
 	{ Name = "Galaxy Shiba", AssetName = "GalaxyShiba", Height = 7, Color = Color3.fromRGB(170, 90, 255) }, -- 24
-	{ Name = "Angel Shiba", AssetName = "AngelShiba", Height = 9, Color = Color3.fromRGB(255, 240, 190) }, -- 25
-	{ Name = "Demon Shiba", AssetName = "DemonShiba", Height = 9, Color = Color3.fromRGB(200, 20, 30) }, -- 26
+	{ Name = "Angel Shiba", AssetName = "AngelShiba", Height = 11, Color = Color3.fromRGB(255, 240, 190) }, -- 25
+	{ Name = "Demon Shiba", AssetName = "DemonShiba", Height = 11, Color = Color3.fromRGB(200, 20, 30) }, -- 26
 	{ Name = "Giant Shiba", AssetName = "GiantShiba", Height = 16, Color = Color3.fromRGB(255, 130, 40) }, -- 27
 	{ Name = "Cheems God", AssetName = "CheemsGod", Height = 12, Color = Color3.fromRGB(255, 240, 170) }, -- 28
-	{ Name = "Eternal Shiba", AssetName = "EternalShiba", Height = 15, Color = Color3.fromRGB(255, 225, 120) }, -- 29
-	{ Name = "Void Shiba", AssetName = "VoidShiba", Height = 17, Color = Color3.fromRGB(140, 60, 255) }, -- 30
+	{ Name = "Eternal Shiba", AssetName = "EternalShiba", Height = 16, Color = Color3.fromRGB(255, 225, 120) }, -- 29
+	{ Name = "Void Shiba", AssetName = "VoidShiba", Height = 18, Color = Color3.fromRGB(140, 60, 255) }, -- 30
 }
 
 -- Throw interval of the first and the last Shiba; the ones between are spread geometrically.
