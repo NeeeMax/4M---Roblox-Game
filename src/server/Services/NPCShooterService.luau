@@ -6,7 +6,8 @@
 -- before it fires. Shooters only fire while their owner is on (or next to) their island. The ring leaves a gap
 -- where the bridge from the hub arrives.
 -- Looks: the ShooterTier's model from ReplicatedStorage.Assets (see Config/Gameplay → Shooters.Tiers), else a lower
--- tier's model with an outline in the tier colour, else a red block. Each Shiba stands on its tier's platform
+-- tier's model with an outline in the tier colour, else a red block. Shiny / Mythic editions use their base model
+-- with an outline and a light aura in the tier colour (Config/ShibaEffects → Editions). Each Shiba stands on its tier's platform
 -- (Config/ShibaPlatforms) inside an invisible wall, and holds the player's current projectile in its paw.
 -- The server places a custom model once and then only publishes where it should face (attribute
 -- Shooters.Motion.AimYawAttribute); clients turn it smoothly (Controllers/ShibaController). Throw points are
@@ -367,6 +368,32 @@ local function addEffects(model: Model, effect: ShibaEffects.Effect?, height: nu
 	end
 end
 
+-- Shiny / Mythic edition look (Config/ShibaEffects → Editions): an outline and a light aura in the tier's `color`,
+-- on top of the base model's own effects.
+local function addEditionLook(model: Model, look: ShibaEffects.EditionLook, color: Color3, height: number)
+	local outline = Instance.new("Highlight")
+	outline.Name = ShibaEffects.EditionOutlineName
+	outline.FillColor = color
+	outline.FillTransparency = look.FillTransparency
+	outline.OutlineColor = color
+	outline.OutlineTransparency = look.OutlineTransparency
+	outline.DepthMode = Enum.HighlightDepthMode.Occluded
+	outline.Parent = model
+	local particles: { ShibaEffects.Particles } = {}
+	for _, entry in look.Particles do
+		local copy = table.clone(entry)
+		if #copy.Colors == 0 then
+			copy.Colors = { color, color:Lerp(Color3.new(1, 1, 1), 0.6) }
+		end
+		table.insert(particles, copy)
+	end
+	local light = look.Light
+	addEffects(model, {
+		Light = if light then { Color = color, Brightness = light.Brightness, Range = light.Range } else nil,
+		Particles = particles,
+	}, height)
+end
+
 -- Builds the platform's pieces around `frame` (on the island surface, facing the island centre).
 local function buildPlatform(platform: ShibaPlatforms.Platform, frame: CFrame, parent: Instance)
 	local folder = Instance.new("Model")
@@ -459,8 +486,9 @@ local function buildShooter(
 
 	local model = Instance.new("Model")
 	local asset, isOwnModel = cloneTierModel(tier)
+	local editionLook = if def and def.Edition then ShibaEffects.Editions[def.Edition] else nil
 	local shooter: Shooter
-	if asset and not isOwnModel and tier > 0 then
+	if asset and not isOwnModel and tier > 0 and not editionLook then
 		-- Placeholder look until the tier has its own model: an outline in the tier colour.
 		local outline = Instance.new("Highlight")
 		outline.FillTransparency = 0.75
@@ -476,6 +504,10 @@ local function buildShooter(
 		local box, size = asset:GetBoundingBox()
 		local pivotHeight = asset:GetPivot().Position.Y - (box.Position.Y - size.Y / 2)
 		addEffects(asset, if def then ShibaEffects.Effects[def.AssetName] else nil, height)
+		-- Shiny / Mythic editions: the base model with an outline and aura in the tier colour.
+		if def and editionLook then
+			addEditionLook(asset, editionLook, def.Color, height)
+		end
 		-- Markers only tell the client where the throwing arm turns and what the orbit spins around.
 		hideMarker(asset, CONFIG.Throw.ShoulderName)
 		hideMarker(asset, MOTION.OrbitCenterName)
