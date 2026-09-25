@@ -32,7 +32,7 @@ export type ShotPlan = {
 	Radius: number,
 	-- Launch speed without jitter.
 	NominalSpeed: number,
-	-- Actual launch speed including jitter. Hit quality is measured against it.
+	-- Actual launch speed including jitter.
 	Speed: number,
 	-- Flight and bounces, as the clients draw it.
 	Path: ProjectilePath.Path,
@@ -163,7 +163,7 @@ function ProjectileService.PlanDrop(owner: Player, target: Vector3, height: numb
 		From = from,
 		Radius = radius,
 		NominalSpeed = def.BaseSpeed,
-		-- Hit quality compares against launch speed; a drop lands at about this speed.
+		-- A drop lands at about this speed.
 		Speed = gravity * fallTime,
 		Path = ProjectilePath.Build(island.Center, radius, from, velocity, gravity),
 		Golden = rollGolden(owner),
@@ -176,29 +176,91 @@ function ProjectileService.GetState(plan: ShotPlan, time: number): (Vector3, Vec
 	return ProjectilePath.GetState(plan.Path, time)
 end
 
--- The point of the path (up to `untilTime`, default: the whole path) closest to `position`:
--- returns the distance and the projectile velocity there.
-function ProjectileService.ClosestApproach(plan: ShotPlan, position: Vector3, untilTime: number?): (number, Vector3)
+-- The point of the path (from `fromTime`, default 0, up to `untilTime`, default: the whole path) closest to
+-- `position`: returns the distance, the projectile velocity there and the time (seconds after launch) it was there.
+function ProjectileService.ClosestApproach(
+	plan: ShotPlan,
+	position: Vector3,
+	untilTime: number?,
+	fromTime: number?
+): (number, Vector3, number)
 	local path = plan.Path
 	local lastTime = math.min(untilTime or path.EndTime, path.EndTime)
+	local firstTime = math.clamp(fromTime or 0, 0, math.max(lastTime, 0))
 	local bestDistance = math.huge
 	local bestVelocity = path.Segments[1].StartVelocity
+	local bestTime = firstTime
 	local function sample(time: number)
 		local point, velocity = ProjectileService.GetState(plan, time)
 		local distance = (point - position).Magnitude
 		if distance < bestDistance then
 			bestDistance = distance
 			bestVelocity = velocity
+			bestTime = time
 		end
 	end
-	local time = 0
+	local time = firstTime
 	while time < lastTime do
 		sample(time)
 		time += HITS.FlightSampleStep
 	end
 	-- The last point exactly (e.g. where it comes to rest).
 	sample(math.max(lastTime, 0))
-	return bestDistance, bestVelocity
+	return bestDistance, bestVelocity, bestTime
+end
+
+-- Distance from `point` to the line segment from `a` to `b`.
+local function distanceToSegment(point: Vector3, a: Vector3, b: Vector3): number
+	local ab = b - a
+	local lengthSquared = ab:Dot(ab)
+	local t = if lengthSquared > 1e-6 then math.clamp((point - a):Dot(ab) / lengthSquared, 0, 1) else 0
+	return (point - (a + ab * t)).Magnitude
+end
+
+-- The first time (seconds after launch, between `fromTime` and `untilTime`) the path came within `reach` of the body
+-- segment from `bodyBottom` to `bodyTop`: when the owner's client first saw the projectile touch the character.
+-- nil if it never came that close (then callers fall back to ClosestApproach). Sampled at FlightSampleStep, then
+-- refined by bisection.
+function ProjectileService.FirstContactTime(
+	plan: ShotPlan,
+	bodyBottom: Vector3,
+	bodyTop: Vector3,
+	reach: number,
+	fromTime: number,
+	untilTime: number
+): number?
+	local path = plan.Path
+	local lastTime = math.max(math.min(untilTime, path.EndTime), 0)
+	local firstTime = math.clamp(fromTime, 0, lastTime)
+	local function touches(time: number): boolean
+		local point = ProjectileService.GetState(plan, time)
+		return distanceToSegment(point, bodyBottom, bodyTop) <= reach
+	end
+	local previous = firstTime
+	local time = firstTime
+	while true do
+		if touches(time) then
+			if time <= firstTime then
+				return firstTime
+			end
+			-- Between the last miss and this hit: narrow it down to a few milliseconds.
+			local low, high = previous, time
+			for _ = 1, 6 do
+				local middle = (low + high) / 2
+				if touches(middle) then
+					high = middle
+				else
+					low = middle
+				end
+			end
+			return high
+		end
+		if time >= lastTime then
+			return nil
+		end
+		previous = time
+		time = math.min(time + HITS.FlightSampleStep, lastTime)
+	end
 end
 
 -- Whether a hit report for this projectile may still be validated now: until the end of its collectable window

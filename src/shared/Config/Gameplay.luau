@@ -167,9 +167,25 @@ return {
 		-- on top of radius + PickupPadding, so both sides stay consistent. Keep it well below
 		-- Shooters.MinDistanceFromPlayer, or the anti-farm rule no longer keeps standing players at 0.
 		PickupPadding = 2,
-		-- Player velocity used for hit quality is clamped to this vertically (and to WalkSpeed horizontally),
-		-- so knockback or a spoofed client velocity can't inflate the quality.
-		MaxVerticalPlayerSpeed = 50,
+		-- Catch quality by timing (BonkService, docs/decisions/0005): the catch moment is compared with the moment the
+		-- projectile first touches the ground (ProjectilePath.GetFirstLandingTime).
+		--   caught after it touched the ground                      → Normal  ("BONK")
+		--   caught in the air, within PerfectWindow s of the landing → Perfect ("PERFECT BONK", ring turns gold)
+		--   caught earlier in the air                               → Good    ("AIR BONK")
+		-- A stick comes down at ~25 studs/s, so a standing player gets it about 0.15 s (right on the landing spot)
+		-- to 0.3 s (a few studs in front of it) before it lands; earlier catches need a jump. 0.25 = "be inside the
+		-- ring when it closes". Raise it to make Perfect easier.
+		PerfectWindow = 0.25,
+		-- Catch moment = the first time the path came within projectile radius + PickupPadding + ContactBodyRadius of
+		-- the character's body line: from ContactLegLength below the root part up to the head (what the client saw
+		-- touch). If the path never came that close (network delay), the time of its closest approach to the root.
+		ContactBodyRadius = 1,
+		ContactLegLength = 3,
+		-- The catch moment is only searched in the last (player ping + ReportLookbackSlack) seconds before the report
+		-- arrived, at most ReportLookbackMax: the client reports right when it sees the touch. Without this bound a
+		-- player who reaches the landing spot late (the descent passed through it earlier) would get Perfect.
+		ReportLookbackSlack = 0.12,
+		ReportLookbackMax = 0.6,
 		-- Client: projectiles farther than projectile radius + PickupPadding + this from the root part skip the exact
 		-- overlap check.
 		BroadPhaseDistance = 6,
@@ -186,7 +202,7 @@ return {
 	},
 
 	Character = {
-		-- Matches MaxVerticalPlayerSpeed: the jump take-off speed.
+		-- The jump take-off speed.
 		JumpPower = 50,
 	},
 
