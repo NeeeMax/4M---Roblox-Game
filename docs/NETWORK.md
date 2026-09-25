@@ -59,6 +59,16 @@ server → client only and purely visual (`Controllers/ShibaController`):
 - `ThrowAt` (number, server clock `Workspace:GetServerTimeNow()`): when the projectile leaves the paw. The server sets
   it when the Shiba starts aiming and clears it when the throw is cancelled; clients swing the `ThrowArm` toward that
   moment, and hide what is in the paw from then on for `Shooters.HandStickHideTime` (the server never changes it).
+Island stalls (`StationService`, names in `Config/Stations`): the invisible anchor parts
+`Workspace/Islands/Island_<UserId>/Stations/Station_<UpgradeId>` and `…/Stations/Station_Rebirth` carry three
+attributes, server → client only, read by `Controllers/StationController` for the billboards:
+- `Kind` (string): `"Upgrade"` or `"Rebirth"`.
+- `Locked` (boolean): upgrade stall: the owner's Shiba Tier is below `UnlockAt` (grey shutter, prompts disabled);
+  rebirth shrine: `RebirthService.CanRebirth` is false (hold prompt disabled). Updated on every `StateChanged`.
+- `UnlockAt` (number): the ShooterTier level that unlocks it (`EconomyConfig.UnlockAtShibaTier[id]` or 0; the shrine:
+  `EconomyConfig.Rebirth.MinShibaTier`). Never changes.
+The shrine's hold prompt is named `UpgradeStand_Rebirth` (shares the stand prefix, so other players' clients hide it);
+triggering it calls `RebirthService.TryRebirth` on the server (owner only, one trigger per 2 s).
 `BonkHit` drives the client-only effects: popup, sound, knockback (the owning client moves its own character), head-hit
 bonus text and the combo counter (`combo` hits in a row; it ends if no hit follows within `comboWindow` seconds).
 
