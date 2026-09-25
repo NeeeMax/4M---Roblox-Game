@@ -710,7 +710,8 @@ function Widgets.Screen(name: string, displayOrder: number?): ScreenGui
 	local function update()
 		local camera = Workspace.CurrentCamera
 		if camera then
-			scale.Scale = math.clamp(camera.ViewportSize.Y / 820, 0.6, 1.15)
+			-- Theme.UIScale keeps menus and the HUD compact; big screens don't blow them up.
+			scale.Scale = math.clamp(camera.ViewportSize.Y / 820 * Theme.UIScale, Theme.UIScaleMin, Theme.UIScaleMax)
 		end
 	end
 	update()

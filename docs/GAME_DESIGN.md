@@ -133,7 +133,7 @@ its flight, `ProjectilePath.GetFirstLandingTime`). See `docs/decisions/0005-catc
   path never came that close (network delay), the time of its closest approach to the root in that window.
 - Why 0.25 s: a stick comes down at ≈ 25 studs/s, so a standing player gets it ≈ 0.15 s (on the landing spot) to
   ≈ 0.3 s (a few studs in front) before it lands; earlier catches need a jump. Tune `PerfectWindow` in `Config/Gameplay`.
-- **Auto-Catch pass** catches always pay Normal.
+- **Magnet** (Auto-Catch) catches always pay Normal.
 - **First bonk:** a new player's first paid hit (`Tutorial.FirstBonkDone` false in the save) pays ×10, sets the flag and
   shows a `FIRST BONK! ×10` splash (`BonkHit` argument `firstBonk`).
 
@@ -368,6 +368,7 @@ Roblox ids live in `Config/Shop` (0 = not created yet: free test purchase in Stu
 | Pass | +2 Shiba Slots | 249 | More Shibas max 7 → 9 (10 Shibas) |
 | Product | Bonk Rain | 49 | +1 Bonk Rain (starts right away when on your island) |
 | Product | 2× Dollars 30 min / 2× Fire Rate 30 min | 39 each | boost |
+| Product | Magnet 15 min (`Magnet15`) | 49 | timed boost `Magnet` (it used to be the Auto-Catch pass): every 0.25 s, sticks within 10 studs of the character are collected as a Normal bonk (no head bonus, combo counts); a small magnet circles the player while it runs, the HUD shows `MAGNET mm:ss`. Admin: Boosts → Magnet 5m / Clear. AutoCatchService, MagnetController |
 | Product | Shiba Tier Skip | 99 | next Shiba tier now (blocked at the top tier) |
 | Product | Starter Pack | 49 | once: 2× Dollars 1 h + 3 Bonk Rains + Starter trophy; offered in a popup for 48 h after the first join |
 | Product | Diamond / Rainbow trophy | 99 / 249 | exclusive trophies |
@@ -382,7 +383,6 @@ Roblox ids live in `Config/Shop` (0 = not created yet: free test purchase in Stu
 | Manage | 199 | manage all income sources from one place: the upgrade menu opens anywhere | HudController |
 | Run Faster | 99 | walk speed x1 → x1.5 | UpgradeService |
 | Stack Upgrade | 149 | buy several upgrade levels at once (x1 → x10) | UpgradeService |
-| Auto-Catch | 249 | every 0.25 s, sticks whose current position is within 10 studs of the character are collected as a Normal bonk (no head bonus, combo counts); only while they could be caught by hand. Look (client only): a small red/silver magnet circles the owner; each auto-caught stick is pulled into the player with a beam and a trail, sparkles pop and the magnet wiggles | AutoCatchService, MagnetController |
 
 Trophies stand on your island for everyone to see. Bought with Bonk Dollars (`EconomyConfig.TrophyThresholds`, each
 about the price of the Shiba you buy around then): Wooden 1e4, Bronze 1e8, Silver 1e14, Golden 1e22, Galaxy 1e30,

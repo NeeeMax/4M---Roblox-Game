@@ -22,7 +22,9 @@ local State = require(script.Parent.Parent.UI.State)
 
 local CONFIG = Gameplay.Magnet
 local ISLAND = Gameplay.Island
-local PASS_ID = "AutoCatch"
+-- The magnet is a timed boost (Types.BoostId "Magnet"): shown until state.Boosts.Magnet (Unix time) runs out.
+local BOOST_ID = "Magnet"
+local activeUntil = 0
 local RED = Color3.fromRGB(215, 40, 45)
 local SILVER = Color3.fromRGB(215, 220, 230)
 local SPARKLE_TEXTURE = "rbxasset://textures/particles/sparkles_main.dds"
@@ -239,6 +241,7 @@ local function update(dt: number)
 			table.remove(pulls, index)
 		end
 	end
+	active = Workspace:GetServerTimeNow() < activeUntil
 	if not (active and root) then
 		magnet.Parent = nil
 		magnetFrame = nil
@@ -302,7 +305,8 @@ end
 
 local function refreshActive()
 	local state = State.Get()
-	active = state ~= nil and state.Passes[PASS_ID] == true
+	activeUntil = if state then state.Boosts[BOOST_ID] or 0 else 0
+	active = Workspace:GetServerTimeNow() < activeUntil
 end
 
 function MagnetController.Init()

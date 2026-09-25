@@ -9,15 +9,7 @@ local EconomyConfig = require(script.Parent.EconomyConfig)
 -- Trophy prices come from EconomyConfig (each about as much as the Shiba bought around then).
 local TROPHY_PRICES = EconomyConfig.TrophyThresholds
 
-export type PassId =
-	"DoublePoints"
-	| "VIP"
-	| "LuckySticks"
-	| "ExtraShibas"
-	| "Manage"
-	| "RunFaster"
-	| "StackUpgrade"
-	| "AutoCatch"
+export type PassId = "DoublePoints" | "VIP" | "LuckySticks" | "ExtraShibas" | "Manage" | "RunFaster" | "StackUpgrade"
 
 export type Pass = {
 	Id: PassId,
@@ -115,14 +107,6 @@ local passes: { Pass } = {
 		Robux = 149,
 		Color = Color3.fromRGB(255, 220, 60),
 	},
-	{
-		Id = "AutoCatch",
-		GamePassId = 0,
-		DisplayName = "Auto-Catch",
-		Description = "A magnet catches every stick within 10 studs of you. No aiming needed!",
-		Robux = 249,
-		Color = Color3.fromRGB(120, 200, 255),
-	},
 }
 
 local products: { Product } = {
@@ -145,6 +129,17 @@ local products: { Product } = {
 		Kind = "Boost",
 		Boost = "Points",
 		Seconds = 1800,
+	},
+	{
+		Id = "Magnet15",
+		ProductId = 0,
+		DisplayName = "Magnet · 15 min",
+		Description = "A magnet catches every stick within 10 studs of you for 15 minutes. No aiming needed!",
+		Robux = 49,
+		Color = Color3.fromRGB(120, 200, 255),
+		Kind = "Boost",
+		Boost = "Magnet",
+		Seconds = 900,
 	},
 	{
 		Id = "FireBoost30",
@@ -346,8 +341,8 @@ local Shop = {
 		VIPDailySpins = 2,
 		LuckyGoldenChance = 0.15,
 		ExtraShibas = 2,
-		-- Auto-Catch pass (AutoCatchService): every AutoCatchInterval seconds, sticks within AutoCatchRadius studs of
-		-- the character are collected as a Normal bonk (no head bonus; the combo still counts).
+		-- Magnet boost (AutoCatchService, product "Magnet15", timed): every AutoCatchInterval seconds, sticks within
+		-- AutoCatchRadius studs of the character are collected as a Normal bonk (no head bonus; the combo still counts).
 		AutoCatchRadius = 10,
 		AutoCatchInterval = 0.25,
 	},

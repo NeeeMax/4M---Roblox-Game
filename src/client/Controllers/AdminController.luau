@@ -164,8 +164,12 @@ local function build()
 	end)
 
 	local boosts = section(list, "Boosts (10 min)", 5)
-	local boostButtons =
-		buttonRow(boosts, 1, { { "2× Dollars" }, { "2× Fire rate" }, { "Clear" } }, Color3.fromRGB(255, 170, 40))
+	local boostButtons = buttonRow(
+		boosts,
+		1,
+		{ { "2× Dollars" }, { "2× Fire rate" }, { "Magnet 5m" }, { "Clear" } },
+		Color3.fromRGB(255, 170, 40)
+	)
 	boostButtons[1].Activated:Connect(function()
 		send("BoostPoints")
 	end)
@@ -173,6 +177,9 @@ local function build()
 		send("BoostFireRate")
 	end)
 	boostButtons[3].Activated:Connect(function()
+		send("BoostMagnet")
+	end)
+	boostButtons[4].Activated:Connect(function()
 		send("ClearBoosts")
 	end)
 
@@ -185,10 +192,10 @@ local function build()
 		end)
 		passButtonsById[passId] = passButtons[index]
 	end
-	-- POWERS passes; "Magnet" = the Auto-Catch pass (its magnet circles you while it is on).
+	-- POWERS passes (the magnet is a timed boost: Boosts → "Magnet 5m", Clear removes it).
 	local powerButtons =
-		buttonRow(shop, 2, { { "Magnet" }, { "Manage" }, { "Run Faster" }, { "Stack" } }, Color3.fromRGB(70, 200, 120))
-	for index, passId in { "AutoCatch", "Manage", "RunFaster", "StackUpgrade" } do
+		buttonRow(shop, 2, { { "Manage" }, { "Run Faster" }, { "Stack" } }, Color3.fromRGB(70, 200, 120))
+	for index, passId in { "Manage", "RunFaster", "StackUpgrade" } do
 		powerButtons[index].Activated:Connect(function()
 			send("TogglePass", passId)
 		end)
