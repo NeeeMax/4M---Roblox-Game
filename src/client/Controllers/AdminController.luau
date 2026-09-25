@@ -6,6 +6,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Admin = require(ReplicatedStorage.Shared.Config.Admin)
+local EconomyConfig = require(ReplicatedStorage.Shared.Config.EconomyConfig)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Upgrades = require(ReplicatedStorage.Shared.Config.Upgrades)
@@ -17,6 +18,8 @@ local Widgets = require(script.Parent.Parent.UI.Widgets)
 local levelLabels: { [string]: TextLabel } = {}
 -- Pass toggle buttons show green while the pass is on.
 local passButtonsById: { [string]: TextButton } = {}
+-- "Rebirths: 2 · income ×3" in the rebirth section.
+local rebirthInfo: TextLabel? = nil
 
 local AdminController = {}
 
@@ -73,16 +76,22 @@ local function build()
 	local list = Widgets.List(panel.Content, 10)
 
 	local points = section(list, Format.CurrencyName, 1)
-	local amounts: { { string } } = {}
-	for _, amount in Admin.PointAmounts do
-		table.insert(amounts, { `+{Format.Number(amount)}` })
+	-- "+1K" … "+1Dc", PointButtonsPerRow per row.
+	local rows = math.ceil(#Admin.PointAmounts / Admin.PointButtonsPerRow)
+	for row = 1, rows do
+		local amounts: { { string } } = {}
+		local first = (row - 1) * Admin.PointButtonsPerRow
+		for index = first + 1, math.min(first + Admin.PointButtonsPerRow, #Admin.PointAmounts) do
+			table.insert(amounts, { `+{Format.Short(Admin.PointAmounts[index])}` })
+		end
+		for offset, button in buttonRow(points, row, amounts, Theme.Good) do
+			local amount = Admin.PointAmounts[first + offset]
+			button.Activated:Connect(function()
+				send("AddPoints", amount)
+			end)
+		end
 	end
-	for index, button in buttonRow(points, 1, amounts, Theme.Good) do
-		button.Activated:Connect(function()
-			send("AddPoints", Admin.PointAmounts[index])
-		end)
-	end
-	buttonRow(points, 2, { { "Set to 0" } }, Theme.Disabled)[1].Activated:Connect(function()
+	buttonRow(points, rows + 1, { { "Set to 0" } }, Theme.Disabled)[1].Activated:Connect(function()
 		send("ClearPoints")
 	end)
 
@@ -120,7 +129,29 @@ local function build()
 		send("MaxUpgrades")
 	end)
 
-	local hub = section(list, "Daily spin · Quests", 3)
+	-- Rebirth (RebirthService): count and multiplier, rebirth now (no Shiba needed), +1, back to 0.
+	local rebirth = section(list, "Rebirth", 3)
+	local rebirthLabel = Widgets.Label(rebirth, "", 16, Theme.Accent)
+	rebirthLabel.LayoutOrder = 1
+	rebirthLabel.Size = UDim2.new(1, 0, 0, 20)
+	rebirthInfo = rebirthLabel
+	local rebirthButtons = buttonRow(
+		rebirth,
+		2,
+		{ { "Rebirth now" }, { "+1 rebirth" }, { "Reset rebirths" } },
+		Color3.fromRGB(255, 120, 200)
+	)
+	rebirthButtons[1].Activated:Connect(function()
+		send("RebirthNow")
+	end)
+	rebirthButtons[2].Activated:Connect(function()
+		send("RebirthAdd")
+	end)
+	rebirthButtons[3].Activated:Connect(function()
+		send("RebirthReset")
+	end)
+
+	local hub = section(list, "Daily spin · Quests", 4)
 	local hubButtons = buttonRow(hub, 1, { { "Reset spin" }, { "New quests" }, { "Finish quests" } }, Theme.Info)
 	hubButtons[1].Activated:Connect(function()
 		send("ResetSpin")
@@ -132,7 +163,7 @@ local function build()
 		send("CompleteQuests")
 	end)
 
-	local boosts = section(list, "Boosts (10 min)", 4)
+	local boosts = section(list, "Boosts (10 min)", 5)
 	local boostButtons =
 		buttonRow(boosts, 1, { { "2× Dollars" }, { "2× Fire rate" }, { "Clear" } }, Color3.fromRGB(255, 170, 40))
 	boostButtons[1].Activated:Connect(function()
@@ -145,7 +176,7 @@ local function build()
 		send("ClearBoosts")
 	end)
 
-	local shop = section(list, "Shop · Gifts (Studio tests)", 5)
+	local shop = section(list, "Shop · Gifts (Studio tests)", 6)
 	local passButtons =
 		buttonRow(shop, 1, { { "2× Dollars" }, { "VIP" }, { "Lucky" }, { "+2 Shibas" } }, Color3.fromRGB(70, 200, 120))
 	for index, passId in { "DoublePoints", "VIP", "LuckySticks", "ExtraShibas" } do
@@ -174,7 +205,7 @@ local function build()
 		send("ResetStarter")
 	end)
 
-	local world = section(list, "World", 6)
+	local world = section(list, "World", 7)
 	local worldButtons =
 		buttonRow(world, 1, { { "To hub" }, { "To my island" }, { "All Shibas fire" } }, Color3.fromRGB(120, 110, 220))
 	worldButtons[1].Activated:Connect(function()
@@ -187,7 +218,7 @@ local function build()
 		send("FireNow")
 	end)
 
-	local events = section(list, "Server events · Offline", 7)
+	local events = section(list, "Server events · Offline", 8)
 	local eventIds = { "GoldenMinute", "MegaStick", "DoublePoints", "StickStorm" }
 	local eventButtons =
 		buttonRow(events, 1, { { "Golden" }, { "Mega" }, { "Double" }, { "Storm" } }, Color3.fromRGB(255, 170, 40))
@@ -205,7 +236,7 @@ local function build()
 		send("SimulateOffline")
 	end)
 
-	local danger = section(list, "Danger zone", 8)
+	local danger = section(list, "Danger zone", 9)
 	local reset = buttonRow(danger, 1, { { "RESET EVERYTHING" } }, Theme.Bad)[1]
 	local armedAt = 0
 	reset.Activated:Connect(function()
@@ -236,6 +267,9 @@ local function refresh()
 	for id, label in levelLabels do
 		local level = state.UpgradeLevels[id] or 0
 		label.Text = `Lv {level}/{Upgrades.GetMaxLevel(id, state.Passes)}`
+	end
+	if rebirthInfo then
+		rebirthInfo.Text = `Rebirths: {state.Rebirths} · income ×{EconomyConfig.RebirthMultiplier(state.Rebirths)}`
 	end
 end
 

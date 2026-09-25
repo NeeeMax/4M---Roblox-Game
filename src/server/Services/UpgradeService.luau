@@ -6,6 +6,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Economy = require(ReplicatedStorage.Shared.Config.Economy)
+local EconomyConfig = require(ReplicatedStorage.Shared.Config.EconomyConfig)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local Net = require(ReplicatedStorage.Shared.Net)
@@ -92,6 +93,13 @@ function UpgradeService.TryPurchase(player: Player, id: string, count: number): 
 	local def = Upgrades.Defs[id]
 	local state = DataService.GetState(player)
 	if not def or not state or count ~= count then
+		return 0
+	end
+	-- Later upgrades (basket, intern) unlock with a Shiba tier (EconomyConfig.UnlockAtShibaTier).
+	local unlockTier = EconomyConfig.UnlockAtShibaTier[def.Id] or 0
+	if (state.UpgradeLevels.ShooterTier or 0) < unlockTier then
+		local shiba = EconomyConfig.Shibas[unlockTier + 1]
+		NotifyService.Send(player, `{def.DisplayName} unlocks with the {shiba.Name}!`, "Bad")
 		return 0
 	end
 	local wanted = math.max(1, math.floor(count))
