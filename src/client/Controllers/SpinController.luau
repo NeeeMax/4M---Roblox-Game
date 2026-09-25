@@ -207,7 +207,7 @@ local function build()
 		end
 		spinning = true
 		waiting = true
-		resultLabel.Text = ""
+		Widgets.SetMoneyText(resultLabel, "")
 		Net.Get(Net.RequestSpin):FireServer()
 		task.delay(3, function()
 			if waiting then
@@ -232,9 +232,11 @@ local function spinTo(index: number, text: string)
 	tween.Completed:Wait()
 	local segment = CONFIG.Segments[index]
 	resultLabel.TextColor3 = if segment.Kind == "Nothing" then Theme.Muted else Theme.Accent
-	resultLabel.Text = if segment.Kind == "Nothing"
-		then "Nothing this time… try again tomorrow!"
-		else `You won {text}!`
+	-- "+B$ 1,234" (from the server) shows the Bonk Dollars symbol.
+	Widgets.SetMoneyText(
+		resultLabel,
+		if segment.Kind == "Nothing" then "Nothing this time… try again tomorrow!" else `You won {text}!`
+	)
 	spinning = false
 end
 

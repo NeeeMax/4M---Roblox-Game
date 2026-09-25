@@ -112,7 +112,7 @@ local function onClaimIndex(player: Player, entryId: unknown)
 	local amount = RewardService.Hits(player, hits)
 	-- AddPoints replicates the state (Claimed included).
 	EconomyService.AddPoints(player, amount)
-	NotifyService.Send(player, `{name}: +{Format.Number(amount)} Bonk Points`, "Good")
+	NotifyService.Send(player, `{name}: +{Format.Money(amount)}`, "Good")
 end
 
 function IndexService.Start()

@@ -1,6 +1,6 @@
 --!strict
 -- Coin flips on the hub (Config/Hub → CoinFlip, Duel).
--- Against the house: bet a share of your Bonk Points on heads or tails, 50:50, win doubles the bet.
+-- Against the house: bet a share of your Bonk Dollars on heads or tails, 50:50, win doubles the bet.
 -- Duels: challenge another player for a fixed stake; if they accept, both pay, a fair coin picks the winner, who
 -- gets both stakes. The server decides everything; clients only animate the coin.
 
@@ -55,7 +55,7 @@ local function onCoinFlip(player: Player, fraction: unknown, side: unknown)
 	end
 	local bet = math.floor(EconomyService.GetPoints(player) * fraction)
 	if bet < FLIP.MinBet then
-		NotifyService.Send(player, `You need at least {FLIP.MinBet} Bonk Points to bet`, "Bad")
+		NotifyService.Send(player, `You need at least {Format.Money(FLIP.MinBet)} to bet`, "Bad")
 		return
 	end
 	if not EconomyService.TrySpend(player, bet) then
@@ -101,7 +101,7 @@ local function onDuelChallenge(player: Player, targetUserId: unknown, stake: unk
 		return
 	end
 	if EconomyService.GetPoints(player) < stake then
-		NotifyService.Send(player, "Not enough Bonk Points for that stake", "Bad")
+		NotifyService.Send(player, "Not enough Bonk Dollars for that stake", "Bad")
 		return
 	end
 	local duel: Duel = {
@@ -151,7 +151,7 @@ local function onDuelRespond(player: Player, duelId: unknown, accept: unknown)
 	QuestService.Record(winner, "CoinWin", 1)
 	duelResult:FireClient(winner, true, loser.DisplayName, duel.Stake, side)
 	duelResult:FireClient(loser, false, winner.DisplayName, duel.Stake, side)
-	NotifyService.Send(winner, `You won {Format.Number(duel.Stake)} from {loser.DisplayName}!`, "Good")
+	NotifyService.Send(winner, `You won {Format.Money(duel.Stake)} from {loser.DisplayName}!`, "Good")
 end
 
 function CoinFlipService.Start()

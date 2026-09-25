@@ -18,10 +18,13 @@ local HUB = World.Hub
 local DecorService = {}
 
 local function setupLighting()
+	-- Toned down (was Brightness 2.6, specular 1, bloom 0.6 / size 30 / threshold 1.4, glare 0.3): together with the
+	-- Neon frames on the hub the centre glared white. Neon renders above the bloom threshold, so bloom is now weaker,
+	-- tighter and starts later.
 	Lighting.ClockTime = 14.5
-	Lighting.Brightness = 2.6
+	Lighting.Brightness = 2.2
 	Lighting.EnvironmentDiffuseScale = 1
-	Lighting.EnvironmentSpecularScale = 1
+	Lighting.EnvironmentSpecularScale = 0.7
 	Lighting.OutdoorAmbient = Color3.fromRGB(150, 150, 170)
 	Lighting.Ambient = Color3.fromRGB(90, 90, 110)
 	Lighting.GlobalShadows = true
@@ -42,21 +45,21 @@ local function setupLighting()
 	atmosphere.Offset = 0.2
 	atmosphere.Color = Color3.fromRGB(200, 220, 255)
 	atmosphere.Decay = Color3.fromRGB(120, 150, 210)
-	atmosphere.Glare = 0.3
+	atmosphere.Glare = 0.1
 	atmosphere.Haze = 1.2
 
 	local bloom = effect("BloomEffect", "BonkBloom") :: BloomEffect
-	bloom.Intensity = 0.6
-	bloom.Size = 30
-	bloom.Threshold = 1.4
+	bloom.Intensity = 0.3
+	bloom.Size = 20
+	bloom.Threshold = 1.8
 
 	local color = effect("ColorCorrectionEffect", "BonkColor") :: ColorCorrectionEffect
 	color.Saturation = 0.15
 	color.Contrast = 0.08
-	color.Brightness = 0.02
+	color.Brightness = 0
 
 	local rays = effect("SunRaysEffect", "BonkSunRays") :: SunRaysEffect
-	rays.Intensity = 0.06
+	rays.Intensity = 0.04
 	rays.Spread = 0.8
 end
 

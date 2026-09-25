@@ -3,5 +3,5 @@
 -- Bump the label with every change that should be visible in a playtest.
 
 return {
-	Label = "2026-09-25 #20: upgrade stands, obby, powers, offline bank, events, index, new UI",
+	Label = "2026-09-25 #21: low-poly props + platform models (police car), new projectiles with Grip, paw fix, magnet animation, minimal knockback, obby without checkpoints, softer hub glow, Bonk Dollars, bonk sound",
 }

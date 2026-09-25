@@ -75,17 +75,9 @@ else:
     bpy.context.view_layer.objects.active=dog[0]
     bpy.ops.object.join()
     body=bpy.context.view_layer.objects.active; body.name="Body"; body.data.name="Body"
-    # Stick-only file: a clean copy standing upright at the origin.
-    loose=stick.copy(); loose.data=stick.data.copy()
+    # Stick.fbx (projectile tier 1) is built by build_shiba_tiers.py with the other projectiles.
     common=dict(axis_forward='Z', axis_up='Y', use_selection=True, object_types={'MESH'},
                 colors_type='SRGB', apply_scale_options='FBX_SCALE_ALL', mesh_smooth_type='FACE', add_leaf_bones=False)
     bpy.ops.object.select_all(action='DESELECT'); body.select_set(True); stick.select_set(True)
     bpy.ops.export_scene.fbx(filepath=os.path.join(OUT,"Shiba.fbx"), **common)
-    stick.name="HandStick"; loose.name="Stick"; loose.data.name="Stick"
-    bpy.data.collections['Collection'].objects.link(loose)
-    loose.matrix_world = Matrix.Rotation(math.radians(-90),4,'X') @ src.matrix_world
-    bpy.context.view_layer.update()
-    lmn,lmx=wb(loose); loose.location -= (lmn+lmx)/2
-    bpy.ops.object.select_all(action='DESELECT'); loose.select_set(True)
-    bpy.ops.export_scene.fbx(filepath=os.path.join(OUT,"Stick.fbx"), **common)
     print("exported", os.listdir(OUT))

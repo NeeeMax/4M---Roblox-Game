@@ -1,20 +1,28 @@
 --!strict
--- World props that should become real 3D models later (trees, lamps, rocks, clouds, trophies, hub machines …).
--- Place() uses ReplicatedStorage.Assets.<name> if it exists, scaled to the given height; otherwise it builds a
--- placeholder from parts. In Studio every placeholder gets a bright pink outline and a "MODEL: <name>" label, so
--- it is obvious what still needs a model (list: assets/README.md). The live game shows the plain placeholder.
+-- World props that can be real 3D models (trees, lamps, rocks, clouds, trophies, hub machines …, list:
+-- assets/README.md → Props; built by assets/models/build_props.py). Place() uses ReplicatedStorage.Assets.<name>
+-- if it exists, scaled to the given height; otherwise it builds a placeholder from parts. Props still using a
+-- placeholder are listed in Output (Config/Props → ReportMissing); Config/Props → ShowPlaceholderMarkers also
+-- puts a pink "MODEL: <name>" label on them in Studio.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Assets = require(ReplicatedStorage.Shared.Util.Assets)
+local Props = require(ReplicatedStorage.Shared.Config.Props)
 
 local MARKER_COLOR = Color3.fromRGB(255, 0, 200)
-local SHOW_MARKERS = RunService:IsStudio()
+local SHOW_MARKERS = Props.ShowPlaceholderMarkers and RunService:IsStudio()
+-- Seconds to collect missing names before printing them in one line.
+local REPORT_DELAY = 3
 
 export type Builder = (model: Model, height: number) -> ()
 
 local PropService = {}
+
+local missing: { [string]: boolean } = {}
+local reported: { [string]: boolean } = {}
+local reportScheduled = false
 
 local function part(
 	model: Model,
@@ -69,7 +77,58 @@ local function marker(model: Model, name: string)
 	text.Parent = label
 end
 
--- Places prop `name` so its bottom centre sits on `cframe` (facing its look vector), `height` studs tall.
+-- Lists props without a model in Output, a few seconds after the first one (the world is built by then).
+local function reportMissing(name: string)
+	if not Props.ReportMissing or reported[name] then
+		return
+	end
+	reported[name] = true
+	missing[name] = true
+	if reportScheduled then
+		return
+	end
+	reportScheduled = true
+	task.delay(REPORT_DELAY, function()
+		reportScheduled = false
+		local names: { string } = {}
+		for missingName in missing do
+			table.insert(names, missingName)
+		end
+		table.clear(missing)
+		table.sort(names)
+		local list = table.concat(names, ", ")
+		warn(`[PropService] No model in ReplicatedStorage.Assets for {#names} prop(s), placeholders used: {list}`)
+	end)
+end
+
+-- Prepares an imported model: collisions (Config/Props → NoCollide), glowing parts and the prop's light.
+local function prepareAsset(name: string, model: Model)
+	local solid = not Props.NoCollide[name]
+	local light: Props.Light? = Props.Lights[name]
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			-- Props you can stand on/walk into keep collisions; visual-only was just for scaling safety.
+			descendant.CanCollide = solid
+			descendant.CanQuery = solid
+			if descendant.Name == Props.GlowPartName then
+				descendant.Material = Enum.Material.Neon
+				descendant.CanCollide = false
+				descendant.CastShadow = false
+				if light then
+					local pointLight = Instance.new("PointLight")
+					pointLight.Range = light.Range
+					pointLight.Brightness = light.Brightness
+					pointLight.Color = light.Color
+					pointLight.Parent = descendant
+					light = nil
+				end
+			end
+		end
+	end
+end
+
+-- Places prop `name` so its bottom centre sits on `cframe` (facing its look vector), `height` studs tall. Hanging
+-- props (Config/Props → Hanging) hang from `cframe` instead: their top centre sits there.
 function PropService.Place(name: string, cframe: CFrame, height: number, build: Builder, parent: Instance): Model
 	local asset = Assets.CloneModel(name)
 	local model: Model
@@ -77,17 +136,21 @@ function PropService.Place(name: string, cframe: CFrame, height: number, build: 
 		model = asset
 		Assets.ScaleTo(model, height, true)
 		Assets.MakeVisualOnly(model, true)
-		for _, descendant in model:GetDescendants() do
-			if descendant:IsA("BasePart") then
-				-- Props you can stand on/walk into keep collisions; visual-only was just for scaling safety.
-				descendant.CanCollide = true
-				descendant.CanQuery = true
-			end
-		end
+		prepareAsset(name, model)
 		local box, size = model:GetBoundingBox()
-		local bottom = box * CFrame.new(0, -size.Y / 2, 0)
-		model:PivotTo(cframe * bottom:ToObjectSpace(model:GetPivot()))
+		local side = if Props.Hanging[name] then size.Y / 2 else -size.Y / 2
+		local anchor = box * CFrame.new(0, side, 0)
+		model:PivotTo(cframe * anchor:ToObjectSpace(model:GetPivot()))
+		-- Callers anchor signs to the PrimaryPart (e.g. the statue's billboard); set after placing, since it changes
+		-- the bounding box orientation.
+		if not model.PrimaryPart then
+			local body = model:FindFirstChild("Body", true)
+			model.PrimaryPart = if body and body:IsA("BasePart")
+				then body
+				else model:FindFirstChildWhichIsA("BasePart", true)
+		end
 	else
+		reportMissing(name)
 		model = Instance.new("Model")
 		-- Placeholders are built around the origin, bottom at y = 0, then moved into place.
 		build(model, height)

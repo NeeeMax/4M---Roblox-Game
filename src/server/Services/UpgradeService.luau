@@ -117,7 +117,7 @@ function UpgradeService.TryPurchase(player: Player, id: string, count: number): 
 		if startLevel >= maxLevel then
 			NotifyService.Send(player, `{def.DisplayName} is maxed out!`, "Info")
 		else
-			NotifyService.Send(player, `You need {Format.Number(missing)} more Bonk Points`, "Bad")
+			NotifyService.Send(player, `You need {Format.Money(missing)} more`, "Bad")
 		end
 		return 0
 	end

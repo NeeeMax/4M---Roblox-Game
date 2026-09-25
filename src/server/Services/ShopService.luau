@@ -99,7 +99,7 @@ function ShopService.Grant(player: Player, product: Shop.Product): boolean
 	elseif product.Kind == "DoubleOffline" then
 		-- 2× the pending Shiba Bank earnings (0 if they were claimed in between).
 		local paid = EconomyService.PayOffline(player, 2)
-		NotifyService.Send(player, `Doubled! +{Format.Number(paid)} Bonk Points`, "Good")
+		NotifyService.Send(player, `Doubled! +{Format.Money(paid)}`, "Good")
 	elseif product.Kind == "StarterPack" then
 		state.StarterPackBought = true
 		state.BonkRains += Shop.StarterPack.BonkRains
@@ -184,7 +184,7 @@ local function buyTrophy(player: Player, trophy: Shop.Trophy)
 		return
 	end
 	if not EconomyService.TrySpend(player, trophy.Points) then
-		NotifyService.Send(player, `You need {Format.Number(trophy.Points - state.BonkPoints)} more Bonk Points`, "Bad")
+		NotifyService.Send(player, `You need {Format.Money(trophy.Points - state.BonkPoints)} more`, "Bad")
 		return
 	end
 	state.Trophies[trophy.Id] = true

@@ -53,4 +53,18 @@ function Assets.MakeVisualOnly(model: Model, anchored: boolean)
 	end
 end
 
+-- Hides every part named `name` inside the model (marker parts such as a projectile's Grip, which must never show)
+-- and returns the first one found, or nil.
+function Assets.HideMarkers(model: Instance, name: string): BasePart?
+	local first: BasePart? = nil
+	for _, descendant in model:GetDescendants() do
+		if descendant.Name == name and descendant:IsA("BasePart") then
+			descendant.Transparency = 1
+			descendant.CastShadow = false
+			first = first or descendant
+		end
+	end
+	return first
+end
+
 return Assets

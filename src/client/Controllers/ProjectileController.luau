@@ -16,6 +16,7 @@ local Projectiles = require(ReplicatedStorage.Shared.Config.Projectiles)
 
 local ISLAND = Gameplay.Island
 local CONFIG = Gameplay.Projectiles
+local GRIP_NAME = Gameplay.Shooters.HandProjectile.GripName
 
 export type Drawn = {
 	Marker: BasePart,
@@ -96,6 +97,9 @@ local function buildModel(def: Projectiles.ProjectileDef?, diameter: number): Mo
 	local model = if def then cloneFirst(Projectiles.AssetCandidates(def.Id)) else nil
 	if model then
 		Assets.ScaleTo(model, diameter)
+		-- The Grip marker only tells the Shiba's paw where to hold it: never visible (before BaseParts is read, so
+		-- the paid look and the landing fade keep it at 1).
+		Assets.HideMarkers(model, GRIP_NAME)
 	else
 		model = Instance.new("Model")
 		local ball = Instance.new("Part")
@@ -322,6 +326,23 @@ function ProjectileController.GetCollectableIn(folder: Instance): { Drawn }
 		end
 	end
 	return result
+end
+
+-- Hands a drawn projectile over to another controller (MagnetController pulls auto-caught sticks into the player):
+-- this controller stops drawing it and the caller owns (and must destroy) the returned entry's Model. Each part is
+-- reset to its own transparency. nil if it is not drawn (not started yet, or already gone).
+function ProjectileController.Detach(marker: BasePart): Drawn?
+	local entry = drawn[marker]
+	if not entry or not entry.Visible then
+		return nil
+	end
+	drawn[marker] = nil
+	entry.Visible = false
+	entry.Collectable = false
+	entry.Paid = false
+	entry.FadeAlpha = 0
+	applyTransparency(entry)
+	return entry
 end
 
 function ProjectileController.Init()

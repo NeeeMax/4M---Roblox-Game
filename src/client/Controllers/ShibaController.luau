@@ -6,6 +6,9 @@
 -- - Throw animation: the server sets the release time (attribute Shooters.Throw.ThrowAtAttribute, server clock); the
 --   throwing arm with what is in the paw turns around the shoulder: back during the aim time, a fast swing forward at
 --   the release, then back to rest. Only models with a ThrowArm part and a Shoulder marker swing (assets/README.md).
+-- - What is in the paw (the hand projectile the server put there, else the model's Stick) swings with the arm and is
+--   hidden from the release for Shooters.HandStickHideTime, so it looks thrown. Hiding happens here, on the same
+--   server-clock release time as the swing (the server never changes it). A projectile's Grip marker stays hidden.
 -- The server places each model once and never moves it, so every pose is computed from that rest pivot, and parts
 -- that stream in later are fitted into the current pose. Purely visual, nothing is sent back.
 
@@ -21,6 +24,7 @@ local SHOOTERS = Gameplay.Shooters
 local THROW = SHOOTERS.Throw
 local MOTION = SHOOTERS.Motion
 local HAND_NAME = SHOOTERS.HandProjectile.Name
+local GRIP_NAME = SHOOTERS.HandProjectile.GripName
 -- Below this many radians off its target yaw a Shiba just snaps the rest of the way.
 local SETTLED_YAW = 1e-3
 local FULL_TURN = 2 * math.pi
@@ -36,6 +40,11 @@ type Rig = {
 	Parts: { [BasePart]: CFrame },
 	-- Parts that swing with the throwing arm (ThrowArm, Stick, hand projectile).
 	Swing: { [BasePart]: boolean },
+	-- What is in the paw (Stick, hand projectile) and each part's own transparency; hidden after each release.
+	Hand: { [BasePart]: number },
+	HandHidden: boolean,
+	-- The arm's current swing (world space), so parts streaming in mid-swing join the pose.
+	SwingFrame: CFrame,
 	HasArm: boolean,
 	Shoulder: Vector3?,
 	Orbit: BasePart?,
@@ -61,21 +70,43 @@ local function wrapAngle(angle: number): number
 	return (angle + math.pi) % FULL_TURN - math.pi
 end
 
-local function isInHand(model: Model, part: BasePart): boolean
+-- True for what the paw holds: the hand projectile (a direct child of the model) and the model's Stick (a part, or
+-- anything inside a Stick model).
+local function isInPaw(model: Model, part: BasePart): boolean
+	if part.Name == SHOOTERS.HandStickName then
+		return true
+	end
 	local hand = model:FindFirstChild(HAND_NAME)
-	return hand ~= nil and part:IsDescendantOf(hand)
+	if hand and part:IsDescendantOf(hand) then
+		return true
+	end
+	local stick = part:FindFirstAncestor(SHOOTERS.HandStickName)
+	return stick ~= nil and stick:IsDescendantOf(model)
 end
 
--- Adds a part to the rig. It is where the server put it, so it is moved into the pose currently shown.
+-- Adds a part to the rig. It is where the server put it, so it is moved into the pose currently shown. A part the
+-- rig already knows keeps its offset: its CFrame is the posed one now, not the rest pose.
 local function addPart(model: Model, rig: Rig, part: BasePart)
+	if rig.Parts[part] then
+		return
+	end
 	local offset = rig.RestPivot:ToObjectSpace(part.CFrame)
 	rig.Parts[part] = offset
 	local name = part.Name
 	if name == THROW.ThrowArmName then
 		rig.HasArm = true
 		rig.Swing[part] = true
-	elseif name == SHOOTERS.HandStickName or isInHand(model, part) then
+	elseif isInPaw(model, part) then
 		rig.Swing[part] = true
+		if name == GRIP_NAME then
+			-- Marker only: never visible (the server hides it too).
+			part.Transparency = 1
+		else
+			rig.Hand[part] = part.Transparency
+			if rig.HandHidden then
+				part.Transparency = 1
+			end
+		end
 	elseif name == THROW.ShoulderName then
 		rig.Shoulder = offset.Position
 	elseif name == MOTION.OrbitName then
@@ -83,9 +114,11 @@ local function addPart(model: Model, rig: Rig, part: BasePart)
 	elseif name == MOTION.OrbitCenterName then
 		rig.OrbitCenter = offset.Position
 	end
-	if rig.Shown ~= rig.RestPivot then
-		part.CFrame = rig.Shown * offset
+	if rig.Shown ~= rig.RestPivot or rig.Swing[part] then
+		part.CFrame = (if rig.Swing[part] then rig.SwingFrame else CFrame.identity) * rig.Shown * offset
 	end
+	-- Refresh the whole pose next frame (an orbit part, for example, joins its spin there).
+	rig.Posed = true
 end
 
 local function tryRig(model: Model)
@@ -108,6 +141,9 @@ local function tryRig(model: Model)
 		Shown = restPivot,
 		Parts = {},
 		Swing = {},
+		Hand = {},
+		HandHidden = false,
+		SwingFrame = CFrame.identity,
 		HasArm = false,
 		Effect = ShibaEffects.Effects[model.Name],
 		Phase = restYaw / FULL_TURN,
@@ -198,6 +234,14 @@ local function turnToward(model: Model, rig: Rig, dt: number): boolean
 	return true
 end
 
+-- Hides what is in the paw (or shows it again with each part's own transparency).
+local function setHandHidden(rig: Rig, hidden: boolean)
+	rig.HandHidden = hidden
+	for part, transparency in rig.Hand do
+		part.Transparency = if hidden then 1 else transparency
+	end
+end
+
 -- Adds this frame's pose of one rig to `parts`/`frames`, if anything about it changed.
 local function poseRig(model: Model, rig: Rig, now: number, dt: number, parts: { BasePart }, frames: { CFrame })
 	local turned = turnToward(model, rig, dt)
@@ -205,7 +249,13 @@ local function poseRig(model: Model, rig: Rig, now: number, dt: number, parts: {
 	local float = if effect then effect.Float else nil
 	local orbit = if effect and rig.Orbit and rig.OrbitCenter then effect.Orbit else nil
 	local throwAt = model:GetAttribute(THROW.ThrowAtAttribute)
-	local angle = if rig.HasArm and rig.Shoulder and typeof(throwAt) == "number" then swingAngle(now - throwAt) else 0
+	local sinceRelease = if typeof(throwAt) == "number" then now - throwAt else nil
+	-- Gone from the paw from the release on (same moment the projectile appears), back after HandStickHideTime.
+	local handHidden = sinceRelease ~= nil and sinceRelease >= 0 and sinceRelease < SHOOTERS.HandStickHideTime
+	if handHidden ~= rig.HandHidden then
+		setHandHidden(rig, handHidden)
+	end
+	local angle = if rig.HasArm and rig.Shoulder and sinceRelease then swingAngle(sinceRelease) else 0
 	if not (turned or float or orbit or angle ~= 0 or rig.Posed) then
 		return
 	end
@@ -225,6 +275,7 @@ local function poseRig(model: Model, rig: Rig, now: number, dt: number, parts: {
 		-- About the Shiba's own right axis (it faces its pivot's LookVector).
 		swing = turnAround(shown * shoulder, shown.RightVector, math.rad(angle))
 	end
+	rig.SwingFrame = swing
 	local spin = CFrame.identity
 	local orbitCenter = rig.OrbitCenter
 	if orbit and orbitCenter then
@@ -236,6 +287,8 @@ local function poseRig(model: Model, rig: Rig, now: number, dt: number, parts: {
 		if not part.Parent then
 			-- Streamed out or removed on its own.
 			rig.Parts[part] = nil
+			rig.Swing[part] = nil
+			rig.Hand[part] = nil
 			continue
 		end
 		local frame = shown * offset
