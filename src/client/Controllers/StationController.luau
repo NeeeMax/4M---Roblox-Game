@@ -464,7 +464,10 @@ local function silhouetteModel(shiba: EconomyConfig.ShibaDef): Model
 			descendant.Reflectance = 0
 			descendant.CastShadow = false
 			if descendant:IsA("MeshPart") then
-				descendant.TextureID = ""
+				-- The black Highlight fill hides the texture anyway; never let a refused write break the silhouette.
+				pcall(function()
+					descendant.TextureID = ""
+				end)
 			end
 		elseif descendant:IsA("SpecialMesh") then
 			descendant.TextureId = ""
