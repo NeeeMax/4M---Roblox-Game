@@ -935,6 +935,844 @@ NEW_DESIGNS = [("PirateShiba", pirate), ("CowboyShiba", cowboy), ("VikingShiba",
                ("AstronautShiba", astronaut), ("RobotShiba", robot), ("SamuraiShiba", samurai),
                ("VampireShiba", vampire), ("PharaohShiba", pharaoh), ("DragonShiba", dragon)]
 
+# --- Shibas 21-30 (the third set, "top" Shibas: DJ, Knight, Superhero, Frost, Magma, Mecha, Angel, Demon, Eternal,
+# Void). Same dog and model contract; helpers below are only used by these designs. ---
+def mesh_obj(name, verts, faces, colors, double=False):
+    """One mesh from raw faces, one colour per face (a list, or fn(face centre) -> colour). double=True adds a
+    back side (own vertices, reversed faces) for thin sheets: Roblox draws one side only."""
+    verts = [Vector(v) for v in verts]
+    faces = [list(f) for f in faces]
+    cols = [colors(sum((verts[i] for i in f), Vector()) / len(f)) if callable(colors) else colors[k]
+            for k, f in enumerate(faces)]
+    if double:
+        n = len(verts)
+        verts = verts + [v.copy() for v in verts]
+        faces = faces + [[i + n for i in reversed(f)] for f in faces]
+        cols = cols + [tuple(c * 0.8 for c in col) for col in cols]
+    me = bpy.data.meshes.new(name)
+    me.from_pydata([tuple(v) for v in verts], [], faces)
+    me.update()
+    o = bpy.data.objects.new(name, me); coll.objects.link(o)
+    attr = me.color_attributes.new("Col", 'BYTE_COLOR', 'CORNER')
+    for poly in me.polygons:
+        for li in poly.loop_indices:
+            attr.data[li].color = (*cols[poly.index], 1.0)
+    me.color_attributes.active_color = attr
+    return o
+
+def curve_tube(name, pts, radii, sides, col):
+    """Faceted tube along the polyline pts, radius per point (0 closes that end in a point, otherwise flat caps).
+    col(k, j, face centre) -> colour, k = segment (-1 start cap, len(pts) - 1 end cap). Faces wind outward."""
+    pts = [Vector(p) for p in pts]
+    verts, faces, cols, rows = [], [], [], []
+    e1 = None
+    for k, p in enumerate(pts):
+        t = (pts[min(k + 1, len(pts) - 1)] - pts[max(k - 1, 0)]).normalized()
+        e1 = t.orthogonal().normalized() if e1 is None else (e1 - t * e1.dot(t)).normalized()
+        e2 = t.cross(e1)
+        if radii[k] <= 0:
+            rows.append([len(verts)]); verts.append(p)
+            continue
+        row = []
+        for j in range(sides):
+            a = j * math.tau / sides
+            row.append(len(verts)); verts.append(p + (e1 * math.cos(a) + e2 * math.sin(a)) * radii[k])
+        rows.append(row)
+
+    def add(face, k, j):
+        faces.append(face); cols.append(col(k, j, sum((verts[i] for i in face), Vector()) / len(face)))
+    for k in range(len(rows) - 1):
+        a, b = rows[k], rows[k + 1]
+        for j in range(sides):
+            jn = (j + 1) % sides
+            if len(a) == 1: add([a[0], b[jn], b[j]], k, j)
+            elif len(b) == 1: add([a[j], a[jn], b[0]], k, j)
+            else: add([a[j], a[jn], b[jn], b[j]], k, j)
+    if len(rows[0]) > 1: add(list(reversed(rows[0])), -1, 0)
+    if len(rows[-1]) > 1: add(list(rows[-1]), len(rows) - 1, 0)
+    return mesh_obj(name, verts, faces, cols)
+
+def arc(center, e1, e2, radius, a0, a1, n):
+    """Points on a circular arc from angle a0 to a1 (radians) in the plane spanned by e1, e2."""
+    center, e1, e2 = Vector(center), Vector(e1), Vector(e2)
+    return [center + (e1 * math.cos(a0 + (a1 - a0) * k / n) + e2 * math.sin(a0 + (a1 - a0) * k / n)) * radius
+            for k in range(n + 1)]
+
+def feather(base, direction, length, width, flat, color, tip=None):
+    """One low-poly feather: a flattened spindle from base along direction, thin across `flat` (the wing's normal),
+    blending from color to tip."""
+    d = Vector(direction).normalized()
+    n = Vector(flat); n = (n - d * n.dot(d)).normalized(); x = n.cross(d)
+    m = Matrix((x, n, d)).transposed()
+    base = Vector(base)
+    fn = (lambda p, nm, i: mix(color, tip, max(0.0, min(1.0, (p - base).dot(d) / length)))) if tip else None
+    return prim("uv", base + d * length / 2, m.to_euler(), scale=(width, width * 0.2, length / 2), color=color, fn=fn,
+                segments=6, ring_count=4, radius=1)
+
+def feather_wing(root, s, span, rise, back, n, length, colors, tip, flat_tilt=0.35, rows=3):
+    """A spread feathered wing on side s (1 = right): a curved arm from root out to the tip; `rows` rows of feathers
+    hang from it, turning from pointing down (near the body) to pointing outward along the arm (at the tip), the
+    longest (primaries) at the back, shorter coverts in front."""
+    root = Vector(root)
+    ctrl = [root, root + Vector((s * span * 0.45, back * 0.4, rise * 0.95)), root + Vector((s * span, back, rise))]
+    arm = lambda t: ctrl[0] * (1 - t) ** 2 + ctrl[1] * 2 * t * (1 - t) + ctrl[2] * t * t
+    out = [curve_tube("wingarm", [arm(k / 8) for k in range(9)], [0.05 - 0.03 * k / 8 for k in range(9)], 6,
+                      lambda k, j, c: colors[-1])]
+    flat = Vector((s * flat_tilt, 1, 0)).normalized()
+    for r in range(rows):
+        for k in range(n):
+            t = (k + 0.5) / n
+            p = arm(t) + Vector((0, -0.03 * r, -0.02 * r))
+            along = (arm(min(1, t + 0.05)) - arm(max(0, t - 0.05))).normalized()
+            down = Vector((s * 0.35, 0.1, -1)).normalized()
+            d = down.lerp(along, t ** 1.6).normalized()
+            L = length * (0.55 + 0.6 * t) * (1, 0.62, 0.36)[r]
+            out.append(feather(p, d, L, 0.075 * (1, 1.05, 1.1)[r], flat, colors[r % len(colors)],
+                               tip if r == 0 else None))
+    return out
+
+def bat_wing(root, s, size, bone, skin, skin2):
+    """A bat wing on side s: arm (root, elbow, wrist), four finger bones fanning out from the wrist, a scalloped
+    membrane between them down to the body (both sides), a claw on the elbow."""
+    R = Vector(root)
+    v = lambda x, y, z: Vector((s * x, y, z)) * size
+    E = R + v(0.3, 0.12, 0.38); W = E + v(0.28, 0.1, 0.12)
+    tips = [W + v(0.42, 0.12, 0.38), W + v(0.58, 0.14, 0.02), W + v(0.48, 0.12, -0.34), W + v(0.22, 0.1, -0.6)]
+    B = R + v(0.08, 0.05, -0.45)
+    pts = [R, E, W] + tips + [B]
+    faces, cols = [], []
+    idx = lambda p: pts.index(p) if p in pts else (pts.append(p) or len(pts) - 1)
+    edge = tips + [B]
+    faces.append([idx(R), idx(E), idx(W)]); cols.append(skin)
+    faces.append([idx(E), idx(tips[0]), idx(W)]); cols.append(skin2)
+    for k in range(len(edge) - 1):
+        a, b = edge[k], edge[k + 1]
+        m = (a + b) / 2 + (W - (a + b) / 2) * 0.28
+        faces.append([idx(W), idx(a), idx(m)]); cols.append(skin if k % 2 else skin2)
+        faces.append([idx(W), idx(m), idx(b)]); cols.append(skin2 if k % 2 else skin)
+    faces.append([idx(W), idx(B), idx(R)]); cols.append(skin)
+    out = [mesh_obj("membrane", pts, faces, cols, double=True)]
+    out.append(curve_tube("bone", [R, E, W], [0.04 * size, 0.035 * size, 0.03 * size], 5, lambda k, j, c: bone))
+    for t in tips:
+        out.append(curve_tube("finger", [W, t], [0.022 * size, 0], 4, lambda k, j, c: bone))
+    out.append(spike(E, v(0.1, 0, 1), 0.12 * size, 0.03 * size, bone, verts=4))
+    return out
+
+def lit_eyes(l, color, glint=None, size=(0.06, 0.022, 0.036), angle=24, dz=-0.005):
+    """Glowing almond eyes over the closed-eye lines (like the Galaxy Shiba's), with a white glint."""
+    out = []
+    for s in (-1, 1):
+        x, z = s * l.eye_x, l.eye_z + dz
+        out.append(ball((x, face_y(l, x, z) + 0.004, z), 1, color, scale=size, rot=(0, 0, s * math.radians(angle))))
+        if glint:
+            gx = x - s * 0.018
+            out.append(ball((gx, face_y(l, gx, z + 0.012) - 0.014, z + 0.012), 0.014, glint))
+    return out
+
+def vein_paint(parts, rock, glow, hot, thresh, freq=1.0, keep_dark=True):
+    """Per-face paint for every part: rock (fn(face centre)) with glowing veins where a smooth 3D wave pattern
+    crosses zero (glow, the core `hot`). Decided per face, so each face is one solid colour."""
+    cols = {}
+    for name, o in parts.items():
+        mw = o.matrix_world; table = {}
+        for poly in o.data.polygons:
+            c = mw @ poly.center
+            mat = o.data.materials[poly.material_index].name if len(o.data.materials) else ""
+            w = (math.sin(c.x * 9.1 * freq + c.z * 4.3 * freq) + math.sin(c.y * 8.3 * freq - c.z * 7.7 * freq + 1.3)
+                 + math.sin(c.x * 5.3 * freq + c.y * 6.1 * freq + c.z * 10.7 * freq + 2.1))
+            if keep_dark and mat == "fur_dark":
+                table[poly.index] = DARK
+            elif abs(w) < thresh * 0.35:
+                table[poly.index] = hot
+            elif abs(w) < thresh:
+                table[poly.index] = glow
+            else:
+                table[poly.index] = rock(c)
+        cols[f"{name}:*"] = lambda p, n, i, t=table: t[i]
+    return cols
+
+def slab(outline, center, right, up, thickness, front, back=None, side=None):
+    """Flat plate from a 2D outline (convex, counter-clockwise seen from the front) in the plane right/up at center,
+    `thickness` deep toward the back (normal = right x up points to the front)."""
+    right, up = Vector(right).normalized(), Vector(up).normalized()
+    nrm = right.cross(up).normalized()
+    c = Vector(center)
+    f = [c + right * x + up * y + nrm * thickness / 2 for x, y in outline]
+    b = [p - nrm * thickness for p in f]
+    n = len(outline)
+    faces = [list(range(n)), [n + i for i in reversed(range(n))]]
+    cols = [front, back or front]
+    for i in range(n):
+        j = (i + 1) % n
+        faces.append([i, n + i, n + j, j]); cols.append(side or back or front)
+    return mesh_obj("slab", f + b, faces, cols)
+
+def glyph(center, right, up, size, color, rng):
+    """A little rune: two or three thin bars in a random arrangement (clock halo, sigils)."""
+    right, up = Vector(right).normalized(), Vector(up).normalized()
+    nrm = right.cross(up)
+    m = Matrix((right, up, nrm)).transposed().to_euler()
+    out = []
+    shapes = [[(0, 0, 0.1, 1), (0, 0.35, 0.7, 0.1)], [(-0.3, 0, 0.1, 1), (0.3, 0, 0.1, 1), (0, 0, 0.7, 0.1)],
+              [(0, 0, 0.1, 1), (-0.2, 0.3, 0.5, 0.1), (0.2, -0.3, 0.5, 0.1)], [(0, 0.4, 0.8, 0.1), (0, -0.4, 0.8, 0.1),
+              (0, 0, 0.1, 0.8)], [(-0.25, 0, 0.1, 1), (0.1, 0.1, 0.6, 0.1), (0.25, -0.3, 0.1, 0.5)]]
+    for x, y, w, h in rng.choice(shapes):
+        out.append(prim("cube", Vector(center) + right * x * size + up * y * size, m,
+                        scale=(max(w, 0.18) * size, max(h, 0.18) * size, size * 0.2), color=color, size=1))
+    return out
+
+def dj(parts, hs):
+    l = landmarks(parts); ex = []
+    black, grey, pink, cyan = srgb(28, 28, 34), srgb(120, 124, 136), srgb(255, 60, 190), srgb(40, 230, 255)
+    cap, gold, white = srgb(120, 50, 230), srgb(255, 200, 45), srgb(245, 245, 250)
+    top = l.skull_top - 0.03
+    # Cap worn backwards: dome, the visor pointing back, a button on top.
+    ex.append(ball((0, l.head_c.y + 0.02, top + 0.02), 1, cap, scale=(0.215, 0.235, 0.12)))
+    ex.append(ball((0, l.head_c.y + 0.25, top - 0.02), 1, pink, scale=(0.16, 0.13, 0.018),
+                   rot=(math.radians(12), 0, 0)))
+    ex.append(ball((0, l.head_c.y + 0.02, top + 0.135), 0.025, pink))
+    # Big headphones: cups on the sides of the head, band arching over the cap.
+    cy, rx, ry = head_section(l, l.eye_z)
+    for s in (-1, 1):
+        x = s * (rx + 0.02)
+        ex.append(prim("cyl", (x, cy + 0.02, l.eye_z), (0, math.radians(90), 0), color=black, vertices=12,
+                       radius=0.12, depth=0.08))
+        ex.append(prim("cyl", (x + s * 0.045, cy + 0.02, l.eye_z), (0, math.radians(90), 0), color=pink, vertices=12,
+                       radius=0.085, depth=0.02))
+        ex.append(ring((x + s * 0.042, cy + 0.02, l.eye_z), 0.1, 0.012, cyan, rot=(0, math.radians(90), 0),
+                       segments=14))
+    band_r = rx + 0.06
+    pts = arc((0, cy + 0.02, l.eye_z), (1, 0, 0), (0, 0, 1), band_r, 0.12, math.pi - 0.12, 10)
+    pts = [p + Vector((0, 0, max(0.0, top + 0.17 - l.eye_z - band_r) * (p.z - l.eye_z) / band_r)) for p in pts]
+    ex.append(curve_tube("band", pts, [0.03] * len(pts), 6, lambda k, j, c: black))
+    # Gold chain with a golden record pendant.
+    chest_z = l.neck_z - 0.1
+    chain_pts = []
+    for i in range(11):
+        t = -1 + i / 5
+        z = chest_z + 0.09 * t * t
+        chain_pts.append((0.2 * t, front_y(parts["Torso"], z, x=0.2 * t) - 0.015, z))
+    ex += chain(chain_pts, gold)
+    pz = chest_z - 0.1
+    py = front_y(parts["Torso"], pz) - 0.025
+    ex.append(prim("cyl", (0, py, pz), (math.radians(90), 0, 0), color=gold, vertices=14, radius=0.075, depth=0.02))
+    ex.append(prim("cyl", (0, py - 0.012, pz), (math.radians(90), 0, 0), color=pink, vertices=10, radius=0.028,
+                   depth=0.01))
+    # DJ booth beside the free paw: a speaker box with two woofers, a turntable on top with a spinning record.
+    sp = Vector((-0.68, -0.02, 0.0))
+    ex.append(box(sp + Vector((0, 0, 0.26)), (0.36, 0.34, 0.52), black))
+    ex.append(box(sp + Vector((0, 0, 0.52)), (0.38, 0.36, 0.025), pink))
+    for z, r in ((0.15, 0.12), (0.37, 0.08)):
+        fy = sp.y - 0.17
+        ex.append(ring((sp.x, fy - 0.005, z), r, 0.018, grey, rot=(math.radians(90), 0, 0), segments=16))
+        ex.append(prim("cone", (sp.x, fy + 0.01, z), (math.radians(90), 0, 0), color=srgb(55, 55, 65), vertices=12,
+                       radius1=r, radius2=r * 0.3, depth=0.03))
+        ex.append(ball((sp.x, fy - 0.02, z), r * 0.28, cyan))
+    deck = sp + Vector((0, 0, 0.56))
+    ex.append(box(deck, (0.42, 0.38, 0.06), grey))
+    ex.append(prim("cyl", deck + Vector((-0.03, 0, 0.045)), color=black, vertices=16, radius=0.15, depth=0.025))
+    ex.append(prim("cyl", deck + Vector((-0.03, 0, 0.062)), color=pink, vertices=10, radius=0.05, depth=0.012))
+    ex.append(rod(deck + Vector((0.16, 0.13, 0.05)), deck + Vector((0.06, -0.06, 0.07)), 0.012, white, verts=4))
+    for k, col in enumerate((cyan, pink, srgb(90, 255, 120))):
+        ex.append(box(deck + Vector((0.15, -0.14 + 0.05 * k, 0.04)), (0.05, 0.03, 0.02), col))
+    # Record in the free paw.
+    rec = l.left_hand + Vector((-0.03, -0.08, 0.1))
+    ex.append(prim("cyl", rec, (math.radians(80), 0, math.radians(-20)), color=black, vertices=16, radius=0.12,
+                   depth=0.015))
+    ex.append(prim("cyl", rec + Vector((0.003, -0.01, 0)), (math.radians(80), 0, math.radians(-20)), color=cyan,
+                   vertices=10, radius=0.045, depth=0.012))
+    return default_cols(), ex
+
+def knight(parts, hs):
+    l = landmarks(parts); ex = []
+    steel, dark, shine = srgb(185, 192, 205), srgb(105, 112, 128), srgb(235, 240, 250)
+    red, blue, gold, white = srgb(215, 30, 40), srgb(35, 70, 185), srgb(255, 200, 45), srgb(250, 248, 240)
+    top = l.skull_top - 0.04
+    polish = lambda p, n, i: mix(steel, shine, max(0.0, min(1.0, (p.z - top) / 0.18)))
+    # Great helm: dome over the skull, a rim, cheek guards, the visor raised on the forehead, a red plume.
+    ex.append(ball((0, l.head_c.y + 0.01, top + 0.01), 1, None, scale=(0.235, 0.255, 0.19), fn=polish))
+    rim_z = l.eye_z + 0.075
+    cy, rx, ry = head_section(l, rim_z)
+    ex.append(ring((0, cy, rim_z), rx + 0.02, 0.028, dark, scale=(1, (ry + 0.02) / (rx + 0.02), 1), segments=20))
+    for s in (-1, 1):
+        ex.append(box((s * (rx + 0.005), cy + 0.04, l.eye_z - 0.03), (0.04, 0.2, 0.2), steel,
+                      rot=(0, s * math.radians(-8), 0)))
+    vz = rim_z + 0.07
+    vy = face_y(l, 0, min(vz, l.skull_top - 0.05)) - 0.05
+    visor = ball((0, vy, vz), 1, dark, scale=(0.21, 0.07, 0.07), rot=(math.radians(-35), 0, 0))
+    ex.append(visor)
+    for k in range(2):
+        ex.append(box((0, vy - 0.045, vz + 0.01 - k * 0.035), (0.26, 0.012, 0.012), srgb(30, 30, 40),
+                      rot=(math.radians(-35), 0, 0)))
+    crest = Vector((0, l.head_c.y + 0.02, top + 0.19))
+    ex.append(prim("cyl", crest, color=gold, vertices=8, radius=0.04, depth=0.06))
+    for k in range(7):
+        p = crest + Vector((0, 0.03 + 0.07 * k, 0.1 - 0.018 * k * k + 0.04))
+        ex.append(ball(p, 0.07 - 0.005 * k, red, scale=(0.7, 1.2, 1)))
+    # Breastplate following the chest, gorget, pauldron on the shield side (the throwing side's goes on the arm).
+    lo, hi = l.torso_min.z + 0.2, l.neck_z - 0.02
+    ex.append(shell(parts['Torso'], lambda c, nrm: nrm.y < -0.25 and lo < c.z < hi and abs(c.x) < 0.3, 0.018,
+                    lambda p, n, i: mix(steel, shine, max(0.0, min(1.0, (p.z - lo) / (hi - lo))))))
+    ex.append(ring((0, l.head_c.y + 0.06, l.neck_z), 0.25, 0.045, steel, rot=(math.radians(-18), 0, 0), segments=16))
+    ex.append(ring((0, (l.torso_min.y + l.torso_max.y) / 2, l.torso_min.z + 0.2), 0.36, 0.035, srgb(90, 55, 30),
+                   scale=(1, 0.85, 1), segments=18))
+    ex.append(box((0, front_y(parts['Torso'], l.torso_min.z + 0.2) - 0.03, l.torso_min.z + 0.2), (0.07, 0.03, 0.06),
+                  gold))
+    lu_min, lu_max = wb(parts['LeftUpperArm'])
+    ex.append(ball(((lu_min.x + lu_max.x) / 2 - 0.02, (lu_min.y + lu_max.y) / 2, lu_max.z - 0.02), 1, steel,
+                   scale=(0.16, 0.16, 0.1), rot=(0, math.radians(-25), 0)))
+    ru_min, ru_max = wb(parts['RightUpperArm'])
+    arm_plate = ball(((ru_min.x + ru_max.x) / 2 + 0.02, (ru_min.y + ru_max.y) / 2, ru_max.z - 0.02), 1, steel,
+                     scale=(0.15, 0.15, 0.09), rot=(0, math.radians(25), 0))
+    # Kite shield on the free arm: gold border, blue field, a white bone crest.
+    c = l.left_hand + Vector((-0.1, -0.1, 0.28))
+    right, up = Vector((1, -0.45, 0)).normalized(), Vector((0, 0, 1))
+    kite = [(0, -0.3), (0.17, 0.02), (0.15, 0.17), (0, 0.22), (-0.15, 0.17), (-0.17, 0.02)]
+    ex.append(slab([(x * 1.12, y * 1.1) for x, y in kite], c, right, up, 0.04, gold, dark))
+    nrm = right.cross(up)
+    ex.append(slab(kite, c + nrm * 0.012, right, up, 0.03, blue))
+    fc = c + nrm * 0.03 + up * 0.0
+    d = (right * 0.6 + up * 0.8).normalized()
+    ex.append(rod(fc - d * 0.09, fc + d * 0.09, 0.022, white, verts=6))
+    for e in (-1, 1):
+        for q in (-1, 1):
+            ex.append(ball(fc + d * 0.1 * e + (right * 0.8 - up * 0.6).normalized() * 0.025 * q, 0.028, white))
+    return default_cols(), ex, {"ThrowArm": [arm_plate]}
+
+def superhero(parts, hs):
+    l = landmarks(parts); ex = []
+    blue, blue2, red, dred, yellow = srgb(30, 85, 215), srgb(70, 130, 240), srgb(220, 30, 40), srgb(150, 15, 25), \
+        srgb(255, 210, 40)
+    fur = {"fur_orange": ORANGE, "fur_cream": CREAM, "fur_dark": DARK}
+    cols = default_cols()
+    # Blue suit on the body, red gloves and boots; the head and tail keep the Shiba fur.
+    for name in parts:
+        if name in ("Head", "Tail"):
+            continue
+        glove = name.endswith("Hand")
+        boot = name.endswith("Leg")
+        cols[f"{name}:*"] = (lambda p, n, i, g=glove, b=boot: red if g or (b and p.z < 0.16) else
+                             (blue2 if n == "fur_cream" else blue))
+    ex.append(ring((0, (l.torso_min.y + l.torso_max.y) / 2, l.torso_min.z + 0.22), 0.37, 0.035, yellow,
+                   scale=(1, 0.85, 1), segments=18))
+    # Chest emblem: yellow diamond with a red B.
+    ez = l.neck_z - 0.2
+    ey = front_y(parts['Torso'], ez) - 0.02
+    ex.append(box((0, ey, ez), (0.2, 0.03, 0.2), yellow, rot=(0, math.radians(45), 0)))
+    ex += pixel_text("B", Vector((-0.045, ey - 0.02, ez + 0.075)), (1, 0, 0), (0, 0, -1), 0.03, (0, -1, 0), red)
+    # Domino mask over the eyes with white lenses.
+    mz = l.eye_z + 0.005
+    cy, rx, ry = head_section(l, mz)
+    ex.append(ring((0, cy, mz), rx + 0.008, 0.04, srgb(20, 30, 70), scale=(1, (ry + 0.008) / (rx + 0.008), 1.3),
+                   segments=20))
+    for s in (-1, 1):
+        x = s * l.eye_x
+        ex.append(ball((x, face_y(l, x, mz) - 0.03, mz), 1, srgb(255, 255, 255), scale=(0.055, 0.015, 0.03),
+                       rot=(0, 0, s * math.radians(20))))
+    # Cape: from the shoulders down the back, billowing out to the free-paw side (away from the throwing arm).
+    rows, colsn = 7, 6
+    verts = []
+    for r in range(rows):
+        t = r / (rows - 1)
+        width = 0.3 + 0.5 * t
+        for k in range(colsn):
+            u = k / (colsn - 1) * 2 - 1
+            wave = 0.06 * math.sin(u * 3.1 + t * 2) * t
+            x = u * width - 0.35 * t * t
+            y = l.back_y - 0.05 + 0.1 + 0.55 * t * t + 0.12 * (1 - u * u) * (1 - t) + wave
+            z = l.neck_z + 0.02 - t * (l.neck_z - 0.04) + 0.25 * t * t
+            if r == 0:
+                y = l.head_c.y + 0.12 + 0.08 * u * u
+            verts.append((x, y, z))
+    faces = []
+    for r in range(rows - 1):
+        for k in range(colsn - 1):
+            a = r * colsn + k
+            faces.append([a, a + colsn, a + colsn + 1, a + 1])
+    ex.append(mesh_obj("cape", verts, faces, lambda c: red, double=True))
+    for s in (-1, 1):
+        ex.append(ball((s * 0.22, l.head_c.y + 0.08, l.neck_z + 0.01), 0.045, yellow))
+    return cols, ex
+
+def frost(parts, hs):
+    l = landmarks(parts); ex = []
+    ice, ice2, white, deep = srgb(150, 215, 250), srgb(90, 170, 240), srgb(245, 252, 255), srgb(25, 50, 110)
+    span = l.max_z - l.min_z
+    cols = {"fur_orange": lambda p: mix(ice2, ice, (p.z - l.min_z) / span),
+            "fur_cream": lambda p: white, "fur_dark": lambda p: deep}
+    ex += lit_eyes(l, srgb(120, 245, 255), srgb(255, 255, 255))
+    # Ice crystal crown: a circlet with tall six-sided crystals, the middle one tallest.
+    top = l.skull_top - 0.04
+    cy, rx, ry = head_section(l, top - 0.02)
+    ex.append(ring((0, cy, top - 0.02), rx + 0.01, 0.025, white, scale=(1, (ry + 0.01) / (rx + 0.01), 1), segments=18))
+    for k, (a, h) in enumerate(((-90, 0.38), (-60, 0.26), (-120, 0.26), (-30, 0.18), (-150, 0.18), (10, 0.14),
+                                (190, 0.14))):
+        ar = math.radians(a)
+        base = Vector((math.cos(ar) * (rx + 0.01), cy + math.sin(ar) * (ry + 0.01), top - 0.03))
+        d = Vector((math.cos(ar) * 0.25, math.sin(ar) * 0.25, 1))
+        ex.append(spike(base, d, h, 0.045 if k else 0.06, ice, verts=6, tip=white))
+    # Icicles under the chin and along the frost mantle's hem.
+    for k, x in enumerate((-0.09, -0.03, 0.03, 0.09)):
+        ex.append(spike(l.mouth + Vector((x, 0.03, -0.03)), (0, 0, -1), 0.08 + 0.04 * (k % 2), 0.018, ice, verts=4,
+                        tip=white))
+    # Frost mantle: a pale blue cape from the shoulders, a snowy fur collar, icicles on its hem.
+    top_z, bottom_z = l.neck_z, l.min_z + 0.2
+    ex.append(prim("cone", (0, l.back_y + 0.04, (top_z + bottom_z) / 2), color=ice2, vertices=8, radius1=0.46,
+                   radius2=0.26, depth=top_z - bottom_z, scale=(1, 0.32, 1)))
+    for k in range(7):
+        x = -0.36 + 0.12 * k
+        ex.append(spike((x, l.back_y + 0.1, bottom_z + 0.01), (0, 0, -1), 0.12 + 0.06 * (k % 2), 0.03, ice, verts=4,
+                        tip=white))
+    for k in range(12):
+        a = k * math.tau / 12
+        ex.append(ball((math.cos(a) * 0.24, l.head_c.y + 0.07 + math.sin(a) * 0.22, l.neck_z - 0.02 +
+                        0.04 * math.sin(a)), 0.07, white))
+    # Ice shards on the free shoulder, a crystal cluster on the throwing arm, jagged ice on the ground.
+    sh = Vector((-0.3, 0.0, l.shoulder_z + 0.05))
+    for d, h in (((-0.5, 0.1, 1), 0.2), ((-1, 0.2, 0.5), 0.15), ((-0.2, 0.4, 1), 0.13)):
+        ex.append(spike(sh, d, h, 0.04, ice, verts=5, tip=white))
+    ru_min, ru_max = wb(parts['RightUpperArm'])
+    arm = [spike(((ru_min.x + ru_max.x) / 2 + 0.06, (ru_min.y + ru_max.y) / 2, ru_max.z - 0.05), d, h, 0.035, ice,
+                 verts=5, tip=white) for d, h in (((0.6, 0.1, 1), 0.16), ((1, 0.2, 0.3), 0.12))]
+    rng = random.Random(21)
+    for k in range(9):
+        a = math.radians(-40 - k * 30 + rng.uniform(-8, 8))
+        r = rng.uniform(0.5, 0.62)
+        base = Vector((math.cos(a) * r, math.sin(a) * r * 0.9, -0.02))
+        d = Vector((math.cos(a) * 0.45, math.sin(a) * 0.45, 1))
+        ex.append(spike(base, d, rng.uniform(0.14, 0.3), rng.uniform(0.04, 0.07), ice, verts=5, tip=white))
+    ex.append(prim("cyl", (0, 0.05, -0.005), color=white, vertices=12, radius=0.62, depth=0.03, scale=(1, 0.9, 1)))
+    return cols, ex, {"ThrowArm": arm}
+
+def magma(parts, hs):
+    l = landmarks(parts); ex = []
+    r1, r2 = srgb(34, 28, 28), srgb(58, 44, 40)
+    lava, hot, crust = srgb(255, 100, 15), srgb(255, 215, 70), srgb(20, 16, 16)
+    rock = lambda c: r2 if (int(c.x * 14 + 50) + int(c.y * 14 + 50) + int(c.z * 14)) % 3 == 0 else r1
+    cols = vein_paint(parts, rock, lava, hot, 0.38)
+    ex += lit_eyes(l, srgb(255, 170, 30), srgb(255, 250, 200))
+    # Volcanic crown: dark rock cones with glowing craters and lava running down, the middle one tallest.
+    top = l.skull_top - 0.05
+    cy, rx, ry = head_section(l, top)
+    for k, (a, h) in enumerate(((-90, 0.26), (-50, 0.18), (-130, 0.18), (0, 0.14), (180, 0.14))):
+        ar = math.radians(a)
+        base = Vector((math.cos(ar) * rx * 0.8, cy + math.sin(ar) * ry * 0.8, top))
+        rb = 0.09 if k == 0 else 0.07
+        ex.append(prim("cone", base + Vector((0, 0, h / 2)), color=r1, vertices=7, radius1=rb, radius2=rb * 0.45,
+                       depth=h))
+        ex.append(prim("cyl", base + Vector((0, 0, h + 0.005)), color=hot, vertices=7, radius=rb * 0.4, depth=0.02))
+        ex.append(ball(base + Vector((0, 0, h + 0.03)), rb * 0.35, lava))
+        ex.append(box(base + Vector((0, -rb * 0.55, h * 0.55)), (0.03, 0.02, h * 0.8), lava,
+                      rot=(math.radians(-16), 0, 0)))
+    # Lava drips from the chin, the belly and the free arm.
+    for p, L in ((l.mouth + Vector((-0.04, 0.03, -0.03)), 0.12), (l.mouth + Vector((0.05, 0.03, -0.02)), 0.08),
+                 (Vector((-0.2, front_y(parts['Torso'], 0.4, x=-0.2) + 0.02, 0.4)), 0.12),
+                 (Vector((0.18, front_y(parts['Torso'], 0.5, x=0.18) + 0.02, 0.5)), 0.1)):
+        ex.append(ball(p + Vector((0, 0, -L / 2)), 1, None, scale=(0.028, 0.028, L / 2),
+                       fn=lambda q, n, i, top_z=p.z, L=L: mix(lava, hot, max(0, min(1, (top_z - q.z) / L)))))
+        ex.append(ball(p + Vector((0, 0, -L)), 0.035, hot))
+    # Lava pool under the feet with crusted rocks, a few glowing embers around it.
+    ex.append(prim("cyl", (0, 0.05, -0.01), color=lava, vertices=12, radius=0.66, depth=0.04, scale=(1, 0.9, 1)))
+    ex.append(prim("cyl", (0, 0.05, 0.0), color=hot, vertices=12, radius=0.4, depth=0.045, scale=(1, 0.9, 1)))
+    rng = random.Random(22)
+    for k in range(10):
+        a = k * math.tau / 10 + rng.uniform(-0.2, 0.2)
+        r = rng.uniform(0.55, 0.7)
+        ex.append(prim("ico", (math.cos(a) * r, 0.05 + math.sin(a) * r * 0.9, 0.02), color=crust, subdivisions=1,
+                       radius=rng.uniform(0.06, 0.1), scale=(1, 1, 0.6)))
+    return cols, ex
+
+def mecha(parts, hs):
+    l = landmarks(parts); ex = []
+    white, grey, blue, red, yellow = srgb(236, 240, 246), srgb(70, 76, 90), srgb(40, 85, 210), srgb(215, 40, 45), \
+        srgb(255, 200, 40)
+    glow = srgb(80, 250, 255)
+    cols = recolor(srgb(92, 98, 112), srgb(170, 176, 188), srgb(30, 32, 40))
+    arm = []
+    # Helmet: blue dome, white face guard sides, armoured ears, a gold V-fin, a dark visor with glowing eyes.
+    top = l.skull_top - 0.05
+    ex.append(ball((0, l.head_c.y + 0.02, top), 1, blue, scale=(0.25, 0.27, 0.17)))
+    rim_z = l.eye_z + 0.07
+    cy, rx, ry = head_section(l, rim_z)
+    ex.append(ring((0, cy, rim_z), rx + 0.02, 0.03, white, scale=(1, (ry + 0.02) / (rx + 0.02), 1), segments=16))
+    for s in (-1, 1):
+        ex.append(box((s * (rx + 0.01), cy + 0.03, l.eye_z - 0.04), (0.06, 0.24, 0.2), white))
+        ex.append(box((s * (rx + 0.045), cy + 0.03, l.eye_z - 0.04), (0.02, 0.12, 0.08), red))
+        # Ear armour: a pointed blue plate over each ear.
+        ear = [v for v in l.head_verts if s * v.x > 0.08]
+        tip = max(ear, key=lambda v: v.z)
+        ex.append(spike(tip + Vector((-s * 0.02, 0.01, -0.17)), (s * 0.05, 0, 1), 0.22, 0.085, blue, verts=4))
+        ex.append(spike((s * 0.03, face_y(l, s * 0.03, rim_z + 0.03) - 0.02, rim_z + 0.03), (s * 0.9, -0.1, 0.8), 0.24,
+                        0.025, yellow, verts=4))
+    ex.append(box((0, face_y(l, 0, rim_z + 0.03) - 0.025, rim_z + 0.03), (0.07, 0.03, 0.06), red))
+    vz = l.eye_z - 0.005
+    vy = min(face_y(l, l.eye_x, vz), face_y(l, -l.eye_x, vz)) - 0.03
+    ex.append(box((0, vy, vz), (0.4, 0.035, 0.075), grey))
+    for s in (-1, 1):
+        ex.append(box((s * l.eye_x, vy - 0.02, vz), (0.085, 0.012, 0.03), glow, rot=(0, s * math.radians(-12), 0)))
+    # Chest: blue plate with yellow vents and a glowing core, white ab plates, a red belt.
+    cz = l.neck_z - 0.17
+    ty = front_y(parts['Torso'], cz)
+    ex.append(box((0, ty - 0.01, cz), (0.5, 0.08, 0.26), blue))
+    for s in (-1, 1):
+        for k in range(3):
+            ex.append(box((s * 0.16, ty - 0.055, cz + 0.06 - k * 0.04), (0.1, 0.01, 0.02), yellow))
+    ex.append(prim("cyl", (0, ty - 0.06, cz - 0.01), (math.radians(90), 0, 0), color=white, vertices=8, radius=0.075,
+                   depth=0.03))
+    ex.append(prim("cyl", (0, ty - 0.075, cz - 0.01), (math.radians(90), 0, 0), color=glow, vertices=8, radius=0.05,
+                   depth=0.02))
+    for row in range(2):
+        z = cz - 0.2 - row * 0.09
+        for s in (-1, 1):
+            ex.append(box((s * 0.07, front_y(parts['Torso'], z, x=s * 0.07) - 0.01, z), (0.12, 0.04, 0.075), white))
+    ex.append(ring((0, (l.torso_min.y + l.torso_max.y) / 2, l.torso_min.z + 0.17), 0.37, 0.04, red,
+                   scale=(1, 0.85, 1), segments=16))
+    # Knee and boot armour.
+    for n in ("LeftLeg", "RightLeg"):
+        mn, mx = wb(parts[n]); x = (mn.x + mx.x) / 2
+        ex.append(box((x, mn.y + 0.07, 0.3), (0.2, 0.08, 0.16), white, rot=(math.radians(-20), 0, 0)))
+        ex.append(box((x, mn.y + 0.06, 0.07), (0.2, 0.12, 0.1), red))
+    # Huge shoulder pauldrons (the throwing side's rides on the arm).
+    for s, target in ((-1, ex), (1, arm)):
+        up_min, up_max = wb(parts["LeftUpperArm" if s < 0 else "RightUpperArm"])
+        c = Vector(((up_min.x + up_max.x) / 2 + s * 0.06, (up_min.y + up_max.y) / 2, up_max.z + 0.01))
+        rot = (0, s * math.radians(22), 0)
+        target.append(box(c, (0.26, 0.34, 0.12), blue, rot=rot))
+        target.append(box(c + Vector((s * 0.02, 0, 0.07)), (0.2, 0.28, 0.05), white, rot=rot))
+        target.append(box(c + Vector((s * 0.13, 0, -0.07)), (0.04, 0.3, 0.18), blue, rot=rot))
+        target.append(box(c + Vector((s * 0.155, 0, -0.07)), (0.01, 0.2, 0.05), yellow, rot=rot))
+        mn, mx = wb(parts["LeftLowerArm" if s < 0 else "RightLowerArm"])
+        target.append(box(((mn.x + mx.x) / 2 + s * 0.02, mn.y + 0.07, (mn.z + mx.z) / 2), (0.17, 0.1, 0.2), white,
+                          rot=(math.radians(-15), 0, 0)))
+    # Jet pack: a white back unit, two thrusters with glowing exhaust, two blue fins.
+    bz = l.shoulder_z - 0.12
+    by = l.back_y + 0.06
+    ex.append(box((0, by + 0.04, bz), (0.42, 0.18, 0.42), white))
+    ex.append(box((0, by + 0.135, bz + 0.02), (0.2, 0.02, 0.3), blue))
+    for s in (-1, 1):
+        tc = Vector((s * 0.2, by + 0.14, bz - 0.05))
+        ex.append(prim("cyl", tc, color=grey, vertices=10, radius=0.085, depth=0.4))
+        ex.append(ring(tc + Vector((0, 0, 0.12)), 0.088, 0.018, red, segments=12))
+        ex.append(prim("cone", tc + Vector((0, 0, -0.25)), color=grey, vertices=10, radius1=0.11, radius2=0.075,
+                       depth=0.1))
+        ex.append(spike(tc + Vector((0, 0, -0.3)), (0, 0.15, -1), 0.3, 0.085, glow, verts=8, tip=srgb(255, 255, 255)))
+        ex.append(box(tc + Vector((s * 0.2, 0.06, 0.22)), (0.32, 0.03, 0.14), blue,
+                      rot=(0, s * math.radians(-35), s * math.radians(-15))))
+    return cols, ex, {"ThrowArm": arm}
+
+def angel(parts, hs):
+    l = landmarks(parts); ex = []
+    white, pearl, gold, gold2 = srgb(255, 255, 255), srgb(238, 240, 250), srgb(255, 200, 50), srgb(255, 235, 150)
+    sky = srgb(190, 225, 255)
+    cols = recolor(srgb(252, 246, 236), white, srgb(70, 55, 40))
+    # Floating golden halo, a laurel wreath round the head.
+    ex.append(ring((0, l.head_c.y + 0.06, l.skull_top + 0.2), 0.2, 0.035, gold2, rot=(math.radians(-12), 0, 0),
+                   segments=20))
+    lz = l.skull_top - 0.06
+    cy, rx, ry = head_section(l, lz)
+    ex.append(ring((0, cy, lz), rx + 0.01, 0.015, gold, scale=(1, (ry + 0.01) / (rx + 0.01), 1), segments=18))
+    for k in range(14):
+        a = k * math.tau / 14
+        if -2.1 < math.atan2(math.sin(a), math.cos(a)) < -1.05:
+            continue  # leaves open over the forehead
+        p = Vector((math.cos(a) * (rx + 0.02), cy + math.sin(a) * (ry + 0.02), lz + 0.015))
+        ex.append(ball(p, 0.045, gold, scale=(1, 0.45, 0.45), rot=(0, math.radians(-30), a + math.radians(90))))
+    # White robe with a gold sash and hem.
+    lo, hi = l.torso_min.z + 0.05, l.neck_z - 0.02
+    ex.append(shell(parts['Torso'], lambda c, nrm: lo < c.z < hi and nrm.y < 0.3, 0.012, lambda p, n, i: pearl))
+    ez = l.neck_z - 0.28
+    for k in range(9):
+        t = -1 + k / 4
+        z = ez + 0.18 * t
+        x = 0.2 * t
+        ex.append(box((x, front_y(parts['Torso'], z, x=x) - 0.012, z), (0.07, 0.02, 0.075), gold,
+                      rot=(0, math.radians(-42), 0)))
+    ex.append(ring((0, (l.torso_min.y + l.torso_max.y) / 2, l.torso_min.z + 0.08), 0.395, 0.03, gold,
+                   scale=(1, 0.9, 1), segments=18))
+    ex.append(ring((0, l.head_c.y + 0.06, l.neck_z), 0.24, 0.03, gold, rot=(math.radians(-18), 0, 0), segments=16))
+    # Big spread feathered wings: white with golden tips.
+    for s in (-1, 1):
+        root = Vector((s * 0.14, l.back_y + 0.05, l.shoulder_z + 0.02))
+        ex += feather_wing(root, s, 1.05, 0.6, 0.25, 8, 0.62, [white, pearl, sky], gold2)
+    # Golden trumpet in the free paw, a little cloud under the feet.
+    a = l.left_hand + Vector((-0.02, -0.06, 0.08))
+    b = a + Vector((-0.12, -0.12, 0.3))
+    ex.append(rod(a, b, 0.02, gold, verts=6))
+    ex.append(prim("cone", b + (b - a).normalized() * 0.05, tilt(b - a), color=gold2, vertices=10, radius1=0.02,
+                   radius2=0.08, depth=0.1))
+    rng = random.Random(25)
+    for k in range(9):
+        a2 = k * math.tau / 9 + rng.uniform(-0.2, 0.2); r = rng.uniform(0.25, 0.55)
+        ex.append(ball((math.cos(a2) * r, 0.05 + math.sin(a2) * r * 0.8, -0.1), rng.uniform(0.11, 0.16), white,
+                       scale=(1.3, 1, 0.75)))
+    return cols, ex
+
+def demon(parts, hs):
+    l = landmarks(parts); ex = []
+    red, belly, black = srgb(135, 18, 25), srgb(70, 14, 20), srgb(15, 10, 12)
+    bone, horn_tip = srgb(235, 215, 180), srgb(40, 25, 25)
+    fire = [srgb(200, 20, 10), srgb(255, 110, 20), srgb(255, 220, 80)]
+    cols = recolor(red, belly, black)
+    ex += lit_eyes(l, srgb(255, 200, 40), None, size=(0.065, 0.022, 0.03), angle=-18)
+    # Angry brows.
+    for s in (-1, 1):
+        x = s * (l.eye_x - 0.005)
+        ex.append(box((x, face_y(l, x, l.eye_z + 0.045) - 0.01, l.eye_z + 0.045), (0.08, 0.02, 0.02), black,
+                      rot=(0, s * math.radians(20), 0)))
+    # Big curved horns: out from the forehead, up, back and hooking forward at the tip.
+    top = l.skull_top - 0.08
+    for s in (-1, 1):
+        base = Vector((s * 0.13, l.head_c.y - 0.03, top))
+        pts = [base, base + Vector((s * 0.12, 0.0, 0.1)), base + Vector((s * 0.22, 0.05, 0.25)),
+               base + Vector((s * 0.26, 0.1, 0.42)), base + Vector((s * 0.22, 0.08, 0.56)),
+               base + Vector((s * 0.14, 0.0, 0.64))]
+        radii = [0.07, 0.065, 0.055, 0.042, 0.026, 0]
+        n = len(pts)
+        ex.append(curve_tube("horn", pts, radii, 7, lambda k, j, c, n=n: mix(bone, horn_tip, max(0, k) / (n - 2))))
+        ex.append(ring(base + Vector((s * 0.03, 0, 0.03)), 0.07, 0.018, srgb(255, 170, 40), rot=(0, s * 0.6, 0),
+                       segments=10))
+    # Bat wings on the back.
+    for s in (-1, 1):
+        root = Vector((s * 0.12, l.back_y + 0.04, l.shoulder_z + 0.02))
+        ex += bat_wing(root, s, 1.25, srgb(40, 20, 22), srgb(110, 15, 30), srgb(85, 10, 25))
+    # Spiked tail with a spade tip, spikes down the spine.
+    tip = l.tail_tip
+    ex.append(prim("cone", tip + Vector((0, 0.02, 0.07)), (math.radians(-15), 0, 0), color=black, vertices=3,
+                   radius1=0.11, radius2=0, depth=0.18, scale=(1, 0.35, 1)))
+    for k in range(5):
+        z = l.skull_top - 0.2 - k * 0.12
+        y = l.back_y + 0.02 if k else l.head_max.y
+        ex.append(spike((0, y - 0.03, z), (0, 1, 0.3), 0.1, 0.035, black, verts=4))
+    # Flames: a ring of fire round the feet, small flames on the shoulders.
+    rng = random.Random(26)
+    for k in range(12):
+        a = k * math.tau / 12 + rng.uniform(-0.15, 0.15)
+        r = rng.uniform(0.5, 0.6)
+        base = Vector((math.cos(a) * r, 0.05 + math.sin(a) * r * 0.85, -0.02))
+        h = rng.uniform(0.2, 0.36)
+        ex.append(spike(base, (0, 0, 1), h, 0.08, fire[0], verts=5, tip=fire[2]))
+        ex.append(spike(base + Vector((0, -0.02, 0)), (0.2 * math.cos(a), 0.2 * math.sin(a), 1), h * 0.6, 0.05, fire[1],
+                        verts=4, tip=fire[2]))
+    ex.append(prim("cyl", (0, 0.05, -0.01), color=srgb(60, 10, 10), vertices=12, radius=0.6, depth=0.025,
+                   scale=(1, 0.88, 1)))
+    # Trident in the free paw.
+    a = l.left_hand + Vector((-0.05, -0.05, -0.05))
+    t = a + Vector((-0.08, 0, 1.0))
+    ex.append(rod(a, t, 0.018, srgb(40, 35, 40), verts=6))
+    ex.append(rod(t + Vector((-0.1, 0, 0)), t + Vector((0.1, 0, 0)), 0.02, srgb(40, 35, 40), verts=6))
+    for x in (-0.1, 0, 0.1):
+        ex.append(spike(t + Vector((x, 0, 0)), (x * 0.5, 0, 1), 0.16 if x == 0 else 0.12, 0.025, fire[0], verts=4,
+                        tip=fire[2]))
+    return cols, ex
+
+# EternalShiba's Orbit: a tilted golden ring with gems around the body; the game spins it about the vertical axis, so
+# the tilted ring wobbles like an armillary sphere. VoidShiba's: void shards on a tilted circle.
+ETERNAL_ORBIT = dict(radius=0.86, tilt=25, lift=0.62)
+VOID_ORBIT = dict(radius=1.12, axis=(0.0, -0.22, 1.0), lift=0.72)
+
+def eternal(parts, hs):
+    l = landmarks(parts); ex = []
+    rng = random.Random(29)
+    white, pearl, gold, gold2, deep = srgb(255, 255, 255), srgb(255, 248, 228), srgb(255, 196, 40), \
+        srgb(255, 232, 140), srgb(205, 140, 20)
+    cyan, glass = srgb(120, 240, 255), srgb(200, 245, 255)
+    span = l.max_z - l.min_z
+    shimmer = lambda p: mix(gold2, white, 0.55 + 0.45 * math.sin(p.x * 8 + p.z * 6 + p.y * 5))
+    cols = {"fur_orange": lambda p: mix(gold, shimmer(p), min(1.0, (p.z - l.min_z) / span * 1.6)),
+            "fur_cream": lambda p: white, "fur_dark": lambda p: deep}
+    ex += lit_eyes(l, srgb(255, 230, 120), white)
+    head = parts['Head']
+    face = lambda c: c.y < l.eye_y + 0.08 and l.mouth.z - 0.06 < c.z < l.eye_z + 0.07 and abs(c.x) < 0.24
+    keep = lambda o, c, nrm, mat: mat != "fur_dark" and nrm.z > -0.5 and not (o is head and face(c))
+    armp = [parts[n] for n in ARM_NAMES]
+    samples = surface_samples(list(parts.values()), 140, rng, keep, 0.07)
+    ex.append(star_specks([s for s in samples if s[0] not in armp], rng, "EternalStars"))
+    arm_stars = star_specks([s for s in samples if s[0] in armp], rng, "EternalArmStars")
+    # Crown: gold circlet with rays of light and a cyan gem.
+    top = l.skull_top - 0.05
+    cy, rx, ry = head_section(l, top)
+    ex.append(ring((0, cy, top), rx + 0.01, 0.03, gold, scale=(1, (ry + 0.01) / (rx + 0.01), 1), segments=18))
+    for k in range(9):
+        a = math.radians(-90 + (k - 4) * 22)
+        base = Vector((math.cos(a) * (rx + 0.01), cy + math.sin(a) * (ry + 0.01), top + 0.01))
+        ex.append(spike(base, (math.cos(a) * 0.3, math.sin(a) * 0.3, 1), 0.24 - abs(k - 4) * 0.03, 0.03, gold,
+                        verts=4, tip=white))
+    ex.append(prim("ico", (0, cy - ry - 0.02, top + 0.03), color=cyan, subdivisions=1, radius=0.045,
+                   scale=(0.8, 0.6, 1.2)))
+    # Giant clock halo behind: thick gold ring, white dial band, twelve hour marks, runes, two hands, a ray corona.
+    hc = Vector((0, l.back_y + 0.32, l.eye_z + 0.12))
+    R = 1.02
+    face_rot = (math.radians(90), 0, 0)
+    ex.append(ring(hc, R, 0.06, gold, rot=face_rot, segments=48))
+    ex.append(ring(hc, R - 0.24, 0.035, gold2, rot=face_rot, segments=40))
+    ex.append(ring(hc, R * 0.5, 0.03, gold, rot=face_rot, segments=32))
+    right, up = Vector((1, 0, 0)), Vector((0, 0, 1))
+    for k in range(12):
+        a = k * math.tau / 12
+        d = Vector((math.sin(a), 0, math.cos(a)))
+        major = k % 3 == 0
+        ex.append(box(hc + d * (R - 0.12), (0.05 if major else 0.035, 0.05, 0.2 if major else 0.13), gold,
+                      rot=(0, a, 0)))
+        if major:
+            ex.append(prim("ico", hc + d * (R + 0.02) + Vector((0, -0.07, 0)), color=cyan, subdivisions=1, radius=0.06))
+        ga = a + math.tau / 24
+        gd = Vector((math.sin(ga), 0, math.cos(ga)))
+        ex += glyph(hc + gd * (R - 0.12) + Vector((0, -0.03, 0)), (math.cos(ga), 0, -math.sin(ga)), gd, 0.07, cyan, rng)
+    for k in range(24):
+        a = (k + 0.5) * math.tau / 24
+        d = Vector((math.sin(a), 0, math.cos(a)))
+        ex.append(spike(hc + d * (R + 0.05), d, 0.2 if k % 2 else 0.34, 0.035, gold, verts=4, tip=white))
+    for a, L, w in ((math.radians(-60), 0.95, 0.05), (math.radians(35), 0.7, 0.07)):
+        d = Vector((math.sin(a), 0, math.cos(a)))
+        c = hc + Vector((0, -0.04, 0))
+        ex.append(box(c + d * L / 2, (w, 0.03, L), deep, rot=(0, a, 0)))
+        ex.append(spike(c + d * L, d, 0.12, w * 1.4, deep, verts=4))
+    # Three pairs of golden-white feathered wings between the dog and the clock.
+    for s in (-1, 1):
+        for k, (rise, span_, n, L) in enumerate(((0.75, 1.0, 7, 0.55), (0.2, 1.15, 7, 0.55), (-0.3, 0.9, 6, 0.45))):
+            root = Vector((s * 0.12, l.back_y + 0.08 + 0.02 * k, l.shoulder_z + 0.05 - 0.12 * k))
+            ex += feather_wing(root, s, span_, rise, 0.18, n, L, [white, pearl], gold2, rows=2)
+    # Standing on a floating clock face: white dial, gold rim, hour marks, hands pointing forward.
+    dz = -0.05
+    ex.append(prim("cyl", (0, 0.05, dz), color=pearl, vertices=24, radius=0.78, depth=0.06))
+    ex.append(ring((0, 0.05, dz + 0.02), 0.78, 0.04, gold, segments=32))
+    ex.append(prim("cone", (0, 0.05, dz - 0.12), (math.pi, 0, 0), color=gold, vertices=24, radius1=0.76,
+                   radius2=0.25, depth=0.18))
+    for k in range(12):
+        a = k * math.tau / 12
+        ex.append(box((math.sin(a) * 0.66, 0.05 - math.cos(a) * 0.66, dz + 0.035), (0.04, 0.12 if k % 3 == 0 else 0.07,
+                      0.02), gold, rot=(0, 0, -a)))
+    ex.append(box((0.18, -0.28, dz + 0.04), (0.035, 0.34, 0.015), deep, rot=(0, 0, math.radians(-20))))
+    # A golden hourglass in the free paw.
+    hg = l.left_hand + Vector((-0.02, -0.08, 0.14))
+    ex.append(prim("cyl", hg + Vector((0, 0, 0.13)), color=gold, vertices=8, radius=0.07, depth=0.025))
+    ex.append(prim("cyl", hg + Vector((0, 0, -0.13)), color=gold, vertices=8, radius=0.07, depth=0.025))
+    ex.append(prim("cone", hg + Vector((0, 0, 0.06)), (math.pi, 0, 0), color=glass, vertices=8, radius1=0.055,
+                   radius2=0.008, depth=0.12))
+    ex.append(prim("cone", hg + Vector((0, 0, -0.06)), color=gold2, vertices=8, radius1=0.055, radius2=0.008,
+                   depth=0.12))
+    for s in (-1, 1):
+        ex.append(rod(hg + Vector((s * 0.06, 0, -0.13)), hg + Vector((s * 0.06, 0, 0.13)), 0.008, gold, verts=4))
+    # Static glowing ring crossing the orbit, and floating diamond sparkles.
+    cen = Vector((0, 0.05, ETERNAL_ORBIT["lift"]))
+    ex.append(ring(cen, 0.98, 0.014, cyan, rot=(math.radians(-62), math.radians(20), 0), segments=40))
+    for k in range(14):
+        a = rng.uniform(0, math.tau); r = rng.uniform(0.9, 1.25)
+        p = Vector((math.cos(a) * r, 0.1 + math.sin(a) * r * 0.6, rng.uniform(0.1, 1.9)))
+        ex.append(prim("ico", p, color=rng.choice([white, gold2, cyan]), subdivisions=1, radius=rng.uniform(0.025, 0.045),
+                       scale=(0.6, 0.6, 1.5)))
+    # Orbit: a tilted golden ring carrying four gems and two small clock dials.
+    tilt_r = math.radians(ETERNAL_ORBIT["tilt"])
+    Rr = ETERNAL_ORBIT["radius"]
+    e1 = Vector((1, 0, 0)); e2 = Vector((0, math.cos(tilt_r), math.sin(tilt_r)))
+    on = lambda a: cen + (e1 * math.cos(a) + e2 * math.sin(a)) * Rr
+    orbit = [ring(cen, Rr, 0.022, gold, rot=(tilt_r, 0, 0), segments=48)]
+    for k in range(4):
+        a = k * math.tau / 4 + 0.4
+        orbit.append(prim("ico", on(a), color=cyan if k % 2 else white, subdivisions=1, radius=0.065,
+                          scale=(0.8, 0.8, 1.3)))
+        b = a + math.tau / 8
+        orbit.append(prim("cyl", on(b), (math.radians(90), 0, b), color=pearl, vertices=12, radius=0.07, depth=0.02))
+        orbit.append(ring(on(b), 0.07, 0.012, gold, rot=(math.radians(90), 0, b), segments=12))
+    marker = box(cen, (0.02, 0.02, 0.02), srgb(255, 0, 255))
+    return cols, ex, {"ThrowArm": [arm_stars], "Orbit": orbit, "OrbitCenter": [marker]}
+
+def void(parts, hs):
+    l = landmarks(parts); ex = []
+    rng = random.Random(30)
+    black, ink, purple, cyan, magenta = srgb(10, 8, 18), srgb(22, 16, 36), srgb(170, 70, 255), srgb(70, 235, 255), \
+        srgb(255, 70, 220)
+    white = srgb(255, 255, 255)
+    rock = lambda c: ink if (int(c.x * 12 + 50) + int(c.z * 12)) % 4 == 0 else black
+    cols = vein_paint(parts, rock, purple, cyan, 0.3, freq=1.15)
+    ex += lit_eyes(l, cyan, white, size=(0.07, 0.024, 0.04))
+    # Third eye on the forehead.
+    fz = l.eye_z + 0.1
+    fy = face_y(l, 0, fz)
+    ex.append(ball((0, fy - 0.005, fz), 1, magenta, scale=(0.035, 0.02, 0.06)))
+    ex.append(ball((0, fy - 0.02, fz), 1, white, scale=(0.012, 0.01, 0.03)))
+    # Crown of dark crystal: faceted black/purple spikes with glowing tips.
+    top = l.skull_top - 0.05
+    cy, rx, ry = head_section(l, top)
+    for k in range(9):
+        a = math.radians(-90 + (k - 4) * 24)
+        base = Vector((math.cos(a) * rx * 0.9, cy + math.sin(a) * ry * 0.9, top))
+        h = 0.42 - abs(k - 4) * 0.07
+        ex.append(spike(base, (math.cos(a) * 0.35, math.sin(a) * 0.35, 1), h, 0.05, black, verts=4,
+                        tip=magenta if k % 2 else purple))
+    # Black hole behind the head: a black sphere, a white-hot photon ring, a purple lensing ring, sigils and eyes.
+    bh = Vector((0, l.back_y + 0.38, l.eye_z + 0.28))
+    face_rot = (math.radians(90), 0, 0)
+    ex.append(ball(bh, 0.42, black))
+    ex.append(ring(bh + Vector((0, -0.02, 0)), 0.47, 0.045, white, rot=face_rot, segments=40))
+    ex.append(ring(bh + Vector((0, -0.01, 0)), 0.56, 0.03, cyan, rot=face_rot, segments=40))
+    ex.append(ring(bh, 0.74, 0.04, purple, rot=face_rot, segments=48))
+    for k in range(10):
+        a = k * math.tau / 10
+        d = Vector((math.cos(a), 0, math.sin(a)))
+        p = bh + d * 0.65 + Vector((0, -0.05, 0))
+        if k % 2:
+            ex += glyph(p, (-math.sin(a), 0, math.cos(a)), d, 0.07, magenta, rng)
+        else:
+            ex.append(ball(p, 1, white, scale=(0.06, 0.02, 0.035), rot=(0, -a, 0)))
+            ex.append(ball(p + Vector((0, -0.015, 0)), 1, magenta, scale=(0.025, 0.012, 0.025)))
+        ex.append(spike(bh + d * 0.77, d, 0.3 if k % 2 else 0.18, 0.04, purple, verts=4, tip=cyan))
+    # Accretion disk (event horizon ring) around the body: white-hot inside, cyan, purple, fading dark outside.
+    ring_c = Vector((0, 0.05, 0.5))
+    stops = [(0.0, white), (0.18, cyan), (0.5, purple), (1.0, srgb(40, 10, 80))]
+    grad = lambda t: next(mix(c0, c1, (t - t0) / (t1 - t0)) for (t0, c0), (t1, c1) in zip(stops, stops[1:]) if t <= t1)
+    r_in, r_out, n_seg, n_ring = 0.78, 1.5, 40, 4
+    dtilt = Matrix.Rotation(math.radians(14), 3, 'X')
+    verts, faces, fc = [], [], []
+    for r in range(n_ring + 1):
+        rad = r_in + (r_out - r_in) * r / n_ring
+        for k in range(n_seg):
+            a = k * math.tau / n_seg
+            verts.append(ring_c + dtilt @ Vector((math.cos(a) * rad, math.sin(a) * rad, 0.03 * math.sin(3 * a) * r)))
+    for r in range(n_ring):
+        for k in range(n_seg):
+            kn = (k + 1) % n_seg
+            faces.append([r * n_seg + k, r * n_seg + kn, (r + 1) * n_seg + kn, (r + 1) * n_seg + k])
+            t = (r + 0.5) / n_ring
+            fc.append(mix(grad(t), white, 0.25) if (k + r) % 5 == 0 else grad(t))
+    ex.append(mesh_obj("disk", verts, faces, fc, double=True))
+    ex.append(ring(ring_c, r_in, 0.03, white, rot=(math.radians(14), 0, 0), segments=40))
+    # Void tentacles: tapering ribbons curling out of the back, black to purple with glowing cyan tips.
+    for k, (s, rise, reach, curl) in enumerate(((-1, 0.9, 0.9, 1), (1, 0.9, 0.85, -1), (-1, 0.3, 1.1, -1),
+                                                (1, 0.35, 1.05, 1), (-1, -0.25, 0.95, 1), (1, -0.2, 0.9, -1))):
+        root = Vector((s * 0.1, l.back_y + 0.02, l.shoulder_z - 0.1 - 0.12 * (k // 2)))
+        pts = []
+        for i in range(10):
+            t = i / 9
+            pts.append(root + Vector((s * reach * t, 0.25 * t + 0.2 * math.sin(t * 3), rise * t * 0.9
+                                      + curl * 0.18 * math.sin(t * math.pi * 1.6))))
+        radii = [0.055 * (1 - t / 10) for t in range(9)] + [0]
+        ex.append(curve_tube("tentacle", pts, radii, 6,
+                             lambda kk, j, c: cyan if kk >= 7 else (purple if (kk + j) % 3 == 0 or kk >= 5 else black)))
+        ex.append(ball(pts[-2], 0.03, magenta))
+    # Orbit: floating void shards (faceted black/purple crystals) on a tilted circle around the body.
+    axis = Vector(VOID_ORBIT["axis"]).normalized()
+    cen = Vector((0, 0.05, VOID_ORBIT["lift"]))
+    rot = tilt(axis).to_matrix()
+    e1 = rot @ Vector((1, 0, 0)); e2 = axis.cross(e1)
+    on = lambda a: cen + (e1 * math.cos(a) + e2 * math.sin(a)) * VOID_ORBIT["radius"]
+    orbit = []
+    for k in range(7):
+        a = k * math.tau / 7
+        p = on(a); h = 0.14 + 0.06 * (k % 3)
+        d = Vector((rng.uniform(-0.4, 0.4), rng.uniform(-0.4, 0.4), 1)).normalized()
+        cs = [black, purple if k % 2 else cyan]
+        orbit.append(prim("cone", p + d * h / 2, tilt(d), fn=lambda q, n, i, cs=cs: cs[i % 2], vertices=4,
+                          radius1=0.06, radius2=0, depth=h))
+        orbit.append(prim("cone", p - d * h / 3, tilt(-d), fn=lambda q, n, i, cs=cs: cs[(i + 1) % 2], vertices=4,
+                          radius1=0.06, radius2=0, depth=h * 0.66))
+    marker = box(cen, (0.02, 0.02, 0.02), srgb(255, 0, 255))
+    return cols, ex, {"Orbit": orbit, "OrbitCenter": [marker]}
+
+THIRD_DESIGNS = [("DJShiba", dj), ("KnightShiba", knight), ("SuperheroShiba", superhero), ("FrostShiba", frost),
+                 ("MagmaShiba", magma), ("MechaShiba", mecha), ("AngelShiba", angel), ("DemonShiba", demon),
+                 ("EternalShiba", eternal), ("VoidShiba", void)]
+
 DESIGNS = [("Shiba", plain), ("ShadesShiba", shades), ("BuffShiba", buff), ("ChefShiba", chef), ("PoliceShiba", police),
            ("NinjaShiba", ninja), ("GoldShiba", gold), ("GalaxyShiba", galaxy), ("GiantShiba", giant), ("CheemsGod", cheems)]
 
@@ -966,7 +1804,7 @@ def export(objs_by_name, filename):
     for o, n in old.items(): o.name = n
 
 built = []
-for asset, design in DESIGNS + NEW_DESIGNS:
+for asset, design in DESIGNS + NEW_DESIGNS + THIRD_DESIGNS:
     if ONLY and asset not in ONLY:
         continue
     parts = {}
@@ -1254,8 +2092,15 @@ for name, design in ([] if ONLY else PROJECTILES):
 
 # --- Preview: the Shibas in a row, the projectiles in a row in front ---
 for o in dog + [stick]: o.hide_render = True
+xs = [(k - (len(built) - 1) / 2) * 1.45 for k in range(len(built))]
+if ONLY:
+    # Side by side by their real widths (wings, halos), so the big ones don't overlap their neighbours.
+    spans = [(min(wb(o)[0].x for o in objs), max(wb(o)[1].x for o in objs)) for objs in built]
+    widths = [max(1.2, b - a) + 0.2 for a, b in spans]
+    total, x0 = sum(widths), -sum(widths) / 2
+    xs = [x0 + sum(widths[:k]) + widths[k] / 2 - (spans[k][0] + spans[k][1]) / 2 for k in range(len(built))]
 for k, objs in enumerate(built):
-    for o in objs: o.location.x += (k - (len(built) - 1) / 2) * 1.45
+    for o in objs: o.location.x += xs[k]
 for k, (o, grip) in enumerate(thrown):
     o.location += Vector(((k - (len(thrown) - 1) / 2) * 1.2, -2.2, 0.45))
     grip.hide_render = True
@@ -1268,6 +2113,9 @@ cam = bpy.data.objects['Camera']
 cam.location = Vector((0, -15.5, 3.2)); target = Vector((0, -0.8, 0.6))
 cam.rotation_euler = (target - cam.location).to_track_quat('-Z', 'Y').to_euler()
 cam.data.lens = 36  # wide enough for all ten Shibas
+if ONLY and total > 14:
+    cam.location = Vector((0, -15.5 * total / 14, 3.2 + 0.6 * (total / 14 - 1)))
+    cam.rotation_euler = (target - cam.location).to_track_quat('-Z', 'Y').to_euler()
 sc.camera = cam
 sc.render.filepath = os.path.join(OUT, "preview_only.png" if ONLY else "preview_tiers.png")
 bpy.ops.render.render(write_still=True)
@@ -1276,10 +2124,13 @@ if ONLY:
     for k, objs in enumerate(built):
         for other in built:
             for o in other: o.hide_render = other is not objs
-        shift = (k - (len(built) - 1) / 2) * 1.45
+        bpy.context.view_layer.update()
+        mn = Vector([min(wb(o)[0][i] for o in objs) for i in range(3)])
+        mx = Vector([max(wb(o)[1][i] for o in objs) for i in range(3)])
+        size = max(1.0, (mx.z - mn.z) / 1.4, (mx.x - mn.x) / 1.6)
         cam.data.lens = 50
-        target = Vector((shift, 0, 0.62))
-        cam.location = target + Vector((1.2, -2.6, 0.55))
+        target = Vector((xs[k] if size == 1.0 else (mn.x + mx.x) / 2, 0, 0.62 if size == 1.0 else (mn.z + mx.z) / 2))
+        cam.location = target + Vector((1.2, -2.6, 0.55)) * size
         cam.rotation_euler = (target - cam.location).to_track_quat('-Z', 'Y').to_euler()
         sc.render.resolution_x, sc.render.resolution_y = 700, 800
         sc.render.filepath = os.path.join(OUT, f"preview_{objs[0].name.split('_')[0]}.png")
