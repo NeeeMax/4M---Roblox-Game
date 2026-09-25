@@ -46,7 +46,7 @@ Casual Roblox players, roughly 8–14. Understandable in under 10 seconds withou
 
 ## Projectiles
 
-Projectile tiers (upgrade `ProjectileTier`): **Stick** (BaseReward 10) → **Newspaper** (13) → **Baguette** (16) → **Rolling Pin** (20) → **Baseball Bat** (25) → **Giant Bone** (32) → **Squeaky Hammer** (40) → **BONK Sign** (50) → **Neon Stick** (63) → **Legendary Stick** (80). They fly the same; only look and reward differ. Models `ReplicatedStorage/Assets/Stick`, `Bone`, `GoldenStick`, `DiamondStick`; a missing model uses the next lower tier's model, tiers above Stick draw a trail in their colour, no model at all = coloured sphere. Hits use an invisible sphere of the projectile's diameter; the model is scaled so its longest side equals that diameter and spins in flight.
+Projectile tiers (upgrade `ProjectileTier`): **Stick** (BaseReward 10) → **Newspaper** (13) → **Baguette** (16) → **Rolling Pin** (20) → **Baseball Bat** (25) → **Giant Bone** (32) → **Squeaky Hammer** (40) → **BONK Sign** (50) → **Neon Stick** (63) → **Legendary Stick** (80). They fly the same; look, reward and the impact burst on a catch differ (Feedback). Models `ReplicatedStorage/Assets/Stick`, `Bone`, `GoldenStick`, `DiamondStick`; a missing model uses the next lower tier's model, tiers above Stick draw a trail in their colour, no model at all = coloured sphere. Hits use an invisible sphere of the projectile's diameter; the model is scaled so its longest side equals that diameter and spins in flight.
 
 | Field | Bonk Stick |
 |-------|------|
@@ -57,6 +57,8 @@ Projectile tiers (upgrade `ProjectileTier`): **Stick** (BaseReward 10) → **New
 **Flight (visible arc):** launched at a fixed 45° angle toward the target point. Per projectile, gravity is set (with a `VectorForce`) to `g = v² / d` (v = launch speed, d = horizontal distance) so it lands exactly on the target. Every shot has the same readable arc shape (apex = d / 4); higher speed only shortens the flight time. At base speed a 60-stud shot flies 2.4 s.
 
 **Bounces:** after landing it bounces **twice**: each bounce keeps 50 % of the vertical and 70 % of the horizontal speed (at base speed and a 60-stud shot: first bounce ≈ 3.7 studs high, second ≈ 1 stud; shorter shots have higher gravity and lower bounces). Then it makes **two small settling hops** of fixed height (0.7 and 0.3 studs, never higher than the hop before) keeping 45 % of the horizontal speed each, so the landing is visible whatever the shot's gravity, and comes to rest. While hopping, the model turns to lie flat along its direction of travel, and near the ground it is drawn with its lowest point on the ground (the hit sphere centre stays one radius above the ground). The whole path is computed when the shot is planned (`src/shared/Util/ProjectilePath.luau`, `Build`); every client draws the projectile along it (`docs/decisions/0004`). A bounce that leaves the island makes it fall off the edge. Tuning: `Gameplay.Projectiles` `Bounces`, `BounceRestitution`, `BounceFriction`, `SettleHopHeights`, `SettleFriction`, `LandingFadeTime`, `CollectableWhileFading`.
+
+**Landing ring:** the owner's client draws a ring on the ground at the first landing point (`ProjectilePath.GetFirstLandingPosition`), in the tier colour, shrinking until the landing and gold during the Perfect window; it disappears at the landing or when the projectile is caught (details under Hits → Catch quality). Other players' projectiles get no ring.
 
 **Lifetime / cleanup:** after its last settling hop it lies still and **fades out over 0.6 s** (`LandingFadeTime`), then each client stops drawing it (all on the synced server clock). It **can be collected during flight, bounces and settling hops, not while it fades** (`CollectableWhileFading = false`; the client check and the server validation both follow this setting). A projectile that falls off the island edge has no fade: it vanishes 20 studs below the island. The server destroys its marker 0.5 s after the fade ends (`DespawnDelay`), 15 s after launch at the latest, and validates hit reports until 2 s (`ReportGracePeriod`) after the collectable window ended (network delay). Max 60 live projectiles per island; the oldest is destroyed first. All projectiles of a player are destroyed when they leave.
 
@@ -72,30 +74,43 @@ Projectile tiers (upgrade `ProjectileTier`): **Stick** (BaseReward 10) → **New
 ### Reward
 
 ```
-Reward = floor(BaseReward × QualityMult × HeadMult × ComboMult × ShibaTierMult × BoostMult), at least 1
+Reward = floor(StickValue × QualityMult × HeadMult × ComboMult × FirstBonkMult), at least 1
 
-BaseReward    = projectile tier: 10 / 13 / 16 / 20 / 25 / 32 / 40 / 50 / 63 / 80
+StickValue    = RewardService.GetStickValue: projectile BaseReward × Shiba tier RewardMultiplier × rebirth
+                × golden (5) × 2× boost × passes (2× Bonk Dollars, VIP) × server events
+QualityMult   = catch quality (below): 1 / 2 / 4   (EconomyConfig.Bonk.QualityMultipliers)
 HeadMult      = 2 if the projectile touched the head, else 1
 ComboMult     = 1 + 0.1 × (combo − 1), at most 3
-ShibaTierMult = see Upgrades (1 → 60)
-BoostMult     = 2 while the 2× Bonk Dollars boost runs, else 1
-GoldenMult    = 5 for golden projectiles, else 1
-PassMult      = 2 with the 2× Bonk Dollars pass, × 1.25 with VIP
+FirstBonkMult = 10 for a new player's very first paid hit (EconomyConfig.Bonk.FirstBonkMultiplier), else 1
 ```
 
-### Hit quality — one rule
+All multipliers live in `Config/EconomyConfig` (Bonk section).
 
-`r = |projectile velocity − player velocity| / projectile launch speed`, measured at the moment of the hit (projectile velocity from its flight path at the closest point, player velocity from the server's view of the character).
+### Catch quality — when you catch it
 
-The player velocity is clamped before use: horizontal ≤ current WalkSpeed, vertical ≤ 50 (jump velocity), so knockback or a spoofed client velocity can't inflate it.
+Decided by the server from **when** the stick was caught, compared with the moment it first touches the ground (the end of
+its flight, `ProjectilePath.GetFirstLandingTime`). See `docs/decisions/0005-catch-timing-quality.md`.
 
-| Quality | r | Multiplier | How you get it (base stats) |
-|---------|---|-----------|-----------------------------|
-| Normal | < 1.2 | 1× | walk under it (r ≈ 1.1) |
-| Good | 1.2 – < 1.5 | 2× | run into it (r ≈ 1.35) |
-| Hard | 1.5 – < 1.8 | 5× | run + jump into it (r ≈ 1.6) |
-| Massive | 1.8 – < 2.2 | 10× | run + jump, well timed (r ≈ 1.9) |
-| Legendary | ≥ 2.2 | 50× | run + jump right at take-off, perfect timing (max ≈ 2.4 at base stats) |
+| Quality | Popup | When | Multiplier |
+|---------|-------|------|-----------|
+| Normal | `BONK` | after it touched the ground (bounces, settling hops) | 1× |
+| Good | `AIR BONK!` | in the air | 2× |
+| Perfect | `PERFECT BONK!!` | in the air, at most `Gameplay.Hits.PerfectWindow` (0.25 s) before it lands | 4× |
+
+- **Landing ring:** for each of your own projectiles a ring on the ground shows where it will first land. It shrinks from
+  10 studs to the pickup size as the landing approaches and turns gold (and thicker) during the Perfect window. Standing
+  inside the ring when it closes = PERFECT BONK; catching it earlier (a few studs in front, or jumping into it) = AIR BONK;
+  arriving after it touched the ground = BONK.
+- **Catch moment (server):** the first time the planned path came within projectile radius + pickup padding + 1 stud of
+  the character's body line (3 studs below the root part up to the head), searched only in the last
+  `ping + 0.12 s` (at most 0.6 s) before the report arrived (the client reports as soon as it sees the touch; without
+  this bound a player reaching the landing spot late would get Perfect, because the descent passed through it). If the
+  path never came that close (network delay), the time of its closest approach to the root in that window.
+- Why 0.25 s: a stick comes down at ≈ 25 studs/s, so a standing player gets it ≈ 0.15 s (on the landing spot) to
+  ≈ 0.3 s (a few studs in front) before it lands; earlier catches need a jump. Tune `PerfectWindow` in `Config/Gameplay`.
+- **Auto-Catch pass** catches always pay Normal.
+- **First bonk:** a new player's first paid hit (`Tutorial.FirstBonkDone` false in the save) pays ×10, sets the flag and
+  shows a `FIRST BONK! ×10` splash (`BonkHit` argument `firstBonk`).
 
 ### Head hits and combo
 
@@ -103,14 +118,28 @@ The player velocity is clamped before use: horizontal ≤ current WalkSpeed, ver
   passed within projectile radius + 2 (pickup padding) + 4 studs of the server-side head.
 - **Combo:** every hit within the combo window of the previous hit adds 0.1 to the multiplier (max ×3 at 21 hits).
   Window = 2 s + 1.5 × time between two shots (interval / active shooters), so it stays fair with more or faster shooters.
-  The HUD shows `COMBO xN ×M` with a bar that runs out when the window ends.
+  The HUD shows `COMBO xN ×M` with a bar that runs out when the window ends, plus a tier name in its colour from
+  ×1.5 `ON FIRE`, ×2 `BONKTASTIC`, ×3 `MAX BONK` (`Gameplay.Bonk.ComboTiers`); the meter punches when a new tier is reached.
 
 ## Feedback (client)
 
-- Popup above the character: `+X BONK` for 1.0 s; for Good and above prefixed with the quality, e.g. `HARD BONK! +50`.
-- One bonk sound (a custom cartoon "bonk", ≈ 0.9 s, `Gameplay.Bonk.SoundId`); pitch 1.0 + 0.05 per quality tier above Normal. Every hit plays its own copy, so quick hits overlap.
-- Head hits say `HEADBONK!` instead of `BONK`.
-- Stars burst from the head in the quality colour (6 + 6 per tier above Normal); from Hard on the camera shakes briefly.
+All tunable in `Config/Gameplay` → `Bonk` (per quality: `Bonk.Qualities`).
+
+| | BONK (Normal) | AIR BONK (Good) | PERFECT BONK (Perfect) |
+|--|--|--|--|
+| Popup (1.0 s, rises) | `BONK +X`, white | `AIR BONK! +X`, green, ×1.2 size | `PERFECT BONK!! +X`, gold, ×1.6 size, pops in big and bounces |
+| Sound pitch | 1.0 | 1.08 | 1.18 |
+| Coins from the character | 4 | 8 | 16 |
+| Stars from the head | 6 | 10 | 18 |
+| Camera shake | — | tiny | strong (× 1.3 on head hits and golden sticks) |
+
+- Head hits say `HEADBONK` instead of `BONK` (`PERFECT HEADBONK!! +X`); golden sticks add `GOLDEN ` and are gold.
+- One bonk sound (a custom cartoon "bonk", ≈ 0.9 s, `Gameplay.Bonk.SoundId`). Every hit plays its own copy, so quick hits overlap.
+- **Impact burst** where the projectile hit (hand catches), in the projectile's tier colour (gold for golden ones),
+  8 + 3 per tier particles and bigger per tier; some throwables burst differently (`Bonk.Impact.Textures`: smoke for
+  the newspaper, baguette and bone, fire for the BONK sign and the Legendary Stick).
+- **First bonk:** `FIRST BONK! ×10` big in the middle of the screen for 2.5 s.
+- **Landing ring** for your own projectiles (see Catch quality; `Gameplay.LandingRing`).
 
 ## Upgrades
 
@@ -222,7 +251,7 @@ worth it at every stage. Config: `Config/Hub`.
 - **Duels:** challenge another player in the server for 100 / 1,000 / 10,000 / 100,000; they get a popup (20 s) to accept;
   both pay the stake, a fair coin decides, the winner gets both. One open duel per player.
 - **Daily Quests:** 3 per UTC day (same for everyone, never two of the same kind), e.g. catch N sticks, N headbonks, reach a
-  xN combo, N Hard+ bonks, win coin flips, spin the wheel, buy upgrades. Claim for 20–120 bonks. QUESTS button shows "!" when claimable.
+  xN combo, N PERFECT BONKS, win coin flips, spin the wheel, buy upgrades. Claim for 20–120 bonks. QUESTS button shows "!" when claimable.
 - **Leaderboard:** "Bonk Dollars" in the Roblox player list (short text, "1.5Dc": a StringValue, since amounts pass
   the 9.2e18 limit of an IntValue; the list sorts it as text); the TOP BONKERS board ranks the top 10 by total Bonk
   Dollars ever earned (all servers, OrderedDataStore `TotalEarned_v2`, refreshed every minute; this server only when

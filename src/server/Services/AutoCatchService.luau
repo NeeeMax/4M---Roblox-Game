@@ -2,12 +2,11 @@
 -- Auto-Catch game pass (Config/Shop → Passes "AutoCatch", Shop.Pass.AutoCatchRadius / AutoCatchInterval).
 -- Every AutoCatchInterval seconds, for each owner: their live, unpaid projectiles whose current position on the
 -- planned path is within AutoCatchRadius studs of the character are paid out like a Normal bonk (no head bonus,
--- combo counts) through BonkService.AwardHit. Only the server's own path and character position are used.
+-- combo counts, a new player's first paid hit gets the first-bonk bonus) through BonkService.AwardHit. Only the server's own path and character position are used.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local ProjectilePath = require(ReplicatedStorage.Shared.Util.ProjectilePath)
 local Shop = require(ReplicatedStorage.Shared.Config.Shop)
@@ -24,16 +23,8 @@ local NO_KNOCKBACK = Vector3.zero
 
 local AutoCatchService = {}
 
-local function normalQuality(): Economy.HitQualityDef
-	for _, quality in Economy.HitQualities do
-		if quality.Name == "Normal" then
-			return quality
-		end
-	end
-	return Economy.HitQualities[1]
-end
-
-local NORMAL = normalQuality()
+-- Auto-catches always pay the "Normal" catch quality (BONK), whenever they happen (docs/decisions/0005).
+local NORMAL = BonkService.GetQuality("Normal")
 
 local function catchFor(player: Player)
 	local island = IslandService.GetIsland(player)
