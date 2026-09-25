@@ -9,7 +9,7 @@ phase, so you can continue from the latest state if Marco's Claude session gets 
 |--------------------|-------|-----------------|
 | Phase 0 recon + plan | done | `feat/economy-v2` (`PLAN.md`) |
 | Shared contract (EconomyConfig, types, save v2, remotes, rebirth service, layout config, number format) | done | `feat/economy-v2` |
-| A economy | in progress (agent) | `feat/v2-economy` |
+| A economy | done: tuned pace (first run ~67 min, minute rhythm from Shiba 9, last Shiba 1e33, paybacks ≤ 15 min), simulation + `docs/economy/BALANCING.md`, 1e33-safe leaderboard (`TotalEarned_v2`, log-encoded; text leaderstats), trophy prices, offline bank from automation (`EconomyService.AddAutomationPoints`), 30-Shiba index, rebirth admin tools + REBIRTH card + HUD pill, locked upgrades (menu + server) | `feat/v2-economy` |
 | C bonk | in progress (agent) | `feat/v2-bonk` |
 | D automation | in progress (agent) | `feat/v2-automation` |
 | E layout | in progress (agent) | `feat/v2-layout` |
@@ -27,7 +27,11 @@ phase, so you can continue from the latest state if Marco's Claude session gets 
   Version-1 saves keep their money and levels; old players skip the tutorial.
 - New remote `AutomationCatch` (S→C, visuals only). `HitQuality` is now `Normal | Good | Perfect` (catch timing).
 - `RewardService.GetStickValue` = stick value incl. tier, rebirth, golden, passes, boosts, events.
-- `RebirthService.TryRebirth` (server) — rebirth needs Shiba tier level 20.
+- `RebirthService.TryRebirth` (server) — rebirth needs Shiba tier level 20. Admin: `ForceRebirth`, `SetRebirths`.
+- Automation (basket, intern) must pay with `EconomyService.AddAutomationPoints(player, amount)`, not `AddPoints`:
+  that sample drives the offline Shiba Bank (`Bank.AutomationPerMinute`).
+- Upgrades with `EconomyConfig.UnlockAtShibaTier[id]` above the player's ShooterTier are refused by
+  `UpgradeService.TryPurchase` ("… unlocks with the <Shiba>!"); stands/billboards should show them locked.
 
 ## Next steps
 

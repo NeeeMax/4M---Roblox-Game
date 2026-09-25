@@ -114,40 +114,29 @@ The player velocity is clamped before use: horizontal ≤ current WalkSpeed, ver
 
 ## Upgrades
 
-Cost of the next level: `cost(n) = floor(BaseCost × Growth^n × (1 + Curve × n²))`, n = current level. The `Curve`
-term keeps the first levels cheap and bends the late ones up (see **Pacing** below). Four upgrades (projectile size and
+Prices are **derived** from a target pace in `Config/EconomyConfig` (single source of truth, see **Pacing** and
+`docs/economy/BALANCING.md`); `Config/Upgrades` only has names, effects and colours. Six upgrades (projectile size and
 fire rate were removed on 2026-09-24: projectiles always have the same size, the fire rate comes with the Shiba tier).
 
-| Id | Menu name | Effect per level | Level 0 | Max level | BaseCost | Growth | Curve |
-|----|-----------|-----------------|---------|-----------|----------|--------|-------|
-| `ShooterTier` | Shiba Tier | all Shibas evolve: new model, faster throws, more points | Shiba | 9 | 400 | 3.5 | 0.1 |
-| `ProjectileTier` | Projectile Tier | next projectile (see Projectiles) | Stick | 9 | 150 | 3.6 | 0.15 |
-| `Shooters` | More Shibas | +1 Shiba | 1 | 7 (8 Shibas) | 60 | 5.5 | 0.2 |
-| `MoveSpeed` | Move Speed | WalkSpeed +3 | 16 | 10 (46) | 40 | 3.5 | 0.1 |
+| Id | Menu name | Effect per level | Level 0 | Max level | Unlocks with |
+|----|-----------|-----------------|---------|-----------|--------------|
+| `Shooters` | More Shibas | +1 Shiba | 1 | 7 (8 Shibas; 9 with the pass) | start (the first purchase, B$ 10) |
+| `ShooterTier` | Shiba Tier | all Shibas evolve: new model/edition, faster throws, ×8.08 dollars | Shiba | 29 (30 Shibas) | start |
+| `ProjectileTier` | Projectile Tier | next projectile (×2.5 BaseReward) | Stick | 9 | Shades Shiba |
+| `MoveSpeed` | Move Speed | WalkSpeed +3 | 16 | 10 (46) | Shades Shiba |
+| `Basket` | Bonk Basket | catches missed sticks, sets the offline hours | none | 6 | Gold Shiba |
+| `Intern` | Bonk Intern | a helper who catches missed sticks (Bonk Intern … Bonk CEO) | none | 6 | Giant Shiba |
 
-Costs per level:
+- **Unlocks** come from `EconomyConfig.UnlockAtShibaTier` (derived from the Route): a locked upgrade shows "Unlocks with
+  <Shiba>" (menu, stand) and the server refuses it (`UpgradeService.TryPurchase`).
+- **Prices** (examples; the simulation prints all of them): Shibas 38 → 2K → 36K → 340K → … → 570B (Shiba 10) →
+  78Sx (Shiba 20) → **1Dc = 1e33** (Shiba 30). More Shibas 10 … 190T, Move Speed 75 … 1.5Oc, Basket 450M … 3.4No,
+  Intern 74B … 18No, Projectile Tier 647 … 79Oc.
 
-| Upgrade | 0→1 | 1→2 | 2→3 | 3→4 | 4→5 | 5→6 | 6→7 | 7→8 | 8→9 | 9→10 |
-|---------|-----|-----|-----|-----|-----|-----|-----|-----|-----|------|
-| Shiba Tier | 400 | 1.5K | 6.9K | 33K | 156K | 735K | 3.4M | 15M | 67M | — |
-| Projectile Tier | 150 | 621 | 3.1K | 16K | 86K | 431K | 2.1M | 9.8M | 45M | — |
-| More Shibas | 60 | 396 | 3.3K | 28K | 231K | 1.8M | 14M | — | — | — |
-| Move Speed | 40 | 154 | 686 | 3.3K | 16K | 74K | 338K | 1.5M | 6.7M | 29M |
-
-Shiba tiers (`Config/Gameplay → Shooters.Tiers`):
-
-| Tier | Throws every | Points × |
-|------|-------------|----------|
-| Shiba | 5.0 s | 1 |
-| Shades Shiba | 4.3 s | 1.6 |
-| Buff Shiba | 3.7 s | 2.5 |
-| Chef Shiba | 3.2 s | 3.9 |
-| Police Shiba | 2.7 s | 6.2 |
-| Ninja Shiba | 2.4 s | 9.7 |
-| Gold Shiba | 2.0 s | 15 |
-| Galaxy Shiba | 1.8 s | 24 |
-| Giant Shiba | 1.5 s | 38 |
-| Cheems God | 1.3 s | 60 |
+Shiba tiers (`EconomyConfig.Shibas`, used by `Config/Gameplay → Shooters.Tiers`): 30 = the ten models (Shiba, Shades,
+Buff, Chef, Police, Ninja, Gold, Galaxy, Giant, Cheems God), then the same ten as **Shiny** and **Mythic** editions
+(same model, outline and aura in the edition colour). Throw interval 5.0 s → 1.2 s (geometric), dollars ×8.08 per
+tier (×1 → ×2e26, solved so the last Shiba costs 1e33).
 
 - MoveSpeed exists so the player can **reach impact points in time** (not to dodge). It also raises the achievable hit quality.
 - **Active Shibas:** buying adds a Shiba; the "More Shibas" card sets how many are active (1 … owned) for free.
@@ -174,33 +163,45 @@ Shiba tiers (`Config/Gameplay → Shooters.Tiers`):
 
 ### Pacing
 
-Goal: the first upgrades come fast (first buy within ~30 s, five within ~4 min), later ones slower but never a wall
-(at most ~75 min of play for the very last levels), so boosts and instant upgrades are worth buying in the mid and late
-game. Estimated with a player who always buys the cheapest upgrade next:
+Goal: the first purchase right away, a quick buy every few seconds at the start, a **minute rhythm from around the
+9th Shiba**, never a wall, and a whole first run (30 Shibas, 67 purchases) in **60–90 min**; every purchase pays for
+itself within ~15 min. Full model, tables and how to retune: `docs/economy/BALANCING.md`
+(`lune run docs/economy/simulate.luau`).
 
 ```
-income / min = 60 / FireInterval(Shiba tier) × Shibas × catch rate × BaseReward(projectile) × Shiba tier mult × 1.3
-catch rate   = 60 % (+2 % per Move Speed level); 1.3 = average bonus from quality, head hits, combo and golden sticks
+target wait T(n) = 200 − 196 · e^(−n / 50) s   (4 s for the first purchase → 2.5 min for the last)
+price(n)         = Baseline income before purchase n × T(n) × PriceShare(upgrade)
+Baseline income  = stick value × (caught/s × 2 + intern catches × payout + basket catches × payout)
+caught/s         = min(sticks/s × (60 % + 3 % per Move Speed), 1 + 0.1 per Move Speed)
 ```
 
-| Buy # | Upgrade bought | Cost | Income at that stage (/min) | Wait for it (min) | Play time so far |
-|-------|----------------|------|-----------------------------|-------------------|------------------|
-| 1 | Move Speed 1 | 40 | 94 | 0.4 | 26 s |
-| 2 | More Shibas 1 | 60 | 95 | 0.6 | 1.1 min |
-| 3 | Projectile Tier 1 | 150 | 191 | 0.8 | 1.8 min |
-| 5 | More Shibas 2 | 396 | 253 | 1.6 | 4 min |
-| 6 | Shiba Tier 1 | 400 | 380 | 1.1 | 5 min |
-| 10 | Projectile Tier 3 | 3.1K | 1.6K | 1.9 | 10 min |
-| 15 | Projectile Tier 4 | 16K | 5.0K | 3.3 | 23 min |
-| 20 | Shiba Tier 5 | 156K | 19K | 8 | 50 min |
-| 25 | Move Speed 8 | 1.5M | 96K | 16 | 1.8 h |
-| 30 | Projectile Tier 8 | 9.8M | 258K | 38 | 3.8 h |
-| 35 | Shiba Tier 9 (all maxed) | 67M | 911K | 73 | 8.2 h |
+A player who always buys the cheapest affordable upgrade (run 1, no rebirth, no passes):
+
+| Shiba | 1 | 2 | 5 | 9 | 10 | 20 | 21 (rebirth) | 30 (1e33) |
+|-------|---|---|---|---|----|----|--------------|-----------|
+| play time | start | 8 s | 1.7 min | 7.5 min | 9.1 min | 36.6 min | 39.0 min | 66.9 min |
+| wait for it | — | 8 s | 29 s | 64 s | 71 s | 2.1 min | 2.1 min | 2.5 min |
+
+Between two Shibas come quick side buys (More Shibas, Move Speed, Basket, Intern: 2–35 s each) and every few Shibas a
+projectile tier (as long as a Shiba). Active play earns ~3.7× the idle (AFK) income once the intern is hired and ~2×
+at the end of the run.
 
 Robux speeds this up without selling Bonk Dollars: 2× Dollars (pass or 30 min boost) halves every wait, 2× Fire Rate
 nearly does, and the instant upgrades skip one level.
 - Upgrade menu: one card per upgrade with level badge, current → next value (tier names in their colours), what the next
-  level gives, one dot per level, buy button (green when affordable). The UPGRADES button shows "!" when something is affordable.
+  level gives, one dot per level (Shiba Tier: 29 small dots), buy button (green when affordable, "LOCKED" with
+  "Unlocks with <Shiba>" before its Shiba). At the bottom a **REBIRTH** card: rebirths and income multiplier, "Needs
+  the Mythic Shiba (Shiba 21) · next: income ×N", READY when it can be done (at the shrine on the island). The UPGRADES
+  button shows "!" when something unlocked is affordable.
+
+### Rebirth
+
+Once you own the **Mythic Shiba (Shiba 21)** you can rebirth at the rebirth shrine on your island
+(`RebirthService.TryRebirth`, `EconomyConfig.Rebirth`): Bonk Dollars back to the start amount, all six upgrades back
+to 0; your income is multiplied by **1 + rebirths** for good (×2, ×3 …, `RewardService.GetRebirthMultiplier`). Kept:
+passes, trophies, Shiba-Index, quests, streaks, boosts, Bonk Rains, pending Shiba Bank earnings, settings; the
+measured income rates are reset (so a rebirth can't cash the old run's income offline). Run 2 takes about half as
+long (Shiba 21 after ~20 min), run 3 a third. The HUD shows a small "REBIRTH n · ×m INCOME" pill after the first one.
 
 ## Hub features
 
@@ -222,9 +223,12 @@ worth it at every stage. Config: `Config/Hub`.
   both pay the stake, a fair coin decides, the winner gets both. One open duel per player.
 - **Daily Quests:** 3 per UTC day (same for everyone, never two of the same kind), e.g. catch N sticks, N headbonks, reach a
   xN combo, N Hard+ bonks, win coin flips, spin the wheel, buy upgrades. Claim for 20–120 bonks. QUESTS button shows "!" when claimable.
-- **Leaderboard:** "Bonk Dollars" in the Roblox player list; the TOP BONKERS board ranks the top 10 by total Bonk Dollars
-  ever earned (all servers, OrderedDataStore, refreshed every minute; this server only when DataStores are unavailable).
-  Admin gifts and coin-flip stakes coming back don't count, only real earnings.
+- **Leaderboard:** "Bonk Dollars" in the Roblox player list (short text, "1.5Dc": a StringValue, since amounts pass
+  the 9.2e18 limit of an IntValue; the list sorts it as text); the TOP BONKERS board ranks the top 10 by total Bonk
+  Dollars ever earned (all servers, OrderedDataStore `TotalEarned_v2`, refreshed every minute; this server only when
+  DataStores are unavailable). The store keeps `floor(log10(total + 1) × 1e14)` (an OrderedDataStore only holds whole
+  numbers below 2^63; the log keeps the order and ~14 digits, up to 1e90) and the board decodes it for display. The old
+  `TotalEarned_v1` board starts over. Admin gifts and coin-flip stakes coming back don't count, only real earnings.
 - Only earned points can be bet. Bonk Dollars must never be sold for Robux while coin flips exist (Roblox rules on paid random items).
 
 ## Server events
@@ -245,13 +249,15 @@ right away (`EventService.StartNow(eventId)`, hooked into the admin menu later).
 
 ## Shiba-Index
 
-A collection book (INDEX menu, `Config/Index`) with one entry per Shiba tier (10), projectile tier (10), the golden stick
-and each trophy (10): 31 entries today, new tiers and trophies are added automatically. An entry is **found** when you
-first reach it: Shiba / projectile tier bought (or skipped past), first golden stick caught, trophy owned. Unfound entries
-show as a dark "???" silhouette. Each found entry pays a one-time discovery reward you claim on its card (in bonks, see
-Hub features): Shibas 20 + 10 per tier, projectiles 15 + 5 per tier, golden stick 50, trophies by rarity (Common 25,
-Rare 50, Epic 100, Legendary 200, Exclusive 300). Finding all entries unlocks a completion bonus of 1,000 bonks.
-A bar on top shows the progress ("12/31 found").
+A collection book (INDEX menu, `Config/Index`) with one entry per Shiba tier (30: the ten originals, then the Shiny
+and Mythic editions), projectile tier (10), the golden stick and each trophy (10): 51 entries today, new tiers and
+trophies are added automatically. Entry ids are saved: the ten original Shibas keep `Shiba_<Model>`, editions are
+`Shiba_<Edition><Model>` (e.g. `Shiba_ShinyShiba`). An entry is **found** when you first reach it: Shiba / projectile
+tier bought (or skipped past), first golden stick caught, trophy owned; a rebirth never un-finds anything. Unfound
+entries show as a dark "???" silhouette. Each found entry pays a one-time discovery reward you claim on its card (in
+bonks, see Hub features): Shibas 20 + 10 per tier (20 … 310), projectiles 15 + 5 per tier, golden stick 50, trophies
+by rarity (Common 25, Rare 50, Epic 100, Legendary 200, Exclusive 300). Finding all entries unlocks a completion bonus
+of 1,000 bonks. A bar on top shows the progress ("12/51 found").
 ## Obby (jump and run)
 
 A spiral tower of chunky green / yellow / orange platforms in the hub centre (`ObbyService`, layout in `Config/Obby`),
@@ -308,28 +314,36 @@ Roblox ids live in `Config/Shop` (0 = not created yet: free test purchase in Stu
 | Stack Upgrade | 149 | buy several upgrade levels at once (x1 → x10) | UpgradeService |
 | Auto-Catch | 249 | every 0.25 s, sticks whose current position is within 10 studs of the character are collected as a Normal bonk (no head bonus, combo counts); only while they could be caught by hand. Look (client only): a small red/silver magnet circles the owner; each auto-caught stick is pulled into the player with a beam and a trail, sparkles pop and the magnet wiggles | AutoCatchService, MagnetController |
 
-Trophies stand on your island for everyone to see: Wooden 5K, Bronze 50K, Silver 500K, Golden 5M, Galaxy 100M Bonk
-Points (long-term goals), plus exclusive ones (Starter, 7-Day Streak, VIP, Diamond, Rainbow).
+Trophies stand on your island for everyone to see. Bought with Bonk Dollars (`EconomyConfig.TrophyThresholds`, each
+about the price of the Shiba you buy around then): Wooden 1e4, Bronze 1e8, Silver 1e14, Golden 1e22, Galaxy 1e30,
+plus exclusive ones (Starter, 7-Day Streak, VIP, Diamond, Rainbow).
 Receipts are granted exactly once (handled purchase ids are saved); pass ownership is checked with Roblox on every join.
 
 ## Offline Shiba Bank
 
-While the player is away, their Shibas keep earning (Config/Economy → `OfflineBank`, OfflineService):
+While the player is away, their basket and intern keep earning (OfflineService; numbers in `EconomyConfig →
+Automation`, sampling in `Config/Economy → OfflineBank`):
 
-- **Income rate:** every 60 s of play the Bonk Dollars earned in that minute (hits, spin, quests, gifts, coin-flip wins;
-  not admin gifts or the offline payout itself) are smoothed into `Bank.IncomePerMinute`
-  (`rate += 0.3 × (sample − rate)`, the first sample sets it). A sample counts at most 8 normal bonks per Shiba throw,
-  so a big coin-flip win can't inflate the rate.
+- **Income rates:** every 60 s of play two rates are smoothed (`rate += 0.3 × (sample − rate)`, the first sample sets
+  it): `Bank.IncomePerMinute` = what the player earned themselves (hits, spin, quests, gifts, coin-flip wins; not
+  admin gifts or the offline payout) and `Bank.AutomationPerMinute` = what the basket and intern earned
+  (`EconomyService.AddAutomationPoints`). Each sample counts at most 8 normal bonks per Shiba throw, so a big coin-flip
+  win can't inflate a rate. A rebirth resets both rates.
 - **Last seen:** every save (leave, autosave, shutdown) stamps `Bank.LastSeenAt`.
-- **On join:** time away = now − LastSeenAt, only if at least 60 s, capped at 8 h.
-  `Pending += IncomePerMinute × minutes away × 10 %`, then the "WELCOME BACK!" popup shows the time away and the amount.
+- **On join:** time away = now − LastSeenAt, only if at least 60 s, capped at the basket's offline hours (Basket level
+  1…6: 2 / 3 / 4 / 5 / 6 / 8 h; no basket: 1 h).
+  `Pending += minutes away × (1 × AutomationPerMinute + 5 % × IncomePerMinute)`, then the "WELCOME BACK!" popup shows
+  the time away and the amount.
 - **OKAY** pays Pending (counts for the leaderboard). **x2 DOUBLE IT! (R$ 39)** opens the "Double Offline Earnings" product;
   when Roblox grants it, 2× Pending is paid. Unclaimed earnings stay pending (and add up) until claimed.
-- Example: 1,000 points/min while playing, away 2 h → 1,000 × 120 × 0.1 = 12,000 (24,000 doubled).
+- Example: automation 1,000/min and own income 4,000/min, Basket level 2, away 5 h → capped at 3 h = 180 min ×
+  (1,000 + 200) = 216,000 (432,000 doubled).
 
 ## Admin (testing)
 
-- Admins get an **ADMIN** button (left) with: +1K / +100K / +10M / +1B points, set points to 0; each upgrade −/+ and MAX ALL;
+- Admins get an **ADMIN** button (left) with: +1K / +1M / +1B / +1T … +1Dc points (every ×1000 up to 1e33,
+  `Admin.PointAmounts`), set points to 0; each upgrade −/+ and MAX ALL (ignores the Shiba unlocks); rebirth now (no
+  Shiba needed), +1 rebirth (only the multiplier), reset rebirths, with the current count and multiplier;
   reset daily spin, new quests, finish quests; 2× Dollars / 2× fire rate boost (10 min), clear boosts; teleport to hub / own
   island, all Shibas fire now; toggle each pass, +1 Bonk Rain, start a rain, all trophies, unlock gifts, show the
   starter offer again; RESET EVERYTHING (second click confirms; keeps the leaderboard total and Robux purchases).
@@ -338,7 +352,11 @@ While the player is away, their Shibas keep earning (Config/Economy → `Offline
 
 ## Economy
 
-- Currency: **Bonk Dollars** (integer). Earned by hits, daily spin, quests and coin flips. Start with 0.
+- Currency: **Bonk Dollars** (whole numbers, up to 1e33 and beyond: a double, written short from 1e6 with
+  `Format.Money` / `Format.Short`: K, M, B, T, Qa, Qi, Sx, Sp, Oc, No, Dc …). Earned by hits, automation (basket,
+  intern), daily spin, quests, coin flips and the Shiba Bank. A new player starts with **B$ 10** =
+  `EconomyConfig.StartingMoney`, exactly the price of the first purchase (the second Shiba on the NEW SHIBA pad).
+  Every price, income and multiplier lives in `Config/EconomyConfig` (see Upgrades → Pacing, `docs/economy/BALANCING.md`).
   (It used to be called Bonk Points: the saved field and the code keep the name `BonkPoints` / `AddPoints`, so saves
   are unchanged; only what players see changed. Name and plain-text symbol live in `Config/Economy → Currency`.)
 - **Symbol:** a bold capital **B with a vertical bar through it** (like "฿"), drawn in front of every amount:
@@ -352,8 +370,9 @@ While the player is away, their Shibas keep earning (Config/Economy → `Offline
 - Where the symbol shows: HUD counter, upgrade card prices and "per bonk" line, upgrade stand billboards and the
   Shiba pad, shop trophy prices, coin flip bets/stakes/results/duel invites, bonk popups, spin result, obby reward,
   "Welcome back" popup, notifications.
-- Pacing target (for tuning): first upgrade after ~30 s of active play, 5 purchases within the first 5 minutes, all
-  upgrades maxed after ~8 h (see Upgrades → Pacing). While away, the Offline Shiba Bank pays 10 % of the recent income.
+- Pacing target (for tuning): first purchase right away, minute rhythm from around the 9th Shiba, a whole first run
+  (Shiba 30, 1e33) in ~67 min, no purchase with a payback over ~15 min (see Upgrades → Pacing). While away, the
+  Offline Shiba Bank pays the automation's income (+5 % of your own) for up to the basket's offline hours.
 
 ## UI (MVP)
 
@@ -378,7 +397,13 @@ Look and usability follow successful Roblox tycoons: few buttons on screen, big 
 
 ## Saving
 
-Per player (DataStore, key = UserId): the whole `Types.PlayerState` (Bonk Dollars as `BonkPoints`, total earned, levels, active Shibas, spins used today, boost end times, quests, login streak, playtime, trophies, Bonk Rains, first join, starter pack, passes, handled receipts). Loaded on join, saved on leave, every 60 s, and on server shutdown.
+Per player (DataStore `PlayerData_v1`, key = UserId): the whole `Types.PlayerState` (Bonk Dollars as `BonkPoints`, total earned, levels of all six upgrades, active Shibas, spins used today, boost end times, quests, login streak, playtime, trophies, Bonk Rains, first join, starter pack, passes, handled receipts, Shiba Bank, obby, Shiba-Index, settings, rebirths, tutorial). Loaded on join, saved on leave, every 60 s, and on server shutdown; a rebirth saves right away.
+
+- **Save version 2** (economy rework): adds `Rebirths`, `Tutorial`, `Bank.AutomationPerMinute` and the `Basket` /
+  `Intern` levels. Version-1 saves load unchanged (money, levels, everything); their players skip the tutorial.
+  Old Bonk Dollar amounts stay as they are (tiny next to the new prices, which is fine: they start the new curve).
+- Big numbers are plain doubles in the save (a DataStore holds them fine); only the leaderboard's OrderedDataStore
+  needs the log encoding (see Hub features → Leaderboard).
 
 ## Scope of the first playable version (MVP)
 
