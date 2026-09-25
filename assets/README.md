@@ -157,3 +157,16 @@ removes `AllModels`:
 ```lua
 local A=game.ReplicatedStorage.Assets local s=workspace.AllModels for _,m in ipairs(s:GetChildren()) do for _,d in ipairs(m:GetDescendants()) do local b=d.Name:match('^([^%.]+)%.') if b then d.Name=b end end local old=A:FindFirstChild(m.Name) if old then old:Destroy() end m.Parent=A end s:Destroy()
 ```
+
+## Audio — `audio/`
+
+Every sound the game uses is kept here, so whoever owns the published game can upload it to their own account
+(Roblox audio only plays in experiences its owner has allowed). After uploading, put the new id into the config field.
+
+| File | Used for | Config field | Current id (uploaded by) |
+|------|----------|--------------|--------------------------|
+| `Bonk.mp3` | sound when a projectile hits you (0.9 s cartoon "bonk") | `Config/Gameplay → Bonk.SoundId` | `rbxassetid://94820265879957` (Marco) |
+
+Upload in Studio: Window → **Asset Manager** → **Import** → pick the file → Start Import → confirm; the id is shown under
+Uploads. If the game belongs to someone else, either they upload the file themselves, or the uploader grants the game
+access (create.roblox.com → the audio → Permissions → Experiences; only works for games the uploader can access).
