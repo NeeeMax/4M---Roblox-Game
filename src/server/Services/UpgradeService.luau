@@ -64,7 +64,7 @@ local function applyMovement(player: Player)
 	local state = DataService.GetState(player)
 	local passMultiplier = if state and state.Passes.RunFaster then RUN_FASTER_MULTIPLIER else 1
 	humanoid.WalkSpeed = UpgradeService.GetValue(player, "MoveSpeed") * passMultiplier
-	-- Hit quality assumes this jump speed (Gameplay.Hits.MaxVerticalPlayerSpeed).
+	-- Every character jumps the same (Gameplay.Character.JumpPower).
 	humanoid.UseJumpPower = true
 	humanoid.JumpPower = Gameplay.Character.JumpPower
 end

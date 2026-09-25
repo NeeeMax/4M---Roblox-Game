@@ -130,5 +130,6 @@ no absurd payback), docs (`GAME_DESIGN.md`, `NETWORK.md`, `ARCHITECTURE.md`), bu
                    '-.          .-'
                       '-.____.-'   ◄── AUTOMATION: Basket (185°), Intern (220°)
 ```
-Stalls on the outer ring (r 70) behind the Shibas, ≥ 30 studs apart, a path ring (r 70) links them to the bridge;
+Stalls on the outer ring (r 74, moved out from 70 by the layout agent so they sit behind the path) behind the Shibas,
+≥ 30 studs apart, a path ring (r 70) links them to the bridge;
 walking clockwise from the spawn = later in the game.
