@@ -9,7 +9,7 @@
 -- centre; direction(a) = (sin a, 0, −cos a), the same convention as StationService and NPCShooterService.
 -- The field is radius 30, the Shibas stand at 56 (the Giant Shiba's barrier reaches 67), the island edge is 80:
 -- the path runs at 70 just behind the Shibas, the stalls stand right behind the path (74) facing the island centre,
--- the zone signs behind the stalls (78.5), high enough to read over them. Walking clockwise from the spawn (90) =
+-- the zone signs behind the stalls (78), high enough to read over them. Walking clockwise from the spawn (90) =
 -- later in the game. The sector from the rebirth shrine (270) back to the bridge (360) is free for the tree grove.
 export type Zone = {
 	Id: string,
@@ -33,17 +33,17 @@ return {
 	-- Themed zones, each with a sign (behind the middle of its stalls). Early zones sit next to the spawn, later ones
 	-- further round the island.
 	Zones = {
-		{ Id = "ShibaShop", Title = "SHIBA SHOP", Angle = 90, Radius = 78.5, Color = Color3.fromRGB(255, 140, 60) },
-		{ Id = "Throwables", Title = "THROWABLES", Angle = 150, Radius = 78.5, Color = Color3.fromRGB(255, 200, 40) },
-		{ Id = "SpeedGym", Title = "SPEED GYM", Angle = 30, Radius = 78.5, Color = Color3.fromRGB(80, 200, 255) },
+		{ Id = "ShibaShop", Title = "SHIBA SHOP", Angle = 90, Radius = 78, Color = Color3.fromRGB(255, 140, 60) },
+		{ Id = "Throwables", Title = "THROWABLES", Angle = 150, Radius = 78, Color = Color3.fromRGB(255, 200, 40) },
+		{ Id = "SpeedGym", Title = "SPEED GYM", Angle = 30, Radius = 78, Color = Color3.fromRGB(80, 200, 255) },
 		{
 			Id = "Automation",
 			Title = "AUTOMATION",
 			Angle = 202.5,
-			Radius = 78.5,
+			Radius = 78,
 			Color = Color3.fromRGB(90, 200, 160),
 		},
-		{ Id = "Rebirth", Title = "REBIRTH", Angle = 270, Radius = 78.5, Color = Color3.fromRGB(200, 110, 255) },
+		{ Id = "Rebirth", Title = "REBIRTH", Angle = 270, Radius = 78, Color = Color3.fromRGB(200, 110, 255) },
 	} :: { Zone },
 	Stalls = {
 		{ Kind = "Upgrade", Upgrade = "ShooterTier", Zone = "ShibaShop", Angle = 62, Radius = 74 },
@@ -101,7 +101,8 @@ return {
 	PathRing = {
 		Radius = 70,
 		Width = 4,
-		FromAngle = 0,
+		-- Starts a little left of the bridge, so the link lands fully on it.
+		FromAngle = -3,
 		ToAngle = 270,
 		SegmentDegrees = 6,
 		TopHeight = 0.2,
