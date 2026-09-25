@@ -192,17 +192,10 @@ local function build()
 		end)
 		passButtonsById[passId] = passButtons[index]
 	end
-<<<<<<< HEAD
 	-- POWERS passes (the magnet is a timed boost: Boosts → "Magnet 5m", Clear removes it).
 	local powerButtons =
 		buttonRow(shop, 2, { { "Manage" }, { "Run Faster" }, { "Stack" } }, Color3.fromRGB(70, 200, 120))
 	for index, passId in { "Manage", "RunFaster", "StackUpgrade" } do
-=======
-	-- POWERS passes; "Magnet" = the Auto-Catch pass (its magnet circles you while it is on).
-	local powerButtons =
-		buttonRow(shop, 2, { { "Magnet" }, { "Manage" }, { "Run Faster" }, { "Stack" } }, Color3.fromRGB(70, 200, 120))
-	for index, passId in { "AutoCatch", "Manage", "RunFaster", "StackUpgrade" } do
->>>>>>> origin/main
 		powerButtons[index].Activated:Connect(function()
 			send("TogglePass", passId)
 		end)
