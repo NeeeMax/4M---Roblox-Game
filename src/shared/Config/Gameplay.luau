@@ -160,6 +160,29 @@ return {
 		IdAttribute = "ProjectileId",
 	},
 
+	-- Landing ring (Controllers/ProjectileController, only for your own projectiles): a flat ring on the ground where
+	-- the projectile will first land, in its tier colour (also for golden ones: gold means Perfect). It starts StartRadius wide at launch
+	-- and shrinks evenly until, at the landing, it matches the pickup sphere (projectile radius + Hits.PickupPadding),
+	-- drawn as a faint filled disc underneath. During the Perfect window (Hits.PerfectWindow) it turns PerfectColor
+	-- and thicker. It disappears at the landing or when the projectile is caught.
+	LandingRing = {
+		StartRadius = 10,
+		-- The ring always starts at least this much wider than its end size (giant sticks).
+		MinShrink = 3,
+		Thickness = 0.5,
+		PerfectThicknessScale = 1.8,
+		-- Height of the flat cylinders and how far above the ground they float (no z-fighting with the island).
+		Height = 0.1,
+		GroundOffset = 0.08,
+		Transparency = 0.2,
+		TargetTransparency = 0.72,
+		-- Fades in over this many seconds after launch.
+		FadeInTime = 0.25,
+		-- The tier colour is mixed this much toward white, so dark tiers (the wooden stick) show on the grass.
+		Brighten = 0.35,
+		PerfectColor = Color3.fromRGB(255, 205, 40),
+	},
+
 	Hits = {
 		ImmunityTime = 0.5,
 		-- Extra pickup reach in studs around every projectile, so they are easier to collect without bigger models.
