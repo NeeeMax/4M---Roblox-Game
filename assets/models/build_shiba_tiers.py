@@ -1328,6 +1328,10 @@ def superhero(parts, hs):
             if r == 0:
                 y = l.head_c.y + 0.12 + 0.08 * u * u
             verts.append((x, y, z))
+    # Blown out to the free-paw side and lifted back, as if flying: turn it about the neck.
+    pivot = Vector((0, l.back_y, l.neck_z))
+    blow = Matrix.Rotation(math.radians(38), 3, 'Y') @ Matrix.Rotation(math.radians(22), 3, 'X')
+    verts = [tuple(pivot + blow @ (Vector(v) - pivot)) if i >= colsn else v for i, v in enumerate(verts)]
     faces = []
     for r in range(rows - 1):
         for k in range(colsn - 1):
@@ -1705,7 +1709,7 @@ def eternal(parts, hs):
             ex.append(prim("ico", hc + d * (R + 0.02) + Vector((0, -0.07, 0)), color=cyan, subdivisions=1, radius=0.06))
         ga = a + math.tau / 24
         gd = Vector((math.sin(ga), 0, math.cos(ga)))
-        ex += glyph(hc + gd * (R - 0.12) + Vector((0, -0.03, 0)), (math.cos(ga), 0, -math.sin(ga)), gd, 0.07, cyan, rng)
+        ex += glyph(hc + gd * (R - 0.12) + Vector((0, -0.03, 0)), (math.cos(ga), 0, -math.sin(ga)), gd, 0.09, cyan, rng)
     for k in range(24):
         a = (k + 0.5) * math.tau / 24
         d = Vector((math.sin(a), 0, math.cos(a)))
@@ -1743,7 +1747,7 @@ def eternal(parts, hs):
         ex.append(rod(hg + Vector((s * 0.06, 0, -0.13)), hg + Vector((s * 0.06, 0, 0.13)), 0.008, gold, verts=4))
     # Static glowing ring crossing the orbit, and floating diamond sparkles.
     cen = Vector((0, 0.05, ETERNAL_ORBIT["lift"]))
-    ex.append(ring((0, 0.05, 0.2), 1.0, 0.018, cyan, rot=(math.radians(-6), math.radians(8), 0), segments=40))
+    ex.append(ring((0, 0.05, 0.2), 1.0, 0.026, cyan, rot=(math.radians(-6), math.radians(8), 0), segments=40))
     for k in range(14):
         a = rng.uniform(0, math.tau); r = rng.uniform(0.9, 1.25)
         p = Vector((math.cos(a) * r, 0.1 + math.sin(a) * r * 0.6, rng.uniform(0.1, 1.9)))
@@ -1797,29 +1801,32 @@ def void(parts, hs):
         ex.append(spike(base, (math.cos(a) * 0.35, math.sin(a) * 0.35, 1), h, 0.05, black, verts=4,
                         tip=magenta if k % 2 else purple))
     # Black hole behind the head: a black sphere, a white-hot photon ring, a purple lensing ring, sigils and eyes.
-    bh = Vector((0, l.back_y + 0.38, l.eye_z + 0.28))
+    bh = Vector((0, l.back_y + 0.42, l.eye_z + 0.42))
     face_rot = (math.radians(90), 0, 0)
-    ex.append(prim("uv", bh, color=srgb(2, 1, 5), segments=20, ring_count=12, radius=0.44))
-    ex.append(ring(bh + Vector((0, -0.02, 0)), 0.47, 0.045, white, rot=face_rot, segments=40))
-    ex.append(ring(bh + Vector((0, -0.01, 0)), 0.56, 0.03, cyan, rot=face_rot, segments=40))
-    ex.append(ring(bh, 0.74, 0.04, purple, rot=face_rot, segments=48))
-    for k in range(10):
-        a = k * math.tau / 10
+    ex.append(prim("uv", bh, color=srgb(2, 1, 5), segments=20, ring_count=12, radius=0.54))
+    ex.append(ring(bh + Vector((0, -0.02, 0)), 0.58, 0.05, white, rot=face_rot, segments=40))
+    ex.append(ring(bh + Vector((0, -0.01, 0)), 0.68, 0.035, cyan, rot=face_rot, segments=40))
+    ex.append(ring(bh, 0.9, 0.045, purple, rot=face_rot, segments=48))
+    for k in range(12):
+        a = k * math.tau / 12 + math.pi / 12
         d = Vector((math.cos(a), 0, math.sin(a)))
-        p = bh + d * 0.65 + Vector((0, -0.05, 0))
+        p = bh + d * 0.79 + Vector((0, -0.05, 0))
         if k % 2:
-            ex += glyph(p, (-math.sin(a), 0, math.cos(a)), d, 0.07, magenta, rng)
+            ex += glyph(p, (-math.sin(a), 0, math.cos(a)), d, 0.08, magenta, rng)
         else:
-            ex.append(ball(p, 1, white, scale=(0.085, 0.025, 0.05), rot=(0, -a, 0)))
-            ex.append(ball(p + Vector((0, -0.02, 0)), 1, magenta, scale=(0.035, 0.015, 0.035)))
-            ex.append(ball(p + Vector((0, -0.03, 0)), 1, black, scale=(0.012, 0.01, 0.03), rot=(0, -a, 0)))
-        ex.append(spike(bh + d * 0.77, d, 0.3 if k % 2 else 0.18, 0.04, purple, verts=4, tip=cyan))
+            ex.append(ball(p, 1, white, scale=(0.09, 0.025, 0.055), rot=(0, -a, 0)))
+            ex.append(ball(p + Vector((0, -0.02, 0)), 1, magenta, scale=(0.037, 0.015, 0.037)))
+            ex.append(ball(p + Vector((0, -0.03, 0)), 1, black, scale=(0.012, 0.01, 0.032), rot=(0, -a, 0)))
+        up = 1 + 0.6 * max(0.0, d.z)  # longer spikes on top: a dark sun rising over the head
+        ex.append(spike(bh + d * 0.93, d, (0.42 if k % 2 else 0.24) * up, 0.05, purple, verts=4, tip=cyan))
     # Accretion disk (event horizon ring) around the body: white-hot inside, cyan, purple, fading dark outside.
     ring_c = Vector((0, 0.05, 0.6))
     stops = [(0.0, white), (0.2, cyan), (0.55, purple), (1.0, srgb(55, 15, 110))]
     grad = lambda t: next(mix(c0, c1, (t - t0) / (t1 - t0)) for (t0, c0), (t1, c1) in zip(stops, stops[1:]) if t <= t1)
     r_in, r_out, n_seg, n_ring = 0.8, 1.3, 40, 3
-    dtilt = Matrix.Rotation(math.radians(22), 3, 'X')
+    # Tilted back and to one side (down on the free-paw side), so it crosses the silhouette diagonally.
+    disk_rot = (math.radians(24), math.radians(-16), 0)
+    dtilt = Euler(disk_rot).to_matrix()
     verts, faces, fc = [], [], []
     for r in range(n_ring + 1):
         rad = r_in + (r_out - r_in) * r / n_ring
@@ -1833,20 +1840,30 @@ def void(parts, hs):
             t = (r + 0.5) / n_ring
             fc.append(mix(grad(t), white, 0.25) if (k + r) % 5 == 0 else grad(t))
     ex.append(mesh_obj("disk", verts, faces, fc, double=True))
-    ex.append(ring(ring_c, r_in, 0.035, white, rot=(math.radians(22), 0, 0), segments=40))
+    ex.append(ring(ring_c, r_in, 0.035, white, rot=disk_rot, segments=40))
     # Void tentacles: tapering ribbons curling out of the back, black to purple with glowing cyan tips.
-    for k, (s, rise, reach, curl) in enumerate(((-1, 0.9, 0.9, 1), (1, 0.9, 0.85, -1), (-1, 0.3, 1.1, -1),
-                                                (1, 0.35, 1.05, 1), (-1, -0.25, 0.95, 1), (1, -0.2, 0.9, -1))):
-        root = Vector((s * 0.2, l.back_y - 0.02, l.shoulder_z - 0.05 - 0.14 * (k // 2)))
-        pts = []
-        for i in range(10):
-            t = i / 9
-            pts.append(root + Vector((s * reach * 1.1 * t, 0.15 * math.sin(t * 3) - 0.1 * t, rise * t
-                                      + curl * 0.2 * math.sin(t * math.pi * 1.6))))
-        radii = [0.095 * (1 - t / 11) for t in range(9)] + [0]
+    # Each one heads out at its elevation, then turns more and more (curl) so the tip rolls into a spiral, in a
+    # plane facing the front so the curls read.
+    n_pts = 15
+    for k, (s, elev, length, curl) in enumerate(((-1, 68, 1.35, -1), (1, 66, 1.3, 1), (-1, 24, 1.35, 1),
+                                                 (1, 26, 1.3, -1), (-1, -18, 1.05, -1), (1, -15, 1.0, 1))):
+        root = Vector((s * 0.22, l.back_y + 0.02, l.shoulder_z - 0.02 - 0.13 * (k // 2)))
+        e = math.radians(elev)
+        d0 = Vector((s * math.cos(e), 0.5, math.sin(e))).normalized()
+        perp = Vector((0, 1, 0)).cross(d0).normalized()
+        pts, p, th = [root], root.copy(), 0.0
+        for i in range(1, n_pts):
+            t = i / (n_pts - 1)
+            th = curl * s * 3.6 * t ** 2.2
+            p = p + (d0 * math.cos(th) + perp * math.sin(th)) * length / (n_pts - 1) * (1.25 - 0.6 * t)
+            pts.append(p)
+        radii = [0.1 * (1 - i / n_pts) ** 0.8 for i in range(n_pts - 1)] + [0]
         ex.append(curve_tube("tentacle", pts, radii, 6,
-                             lambda kk, j, c: cyan if kk >= 7 else (purple if (kk + j) % 3 == 0 or kk >= 5 else black)))
-        ex.append(ball(pts[-2], 0.045, magenta))
+                             lambda kk, j, c: cyan if kk >= 11 else (purple if (kk + j) % 3 == 0 or kk >= 8 else
+                                                                     black)))
+        for i in (4, 7, 10):
+            ex.append(ball(pts[i] + (pts[i + 1] - pts[i]).cross(perp).normalized() * radii[i] * 0.8, radii[i] * 0.45,
+                           magenta))
     # Orbit: floating void shards (faceted black/purple crystals) on a tilted circle around the body.
     axis = Vector(VOID_ORBIT["axis"]).normalized()
     cen = Vector((0, 0.05, VOID_ORBIT["lift"]))
