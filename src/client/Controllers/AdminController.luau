@@ -185,8 +185,17 @@ local function build()
 		end)
 		passButtonsById[passId] = passButtons[index]
 	end
+	-- POWERS passes; "Magnet" = the Auto-Catch pass (its magnet circles you while it is on).
+	local powerButtons =
+		buttonRow(shop, 2, { { "Magnet" }, { "Manage" }, { "Run Faster" }, { "Stack" } }, Color3.fromRGB(70, 200, 120))
+	for index, passId in { "AutoCatch", "Manage", "RunFaster", "StackUpgrade" } do
+		powerButtons[index].Activated:Connect(function()
+			send("TogglePass", passId)
+		end)
+		passButtonsById[passId] = powerButtons[index]
+	end
 	local shopButtons =
-		buttonRow(shop, 2, { { "+1 Bonk Rain" }, { "Start rain" }, { "All trophies" } }, Color3.fromRGB(60, 170, 255))
+		buttonRow(shop, 3, { { "+1 Bonk Rain" }, { "Start rain" }, { "All trophies" } }, Color3.fromRGB(60, 170, 255))
 	shopButtons[1].Activated:Connect(function()
 		send("GiveRain")
 	end)
@@ -197,7 +206,7 @@ local function build()
 		send("AllTrophies")
 	end)
 	local giftButtons =
-		buttonRow(shop, 3, { { "Unlock gifts" }, { "Starter offer again" } }, Color3.fromRGB(255, 110, 150))
+		buttonRow(shop, 4, { { "Unlock gifts" }, { "Starter offer again" } }, Color3.fromRGB(255, 110, 150))
 	giftButtons[1].Activated:Connect(function()
 		send("ResetGifts")
 	end)
