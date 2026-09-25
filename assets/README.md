@@ -26,6 +26,16 @@ Only models that code depends on. Keep this folder small; the world lives in the
 | `VampireShiba.fbx` | `VampireShiba` — pale fur, red eyes, fangs, stand-up collar and cape | Shiba Tier 18 |
 | `PharaohShiba.fbx` | `PharaohShiba` — striped gold/blue headdress with cobra, collar, false beard, ankh | Shiba Tier 19 |
 | `DragonShiba.fbx` | `DragonShiba` — green scales, horns, spine spikes, wings | Shiba Tier 20 |
+| `DJShiba.fbx` | `DJShiba` — backwards cap, big neon headphones, gold chain with a record, speaker box with a turntable, vinyl in the paw | top set (recommended Height 7) |
+| `KnightShiba.fbx` | `KnightShiba` — steel helm with raised visor and red plume, breastplate with red cross, pauldrons, kite shield with a bone crest | top set (Height 8) |
+| `SuperheroShiba.fbx` | `SuperheroShiba` — blue suit, red gloves and boots, navy domino mask, chest diamond with a red B, red cape flying out to the side | top set (Height 8) |
+| `FrostShiba.fbx` | `FrostShiba` — icy blue/white fur, glowing eyes, ice crystal crown, icicles, frost mantle with snowy collar, ice shards on a frozen floor | top set (Height 8.5) |
+| `MagmaShiba.fbx` | `MagmaShiba` — black rock fur with glowing zigzag cracks, molten glowing belly, obsidian crown round a little volcano, lava drips, lava pool | top set (Height 9) |
+| `MechaShiba.fbx` | `MechaShiba` — white/blue/red mech armour: angular helmet with V-fin and glowing visor eyes, huge pauldrons, chest core, jet pack with glowing exhaust | top set (Height 8.5) |
+| `AngelShiba.fbx` | `AngelShiba` — white fur, big feathered wings with golden tips, floating halo, laurel, gold sash, trumpet, cloud | top set (Height 11) |
+| `DemonShiba.fbx` | `DemonShiba` — dark red fur, big curved horns, bat wings, glowing angry eyes, spade tail, ring of fire, trident | top set (Height 11) |
+| `EternalShiba.fbx` | `EternalShiba` — star-white/gold fur with star specks, giant golden clock halo on a night-blue starry dial with runes, three pairs of wings, gold crown, hourglass, floating clock face; a tilted golden ring with gems spins around it (`Orbit`, `OrbitCenter`) | top set (Height 16) |
+| `VoidShiba.fbx` | `VoidShiba` — black fur with glowing purple/cyan cracks, third eye, dark crystal crown, black hole with photon rings, eyes and sigils behind the head, diagonal accretion disk, curling void tentacles; void shards orbit it (`Orbit`, `OrbitCenter`) | top set (Height 18) |
 | `Stick.fbx` | `Stick` — chunky brown branch, stubby twig, two green leaves | projectile tier 1 (`Config/Projectiles`) |
 | `Newspaper.fbx` | `Newspaper` — rolled up, cream with grey print bands and a red headline band, hollow ends | projectile tier 2 |
 | `Baguette.fbx` | `Baguette` — slightly bent pointed loaf, golden crust, darker underside, pale score marks | projectile tier 3 |
@@ -44,7 +54,9 @@ longest side along the stick's, same length, grip on the stick's lower end), hid
 if no projectile model exists the `Stick` shows (`Config/Gameplay → Shooters.HandProjectile`). The client turns the
 whole Shiba and swings `ThrowArm` with what is in the paw for the throw animation (`Controllers/ShibaController`).
 Optional: an `Orbit` part that spins around a tiny `OrbitCenter` marker (made invisible), speed and axis per model in
-`Config/ShibaEffects` (Galaxy Shiba: planet and moon flying around its head). `Tiers_preview.png` shows them all.
+`Config/ShibaEffects` (Galaxy Shiba: planet and moon flying around its head). `Tiers_preview.png` shows them all,
+`Tiers11-20_preview.png` the second set and `Tiers_top_preview.png` the top set (DJ … Void, not yet scaled to their
+Heights). Rebuild only some Shibas with `--only DJShiba,VoidShiba` (renders `preview_only.png` and close-ups).
 
 **Projectile contract** (all ten projectile FBX files): the long axis is Blender Z (→ Roblox model-local Y) and is the
 longest side; the bounding box is centred at the origin; the end held in the paw is at -Z; plus a tiny marker mesh
