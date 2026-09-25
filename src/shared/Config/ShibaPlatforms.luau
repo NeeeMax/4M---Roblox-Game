@@ -1,7 +1,9 @@
 --!strict
 -- The platform every Shiba stands on, per tier, keyed by the tier's AssetName (Config/Gameplay → Shooters.Tiers).
--- NPCShooterService builds each platform from plain parts. `Default` is used for anything without its own entry
--- (the fallback block, the legacy `Shooter` model).
+-- NPCShooterService uses the model ReplicatedStorage.Assets.Platform_<AssetName> if it exists (assets/models/
+-- build_props.py; scaled so its StandPoint marker is `ModelTop` or `Top` above the surface and its bottom ModelSink
+-- below it), otherwise it builds the platform from these plain parts. `Default` is used for anything without its own
+-- entry (the fallback block, the legacy `Shooter` model).
 --
 -- Rules that keep platforms looking right:
 -- - Pieces that touch the island start below its surface (bottom < 0) and must not end exactly at 0: two faces at
@@ -30,6 +32,8 @@ export type Platform = {
 	Top: number,
 	-- Footprint; the invisible barrier (Shooters.Barrier) around the Shiba is this wide plus its padding.
 	Diameter: number,
+	-- Standing height when the Platform_<AssetName> model is used (default Top).
+	ModelTop: number?,
 	Pieces: { Piece },
 }
 
@@ -154,9 +158,10 @@ local platforms: { [string]: Platform } = {
 			block(0.2, 0.2, 1.4, 1.8, Color3.fromRGB(170, 170, 180), Enum.Material.Metal, 0.5, -3.7),
 		},
 	},
-	-- Blue and white striped pedestal with siren lights.
+	-- Blue and white striped pedestal with siren lights. The model is a small police car: the Shiba stands on its roof.
 	PoliceShiba = {
 		Top = 1.8,
+		ModelTop = 3,
 		Diameter = 8,
 		Pieces = {
 			cylinder(7.4, SINK, 0.3, POLICE_BLUE, Enum.Material.SmoothPlastic),
@@ -259,4 +264,9 @@ local default: Platform = {
 return {
 	Platforms = platforms,
 	Default = default,
+	-- Platform models: ReplicatedStorage.Assets.<ModelPrefix><AssetName>, with a tiny part named StandMarkerName at the
+	-- centre of the standing surface (hidden in the game). The model reaches ModelSink studs into the island.
+	ModelPrefix = "Platform_",
+	StandMarkerName = "StandPoint",
+	ModelSink = 0.5,
 }

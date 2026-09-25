@@ -93,20 +93,49 @@ Import in Studio: **Import** (Home tab) → pick the `.fbx` → Import, then mov
 `ReplicatedStorage/Assets` and name it exactly as in the table. The code scales and orients it; without these models it
 falls back to plain parts.
 
-## Props (world models, not in git)
+## Props (world models) — `models/props/`
 
-Built in Studio by Marco and put into `ReplicatedStorage/Assets` with exactly these names. Until then `PropService` builds
-a placeholder (pink box + "MODEL: <name>" label in Studio). Models are scaled to the height the code asks for; their
-bottom sits on the ground, their front (-Z / LookVector) faces the way the placeholder faces.
+Low-poly models in the Shiba style (flat-shaded, colours in the vertex colour attribute `Col`), one `<Name>.fbx` per
+model, built by `build_props.py` (the statue, the Rainbow trophy and the ShooterTier stand reuse the dog from
+`shiba_bonk_default.blend`). `props/Props_preview.png` shows all of them.
 
-| Name | What | Height (studs) |
-|------|------|----------------|
-| `Prop_Tree` | tree on islands and hub | 11–16 |
-| `Prop_Flowers` | small flower patch | 1.5 |
-| `Prop_Lamp` | lamp post on bridges (should contain a light) | 7 |
-| `Prop_IslandRock` | rocky cone under a floating island (hangs down from its top) | 70–72 |
-| `Prop_Cloud` | cloud | 12–22 |
-| `Prop_SmallIsland` | small floating deco island with a tree | 10–18 |
-| `Prop_ShibaStatue` | big Shiba statue in the hub centre | 16 |
-| `Prop_DailySpinMachine`, `Prop_CoinFlipMachine`, `Prop_ShopMachine`, `Prop_QuestsMachine` | hub station machines, front toward the hub centre | 12 |
-| `Trophy_Wood`, `Trophy_Bronze`, `Trophy_Silver`, `Trophy_Gold`, `Trophy_Galaxy`, `Trophy_Starter`, `Trophy_Streak`, `Trophy_VIP`, `Trophy_Diamond`, `Trophy_Rainbow` | trophies on the island pedestals | 4 |
+```
+blender --background --disable-autoexec shiba_bonk_default.blend --python build_props.py -- props [<preview folder>] [<names>]
+```
+
+`PropService` uses `ReplicatedStorage/Assets/<Name>` when it exists: scaled so its **height** is what the code asks for,
+**bottom centre on the ground** (hanging props, `Config/Props → Hanging`: top centre at the given point), **front = -Z /
+LookVector** (Blender -Y). Imported props keep collisions (except `Config/Props → NoCollide`: flowers, clouds); a part
+named `Glow` becomes Neon and gets the prop's light (`Config/Props → Lights`). Without a model it builds a part
+placeholder and Output lists the missing names (`[PropService] No model …`); the pink "MODEL: <name>" labels are off
+unless `Config/Props → ShowPlaceholderMarkers` is true.
+
+| File (`models/props/`) | Studio name (`ReplicatedStorage/Assets/…`) | Used by | Height (studs) | Tris |
+|------|------|------|------|------|
+| `Prop_Tree.fbx` | `Prop_Tree` | trees on islands and hub | 11–16 | 412 |
+| `Prop_Flowers.fbx` | `Prop_Flowers` | flower patches (no collisions) | 1.5 | 428 |
+| `Prop_Lamp.fbx` | `Prop_Lamp` (parts `Body`, `Glow`) | lamps on bridges, `Glow` holds the PointLight | 7 | 334 |
+| `Prop_IslandRock.fbx` | `Prop_IslandRock` | rock cone under each island (hangs from the island's bottom) | 70–72 | 486 |
+| `Prop_Cloud.fbx` | `Prop_Cloud` | clouds (no collisions) | 12–22 | 560 |
+| `Prop_SmallIsland.fbx` | `Prop_SmallIsland` | small floating islands in the distance | 10–18 | 846 |
+| `Prop_ShibaStatue.fbx` | `Prop_ShibaStatue` | statue on the obby finish pad (ObbyService) | 16 | 3050 |
+| `Prop_ObbyTower.fbx` | `Prop_ObbyTower` | column in the middle of the obby (the platforms are separate parts) | 40.2 | 1406 |
+| `Prop_DailySpinMachine.fbx`, `Prop_CoinFlipMachine.fbx`, `Prop_ShopMachine.fbx`, `Prop_QuestsMachine.fbx` | same names | hub station machines, front toward the hub centre | 12 | 1152 / 940 / 1204 / 702 |
+| `Prop_UpgradeStand_ShooterTier.fbx`, `…_ProjectileTier`, `…_Shooters`, `…_MoveSpeed` | `Prop_UpgradeStand_<UpgradeId>` | upgrade stands (StationService), front toward the path | 7 | 786 / 492 / 408 / 444 |
+| `Trophy_Wood/Bronze/Silver/Gold/Galaxy/Starter/Streak/VIP/Diamond/Rainbow.fbx` | `Trophy_<Id>` | trophies on the island pedestals (TrophyService) | 4 | 268–982 |
+| `Platform_<AssetName>.fbx` (Shiba, ShadesShiba, BuffShiba, ChefShiba, PoliceShiba, NinjaShiba, GoldShiba, GalaxyShiba, GiantShiba, CheemsGod) | `Platform_<AssetName>` (parts `Body`, `StandPoint`) | the platform each tier's Shibas stand on (NPCShooterService) | see below | 346–1650 |
+
+`Prop_ObbyTower` is exactly 10 × 40.2 (TowerRadius 5, FinishHeight − Thickness − plaza): scaled to the tower height it
+has the same footprint as the part tower. If `Config/Obby` changes those numbers, rebuild it with the new ratio.
+
+Platforms (`Config/ShibaPlatforms`): NPCShooterService scales the model so its tiny `StandPoint` part (hidden in the game)
+is `ModelTop` (else `Top`) studs above the island surface and its bottom `ModelSink` (0.5) below it, `StandPoint` right
+above the Shiba's spot, front (-Z) toward the island centre. Visual only (the invisible barrier keeps players out).
+`Platform_PoliceShiba` is a small police car; the Shiba stands on its roof (`ModelTop = 3`). Without the model the
+part platform is built as before.
+
+**Import in Studio**: Home → **Import 3D** (or Avatar → Import 3D) → pick the `.fbx` files from `assets/models/props/`
+(several at once works) → keep the import options' defaults, make sure the vertex colours are imported → Import. Move
+every imported **Model** (a one-mesh file may arrive as a single MeshPart, that works too) into `ReplicatedStorage/Assets` and keep its name exactly as the file name (e.g. `Prop_Tree`,
+`Trophy_Gold`, `Platform_PoliceShiba`). Keep the part names inside (`Body`, `Glow`, `StandPoint`). No scaling or
+rotating needed: the code does it. Start a playtest; Output lists props and platforms that are still missing.
