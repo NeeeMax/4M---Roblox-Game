@@ -21,7 +21,13 @@ function BoostService.GetMultiplier(player: Player, id: Types.BoostId): number
 	if not BoostService.IsActive(player, id) then
 		return 1
 	end
-	return if id == "Points" then Hub.Boosts.Points else Hub.Boosts.FireRate
+	if id == "Points" then
+		return Hub.Boosts.Points
+	elseif id == "FireRate" then
+		return Hub.Boosts.FireRate
+	end
+	-- The Magnet boost has no multiplier (AutoCatchService checks IsActive).
+	return 1
 end
 
 -- Starts the boost, or extends it if it already runs.

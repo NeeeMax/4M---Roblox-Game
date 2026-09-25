@@ -3,5 +3,5 @@
 -- Bump the label with every change that should be visible in a playtest.
 
 return {
-	Label = "2026-09-25 #25: 10 new Shibas 11-20 (Pirate, Cowboy, Viking, Wizard, Astronaut, Robot, Samurai, Vampire, Pharaoh, Dragon); #24: clean top bar (no ! badges, hamburger icon, short money), admin Magnet/Manage/Run/Stack toggles; #23: economy v2 (30 Shibas up to 1e33, rebirth, tutorial start), catch-timing bonks (AIR / PERFECT BONK, landing ring), Bonk Basket + Bonk Intern, island zones with stalls on the outer ring",
+	Label = "2026-09-25 #26: Shiba order (Cheems God 28, Eternal 29, Void 30), Magnet is a 15 min boost, smaller UI; #25: 10 new Shibas 11-20 (Pirate, Cowboy, Viking, Wizard, Astronaut, Robot, Samurai, Vampire, Pharaoh, Dragon); #24: clean top bar (no ! badges, hamburger icon, short money), admin Magnet/Manage/Run/Stack toggles; #23: economy v2 (30 Shibas up to 1e33, rebirth, tutorial start), catch-timing bonks (AIR / PERFECT BONK, landing ring), Bonk Basket + Bonk Intern, island zones with stalls on the outer ring",
 }

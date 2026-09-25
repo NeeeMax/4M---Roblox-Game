@@ -348,6 +348,10 @@ local function tick()
 	if fireLeft > 0 then
 		table.insert(parts, `2× FIRE RATE {Widgets.Duration(fireLeft)}`)
 	end
+	local magnetLeft = (state.Boosts.Magnet or 0) - now
+	if magnetLeft > 0 then
+		table.insert(parts, `MAGNET {Widgets.Duration(magnetLeft)}`)
+	end
 	boostLabel.Text = table.concat(parts, "   ·   ")
 	boostLabel.Visible = #parts > 0
 end
