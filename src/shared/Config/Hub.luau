@@ -133,7 +133,8 @@ return {
 	Leaderboard = {
 		Size = 10,
 		RefreshInterval = 60,
-		StoreName = "TotalEarned_v1",
+		-- v2: values are log-encoded (LeaderboardService), totals go up to 1e33 and beyond.
+		StoreName = "TotalEarned_v2",
 	},
 
 	Boosts = {
