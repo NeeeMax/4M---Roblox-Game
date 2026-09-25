@@ -165,7 +165,7 @@ Every sound the game uses is kept here, so whoever owns the published game can u
 
 | File | Used for | Config field | Current id (uploaded by) |
 |------|----------|--------------|--------------------------|
-| `Bonk.mp3` | sound when a projectile hits you (0.9 s cartoon "bonk") | `Config/Gameplay → Bonk.SoundId` | `rbxassetid://94820265879957` (Marco) |
+| `Bonk.mp3` | sound when a projectile hits you (0.9 s cartoon "bonk") | `Config/Gameplay → Bonk.SoundId` | `rbxassetid://92393279714658` (Max, uploaded to Crazymax0815; Marco's copy: `94820265879957`) |
 
 Upload in Studio: Window → **Asset Manager** → **Import** → pick the file → Start Import → confirm; the id is shown under
 Uploads. If the game belongs to someone else, either they upload the file themselves, or the uploader grants the game

@@ -292,11 +292,11 @@ return {
 	Bonk = {
 		PopupTime = 1,
 		PopupRise = 4,
-		-- Bonk hit sound (Controllers/BonkController): custom cartoon "bonk" uploaded by Marco (≈ 0.9 s). To swap it,
+		-- Bonk hit sound (Controllers/BonkController): custom cartoon "bonk" (assets/audio/Bonk.mp3, ≈ 0.9 s). To swap it,
 		-- paste another "rbxassetid://<id>" here. If it ever stays silent in the published game, the audio's
 		-- permissions (Creator Hub → Audio → Permissions) must allow this experience. Every hit plays its own copy,
 		-- so quick hits overlap instead of cutting each other off.
-		SoundId = "rbxassetid://94820265879957",
+		SoundId = "rbxassetid://92393279714658",
 		SoundVolume = 0.8,
 		-- Playback speed goes up by this per hit-quality tier above Normal (Legendary: 1.2); kept small so the cartoon
 		-- bonk still sounds like itself.
