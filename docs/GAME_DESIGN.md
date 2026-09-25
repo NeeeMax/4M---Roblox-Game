@@ -13,6 +13,30 @@ NPCs lob silly objects at your personal floating island — run and jump **into*
 - **Every 1–5 minutes:** spend Bonk Dollars on one of 5 upgrades.
 - **Every session:** push upgrade levels higher; progress is saved.
 
+## Onboarding / first minute
+
+No tutorial text, no popups: the game shows the one next thing to do (`Config/Tutorial`).
+
+1. **Spawn (0 s):** a brand-new player (or one after RESET EVERYTHING) spawns on their island at the new-player spawn,
+   facing the centre, with exactly `EconomyConfig.StartingMoney` = the price of the second Shiba. Right in front: the
+   glowing green **NEW SHIBA** pad with a pulsing highlight, a line from the feet to it and **"Step here!"** above it.
+2. **Pad (~3 s):** stepping on it buys the second Shiba, which starts throwing within a few seconds.
+3. **First catch (< 30 s):** nothing is affordable now, so **"Catch the stick!"** floats over the field (with a line
+   there only if the player is far away). The very first caught stick pays `EconomyConfig.Bonk.FirstBonkMultiplier`
+   (×10, **FIRST BONK!**, BonkService / BonkController) — the "wow" moment, and usually enough for the next purchase.
+4. **Guided purchases:** whenever something is affordable, the line, the pulsing highlight and a hint of at most four
+   words point at the cheapest affordable, unlocked thing ("Upgrade your Shibas!", "Buy better sticks!", "Run faster
+   here!", "More Shibas here!" or "Step here!" on the pad …); with nothing affordable: "Get more money!" over the
+   field. Each hint disappears as soon as its goal is done (the target changes).
+5. **End:** after `Tutorial.GuidedPurchases` (6) purchases the guidance stops for good; the normal hints (NEW arrows,
+   "You can afford …" popup, yellow button) take over. Settings → Hints off hides the guidance too.
+
+- **Progress** is saved in `state.Tutorial.Step`: `TutorialService` (server) adds every rise of the sum of all upgrade
+  levels, up to GuidedPurchases. Players with saves from before the rework start with Step 1000 (no tutorial); after a
+  rebirth Step stays, so no tutorial and the normal spawn.
+- A brand-new player = every upgrade level 0 and `Tutorial.Step == 0`. The save loads after the first spawn, so the
+  server moves such a player to the new-player spawn once it is loaded (and again after an admin reset).
+
 ## Target players and session length
 
 Casual Roblox players, roughly 8–14. Understandable in under 10 seconds without a tutorial. Target session: 15–30 minutes.
@@ -26,7 +50,7 @@ Casual Roblox players, roughly 8–14. Understandable in under 10 seconds withou
 | Player island | grass island; in the middle the **field** (sand, radius 30, low white border with a gap toward the bridge) where sticks land; Shibas stand on the island around it; trophies on lit pedestals behind the field; trees and flowers on the outer ring; owner name on a sign where the bridge arrives |
 | Islands | one per player, assigned on join (first free plot), freed on leave; more than 5 players = the extra ones stay on the hub. **Max Players must be 5** (Creator Hub → Configure → Places) |
 | Target area | disc radius 28 inside the field; bounces can continue anywhere on the island |
-| Player spawn | own island centre, facing the hub (hub spawn in front of the how-to board if no island) |
+| Player spawn | own island centre, facing the hub (hub spawn in front of the how-to board if no island). Brand-new players (nothing bought, tutorial not started) spawn at `Config/Stations → NewPlayerSpawn` (90° right of the bridge, radius 72) facing the island centre, the NEW SHIBA pad right in front of them (see Onboarding) |
 | Shooter ring | Shibas on platforms at radius 56, evenly spaced, with the bridge side exactly between two of them. Each Shiba sits inside an invisible wall (cylinder around platform and Shiba) so players can't walk through it; it doesn't affect projectiles or hits |
 | Shiba platforms | per tier, built from parts (`Config/ShibaPlatforms`), the Shiba stands and throws from its top: Shiba wooden stump (1.4 studs), Shades black-and-gold podium (2), Buff gym weight plate (1.05), Chef kitchen counter with cutting board (2.9), Police blue-white striped pedestal with siren lights (1.8), Ninja dark stone with red trim (1.6), Gold coin stack (2), Galaxy purple space rock floating over a glowing ring (3.2), Giant cracked rock plateau (1.8, 21 studs wide), Cheems God golden temple column on a cloud (10). Tops are at least 0.2 studs above the island surface (equal heights flicker) |
 | Shooter look | per Shiba Tier (see Upgrades): `ReplicatedStorage/Assets/Shiba`, `ShadesShiba`, `BuffShiba`, `ChefShiba`, `PoliceShiba`, `NinjaShiba`, `GoldShiba`, `GalaxyShiba`, `GiantShiba`, `CheemsGod`, each scaled to its tier's height (Ninja 5.5 … Shiba 6 … Buff/Chef 7.5 … Cheems God 12, Giant 16 studs). From the Gold Shiba on, every tier gets a glow and particles, more special with each tier but kept moderate so they don't blow out the screen (`Config/ShibaEffects`: Gold glints; Galaxy stars and nebula haze, floats gently up and down, a small planet and moon orbit its head; Giant dust and embers; Cheems God holy glow, sparkles and light motes). Every Shiba holds the player's current projectile (Projectile Tier) in its paw (its `Grip` marker on the paw, long side along the paw's stick; it swings with the throwing arm and is gone from the paw for 0.4 s after each release). A missing model falls back to the next lower tier's model with an outline in the tier colour, then `Shooter`, then a red block with barrel |
@@ -164,12 +188,22 @@ Shiba tiers (`Config/Gameplay → Shooters.Tiers`):
   - **More Shibas** also has a glowing green **NEW SHIBA** pad with its cost on the Shiba ring, where the next Shiba will
     stand (of the new ring's spots, the one farthest from the Shibas standing now). Stepping on it buys the Shiba
     (2 s cooldown). The pad disappears at the max.
+  - Every stand billboard (and the NEW SHIBA pad) also has a **money bar**: your Bonk Dollars / the next level's cost
+    in %, gold while saving up, green **READY!** once affordable ("almost there" pull).
+  - **Locked stands** (`EconomyConfig.UnlockAtShibaTier`: the Shiba tier at which the upgrade comes up in the Route;
+    the server's `Locked` attribute on the anchor wins when set) look grey: button **LOCKED**, "unlocks with
+    <Shiba name>" instead of the cost, no money bar, no hints.
+  - **Next Shiba** next to the Shiba Tier stand: the next Shiba's model as a slowly turning black silhouette (outline in
+    its colour), with "NEXT: ???" (its name, in its colour, once affordable), its price and a money bar.
+  - **REBIRTH shrine** billboard: REBIRTH, rebirth count and current income multiplier, then either "Needs <Shiba>"
+    (`EconomyConfig.Rebirth.MinShibaTier`) with a Shiba progress bar, or "Hold E: ×N income forever" (N = the
+    multiplier after the next rebirth).
   - **Hints** (off with Settings → Hints): a bouncing **NEW** arrow over every stand whose next level you can afford, and
     once per upgrade level a popup "You can afford a new upgrade! [SHOW ME]" (only when you are not already at that
-    stand; several newly affordable upgrades give one popup, for the cheapest). SHOW ME draws a glowing line from your
-    character to the stand for 8 s (or until you arrive).
+    stand; several newly affordable upgrades give one popup, for the cheapest; never during the guided tutorial, see
+    Onboarding). SHOW ME draws a glowing line from your character to the stand for 8 s (or until you arrive).
   - The big round **yellow arrow button** at the bottom centre does the same as SHOW ME for the cheapest affordable
-    upgrade ("Nothing affordable yet" otherwise).
+    upgrade ("Nothing affordable yet" otherwise). Locked stands never count as affordable.
 - **Run Faster** pass: WalkSpeed ×1.5 on top of Move Speed.
 
 ### Pacing

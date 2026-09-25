@@ -1,7 +1,7 @@
 --!strict
 -- The player islands around the hub (Config/World): builds all plots with their bridges once, gives each joining
--- player a free plot (tycoon style), spawns them on it, puts fallen characters back, and frees the plot when they
--- leave. Players without a plot (server full) stay on the hub. The hub itself is built by HubService.
+-- player a free plot (tycoon style), spawns them on it (brand-new players in front of the NEW SHIBA pad, see
+-- Config/Tutorial), puts fallen characters back, and frees the plot when they leave. Players without a plot (server full) stay on the hub. The hub itself is built by HubService.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
