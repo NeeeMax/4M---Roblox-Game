@@ -2,6 +2,9 @@
 -- Leaderboards (Config/Hub → Leaderboard): "Bonk Dollars" in the Roblox player list (leaderstats), and the
 -- TOP BONKERS board on the hub, ranked by TotalEarned across all servers (OrderedDataStore). Without DataStore
 -- access (Studio without API access) the board ranks the players in this server instead.
+-- Big numbers: an OrderedDataStore only keeps whole numbers below 2^63 (~9.2e18) and an IntValue overflows there too,
+-- but totals reach 1e33 and more. So the store keeps log10(total + 1) × LOG_SCALE (1e33 → 3.3e15; order kept), and the
+-- player list shows the amount as short text in a StringValue ("1.5Dc").
 
 local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
@@ -14,6 +17,9 @@ local DataService = require(script.Parent.DataService)
 local HubService = require(script.Parent.HubService)
 
 local CONFIG = Hub.Leaderboard
+-- Stored value = floor(log10(total + 1) × LOG_SCALE). 1e14 keeps it below 2^53 (exact in a double) up to totals of
+-- 1e90, and gives ~14 significant digits back.
+local LOG_SCALE = 1e14
 
 type Row = { Name: string, Value: number }
 
@@ -23,6 +29,20 @@ local rowLabels: { TextLabel } = {}
 local footer: TextLabel
 
 local LeaderboardService = {}
+
+-- Total earned → the whole number kept in the OrderedDataStore (same order as the totals).
+function LeaderboardService.Encode(total: number): number
+	-- `total ~= total` = NaN.
+	if total ~= total or total <= 0 then
+		return 0
+	end
+	return math.floor(math.log10(total + 1) * LOG_SCALE)
+end
+
+-- The OrderedDataStore number → total earned (rounded; big totals are only shown short anyway).
+function LeaderboardService.Decode(value: number): number
+	return math.max(0, math.floor(10 ^ (value / LOG_SCALE) - 1 + 0.5))
+end
 
 local function buildBoard()
 	local board = HubService.GetStationPart("Leaderboard")
@@ -107,7 +127,7 @@ local function globalRows(): { Row }?
 		local state = DataService.GetState(player)
 		if state then
 			pcall(function()
-				currentStore:SetAsync(tostring(player.UserId), math.floor(state.TotalEarned))
+				currentStore:SetAsync(tostring(player.UserId), LeaderboardService.Encode(state.TotalEarned))
 			end)
 		end
 	end
@@ -121,7 +141,7 @@ local function globalRows(): { Row }?
 	for _, entry in (pages :: DataStorePages):GetCurrentPage() do
 		local userId = tonumber(entry.key)
 		if userId then
-			table.insert(rows, { Name = nameOf(userId), Value = entry.value })
+			table.insert(rows, { Name = nameOf(userId), Value = LeaderboardService.Decode(entry.value) })
 		end
 	end
 	return rows
@@ -143,10 +163,13 @@ end
 local function onPlayerAdded(player: Player)
 	local leaderstats = Instance.new("Folder")
 	leaderstats.Name = "leaderstats"
-	local points = Instance.new("IntValue")
+	-- Text, not an IntValue: amounts pass 9.2e18 (IntValue's limit). The player list sorts it as text.
+	local points = Instance.new("StringValue")
 	points.Name = Format.CurrencyName
+	points.Value = "0"
 	points.Parent = leaderstats
 	leaderstats.Parent = player
+	LeaderboardService.UpdatePlayer(player)
 end
 
 -- Keeps the player-list value in sync (called on every state change).
@@ -154,8 +177,12 @@ function LeaderboardService.UpdatePlayer(player: Player)
 	local state = DataService.GetState(player)
 	local leaderstats = player:FindFirstChild("leaderstats")
 	local points = if leaderstats then leaderstats:FindFirstChild(Format.CurrencyName) else nil
-	if state and points and points:IsA("IntValue") then
-		points.Value = state.BonkPoints
+	if state and points and points:IsA("StringValue") then
+		local text = Format.Short(state.BonkPoints)
+		-- Replicate runs on every change; only touch the value when the text changes.
+		if points.Value ~= text then
+			points.Value = text
+		end
 	end
 end
 

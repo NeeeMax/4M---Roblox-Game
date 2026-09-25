@@ -272,6 +272,62 @@ PropService.Builders = {
 		)
 	end :: Builder,
 
+	-- The rebirth shrine on every player island (Config/Stations → Stalls, Kind "Rebirth"): a purple stone altar
+	-- under a golden arch with a glowing orb, front toward −Z, about 7 × 5.4 studs. The orb is named "Orb"
+	-- (StationService dims it while the player can't rebirth yet).
+	RebirthShrine = function(model: Model, height: number)
+		local scale = height / 9
+		local stone = Color3.fromRGB(70, 40, 110)
+		local marble = Color3.fromRGB(125, 75, 185)
+		local gold = Color3.fromRGB(255, 200, 60)
+		local function block(size: Vector3, y: number, z: number, color: Color3, material: Enum.Material): Part
+			return part(model, Enum.PartType.Block, size * scale, CFrame.new(0, y * scale, z * scale), color, material)
+		end
+		-- Base slab (reaches into the island, so no gap shows) with a gold band, then a step and the altar.
+		block(Vector3.new(7, 0.9, 5.4), 0.15, 0, stone, Enum.Material.Slate)
+		block(Vector3.new(7.2, 0.2, 5.6), 0.4, 0, gold, Enum.Material.Foil)
+		block(Vector3.new(5, 0.5, 3.8), 0.85, 0.2, marble, Enum.Material.Marble)
+		block(Vector3.new(2.6, 2.4, 1.8), 2.3, 0.4, marble, Enum.Material.Marble)
+		block(Vector3.new(3, 0.3, 2.2), 3.65, 0.4, gold, Enum.Material.Foil)
+		-- Golden arch behind the altar.
+		for _, x in { -2.8, 2.8 } do
+			part(
+				model,
+				Enum.PartType.Cylinder,
+				Vector3.new(6.3, 0.9, 0.9) * scale,
+				CFrame.new(x * scale, 4.25 * scale, 1.4 * scale) * CFrame.Angles(0, 0, math.rad(90)),
+				gold,
+				Enum.Material.Foil
+			)
+		end
+		block(Vector3.new(6.6, 0.6, 1.1), 7.7, 1.4, gold, Enum.Material.Foil)
+		local gem = part(
+			model,
+			Enum.PartType.Ball,
+			Vector3.one * 0.9 * scale,
+			CFrame.new(0, 8.45 * scale, 1.4 * scale),
+			gold,
+			Enum.Material.Neon
+		)
+		gem.CanCollide = false
+		-- The orb floating over the altar.
+		local orb = part(
+			model,
+			Enum.PartType.Ball,
+			Vector3.one * 1.8 * scale,
+			CFrame.new(0, 5.2 * scale, 0.4 * scale),
+			Color3.fromRGB(200, 110, 255),
+			Enum.Material.Neon
+		)
+		orb.Name = "Orb"
+		orb.CanCollide = false
+		local light = Instance.new("PointLight")
+		light.Color = Color3.fromRGB(200, 110, 255)
+		light.Range = 14
+		light.Brightness = 1.5
+		light.Parent = orb
+	end :: Builder,
+
 	Flowers = function(model: Model, height: number)
 		local colors = { Color3.fromRGB(255, 90, 120), Color3.fromRGB(255, 220, 60), Color3.fromRGB(150, 120, 255) }
 		for index = 1, 5 do
@@ -325,6 +381,103 @@ function PropService.TrophyBuilder(color: Color3): Builder
 			color,
 			Enum.Material.Neon
 		)
+	end
+end
+
+-- The Bonk Basket placeholder (Prop_Basket replaces it): a woven wicker basket, `width` = height × `widthRatio`, its
+-- body `bodyShare` of the height (the rest is the handle arching over the opening), with a rim in `rimColor` (it
+-- shows the basket's level). Config/Automation → Basket.
+function PropService.BasketBuilder(rimColor: Color3, widthRatio: number, bodyShare: number): Builder
+	return function(model: Model, height: number)
+		local wicker = Color3.fromRGB(176, 124, 66)
+		local dark = Color3.fromRGB(120, 80, 40)
+		local width = height * widthRatio
+		local radius = width / 2
+		local bodyHeight = height * bodyShare
+		local upright = CFrame.Angles(0, 0, math.rad(90))
+		-- Body, slightly narrower at the bottom (a smaller base disc under it).
+		part(
+			model,
+			Enum.PartType.Cylinder,
+			Vector3.new(bodyHeight, width, width),
+			CFrame.new(0, bodyHeight / 2, 0) * upright,
+			wicker,
+			Enum.Material.Fabric
+		)
+		part(
+			model,
+			Enum.PartType.Cylinder,
+			Vector3.new(0.3, width * 0.9, width * 0.9),
+			CFrame.new(0, 0.15, 0) * upright,
+			dark,
+			Enum.Material.Wood
+		)
+		-- The opening: a dark disc just below the top, so it reads as hollow.
+		part(
+			model,
+			Enum.PartType.Cylinder,
+			Vector3.new(0.1, width - 0.5, width - 0.5),
+			CFrame.new(0, bodyHeight + 0.02, 0) * upright,
+			Color3.fromRGB(60, 38, 20),
+			Enum.Material.Fabric
+		)
+		-- Weave: two horizontal bands and vertical stakes.
+		for _, share in { 0.33, 0.66 } do
+			part(
+				model,
+				Enum.PartType.Cylinder,
+				Vector3.new(0.25, width + 0.12, width + 0.12),
+				CFrame.new(0, bodyHeight * share, 0) * upright,
+				dark,
+				Enum.Material.Wood
+			)
+		end
+		local stakes = 12
+		for index = 1, stakes do
+			local angle = index / stakes * 2 * math.pi
+			part(
+				model,
+				Enum.PartType.Block,
+				Vector3.new(0.22, bodyHeight, 0.22),
+				CFrame.Angles(0, angle, 0) * CFrame.new(0, bodyHeight / 2, -radius),
+				dark,
+				Enum.Material.Wood
+			)
+		end
+		-- Rim: a ring of short blocks in the level colour.
+		local rimSegments = 18
+		local rimLength = 2 * math.pi * radius / rimSegments + 0.15
+		for index = 1, rimSegments do
+			local angle = index / rimSegments * 2 * math.pi
+			part(
+				model,
+				Enum.PartType.Block,
+				Vector3.new(rimLength, 0.4, 0.45),
+				CFrame.Angles(0, angle, 0) * CFrame.new(0, bodyHeight, -radius),
+				rimColor,
+				Enum.Material.SmoothPlastic
+			)
+		end
+		-- Handle: short blocks along a half ellipse from one side of the rim to the other.
+		local handleHeight = height - bodyHeight
+		local handleSegments = 10
+		local function handlePoint(t: number): Vector3
+			local angle = math.pi * t
+			return Vector3.new(math.cos(angle) * (radius - 0.2), bodyHeight + math.sin(angle) * handleHeight, 0)
+		end
+		for index = 1, handleSegments do
+			local from = handlePoint((index - 1) / handleSegments)
+			local to = handlePoint(index / handleSegments)
+			local middle = (from + to) / 2
+			part(
+				model,
+				Enum.PartType.Block,
+				Vector3.new(0.35, 0.35, (to - from).Magnitude + 0.1),
+				CFrame.lookAt(middle, to),
+				dark,
+				Enum.Material.Wood
+			)
+		end
 	end
 end
 

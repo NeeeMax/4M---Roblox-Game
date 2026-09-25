@@ -11,8 +11,11 @@ local Admin = {
 	UserIds = { 11710633859 } :: { number }, -- Marco
 	-- In Studio playtests everyone is an admin, so testing needs no setup.
 	EveryoneInStudio = true,
-	-- The only amounts the admin menu's "+ points" buttons (and the server) allow.
-	PointAmounts = { 1000, 100000, 10000000, 1000000000 } :: { number },
+	-- The only amounts the admin menu's "+ points" buttons (and the server) allow. Prices go up to 1e33
+	-- (EconomyConfig.FinalShibaCost), so the buttons go that far too.
+	PointAmounts = { 1e3, 1e6, 1e9, 1e12, 1e15, 1e18, 1e21, 1e24, 1e27, 1e30, 1e33 } :: { number },
+	-- Buttons per row in the admin menu's Bonk Dollars section.
+	PointButtonsPerRow = 6,
 }
 
 function Admin.IsAdmin(userId: number): boolean

@@ -66,6 +66,9 @@ local Net = {
 	ClaimIndex = "ClaimIndex",
 	-- C→S (music: number, effects: number, hints: boolean) — save the settings menu
 	SaveSettings = "SaveSettings",
+	-- S→C (source: AutomationSource, projectileId: number, reward: number) — the basket or the intern caught one of the
+	-- player's sticks and paid `reward` (visual only)
+	AutomationCatch = "AutomationCatch",
 }
 
 local ALL_NAMES = {
@@ -97,6 +100,7 @@ local ALL_NAMES = {
 	Net.ServerEvent,
 	Net.ClaimIndex,
 	Net.SaveSettings,
+	Net.AutomationCatch,
 }
 
 function Net.CreateRemotes()

@@ -121,7 +121,10 @@ unless `Config/Props → ShowPlaceholderMarkers` is true.
 | `Prop_ShibaStatue.fbx` | `Prop_ShibaStatue` | statue on the obby finish pad (ObbyService) | 16 | 3050 |
 | `Prop_ObbyTower.fbx` | `Prop_ObbyTower` | column in the middle of the obby (the platforms are separate parts) | 40.2 | 1406 |
 | `Prop_DailySpinMachine.fbx`, `Prop_CoinFlipMachine.fbx`, `Prop_ShopMachine.fbx`, `Prop_QuestsMachine.fbx` | same names | hub station machines, front toward the hub centre | 12 | 1152 / 940 / 1204 / 702 |
-| `Prop_UpgradeStand_ShooterTier.fbx`, `…_ProjectileTier`, `…_Shooters`, `…_MoveSpeed` | `Prop_UpgradeStand_<UpgradeId>` | upgrade stands (StationService), front toward the path | 7 | 786 / 492 / 408 / 444 |
+| `Prop_UpgradeStand_ShooterTier.fbx`, `…_ProjectileTier`, `…_Shooters`, `…_MoveSpeed` | `Prop_UpgradeStand_<UpgradeId>` | upgrade stands (StationService) on the outer ring, front toward the island centre | 7 | 786 / 492 / 408 / 444 |
+| — (not built yet) | `Prop_UpgradeStand_Basket`, `Prop_UpgradeStand_Intern` | automation stands (part-built placeholder until a model exists) | 7 | — |
+| — (not built yet) | `Prop_RebirthShrine` | rebirth shrine at 270° (StationService, part-built placeholder, purple and gold) | see `Config/Stations` | — |
+| — (not built yet) | `Prop_Basket` | the Bonk Basket at the field edge (AutomationService, part-built woven basket) | grows per level, `Config/Automation` | — |
 | `Trophy_Wood/Bronze/Silver/Gold/Galaxy/Starter/Streak/VIP/Diamond/Rainbow.fbx` | `Trophy_<Id>` | trophies on the island pedestals (TrophyService) | 4 | 268–982 |
 | `Platform_<AssetName>.fbx` (Shiba, ShadesShiba, BuffShiba, ChefShiba, PoliceShiba, NinjaShiba, GoldShiba, GalaxyShiba, GiantShiba, CheemsGod) | `Platform_<AssetName>` (parts `Body`, `StandPoint`) | the platform each tier's Shibas stand on (NPCShooterService) | see below | 346–1650 |
 
@@ -165,7 +168,7 @@ Every sound the game uses is kept here, so whoever owns the published game can u
 
 | File | Used for | Config field | Current id (uploaded by) |
 |------|----------|--------------|--------------------------|
-| `Bonk.mp3` | sound when a projectile hits you (0.9 s cartoon "bonk") | `Config/Gameplay → Bonk.SoundId` | `rbxassetid://94820265879957` (Marco) |
+| `Bonk.mp3` | sound when a projectile hits you (0.9 s cartoon "bonk") | `Config/Gameplay → Bonk.SoundId` | `rbxassetid://92393279714658` (Max, uploaded to Crazymax0815; Marco's copy: `94820265879957`) |
 
 Upload in Studio: Window → **Asset Manager** → **Import** → pick the file → Start Import → confirm; the id is shown under
 Uploads. If the game belongs to someone else, either they upload the file themselves, or the uploader grants the game

@@ -8,6 +8,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Economy = require(ReplicatedStorage.Shared.Config.Economy)
+local EconomyConfig = require(ReplicatedStorage.Shared.Config.EconomyConfig)
 local Shop = require(ReplicatedStorage.Shared.Config.Shop)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -22,7 +23,9 @@ type Session = {
 	CanSave: boolean,
 }
 
-local SAVE_VERSION = 1
+-- 2: economy rework (Rebirths, Tutorial, Bank.AutomationPerMinute, Basket/Intern levels). Version-1 saves are
+-- migrated in stateFromSaved: nothing is lost, levels and Bonk Dollars are kept as they are.
+local SAVE_VERSION = 2
 
 local stateChanged = Net.Get(Net.StateChanged)
 
@@ -40,7 +43,8 @@ local function defaultState(): PlayerState
 		levels[id] = 0
 	end
 	return {
-		BonkPoints = Economy.StartingPoints,
+		-- Exactly the price of the first purchase (EconomyConfig.StartingMoney): the NEW SHIBA pad in front of the spawn.
+		BonkPoints = EconomyConfig.StartingMoney,
 		TotalEarned = 0,
 		UpgradeLevels = levels,
 		ActiveShooters = Upgrades.GetValue("Shooters", 0),
@@ -56,10 +60,12 @@ local function defaultState(): PlayerState
 		StarterPackBought = false,
 		Passes = {},
 		Receipts = {},
-		Bank = { LastSeenAt = 0, IncomePerMinute = 0, Pending = 0, PendingSeconds = 0 },
+		Bank = { LastSeenAt = 0, IncomePerMinute = 0, Pending = 0, PendingSeconds = 0, AutomationPerMinute = 0 },
 		Obby = { LastRewardAt = 0, BestTime = 0 },
 		Index = { Seen = {}, Claimed = {} },
 		Settings = { Music = 0.5, Effects = 1, Hints = true },
+		Rebirths = 0,
+		Tutorial = { Step = 0, FirstBonkDone = false },
 	}
 end
 
@@ -149,6 +155,9 @@ local function stateFromSaved(saved: unknown): PlayerState
 			IncomePerMinute = if isNumber(bank.IncomePerMinute) then math.max(0, bank.IncomePerMinute) else 0,
 			Pending = if isNumber(bank.Pending) then math.max(0, math.floor(bank.Pending)) else 0,
 			PendingSeconds = if isNumber(bank.PendingSeconds) then math.max(0, bank.PendingSeconds) else 0,
+			AutomationPerMinute = if isNumber(bank.AutomationPerMinute)
+				then math.max(0, bank.AutomationPerMinute)
+				else 0,
 		}
 	end
 	local obby = data.Obby
@@ -219,6 +228,19 @@ local function stateFromSaved(saved: unknown): PlayerState
 				state.UpgradeLevels[id] = math.clamp(math.floor(level), 0, Upgrades.Defs[id].MaxLevel + bonus)
 			end
 		end
+	end
+	if isNumber(data.Rebirths) then
+		state.Rebirths = math.max(0, math.floor(data.Rebirths))
+	end
+	local tutorial = data.Tutorial
+	if typeof(tutorial) == "table" then
+		state.Tutorial = {
+			Step = if isNumber(tutorial.Step) then math.max(0, math.floor(tutorial.Step)) else 0,
+			FirstBonkDone = tutorial.FirstBonkDone == true,
+		}
+	elseif data.Version == nil or data.Version < 2 then
+		-- Migration from version 1: players from before the rework already know the game, so no tutorial.
+		state.Tutorial = { Step = 1000, FirstBonkDone = true }
 	end
 	local owned = Upgrades.GetValue("Shooters", state.UpgradeLevels.Shooters)
 	state.ActiveShooters = owned

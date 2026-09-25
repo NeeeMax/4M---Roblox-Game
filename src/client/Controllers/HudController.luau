@@ -4,6 +4,7 @@
 -- else the shop to buy it) and the Bonk Dollars counter ("324.316 quadrillion"). Below it: running boosts. "!" badges
 -- sit on the menu button and its entries when something can be claimed (hidden with Settings → Hints off).
 -- Also: the Bonk Rain button, short server messages (Notify), and opening hub menus from their ProximityPrompts.
+-- After the first rebirth a small pill under the menu buttons shows the rebirths and the income multiplier.
 
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
@@ -12,6 +13,7 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Admin = require(ReplicatedStorage.Shared.Config.Admin)
+local EconomyConfig = require(ReplicatedStorage.Shared.Config.EconomyConfig)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Hub = require(ReplicatedStorage.Shared.Config.Hub)
 local Icons = require(ReplicatedStorage.Shared.Config.Icons)
@@ -51,6 +53,7 @@ local player = Players.LocalPlayer
 
 local pointsLabel: TextLabel
 local boostLabel: TextLabel
+local rebirthLabel: TextLabel
 local toastHolder: Frame
 local menuList: Frame
 local rainButton: TextButton
@@ -198,6 +201,21 @@ local function build()
 	maxSize.Parent = pointsLabel
 	Widgets.Outline(pointsLabel, 3)
 
+	-- Rebirths and their income multiplier: a small pink pill under the menu buttons (only after the first rebirth).
+	rebirthLabel = Widgets.Label(top, "", 16, Color3.fromRGB(255, 150, 215))
+	rebirthLabel.Name = "Rebirths"
+	rebirthLabel.Position = UDim2.fromOffset(0, BUTTON + 14)
+	rebirthLabel.Size = UDim2.fromOffset(0, 28)
+	rebirthLabel.AutomaticSize = Enum.AutomaticSize.X
+	rebirthLabel.BackgroundColor3 = Theme.Background
+	rebirthLabel.BackgroundTransparency = 0.15
+	rebirthLabel.Visible = false
+	Widgets.Corner(rebirthLabel, 10)
+	local rebirthPadding = Instance.new("UIPadding")
+	rebirthPadding.PaddingLeft = UDim.new(0, 12)
+	rebirthPadding.PaddingRight = UDim.new(0, 12)
+	rebirthPadding.Parent = rebirthLabel
+
 	buildMenu(top)
 
 	-- Running boosts, a small pill under the bar.
@@ -331,7 +349,12 @@ local function refresh()
 	if state.Passes.Manage then
 		for _, id in Upgrades.Order do
 			local level = state.UpgradeLevels[id] or 0
-			if level < Upgrades.GetMaxLevel(id, state.Passes) and state.BonkPoints >= Upgrades.GetCost(id, level) then
+			local unlocked = (state.UpgradeLevels.ShooterTier or 0) >= (EconomyConfig.UnlockAtShibaTier[id] or 0)
+			if
+				unlocked
+				and level < Upgrades.GetMaxLevel(id, state.Passes)
+				and state.BonkPoints >= Upgrades.GetCost(id, level)
+			then
 				canBuy = true
 			end
 		end
@@ -352,6 +375,9 @@ local function refresh()
 
 	rainButton.Visible = state.BonkRains > 0
 	rainLabel.Text = `BONK RAIN ×{state.BonkRains}`
+
+	rebirthLabel.Visible = state.Rebirths > 0
+	rebirthLabel.Text = `REBIRTH {state.Rebirths} · ×{EconomyConfig.RebirthMultiplier(state.Rebirths)} INCOME`
 end
 
 local function showRain(seconds: number)

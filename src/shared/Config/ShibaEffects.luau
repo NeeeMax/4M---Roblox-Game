@@ -168,7 +168,78 @@ local effects: { [string]: Effect } = {
 	},
 }
 
+-- Shiny / Mythic editions (EconomyConfig.Shibas[i].Edition): they reuse a base model (and its entry above, platform
+-- and motion) and add an outline plus a light aura in the tier's Color (NPCShooterService). Outline = a Highlight
+-- (FillTransparency 1 = outline only; Occluded, so it doesn't show through walls). Particles with empty Colors use
+-- the tier's Color fading toward white; the Light takes the tier's Color. Kept moderate: Mythic is stronger than
+-- Shiny, but a ring of them must not blow out the screen.
+export type EditionLook = {
+	FillTransparency: number,
+	OutlineTransparency: number,
+	Light: { Brightness: number, Range: number }?,
+	Particles: { Particles },
+}
+
+local editions: { [string]: EditionLook } = {
+	Shiny = {
+		FillTransparency = 0.85,
+		OutlineTransparency = 0,
+		Light = { Brightness = 0.5, Range = 8 },
+		Particles = {
+			{
+				Texture = "Sparkles",
+				Colors = {},
+				Rate = 5,
+				Size = 0.45,
+				Lifetime = 1.4,
+				Speed = 0.4,
+				Rise = 0.8,
+				LightEmission = 0.6,
+				Transparency = 0.15,
+				Area = "Body",
+			},
+		},
+	},
+	Mythic = {
+		FillTransparency = 0.7,
+		OutlineTransparency = 0,
+		Light = { Brightness = 0.9, Range = 12 },
+		Particles = {
+			{
+				Texture = "Sparkles",
+				Colors = {},
+				Rate = 10,
+				Size = 0.55,
+				Lifetime = 1.6,
+				Speed = 0.6,
+				Rise = 1.2,
+				LightEmission = 0.75,
+				Transparency = 0.1,
+				Area = "Body",
+			},
+			{
+				-- A soft glowing haze rising from the feet: the "aura".
+				Texture = "Smoke",
+				Colors = {},
+				Rate = 4,
+				Size = 1.6,
+				Lifetime = 2.2,
+				Speed = 0.3,
+				Rise = 0.8,
+				LightEmission = 0.35,
+				Transparency = 0.75,
+				Area = "Feet",
+			},
+		},
+	},
+}
+
 return {
 	Effects = effects,
+	Editions = editions,
+	-- Name of the edition outline (Highlight). Roblox draws at most 31 Highlights at once (golden sticks use some too),
+	-- so each client keeps only the MaxEditionOutlines nearest to its camera enabled (Controllers/ShibaController).
+	EditionOutlineName = "EditionOutline",
+	MaxEditionOutlines = 16,
 	Textures = TEXTURES,
 }
