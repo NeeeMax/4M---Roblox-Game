@@ -30,7 +30,7 @@ export type QuestDef = {
 	Id: string,
 	-- "{n}" is replaced by the goal.
 	Text: string,
-	-- Event counted by QuestService.Record: "Hit", "HeadHit", "HardHit", "Combo" (highest), "CoinWin", "Spin", "Upgrade",
+	-- Event counted by QuestService.Record: "Hit", "HeadHit", "HardHit" (a PERFECT BONK; old name kept), "Combo" (highest), "CoinWin", "Spin", "Upgrade",
 	-- "Obby" (finished the jump and run).
 	Event: string,
 	Goal: number,
@@ -87,7 +87,7 @@ local quests: { QuestDef } = {
 	{ Id = "Catch25", Text = "Catch {n} sticks", Event = "Hit", Goal = 25, RewardHits = 40 },
 	{ Id = "Catch60", Text = "Catch {n} sticks", Event = "Hit", Goal = 60, RewardHits = 90 },
 	{ Id = "Head10", Text = "Land {n} HEADBONKS", Event = "HeadHit", Goal = 10, RewardHits = 50 },
-	{ Id = "Hard5", Text = "Get {n} Hard (or better) bonks", Event = "HardHit", Goal = 5, RewardHits = 60 },
+	{ Id = "Hard5", Text = "Land {n} PERFECT BONKS", Event = "HardHit", Goal = 5, RewardHits = 60 },
 	{ Id = "Combo8", Text = "Reach a x{n} combo", Event = "Combo", Goal = 8, RewardHits = 60 },
 	{ Id = "Combo15", Text = "Reach a x{n} combo", Event = "Combo", Goal = 15, RewardHits = 120 },
 	{ Id = "Coin2", Text = "Win {n} coin flips", Event = "CoinWin", Goal = 2, RewardHits = 30 },
@@ -133,7 +133,8 @@ return {
 	Leaderboard = {
 		Size = 10,
 		RefreshInterval = 60,
-		StoreName = "TotalEarned_v1",
+		-- v2: values are log-encoded (LeaderboardService), totals go up to 1e33 and beyond.
+		StoreName = "TotalEarned_v2",
 	},
 
 	Boosts = {

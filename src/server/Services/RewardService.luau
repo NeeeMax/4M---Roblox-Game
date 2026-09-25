@@ -7,15 +7,18 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local EconomyConfig = require(ReplicatedStorage.Shared.Config.EconomyConfig)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local Hub = require(ReplicatedStorage.Shared.Config.Hub)
 local Projectiles = require(ReplicatedStorage.Shared.Config.Projectiles)
+local Shop = require(ReplicatedStorage.Shared.Config.Shop)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local BoostService = require(script.Parent.BoostService)
 local DataService = require(script.Parent.DataService)
 local EconomyService = require(script.Parent.EconomyService)
+local EventService = require(script.Parent.EventService)
 
 local TIERS = Gameplay.Shooters.Tiers
 
@@ -32,10 +35,36 @@ function RewardService.GetShooterTier(player: Player): typeof(TIERS[1])
 	return TIERS[math.clamp(level + 1, 1, #TIERS)]
 end
 
+-- Permanent income multiplier from rebirths (EconomyConfig.RebirthMultiplier).
+function RewardService.GetRebirthMultiplier(player: Player): number
+	local state = DataService.GetState(player)
+	return EconomyConfig.RebirthMultiplier(if state then state.Rebirths else 0)
+end
+
+-- What one normal bonk is worth right now: projectile BaseReward × Shiba tier multiplier × rebirth multiplier.
 function RewardService.GetHitValue(player: Player): number
 	local state = DataService.GetState(player)
 	local projectileLevel = if state then state.UpgradeLevels.ProjectileTier or 0 else 0
-	return Projectiles.ForTier(projectileLevel).BaseReward * RewardService.GetShooterTier(player).RewardMultiplier
+	return Projectiles.ForTier(projectileLevel).BaseReward
+		* RewardService.GetShooterTier(player).RewardMultiplier
+		* RewardService.GetRebirthMultiplier(player)
+end
+
+-- A stick's value before how it was caught (catch quality, head, combo): BaseReward × Shiba tier × rebirth × golden ×
+-- 2× boost × passes × server events. BonkService multiplies the catch bonuses on top; automation (basket, intern)
+-- pays its share of it. `baseReward`, `golden` and `mega` come from the projectile's ShotPlan.
+function RewardService.GetStickValue(player: Player, baseReward: number, golden: boolean, mega: boolean): number
+	local goldenMultiplier = if golden then EconomyConfig.Bonk.GoldenMultiplier else 1
+	local passMultiplier = (
+		if RewardService.HasPass(player, "DoublePoints") then Shop.Pass.DoublePointsMultiplier else 1
+	) * (if RewardService.HasPass(player, "VIP") then Shop.Pass.VIPMultiplier else 1)
+	return baseReward
+		* RewardService.GetShooterTier(player).RewardMultiplier
+		* RewardService.GetRebirthMultiplier(player)
+		* goldenMultiplier
+		* passMultiplier
+		* BoostService.GetMultiplier(player, "Points")
+		* EventService.RewardMultiplier(mega) -- server events: DoublePoints, MegaStick
 end
 
 -- `hits` normal bonks' worth, at least 1.

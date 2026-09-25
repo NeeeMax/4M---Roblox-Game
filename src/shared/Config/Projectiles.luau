@@ -6,6 +6,8 @@
 -- so its longest side equals the diameter. A tier without its own model uses the next lower tier's model;
 -- without any model a plain sphere in `Color` is shown. `Trail` adds a trail in `Color` behind it.
 
+local EconomyConfig = require(script.Parent.EconomyConfig)
+
 export type ProjectileDef = {
 	Id: string,
 	DisplayName: string,
@@ -13,7 +15,7 @@ export type ProjectileDef = {
 	Diameter: number,
 	-- Launch speed in studs/s at ProjectileSize level 0.
 	BaseSpeed: number,
-	-- Bonk Points for a Normal hit with no upgrades.
+	-- Bonk Dollars for a Normal hit with no upgrades (set from EconomyConfig.ProjectileRewards, tier order).
 	BaseReward: number,
 	-- Name of the model in ReplicatedStorage.Assets, or nil for a plain sphere.
 	AssetName: string?,
@@ -29,19 +31,18 @@ local defs: { [string]: ProjectileDef } = {
 		DisplayName = "Bonk Stick",
 		Diameter = 3,
 		BaseSpeed = 36,
-		BaseReward = 10,
+		BaseReward = 0, -- EconomyConfig.ProjectileRewards
 		AssetName = "Stick",
 		Color = Color3.fromRGB(150, 100, 60),
 		Material = Enum.Material.Wood,
 		Trail = false,
 	},
-	-- Tiers 2-10: BaseReward spread geometrically over the same range as before (10 -> 80).
 	Newspaper = {
 		Id = "Newspaper",
 		DisplayName = "Newspaper",
 		Diameter = 3,
 		BaseSpeed = 36,
-		BaseReward = 13,
+		BaseReward = 0, -- EconomyConfig.ProjectileRewards
 		AssetName = "Newspaper",
 		Color = Color3.fromRGB(235, 232, 220),
 		Material = Enum.Material.SmoothPlastic,
@@ -52,7 +53,7 @@ local defs: { [string]: ProjectileDef } = {
 		DisplayName = "Baguette",
 		Diameter = 3,
 		BaseSpeed = 36,
-		BaseReward = 16,
+		BaseReward = 0, -- EconomyConfig.ProjectileRewards
 		AssetName = "Baguette",
 		Color = Color3.fromRGB(220, 160, 80),
 		Material = Enum.Material.SmoothPlastic,
@@ -63,7 +64,7 @@ local defs: { [string]: ProjectileDef } = {
 		DisplayName = "Rolling Pin",
 		Diameter = 3,
 		BaseSpeed = 36,
-		BaseReward = 20,
+		BaseReward = 0, -- EconomyConfig.ProjectileRewards
 		AssetName = "RollingPin",
 		Color = Color3.fromRGB(205, 150, 90),
 		Material = Enum.Material.Wood,
@@ -74,7 +75,7 @@ local defs: { [string]: ProjectileDef } = {
 		DisplayName = "Baseball Bat",
 		Diameter = 3,
 		BaseSpeed = 36,
-		BaseReward = 25,
+		BaseReward = 0, -- EconomyConfig.ProjectileRewards
 		AssetName = "BaseballBat",
 		Color = Color3.fromRGB(255, 60, 40),
 		Material = Enum.Material.Wood,
@@ -85,7 +86,7 @@ local defs: { [string]: ProjectileDef } = {
 		DisplayName = "Giant Bone",
 		Diameter = 3,
 		BaseSpeed = 36,
-		BaseReward = 32,
+		BaseReward = 0, -- EconomyConfig.ProjectileRewards
 		AssetName = "GiantBone",
 		Color = Color3.fromRGB(245, 240, 225),
 		Material = Enum.Material.SmoothPlastic,
@@ -96,7 +97,7 @@ local defs: { [string]: ProjectileDef } = {
 		DisplayName = "Squeaky Hammer",
 		Diameter = 3,
 		BaseSpeed = 36,
-		BaseReward = 40,
+		BaseReward = 0, -- EconomyConfig.ProjectileRewards
 		AssetName = "SqueakyHammer",
 		Color = Color3.fromRGB(230, 40, 40),
 		Material = Enum.Material.SmoothPlastic,
@@ -107,7 +108,7 @@ local defs: { [string]: ProjectileDef } = {
 		DisplayName = "BONK Sign",
 		Diameter = 3,
 		BaseSpeed = 36,
-		BaseReward = 50,
+		BaseReward = 0, -- EconomyConfig.ProjectileRewards
 		AssetName = "BonkSign",
 		Color = Color3.fromRGB(255, 210, 0),
 		Material = Enum.Material.Metal,
@@ -118,7 +119,7 @@ local defs: { [string]: ProjectileDef } = {
 		DisplayName = "Neon Stick",
 		Diameter = 3,
 		BaseSpeed = 36,
-		BaseReward = 63,
+		BaseReward = 0, -- EconomyConfig.ProjectileRewards
 		AssetName = "NeonStick",
 		Color = Color3.fromRGB(255, 60, 220),
 		Material = Enum.Material.Neon,
@@ -129,7 +130,7 @@ local defs: { [string]: ProjectileDef } = {
 		DisplayName = "Legendary Stick",
 		Diameter = 3,
 		BaseSpeed = 36,
-		BaseReward = 80,
+		BaseReward = 0, -- EconomyConfig.ProjectileRewards
 		AssetName = "LegendaryStick",
 		Color = Color3.fromRGB(255, 200, 40),
 		Material = Enum.Material.Foil,
@@ -150,6 +151,14 @@ local tiers = {
 	"NeonStick",
 	"LegendaryStick",
 }
+
+assert(
+	#tiers == #EconomyConfig.ProjectileRewards,
+	"Config/Projectiles tiers and EconomyConfig.ProjectileRewards differ"
+)
+for index, id in tiers do
+	defs[id].BaseReward = EconomyConfig.ProjectileRewards[index]
+end
 
 local Projectiles = {
 	DefaultId = "Stick",

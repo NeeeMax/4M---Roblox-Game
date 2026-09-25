@@ -11,9 +11,16 @@ local Format = {}
 Format.CurrencyName = Economy.Currency.Name
 Format.CurrencySymbol = SYMBOL
 
--- 1234567 → "1,234,567"
+-- Numbers from here on are written short ("1.23Qa"): doubles above ~1e15 have no exact digits left, and a
+-- 30-digit number doesn't fit anywhere anyway.
+local FULL_DIGITS_BELOW = 1e15
+
+-- 1234567 → "1,234,567" (short form from FULL_DIGITS_BELOW on).
 function Format.Number(value: number): string
-	local digits = tostring(math.floor(value))
+	if math.abs(value) >= FULL_DIGITS_BELOW then
+		return Format.Short(value)
+	end
+	local digits = string.format("%d", math.floor(value))
 	local sign = ""
 	if string.sub(digits, 1, 1) == "-" then
 		sign = "-"
@@ -44,6 +51,11 @@ local NAMES = {
 	"tredecillion",
 	"quattuordecillion",
 	"quindecillion",
+	"sexdecillion",
+	"septendecillion",
+	"octodecillion",
+	"novemdecillion",
+	"vigintillion",
 }
 
 -- Up to 3 decimals, rounded down (never shows more than you have), no trailing zeros: 14.750 → "14.75".
@@ -70,7 +82,7 @@ local function split(magnitude: number): (number, number)
 end
 
 -- Big numbers for the HUD: 999 → "999", 1234 → "1.234 thousand", 324316000000000000 → "324.316 quadrillion".
--- Beyond the named range: "1.234e51".
+-- Beyond the named range: the short form ("1.23UVg").
 function Format.Abbreviate(value: number): string
 	if value ~= value then
 		return "0"
@@ -86,13 +98,25 @@ function Format.Abbreviate(value: number): string
 	local group, scaled = split(magnitude)
 	local name = NAMES[group]
 	if not name then
-		return `{sign}{decimals(scaled)}e{group * 3}`
+		return Format.Short(value)
 	end
 	return `{sign}{decimals(scaled)} {name}`
 end
 
--- Short form for tight spots (price pills, leaderboard-like lists): 1234 → "1.23K", 5.6e15 → "5.6Qd".
-local SHORT = { "K", "M", "B", "T", "Qd", "Qn", "Sx", "Sp", "Oc", "No", "Dc" }
+-- Short suffixes for 10^3, 10^6 … : K, M, B, T, Qa, Qi, Sx, Sp, Oc, No, Dc (1e33), then UDc, DDc, TDc, QaDc … NoDc,
+-- Vg (1e63), UVg … NoVg, Tg (1e93) … up to 1e303. Built once (pure: no side effects).
+local SHORT: { string } = { "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No" }
+do
+	local units = { "U", "D", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No" }
+	for _, tens in { "Dc", "Vg", "Tg", "Qag", "Qig", "Sxg", "Spg", "Ocg", "Nog", "Ce" } do
+		table.insert(SHORT, tens)
+		for _, unit in units do
+			table.insert(SHORT, unit .. tens)
+		end
+	end
+end
+
+-- Short form for tight spots (price pills, HUD, boards): 1234 → "1.23K", 5.6e15 → "5.6Qa", 1e33 → "1Dc".
 function Format.Short(value: number): string
 	if value ~= value then
 		return "0"
@@ -116,8 +140,15 @@ function Format.Short(value: number): string
 	return `{sign}{text}{SHORT[group]}`
 end
 
--- A Bonk Dollars amount as plain text: 1234 → "B$ 1,234". Menus draw the symbol (Widgets.SetMoneyText).
+-- Amounts up to this are written in full ("B$ 123,456"), bigger ones short ("B$ 1.23M").
+local MONEY_FULL_BELOW = 1e6
+
+-- A Bonk Dollars amount as plain text: 1234 → "B$ 1,234", 5.6e15 → "B$ 5.6Qa". Menus draw the symbol
+-- (Widgets.SetMoneyText).
 function Format.Money(value: number): string
+	if math.abs(value) >= MONEY_FULL_BELOW then
+		return `{SYMBOL} {Format.Short(value)}`
+	end
 	return `{SYMBOL} {Format.Number(value)}`
 end
 

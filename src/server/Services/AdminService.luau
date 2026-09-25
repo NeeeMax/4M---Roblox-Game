@@ -23,6 +23,7 @@ local NPCShooterService = require(script.Parent.NPCShooterService)
 local NotifyService = require(script.Parent.NotifyService)
 local QuestService = require(script.Parent.QuestService)
 local RainService = require(script.Parent.RainService)
+local RebirthService = require(script.Parent.RebirthService)
 local ShopService = require(script.Parent.ShopService)
 local StreakService = require(script.Parent.StreakService)
 local UpgradeService = require(script.Parent.UpgradeService)
@@ -130,6 +131,20 @@ local HANDLERS: { [string]: Handler } = {
 	end,
 	SimulateOffline = function(player)
 		OfflineService.SimulateAway(player, 3600)
+	end,
+	-- Rebirth tools (RebirthService): rebirth now without the Shiba requirement, +1 rebirth (only the multiplier),
+	-- back to 0 rebirths.
+	RebirthNow = function(player)
+		RebirthService.ForceRebirth(player)
+	end,
+	RebirthAdd = function(player)
+		local state = DataService.GetState(player)
+		if state then
+			RebirthService.SetRebirths(player, state.Rebirths + 1)
+		end
+	end,
+	RebirthReset = function(player)
+		RebirthService.SetRebirths(player, 0)
 	end,
 	AllTrophies = function(player)
 		local state = DataService.GetState(player)

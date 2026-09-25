@@ -1,15 +1,19 @@
 --!strict
 -- Bonk Point balance. Server-only: clients can never add points themselves. Points come from validated hits
--- (BonkService), the daily spin, quests, coin flips and the admin testing tools (AdminService).
--- Also sums each player's earned points per sample for the Shiba Bank's income rate (OfflineService).
+-- (BonkService), automation (basket + intern, AddAutomationPoints), the daily spin, quests, coin flips and the admin
+-- testing tools (AdminService).
+-- Also sums each player's earned points per sample for the Shiba Bank's income rates (OfflineService): what they
+-- earned themselves and what the automation earned, kept apart (offline pays mostly the automation's rate).
 
 local Players = game:GetService("Players")
 
 local DataService = require(script.Parent.DataService)
 
 type Sample = {
-	-- Earned Bonk Points since StartedAt.
+	-- Bonk Points earned by the player themselves since StartedAt (not by automation).
 	Points: number,
+	-- Bonk Points earned by the basket and the intern since StartedAt.
+	Automation: number,
 	-- os.clock() when this sample started.
 	StartedAt: number,
 }
@@ -43,6 +47,23 @@ function EconomyService.AddPoints(player: Player, amount: number, earned: boolea
 		if sample then
 			sample.Points += whole
 		end
+	end
+	DataService.Replicate(player)
+end
+
+-- Adds points earned by the player's automation (basket, intern; AutomationService). They count as earned (leaderboard)
+-- and go into the automation sample, which drives the offline Shiba Bank (Bank.AutomationPerMinute).
+function EconomyService.AddAutomationPoints(player: Player, amount: number)
+	local state = DataService.GetState(player)
+	if not state or not isValidAmount(amount) then
+		return
+	end
+	local whole = math.floor(amount)
+	state.BonkPoints += whole
+	state.TotalEarned += whole
+	local sample = samples[player]
+	if sample then
+		sample.Automation += whole
 	end
 	DataService.Replicate(player)
 end
@@ -89,24 +110,25 @@ function EconomyService.PayOffline(player: Player, multiplier: number): number
 	return amount
 end
 
--- Earned Bonk Points since the last sample and the seconds that covers, then starts a new sample. Returns (0, 0) and
--- keeps counting while the sample is shorter than `minSeconds` or the player's data is not loaded.
--- OfflineService turns these samples into Bank.IncomePerMinute.
-function EconomyService.TakeIncomeSample(player: Player, minSeconds: number): (number, number)
+-- Bonk Points earned since the last sample (by the player, by the automation) and the seconds that covers, then
+-- starts a new sample. Returns (0, 0, 0) and keeps counting while the sample is shorter than `minSeconds` or the
+-- player's data is not loaded. OfflineService turns these samples into Bank.IncomePerMinute / AutomationPerMinute.
+function EconomyService.TakeIncomeSample(player: Player, minSeconds: number): (number, number, number)
 	local sample = samples[player]
 	local now = os.clock()
 	if not sample or now - sample.StartedAt < minSeconds then
-		return 0, 0
+		return 0, 0, 0
 	end
-	local points, elapsed = sample.Points, now - sample.StartedAt
+	local points, automation, elapsed = sample.Points, sample.Automation, now - sample.StartedAt
 	sample.Points = 0
+	sample.Automation = 0
 	sample.StartedAt = now
-	return points, elapsed
+	return points, automation, elapsed
 end
 
 function EconomyService.Start()
 	DataService.OnLoaded(function(player)
-		samples[player] = { Points = 0, StartedAt = os.clock() }
+		samples[player] = { Points = 0, Automation = 0, StartedAt = os.clock() }
 	end)
 	Players.PlayerRemoving:Connect(function(player)
 		samples[player] = nil

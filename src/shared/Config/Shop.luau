@@ -4,6 +4,11 @@
 -- purchase; in a live server the button says "Coming soon".
 -- Bonk Points are never sold for Robux (coin flips exist): Robux buys boosts, cosmetics and time savers only.
 
+local EconomyConfig = require(script.Parent.EconomyConfig)
+
+-- Trophy prices come from EconomyConfig (each about as much as the Shiba bought around then).
+local TROPHY_PRICES = EconomyConfig.TrophyThresholds
+
 export type PassId =
 	"DoublePoints"
 	| "VIP"
@@ -245,35 +250,35 @@ local trophies: { Trophy } = {
 	{
 		Id = "Wood",
 		DisplayName = "Wooden Stick",
-		Points = 5000,
+		Points = TROPHY_PRICES.Wood,
 		Color = Color3.fromRGB(150, 100, 60),
 		Rarity = "Common",
 	},
 	{
 		Id = "Bronze",
 		DisplayName = "Bronze Bonk",
-		Points = 50000,
+		Points = TROPHY_PRICES.Bronze,
 		Color = Color3.fromRGB(205, 127, 50),
 		Rarity = "Common",
 	},
 	{
 		Id = "Silver",
 		DisplayName = "Silver Bonk",
-		Points = 500000,
+		Points = TROPHY_PRICES.Silver,
 		Color = Color3.fromRGB(200, 205, 220),
 		Rarity = "Rare",
 	},
 	{
 		Id = "Gold",
 		DisplayName = "Golden Bonk",
-		Points = 5000000,
+		Points = TROPHY_PRICES.Gold,
 		Color = Color3.fromRGB(255, 200, 40),
 		Rarity = "Epic",
 	},
 	{
 		Id = "Galaxy",
 		DisplayName = "Galaxy Bonk",
-		Points = 100000000,
+		Points = TROPHY_PRICES.Galaxy,
 		Color = Color3.fromRGB(150, 80, 255),
 		Rarity = "Legendary",
 	},

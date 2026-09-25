@@ -9,6 +9,8 @@
 -- - What is in the paw (the hand projectile the server put there, else the model's Stick) swings with the arm and is
 --   hidden from the release for Shooters.HandStickHideTime, so it looks thrown. Hiding happens here, on the same
 --   server-clock release time as the swing (the server never changes it). A projectile's Grip marker stays hidden.
+-- - Shiny / Mythic outlines: only the ShibaEffects.MaxEditionOutlines nearest to the camera stay enabled (Roblox
+--   draws at most 31 Highlights at once).
 -- The server places each model once and never moves it, so every pose is computed from that rest pivot, and parts
 -- that stream in later are fitted into the current pose. Purely visual, nothing is sent back.
 
@@ -57,6 +59,10 @@ type Rig = {
 }
 
 local rigs: { [Model]: Rig } = {}
+-- Shiny / Mythic outlines (Highlights); only the nearest ShibaEffects.MaxEditionOutlines stay enabled.
+local editionOutlines: { [Highlight]: boolean } = {}
+-- Seconds between two checks of which edition outlines are nearest.
+local OUTLINE_CHECK_INTERVAL = 0.5
 
 local ShibaController = {}
 
@@ -159,6 +165,10 @@ local function tryRig(model: Model)
 end
 
 local function onDescendantAdded(descendant: Instance)
+	if descendant:IsA("Highlight") and descendant.Name == ShibaEffects.EditionOutlineName then
+		editionOutlines[descendant] = true
+		return
+	end
 	if descendant:IsA("Model") then
 		if descendant:GetAttribute(MOTION.AimYawAttribute) ~= nil then
 			-- Let the rest of the model arrive first (anything later is added by the branch below).
@@ -318,8 +328,41 @@ local function update(dt: number)
 	end
 end
 
+-- Roblox draws at most 31 Highlights at once: keep only the edition outlines nearest to the camera enabled.
+local function limitEditionOutlines()
+	local camera = Workspace.CurrentCamera
+	if not camera then
+		return
+	end
+	local origin = camera.CFrame.Position
+	local sorted: { { Outline: Highlight, Distance: number } } = {}
+	for outline in editionOutlines do
+		local model = outline.Parent
+		if not model then
+			editionOutlines[outline] = nil
+		elseif model:IsA("Model") then
+			table.insert(sorted, { Outline = outline, Distance = (model:GetPivot().Position - origin).Magnitude })
+		end
+	end
+	table.sort(sorted, function(a, b)
+		return a.Distance < b.Distance
+	end)
+	for index, entry in sorted do
+		local enabled = index <= ShibaEffects.MaxEditionOutlines
+		if entry.Outline.Enabled ~= enabled then
+			entry.Outline.Enabled = enabled
+		end
+	end
+end
+
 function ShibaController.Start()
 	RunService:BindToRenderStep("PoseShibas", Enum.RenderPriority.Camera.Value + 2, update)
+	task.spawn(function()
+		while true do
+			task.wait(OUTLINE_CHECK_INTERVAL)
+			limitEditionOutlines()
+		end
+	end)
 	task.spawn(function()
 		local islands = Workspace:WaitForChild(ISLAND.FolderName)
 		islands.DescendantAdded:Connect(onDescendantAdded)

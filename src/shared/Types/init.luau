@@ -1,9 +1,14 @@
 --!strict
 -- Shared type definitions. Changing this file is a contract change: own PR, both approve.
 
-export type UpgradeId = "MoveSpeed" | "Shooters" | "ShooterTier" | "ProjectileTier"
+export type UpgradeId = "MoveSpeed" | "Shooters" | "ShooterTier" | "ProjectileTier" | "Basket" | "Intern"
 
-export type HitQuality = "Normal" | "Good" | "Hard" | "Massive" | "Legendary"
+-- Catch quality, by when the stick was caught (Config/EconomyConfig → Bonk): Normal = after it touched the ground,
+-- Good = in the air, Perfect = in the air just before it lands.
+export type HitQuality = "Normal" | "Good" | "Perfect"
+
+-- Who caught a stick for the player (automation, Config/EconomyConfig → Automation).
+export type AutomationSource = "Basket" | "Intern"
 
 export type BoostId = "Points" | "FireRate"
 
@@ -41,6 +46,15 @@ export type BankState = {
 	Pending: number,
 	-- Seconds offline that produced `Pending`.
 	PendingSeconds: number,
+	-- Bonk Points per minute earned by the basket and the intern, averaged recently (drives offline earnings).
+	AutomationPerMinute: number,
+}
+
+-- First-session tutorial (onboarding). Step counts the purchases the guided hints have walked the player through;
+-- FirstBonkDone = the one-time first-bonk bonus was paid.
+export type TutorialState = {
+	Step: number,
+	FirstBonkDone: boolean,
 }
 
 -- Jump and run on the hub (Config/Obby).
@@ -98,6 +112,9 @@ export type PlayerState = {
 	Obby: ObbyState,
 	Index: IndexState,
 	Settings: SettingsState,
+	-- Rebirths done (Config/EconomyConfig → Rebirth): each one raises the income multiplier for good.
+	Rebirths: number,
+	Tutorial: TutorialState,
 }
 
 return {}

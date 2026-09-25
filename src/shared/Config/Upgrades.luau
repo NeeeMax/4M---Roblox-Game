@@ -1,9 +1,11 @@
 --!strict
 -- Upgrade definitions (docs/GAME_DESIGN.md → Upgrades).
--- To add an upgrade: add its id to Types.UpgradeId, an entry to `defs` and to `order`,
--- then read its value with UpgradeService.GetValue where it should take effect.
--- Tier upgrades (ShooterTier, ProjectileTier) take their names, colours and max level from their tier lists.
+-- To add an upgrade: add its id to Types.UpgradeId, an entry to `defs` and to `order`, a Route line in
+-- Config/EconomyConfig (which prices it), then read its value with UpgradeService.GetValue where it should take effect.
+-- Prices and max levels come from EconomyConfig (Costs, RouteSpecs); tier upgrades take names and colours from their
+-- tier lists.
 
+local EconomyConfig = require(script.Parent.EconomyConfig)
 local Gameplay = require(script.Parent.Gameplay)
 local Projectiles = require(script.Parent.Projectiles)
 local Shop = require(script.Parent.Shop)
@@ -15,11 +17,7 @@ export type UpgradeDef = {
 	Id: Types.UpgradeId,
 	DisplayName: string,
 	Description: string,
-	-- Cost of level n → n + 1: BaseCost × Growth^n × (1 + Curve × n²) (Upgrades.GetCost). Curve bends the late levels
-	-- up, so the first buys come fast and the last ones take a while (docs/GAME_DESIGN.md → Pacing).
-	BaseCost: number,
-	Growth: number,
-	Curve: number,
+	-- Levels priced by EconomyConfig's Route (Upgrades.GetCost reads EconomyConfig.Costs).
 	MaxLevel: number,
 	-- Value at level n: BaseValue + Step * n.
 	BaseValue: number,
@@ -45,15 +43,19 @@ for _, id in Projectiles.Tiers do
 	table.insert(projectileTierColors, Projectiles.Defs[id].Color)
 end
 
+local internNames: { string } = { "None" }
+local internColors: { Color3 } = { Color3.fromRGB(160, 160, 160) }
+for _, name in EconomyConfig.Automation.Intern.Names do
+	table.insert(internNames, name)
+	table.insert(internColors, Color3.fromRGB(90, 200, 160))
+end
+
 local defs: { [string]: UpgradeDef } = {
 	MoveSpeed = {
 		Id = "MoveSpeed",
 		DisplayName = "Move Speed",
 		Description = "Run faster to reach every stick in time.",
-		BaseCost = 40,
-		Growth = 3.5,
-		Curve = 0.1,
-		MaxLevel = 10,
+		MaxLevel = EconomyConfig.RouteCount("MoveSpeed"),
 		BaseValue = 16,
 		Step = 3,
 		Format = "Plain",
@@ -63,10 +65,7 @@ local defs: { [string]: UpgradeDef } = {
 		Id = "Shooters",
 		DisplayName = "More Shibas",
 		Description = "Another Shiba joins the ring around your island.",
-		BaseCost = 60,
-		Growth = 5.5,
-		Curve = 0.2,
-		MaxLevel = 7,
+		MaxLevel = EconomyConfig.RouteCount("Shooters"),
 		BaseValue = 1,
 		Step = 1,
 		Format = "Plain",
@@ -76,9 +75,6 @@ local defs: { [string]: UpgradeDef } = {
 		Id = "ShooterTier",
 		DisplayName = "Shiba Tier",
 		Description = "Evolve all your Shibas: they throw faster and every bonk pays more.",
-		BaseCost = 400,
-		Growth = 3.5,
-		Curve = 0.1,
 		MaxLevel = #shooterTierNames - 1,
 		BaseValue = 0,
 		Step = 1,
@@ -91,9 +87,6 @@ local defs: { [string]: UpgradeDef } = {
 		Id = "ProjectileTier",
 		DisplayName = "Projectile Tier",
 		Description = "Better projectiles: new look, more Bonk Dollars per bonk.",
-		BaseCost = 150,
-		Growth = 3.6,
-		Curve = 0.15,
 		MaxLevel = #projectileTierNames - 1,
 		BaseValue = 0,
 		Step = 1,
@@ -102,9 +95,32 @@ local defs: { [string]: UpgradeDef } = {
 		ValueColors = projectileTierColors,
 		Color = Color3.fromRGB(255, 200, 40),
 	},
+	-- Automation (Config/EconomyConfig → Automation). Level 0 = none; level n uses the automation tables' entry n.
+	Basket = {
+		Id = "Basket",
+		DisplayName = "Bonk Basket",
+		Description = "Catches sticks you miss and pays for them, even while you are away.",
+		MaxLevel = EconomyConfig.RouteCount("Basket"),
+		BaseValue = 0,
+		Step = 1,
+		Format = "Plain",
+		Color = Color3.fromRGB(200, 140, 70),
+	},
+	Intern = {
+		Id = "Intern",
+		DisplayName = "Bonk Intern",
+		Description = "Hire a helper who runs to the sticks and gets bonked for you.",
+		MaxLevel = EconomyConfig.RouteCount("Intern"),
+		BaseValue = 0,
+		Step = 1,
+		Format = "Name",
+		ValueNames = internNames,
+		ValueColors = internColors,
+		Color = Color3.fromRGB(90, 200, 160),
+	},
 }
 
-local order: { Types.UpgradeId } = { "ShooterTier", "ProjectileTier", "Shooters", "MoveSpeed" }
+local order: { Types.UpgradeId } = { "ShooterTier", "ProjectileTier", "Shooters", "MoveSpeed", "Basket", "Intern" }
 
 local Upgrades = {
 	Defs = defs,
@@ -112,12 +128,10 @@ local Upgrades = {
 	Order = order,
 }
 
--- Cost of buying the next level when the upgrade is currently at `level`:
--- floor(BaseCost × Growth^level × (1 + Curve × level²)).
+-- Cost of buying the next level when the upgrade is currently at `level` (EconomyConfig.Costs, derived from the
+-- target pace; math.huge past the priced levels).
 function Upgrades.GetCost(id: string, level: number): number
-	local def = defs[id]
-	-- The epsilon stops float error (e.g. 284.9999999) from rounding a cost down by one.
-	return math.floor(def.BaseCost * def.Growth ^ level * (1 + def.Curve * level * level) + 1e-6)
+	return EconomyConfig.GetCost(id, level)
 end
 
 function Upgrades.GetValue(id: string, level: number): number

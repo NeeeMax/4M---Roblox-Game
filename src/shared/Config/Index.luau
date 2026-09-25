@@ -11,7 +11,8 @@ local Shop = require(script.Parent.Shop)
 export type Kind = "Shiba" | "Projectile" | "Golden" | "Trophy"
 
 export type Entry = {
-	-- "Shiba_<AssetName>", "Projectile_<Id>", "Golden" or "Trophy_<Id>".
+	-- "Shiba_<AssetName>" (the ten originals), "Shiba_<Edition><AssetName>" (Shiny/Mythic editions, e.g.
+	-- "Shiba_ShinyShiba"), "Projectile_<Id>", "Golden" or "Trophy_<Id>". Saved in state.Index: never rename.
 	Id: string,
 	Kind: Kind,
 	DisplayName: string,
@@ -24,6 +25,8 @@ export type Entry = {
 	Trophy: string,
 }
 
+-- Shiba n pays SHIBA_HITS_BASE + SHIBA_HITS_PER_TIER × (n − 1) bonks (20 … 310 for the 30 Shibas). Bonks are worth
+-- the current stick value, so a late entry still pays about a minute of income.
 local SHIBA_HITS_BASE = 20
 local SHIBA_HITS_PER_TIER = 10
 local PROJECTILE_HITS_BASE = 15
@@ -45,13 +48,20 @@ local entries: { Entry } = {}
 local byId: { [string]: Entry } = {}
 
 local function add(entry: Entry)
+	assert(byId[entry.Id] == nil, `duplicate Shiba-Index id {entry.Id}`)
 	table.insert(entries, entry)
 	byId[entry.Id] = entry
 end
 
+-- Entry id of a Shiba tier. The ten originals keep their old ids (saves from before the editions stay valid); the
+-- Shiny/Mythic editions reuse a model, so their id adds the edition.
+local function shibaEntryId(tier: typeof(Gameplay.Shooters.Tiers[1])): string
+	return `Shiba_{tier.Edition or ""}{tier.AssetName}`
+end
+
 for index, tier in Gameplay.Shooters.Tiers do
 	add({
-		Id = `Shiba_{tier.AssetName}`,
+		Id = shibaEntryId(tier),
 		Kind = "Shiba",
 		DisplayName = tier.Name,
 		Color = tier.Color,
@@ -117,7 +127,7 @@ end
 
 function Index.ShibaId(level: number): string?
 	local tier = Gameplay.Shooters.Tiers[level + 1]
-	return if tier then `Shiba_{tier.AssetName}` else nil
+	return if tier then shibaEntryId(tier) else nil
 end
 
 function Index.ProjectileId(level: number): string?

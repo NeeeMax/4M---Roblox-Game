@@ -1,6 +1,8 @@
 --!strict
 -- World, shooter, projectile, hit and bonk-effect tuning (docs/GAME_DESIGN.md). Distances in studs, times in seconds.
 
+local EconomyConfig = require(script.Parent.EconomyConfig)
+
 return {
 	Island = {
 		-- Names the client relies on to find its own island: Workspace.<FolderName>.<ModelPrefix><UserId>.Projectiles
@@ -50,96 +52,12 @@ return {
 		-- Fallback shooter (red block with a barrel) when there is no ReplicatedStorage.Assets.Shooter model.
 		BarrelLength = 3,
 
-		-- Shiba tiers (ShooterTier level n = Tiers[n + 1]). Each tier throws faster (FireInterval: seconds between two
-		-- throws of one Shiba) and pays more (RewardMultiplier). Model: ReplicatedStorage.Assets.<AssetName>, scaled to the
-		-- tier's Height in studs, bottom on its platform (Config/ShibaPlatforms); effects and motion in
-		-- Config/ShibaEffects. A tier without its own model uses
-		-- the next lower tier's model (then LegacyAssetName) with an outline in its Color. To add a tier: add a line (the
-		-- upgrade follows automatically).
-		Tiers = {
-			{
-				Name = "Shiba",
-				AssetName = "Shiba",
-				Height = 6,
-				FireInterval = 5,
-				RewardMultiplier = 1,
-				Color = Color3.fromRGB(255, 170, 60),
-			},
-			-- Tiers 2-10: FireInterval and RewardMultiplier spread geometrically over the same range as before
-			-- (5 s -> 1.3 s, x1 -> x60), so the endgame balance is unchanged.
-			{
-				Name = "Shades Shiba",
-				AssetName = "ShadesShiba",
-				Height = 6,
-				FireInterval = 4.3,
-				RewardMultiplier = 1.6,
-				Color = Color3.fromRGB(160, 160, 185),
-			},
-			{
-				Name = "Buff Shiba",
-				AssetName = "BuffShiba",
-				Height = 7.5,
-				FireInterval = 3.7,
-				RewardMultiplier = 2.5,
-				Color = Color3.fromRGB(255, 110, 90),
-			},
-			{
-				Name = "Chef Shiba",
-				AssetName = "ChefShiba",
-				Height = 7.5,
-				FireInterval = 3.2,
-				RewardMultiplier = 3.9,
-				Color = Color3.fromRGB(250, 250, 250),
-			},
-			{
-				Name = "Police Shiba",
-				AssetName = "PoliceShiba",
-				Height = 6.5,
-				FireInterval = 2.7,
-				RewardMultiplier = 6.2,
-				Color = Color3.fromRGB(70, 130, 255),
-			},
-			{
-				Name = "Ninja Shiba",
-				AssetName = "NinjaShiba",
-				Height = 5.5,
-				FireInterval = 2.4,
-				RewardMultiplier = 9.7,
-				Color = Color3.fromRGB(220, 40, 60),
-			},
-			{
-				Name = "Gold Shiba",
-				AssetName = "GoldShiba",
-				Height = 6.5,
-				FireInterval = 2,
-				RewardMultiplier = 15,
-				Color = Color3.fromRGB(255, 200, 40),
-			},
-			{
-				Name = "Galaxy Shiba",
-				AssetName = "GalaxyShiba",
-				Height = 7,
-				FireInterval = 1.8,
-				RewardMultiplier = 24,
-				Color = Color3.fromRGB(170, 90, 255),
-			},
-			{
-				Name = "Giant Shiba",
-				AssetName = "GiantShiba",
-				Height = 16,
-				FireInterval = 1.5,
-				RewardMultiplier = 38,
-				Color = Color3.fromRGB(255, 130, 40),
-			},
-			{
-				Name = "Cheems God",
-				AssetName = "CheemsGod",
-				Height = 12,
-				FireInterval = 1.3,
-				RewardMultiplier = 60,
-				Color = Color3.fromRGB(255, 240, 170),
-			},
-		},
+		-- Shiba tiers (ShooterTier level n = Tiers[n + 1]), defined in Config/EconomyConfig → Shibas (names, models,
+		-- heights, colours, FireInterval, RewardMultiplier). Model: ReplicatedStorage.Assets.<AssetName>, scaled to the
+		-- tier's Height in studs, bottom on its platform (Config/ShibaPlatforms); effects and motion in Config/ShibaEffects.
+		-- Shiny/Mythic editions reuse a base model with an outline and aura in their Color; a missing model falls back to
+		-- the next lower tier's model (then LegacyAssetName) with an outline in its Color.
+		Tiers = EconomyConfig.Shibas,
 		-- Older single-model name, still used when no tier model exists.
 		LegacyAssetName = "Shooter",
 		Height = 6,
@@ -231,7 +149,7 @@ return {
 		MaxSpin = 10,
 		-- Golden projectiles: rarer, glow gold, pay GoldenMultiplier times as much (chance: Lucky Sticks pass raises it).
 		GoldenChance = 0.05,
-		GoldenMultiplier = 5,
+		GoldenMultiplier = EconomyConfig.Bonk.GoldenMultiplier,
 		GoldenColor = Color3.fromRGB(255, 205, 40),
 		GoldenAttribute = "Golden",
 		-- Fill transparency of the gold outline (before the landing fade).
@@ -242,6 +160,29 @@ return {
 		IdAttribute = "ProjectileId",
 	},
 
+	-- Landing ring (Controllers/ProjectileController, only for your own projectiles): a flat ring on the ground where
+	-- the projectile will first land, in its tier colour (also for golden ones: gold means Perfect). It starts StartRadius wide at launch
+	-- and shrinks evenly until, at the landing, it matches the pickup sphere (projectile radius + Hits.PickupPadding),
+	-- drawn as a faint filled disc underneath. During the Perfect window (Hits.PerfectWindow) it turns PerfectColor
+	-- and thicker. It disappears at the landing or when the projectile is caught.
+	LandingRing = {
+		StartRadius = 10,
+		-- The ring always starts at least this much wider than its end size (giant sticks).
+		MinShrink = 3,
+		Thickness = 0.5,
+		PerfectThicknessScale = 1.8,
+		-- Height of the flat cylinders and how far above the ground they float (no z-fighting with the island).
+		Height = 0.1,
+		GroundOffset = 0.08,
+		Transparency = 0.2,
+		TargetTransparency = 0.72,
+		-- Fades in over this many seconds after launch.
+		FadeInTime = 0.25,
+		-- The tier colour is mixed this much toward white, so dark tiers (the wooden stick) show on the grass.
+		Brighten = 0.35,
+		PerfectColor = Color3.fromRGB(255, 205, 40),
+	},
+
 	Hits = {
 		ImmunityTime = 0.5,
 		-- Extra pickup reach in studs around every projectile, so they are easier to collect without bigger models.
@@ -249,9 +190,25 @@ return {
 		-- on top of radius + PickupPadding, so both sides stay consistent. Keep it well below
 		-- Shooters.MinDistanceFromPlayer, or the anti-farm rule no longer keeps standing players at 0.
 		PickupPadding = 2,
-		-- Player velocity used for hit quality is clamped to this vertically (and to WalkSpeed horizontally),
-		-- so knockback or a spoofed client velocity can't inflate the quality.
-		MaxVerticalPlayerSpeed = 50,
+		-- Catch quality by timing (BonkService, docs/decisions/0005): the catch moment is compared with the moment the
+		-- projectile first touches the ground (ProjectilePath.GetFirstLandingTime).
+		--   caught after it touched the ground                      → Normal  ("BONK")
+		--   caught in the air, within PerfectWindow s of the landing → Perfect ("PERFECT BONK", ring turns gold)
+		--   caught earlier in the air                               → Good    ("AIR BONK")
+		-- A stick comes down at ~25 studs/s, so a standing player gets it about 0.15 s (right on the landing spot)
+		-- to 0.3 s (a few studs in front of it) before it lands; earlier catches need a jump. 0.25 = "be inside the
+		-- ring when it closes". Raise it to make Perfect easier.
+		PerfectWindow = 0.25,
+		-- Catch moment = the first time the path came within projectile radius + PickupPadding + ContactBodyRadius of
+		-- the character's body line: from ContactLegLength below the root part up to the head (what the client saw
+		-- touch). If the path never came that close (network delay), the time of its closest approach to the root.
+		ContactBodyRadius = 1,
+		ContactLegLength = 3,
+		-- The catch moment is only searched in the last (player ping + ReportLookbackSlack) seconds before the report
+		-- arrived, at most ReportLookbackMax: the client reports right when it sees the touch. Without this bound a
+		-- player who reaches the landing spot late (the descent passed through it earlier) would get Perfect.
+		ReportLookbackSlack = 0.12,
+		ReportLookbackMax = 0.6,
 		-- Client: projectiles farther than projectile radius + PickupPadding + this from the root part skip the exact
 		-- overlap check.
 		BroadPhaseDistance = 6,
@@ -260,7 +217,7 @@ return {
 		HitTolerance = 6,
 		-- A hit that touches the head pays HeadMultiplier times as much. The server accepts the client's head claim
 		-- if the path passed within projectile radius + PickupPadding + HeadTolerance of the server-side head.
-		HeadMultiplier = 2,
+		HeadMultiplier = EconomyConfig.Bonk.HeadMultiplier,
 		HeadTolerance = 4,
 		-- Server: time step when searching the flight path for its closest point to the player.
 		FlightSampleStep = 0.02,
@@ -268,7 +225,7 @@ return {
 	},
 
 	Character = {
-		-- Matches MaxVerticalPlayerSpeed: the jump take-off speed.
+		-- The jump take-off speed.
 		JumpPower = 50,
 	},
 
@@ -277,8 +234,8 @@ return {
 	Combo = {
 		BaseWindow = 2,
 		ShotsWindow = 1.5,
-		Step = 0.1,
-		MaxMultiplier = 3,
+		Step = EconomyConfig.Bonk.ComboStep,
+		MaxMultiplier = EconomyConfig.Bonk.ComboMax,
 	},
 
 	-- Only a small nudge (was 0.25 s at 16 / 12 studs/s, about 4 studs): under a stud sideways and a tiny hop, so the
@@ -298,16 +255,88 @@ return {
 		-- so quick hits overlap instead of cutting each other off.
 		SoundId = "rbxassetid://92393279714658",
 		SoundVolume = 0.8,
-		-- Playback speed goes up by this per hit-quality tier above Normal (Legendary: 1.2); kept small so the cartoon
-		-- bonk still sounds like itself.
-		PitchStepPerTier = 0.05,
-		-- Stars bursting from the head: Stars at Normal, plus StarsPerTier per quality tier above it.
-		Stars = 6,
-		StarsPerTier = 6,
-		-- Camera shake from this quality tier on (1 = Normal, 3 = Hard), stronger per tier above it.
-		ShakeFromTier = 3,
+		-- Juice per catch quality (Economy.HitQualities names; docs/GAME_DESIGN.md → Feedback). The popup reads
+		-- "<Label><Punctuation> +X" ("AIR BONK! +50"; head hits say HEADBONK instead of BONK), PopupScale × the
+		-- base popup size; Bounce = it pops in at BounceScale and springs back. Pitch = bonk sound playback speed
+		-- (kept close to 1 so the cartoon bonk still sounds like itself). Coins = gold coins bursting from the
+		-- character, Stars = stars from the head, Shake = camera shake strength in studs (0 = none).
+		Qualities = {
+			Normal = { Punctuation = "", PopupScale = 1, Bounce = false, Pitch = 1, Coins = 4, Stars = 6, Shake = 0 },
+			Good = {
+				Punctuation = "!",
+				PopupScale = 1.2,
+				Bounce = false,
+				Pitch = 1.08,
+				Coins = 8,
+				Stars = 10,
+				Shake = 0.08,
+			},
+			Perfect = {
+				Punctuation = "!!",
+				PopupScale = 1.6,
+				Bounce = true,
+				Pitch = 1.18,
+				Coins = 16,
+				Stars = 18,
+				Shake = 0.35,
+			},
+		},
+		-- Popup base size in pixels, and the bounce: starts at BounceScale × its size, back to 1 in BounceTime.
+		PopupWidth = 320,
+		PopupHeight = 60,
+		BounceScale = 1.8,
+		BounceTime = 0.35,
+		-- Head hits and golden sticks shake this much harder (multiplied).
+		HeadShakeScale = 1.3,
+		GoldenShakeScale = 1.3,
 		ShakeTime = 0.25,
-		ShakeStrength = 0.25,
+		-- Coins bursting from the character (local, visual-only parts): thin gold discs flying up and out, spinning,
+		-- gone after Lifetime. At most MaxCoins alive at once (quick hits don't pile up).
+		Coins = {
+			Diameter = 0.9,
+			Thickness = 0.15,
+			Color = Color3.fromRGB(255, 205, 40),
+			OutSpeed = 12,
+			UpSpeed = 22,
+			Lifetime = 0.8,
+			MaxCoins = 40,
+		},
+		-- Combo meter (below the top bar): "COMBO xN ×M" plus a name once the multiplier reaches a tier, in its colour.
+		-- The meter punches (grows briefly) when a new tier is reached.
+		ComboTiers = {
+			{ Multiplier = 1.5, Name = "ON FIRE", Color = Color3.fromRGB(255, 140, 40) },
+			{ Multiplier = 2, Name = "BONKTASTIC", Color = Color3.fromRGB(255, 70, 160) },
+			{ Multiplier = 3, Name = "MAX BONK", Color = Color3.fromRGB(255, 215, 40) },
+		},
+		ComboColor = Color3.fromRGB(255, 120, 60),
+		ComboPunchScale = 1.35,
+		ComboPunchTime = 0.3,
+		-- A new player's very first caught stick: a big splash in the middle of the screen,
+		-- "<Text> ×<EconomyConfig.Bonk.FirstBonkMultiplier>", for Time seconds.
+		FirstBonk = {
+			Text = "FIRST BONK!",
+			Color = Color3.fromRGB(255, 215, 40),
+			Time = 2.5,
+		},
+		-- Impact burst where the projectile hit, in its tier colour (Config/Projectiles Color; golden: GoldenColor):
+		-- Particles + PerTier × (tier − 1) particles, Size + SizePerTier × (tier − 1) studs, so better throwables
+		-- burst bigger. Textures picks a built-in particle look per projectile Id (default Sparkles).
+		Impact = {
+			Particles = 8,
+			PerTier = 3,
+			Size = 0.5,
+			SizePerTier = 0.08,
+			Speed = 14,
+			Lifetime = 0.5,
+			Textures = {
+				Newspaper = "Smoke",
+				Baguette = "Smoke",
+				GiantBone = "Smoke",
+				BonkSign = "Fire",
+				NeonStick = "Sparkles",
+				LegendaryStick = "Fire",
+			} :: { [string]: string },
+		},
 	},
 
 	-- Auto-Catch pass look (Controllers/MagnetController, purely visual; the catching itself is AutoCatchService with
