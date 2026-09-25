@@ -1,8 +1,8 @@
 --!strict
 -- Always-on HUD, kept uncluttered (docs/GAME_DESIGN.md → UI). Top centre: menu button (opens a small list: SHOP,
 -- GIFTS, QUESTS, SPIN, INDEX, SETTINGS, ADMIN), clipboard button (MANAGE: the upgrade menu with the Manage pass,
--- else the shop to buy it) and the Bonk Dollars counter ("324.316 quadrillion"). Below it: running boosts. "!" badges
--- sit on the menu button and its entries when something can be claimed (hidden with Settings → Hints off).
+-- else the shop to buy it) and the Bonk Dollars counter ("260.8K", counts up). Below it: running boosts. No "!" badges:
+-- the top bar stays clean.
 -- Also: the Bonk Rain button, short server messages (Notify), and opening hub menus from their ProximityPrompts.
 -- After the first rebirth a small pill under the menu buttons shows the rebirths and the income multiplier.
 
@@ -15,13 +15,9 @@ local Workspace = game:GetService("Workspace")
 local Admin = require(ReplicatedStorage.Shared.Config.Admin)
 local EconomyConfig = require(ReplicatedStorage.Shared.Config.EconomyConfig)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
-local Hub = require(ReplicatedStorage.Shared.Config.Hub)
 local Icons = require(ReplicatedStorage.Shared.Config.Icons)
 local Net = require(ReplicatedStorage.Shared.Net)
-local Upgrades = require(ReplicatedStorage.Shared.Config.Upgrades)
 
-local GiftsController = require(script.Parent.GiftsController)
-local SpinController = require(script.Parent.SpinController)
 local UpgradeController = require(script.Parent.UpgradeController)
 local State = require(script.Parent.Parent.UI.State)
 local Theme = require(script.Parent.Parent.UI.Theme)
@@ -29,7 +25,7 @@ local Widgets = require(script.Parent.Parent.UI.Widgets)
 
 local BUTTON = 64
 local GAP = 8
-local MONEY_WIDTH = 470
+local MONEY_WIDTH = 300
 local ENTRY_HEIGHT = 52
 
 type Entry = {
@@ -59,35 +55,11 @@ local menuList: Frame
 local rainButton: TextButton
 local rainLabel: TextLabel
 local rainBanner: TextLabel
-local menuBadge: TextLabel
-local manageBadge: TextLabel
--- Panel name → "!" on its menu entry.
-local badges: { [string]: TextLabel } = {}
--- Panel name → wants a "!" (before the Hints setting is applied).
-local wanted: { [string]: boolean } = {}
 local shownPoints = 0
 -- Bumped per update so an older count-up animation stops when a newer one starts.
 local countVersion = 0
 
 local HudController = {}
-
-local function hintsOn(): boolean
-	local state = State.Get()
-	return not state or state.Settings.Hints ~= false
-end
-
--- Applies `wanted` to the badges (entry, menu button, clipboard).
-local function showBadges()
-	local hints = hintsOn()
-	local any = false
-	for panel, badge in badges do
-		local show = hints and wanted[panel] == true
-		badge.Visible = show
-		any = any or show
-	end
-	menuBadge.Visible = any
-	manageBadge.Visible = hints and wanted.Upgrades == true
-end
 
 local function setMenuOpen(open: boolean)
 	menuList.Visible = open
@@ -132,7 +104,6 @@ local function buildMenu(parent: Instance)
 		icon.AnchorPoint = Vector2.new(0, 0.5)
 		icon.Position = UDim2.new(0, -50, 0.5, 0)
 		icon.ZIndex = 12
-		badges[entry.Panel] = Widgets.Badge(button)
 		button.Activated:Connect(function()
 			setMenuOpen(false)
 			if Widgets.HasPanel(entry.Panel) then
@@ -158,7 +129,6 @@ local function build()
 
 	local menuButton = Widgets.IconButton(top, "Menu", Theme.MenuButton, BUTTON)
 	menuButton.Name = "Menu"
-	menuBadge = Widgets.Badge(menuButton)
 	menuButton.Activated:Connect(function()
 		setMenuOpen(not menuList.Visible)
 	end)
@@ -166,7 +136,6 @@ local function build()
 	local manageButton = Widgets.IconButton(top, "Clipboard", Theme.ManageButton, BUTTON)
 	manageButton.Name = "Manage"
 	manageButton.Position = UDim2.fromOffset(BUTTON + GAP, 0)
-	manageBadge = Widgets.Badge(manageButton)
 	manageButton.Activated:Connect(function()
 		setMenuOpen(false)
 		if Widgets.IsOpen("Upgrades") then
@@ -185,7 +154,6 @@ local function build()
 	money.ClipsDescendants = true
 	money.Parent = top
 	Widgets.Corner(money, 12)
-	Widgets.DotPattern(money, Color3.new(0, 0, 0), 22, 0.55)
 	-- The Bonk Dollars symbol in front of the amount.
 	local symbol = Widgets.MoneySymbol(money, 44, Theme.Money, { Outline = 3, Font = Theme.Font })
 	symbol.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -193,7 +161,8 @@ local function build()
 	pointsLabel = Widgets.Label(money, "0", 44, Theme.Money)
 	pointsLabel.Name = "Points"
 	pointsLabel.Position = UDim2.fromOffset(62, 4)
-	pointsLabel.Size = UDim2.new(1, -72, 1, -8)
+	pointsLabel.Size = UDim2.new(1, -76, 1, -8)
+	pointsLabel.TextXAlignment = Enum.TextXAlignment.Center
 	pointsLabel.TextStrokeTransparency = 1
 	pointsLabel.TextScaled = true
 	local maxSize = Instance.new("UITextSizeConstraint")
@@ -335,43 +304,14 @@ local function refresh()
 		while os.clock() - started < 0.35 and version == countVersion do
 			local alpha = (os.clock() - started) / 0.35
 			shownPoints = start + (target - start) * alpha
-			pointsLabel.Text = Format.Abbreviate(shownPoints)
+			pointsLabel.Text = Format.Short(shownPoints)
 			RunService.RenderStepped:Wait()
 		end
 		if version == countVersion then
 			shownPoints = target
-			pointsLabel.Text = Format.Abbreviate(target)
+			pointsLabel.Text = Format.Short(target)
 		end
 	end)
-
-	-- Something to buy in the upgrade menu (only with the Manage pass: without it the menu doesn't open).
-	local canBuy = false
-	if state.Passes.Manage then
-		for _, id in Upgrades.Order do
-			local level = state.UpgradeLevels[id] or 0
-			local unlocked = (state.UpgradeLevels.ShooterTier or 0) >= (EconomyConfig.UnlockAtShibaTier[id] or 0)
-			if
-				unlocked
-				and level < Upgrades.GetMaxLevel(id, state.Passes)
-				and state.BonkPoints >= Upgrades.GetCost(id, level)
-			then
-				canBuy = true
-			end
-		end
-	end
-	wanted.Upgrades = canBuy
-
-	local claimable = false
-	for index, id in state.Quests.Ids do
-		for _, def in Hub.Quests.Pool do
-			if def.Id == id and not state.Quests.Claimed[index] and (state.Quests.Progress[index] or 0) >= def.Goal then
-				claimable = true
-			end
-		end
-	end
-	wanted.Quests = claimable
-	wanted.Gifts = GiftsController.HasClaimable()
-	showBadges()
 
 	rainButton.Visible = state.BonkRains > 0
 	rainLabel.Text = `BONK RAIN ×{state.BonkRains}`
@@ -392,7 +332,7 @@ local function showRain(seconds: number)
 	end)
 end
 
--- Boost timers and the spin / gift badges tick every second.
+-- Boost timers tick every second.
 local function tick()
 	local state = State.Get()
 	if not state then
@@ -410,9 +350,6 @@ local function tick()
 	end
 	boostLabel.Text = table.concat(parts, "   ·   ")
 	boostLabel.Visible = #parts > 0
-	wanted.DailySpin = SpinController.SpinsLeft() > 0
-	wanted.Gifts = GiftsController.HasClaimable()
-	showBadges()
 end
 
 function HudController.Init()

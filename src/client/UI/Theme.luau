@@ -46,6 +46,6 @@ return {
 	SliderEffects = Color3.fromRGB(255, 204, 150),
 
 	-- HUD square buttons.
-	MenuButton = Color3.fromRGB(205, 205, 212),
+	MenuButton = Color3.fromRGB(60, 60, 72),
 	ManageButton = Color3.fromRGB(60, 215, 70),
 }

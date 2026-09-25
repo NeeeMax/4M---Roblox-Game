@@ -200,6 +200,26 @@ function Widgets.Icon(parent: Instance, name: Icons.IconName, size: number): Gui
 		image.Parent = parent
 		return image
 	end
+	if name == "Menu" then
+		-- The ☰ glyph is missing from the game fonts (it showed an empty button): draw three bars instead.
+		local bars = Instance.new("Frame")
+		bars.Name = "MenuIcon"
+		bars.BackgroundTransparency = 1
+		bars.Size = UDim2.fromOffset(size, size)
+		bars.Parent = parent
+		for index = 0, 2 do
+			local bar = Instance.new("Frame")
+			bar.AnchorPoint = Vector2.new(0.5, 0.5)
+			bar.Position = UDim2.fromScale(0.5, 0.25 + index * 0.25)
+			bar.Size = UDim2.fromScale(0.72, 0.13)
+			bar.BackgroundColor3 = Theme.Text
+			bar.BorderSizePixel = 0
+			bar.Parent = bars
+			Widgets.Corner(bar, 4)
+			Widgets.Stroke(bar, 2, Theme.Stroke)
+		end
+		return bars
+	end
 	local glyph = Instance.new("TextLabel")
 	glyph.Name = `{name}Icon`
 	glyph.BackgroundTransparency = 1
