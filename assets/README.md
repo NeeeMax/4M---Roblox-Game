@@ -137,6 +137,7 @@ unless `Config/Props → ShowPlaceholderMarkers` is true.
 | — (not built yet) | `Prop_Basket` | the Bonk Basket at the field edge (AutomationService, part-built woven basket) | grows per level, `Config/Automation` | — |
 | `Trophy_Wood/Bronze/Silver/Gold/Galaxy/Starter/Streak/VIP/Diamond/Rainbow.fbx` | `Trophy_<Id>` | trophies on the island pedestals (TrophyService) | 4 | 268–982 |
 | `Platform_<AssetName>.fbx` (Shiba, ShadesShiba, BuffShiba, ChefShiba, PoliceShiba, NinjaShiba, GoldShiba, GalaxyShiba, GiantShiba, CheemsGod) | `Platform_<AssetName>` (parts `Body`, `StandPoint`) | the platform each tier's Shibas stand on (NPCShooterService) | see below | 346–1650 |
+| `Platform_<AssetName>.fbx` for Shibas 11-30 (see the table below) | `Platform_<AssetName>` (parts `Body`, `StandPoint`) | same | see below | 552–4860 |
 
 `Prop_ObbyTower` is exactly 10 × 40.2 (TowerRadius 5, FinishHeight − Thickness − plaza): scaled to the tower height it
 has the same footprint as the part tower. If `Config/Obby` changes those numbers, rebuild it with the new ratio.
@@ -146,6 +147,40 @@ is `ModelTop` (else `Top`) studs above the island surface and its bottom `ModelS
 above the Shiba's spot, front (-Z) toward the island centre. Visual only (the invisible barrier keeps players out).
 `Platform_PoliceShiba` is a small police car; the Shiba stands on its roof (`ModelTop = 3`). Without the model the
 part platform is built as before.
+
+Platforms for Shibas 11-30 (`build_props.py`, group `Platforms11to30`; `Platforms_preview.png` shows all twenty with
+their Shiba standing on them — the tier's own FBX when it exists in `models/`, else the orange dog). Each one also has a
+simpler part-built fallback in `Config/ShibaPlatforms` with the same `Top`. Ratings: `models/RATINGS.md`.
+
+| Studio name | Theme | Top (studs) | Diameter | Tris |
+|------|------|------|------|------|
+| `Platform_PirateShiba` | round ship's deck, rope rim, ship's wheel, treasure barrel, open chest, Jolly Roger | 1.6 | 9.5 | 1342 |
+| `Platform_CowboyShiba` | round hay bale with twine, wagon wheel, cactus, crate, horseshoe | 2.0 | 10 | 1422 |
+| `Platform_VikingShiba` | planked deck with a ring of painted shields, carved dragon prow behind | 1.5 | 9.5 | 1554 |
+| `Platform_WizardShiba` | stack of three giant spell books, four glowing rune stones, candle, floating crystal | 2.4 | 10.5 | 612 |
+| `Platform_AstronautShiba` | cratered moon rock, flag with a star, little rocket | 2.0 | 11 | 880 |
+| `Platform_RobotShiba` | steel pad with hazard stripes and a glowing ring, brass gears, antenna | 1.6 | 9.5 | 1242 |
+| `Platform_SamuraiShiba` | tatami on a dark wooden base, vermilion torii behind, stone lantern, cherry bonsai | 1.4 | 11 | 552 |
+| `Platform_VampireShiba` | coffin on a grave, tombstones, spiked iron fence, candles, bats | 2.0 | 10 | 1068 |
+| `Platform_PharaohShiba` | stepped sandstone pyramid with hieroglyph tiles, gold top and scarab, two obelisks | 2.5 | 12 | 1564 |
+| `Platform_DragonShiba` | dark rock under a hoard of gold coins, gems, goblet, crown, sword, crags | 2.6 | 10.5 | 1444 |
+| `Platform_DJShiba` | stage with a light-up dance floor, speaker stacks, DJ deck, disco ball | 1.4 | 11 | 1750 |
+| `Platform_KnightShiba` | castle tower top with battlements, corbels, banners and two pennants | 2.8 | 9.5 | 902 |
+| `Platform_SuperheroShiba` | city rooftop with lit windows, hero star emblem, water tower, searchlight | 2.6 | 11.5 | 1086 |
+| `Platform_FrostShiba` | ice chunk with a snow cap, icicles, crystal clusters | 2.3 | 10.5 | 954 |
+| `Platform_MagmaShiba` | basalt rock with lava streams and moat, two vents spitting lava | 2.4 | 12.5 | 906 |
+| `Platform_MechaShiba` | hex tech pad with glowing lines and hydraulic legs, hangar gantry | 1.8 | 11 | 1126 |
+| `Platform_AngelShiba` | cloud with a gold-rimmed marble disc, white wings, floating halo | 2.2 | 12 | 1932 |
+| `Platform_DemonShiba` | obsidian rock with glowing cracks, spikes, two huge horns, hellfire | 2.0 | 11.5 | 1146 |
+| `Platform_EternalShiba` | celestial dais with a golden clock face on top, giant sunburst clock behind, sun and moon columns, armillary rings, hourglass | 5.0 | 15 | 3530 |
+| `Platform_VoidShiba` | black hole disc with spiral arms and glowing rim, vortex with glowing ribbons up to the stand, void portal behind, orbiting rings and shards | 6.0 | 20.5 | 4860 |
+
+Build only these (`<names>` = the comma separated `Platform_…` names; the group sheet lands in the preview folder as
+`sheet_Platforms11to30.png`):
+
+```
+blender --background --disable-autoexec shiba_bonk_default.blend --python build_props.py -- <out> <out>/prev <names>
+```
 
 **Import in Studio**: Home → **Import 3D** (or Avatar → Import 3D) → pick the `.fbx` files from `assets/models/props/`
 (several at once works) → keep the import options' defaults, make sure the vertex colours are imported → Import. Move
