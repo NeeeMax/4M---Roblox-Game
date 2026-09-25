@@ -258,6 +258,18 @@ function ProjectileService.GetById(id: number): ProjectileInfo?
 	return byId[id]
 end
 
+-- Every projectile of `owner` the server still knows (live ones, and ones whose marker is gone but that still accept
+-- hit reports, see AcceptsReports). Used by AutomationService (basket, intern).
+function ProjectileService.GetOwned(owner: Player): { ProjectileInfo }
+	local result: { ProjectileInfo } = {}
+	for _, info in byId do
+		if info.Owner == owner then
+			table.insert(result, info)
+		end
+	end
+	return result
+end
+
 -- After this the projectile can't pay out again.
 function ProjectileService.MarkPaid(info: ProjectileInfo)
 	info.Paid = true

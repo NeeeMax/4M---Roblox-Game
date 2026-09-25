@@ -47,6 +47,13 @@ function EconomyService.AddPoints(player: Player, amount: number, earned: boolea
 	DataService.Replicate(player)
 end
 
+-- Automation income (the basket and the intern, AutomationService): paid and counted like AddPoints. It is sampled
+-- separately for the offline bank (Bank.AutomationPerMinute) — the economy agent owns that sampling; this minimal
+-- version only pays.
+function EconomyService.AddAutomationPoints(player: Player, amount: number)
+	EconomyService.AddPoints(player, amount)
+end
+
 -- Removes `amount` points if the player has enough. Returns whether it did.
 function EconomyService.TrySpend(player: Player, amount: number): boolean
 	local state = DataService.GetState(player)

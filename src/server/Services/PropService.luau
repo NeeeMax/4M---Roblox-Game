@@ -328,4 +328,101 @@ function PropService.TrophyBuilder(color: Color3): Builder
 	end
 end
 
+-- The Bonk Basket placeholder (Prop_Basket replaces it): a woven wicker basket, `width` = height × `widthRatio`, its
+-- body `bodyShare` of the height (the rest is the handle arching over the opening), with a rim in `rimColor` (it
+-- shows the basket's level). Config/Automation → Basket.
+function PropService.BasketBuilder(rimColor: Color3, widthRatio: number, bodyShare: number): Builder
+	return function(model: Model, height: number)
+		local wicker = Color3.fromRGB(176, 124, 66)
+		local dark = Color3.fromRGB(120, 80, 40)
+		local width = height * widthRatio
+		local radius = width / 2
+		local bodyHeight = height * bodyShare
+		local upright = CFrame.Angles(0, 0, math.rad(90))
+		-- Body, slightly narrower at the bottom (a smaller base disc under it).
+		part(
+			model,
+			Enum.PartType.Cylinder,
+			Vector3.new(bodyHeight, width, width),
+			CFrame.new(0, bodyHeight / 2, 0) * upright,
+			wicker,
+			Enum.Material.Fabric
+		)
+		part(
+			model,
+			Enum.PartType.Cylinder,
+			Vector3.new(0.3, width * 0.9, width * 0.9),
+			CFrame.new(0, 0.15, 0) * upright,
+			dark,
+			Enum.Material.Wood
+		)
+		-- The opening: a dark disc just below the top, so it reads as hollow.
+		part(
+			model,
+			Enum.PartType.Cylinder,
+			Vector3.new(0.1, width - 0.5, width - 0.5),
+			CFrame.new(0, bodyHeight + 0.02, 0) * upright,
+			Color3.fromRGB(60, 38, 20),
+			Enum.Material.Fabric
+		)
+		-- Weave: two horizontal bands and vertical stakes.
+		for _, share in { 0.33, 0.66 } do
+			part(
+				model,
+				Enum.PartType.Cylinder,
+				Vector3.new(0.25, width + 0.12, width + 0.12),
+				CFrame.new(0, bodyHeight * share, 0) * upright,
+				dark,
+				Enum.Material.Wood
+			)
+		end
+		local stakes = 12
+		for index = 1, stakes do
+			local angle = index / stakes * 2 * math.pi
+			part(
+				model,
+				Enum.PartType.Block,
+				Vector3.new(0.22, bodyHeight, 0.22),
+				CFrame.Angles(0, angle, 0) * CFrame.new(0, bodyHeight / 2, -radius),
+				dark,
+				Enum.Material.Wood
+			)
+		end
+		-- Rim: a ring of short blocks in the level colour.
+		local rimSegments = 18
+		local rimLength = 2 * math.pi * radius / rimSegments + 0.15
+		for index = 1, rimSegments do
+			local angle = index / rimSegments * 2 * math.pi
+			part(
+				model,
+				Enum.PartType.Block,
+				Vector3.new(rimLength, 0.4, 0.45),
+				CFrame.Angles(0, angle, 0) * CFrame.new(0, bodyHeight, -radius),
+				rimColor,
+				Enum.Material.SmoothPlastic
+			)
+		end
+		-- Handle: short blocks along a half ellipse from one side of the rim to the other.
+		local handleHeight = height - bodyHeight
+		local handleSegments = 10
+		local function handlePoint(t: number): Vector3
+			local angle = math.pi * t
+			return Vector3.new(math.cos(angle) * (radius - 0.2), bodyHeight + math.sin(angle) * handleHeight, 0)
+		end
+		for index = 1, handleSegments do
+			local from = handlePoint((index - 1) / handleSegments)
+			local to = handlePoint(index / handleSegments)
+			local middle = (from + to) / 2
+			part(
+				model,
+				Enum.PartType.Block,
+				Vector3.new(0.35, 0.35, (to - from).Magnitude + 0.1),
+				CFrame.lookAt(middle, to),
+				dark,
+				Enum.Material.Wood
+			)
+		end
+	end
+end
+
 return PropService
