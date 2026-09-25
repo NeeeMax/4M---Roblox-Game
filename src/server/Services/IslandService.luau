@@ -9,8 +9,11 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
+local Stations = require(ReplicatedStorage.Shared.Config.Stations)
+local Tutorial = require(ReplicatedStorage.Shared.Config.Tutorial)
 local World = require(ReplicatedStorage.Shared.Config.World)
 
+local DataService = require(script.Parent.DataService)
 local PropService = require(script.Parent.PropService)
 local Signs = require(script.Parent.Parent.World.Signs)
 
@@ -237,6 +240,20 @@ function IslandService.GetIsland(player: Player): Island?
 	return islands[player]
 end
 
+-- Brand-new players (Tutorial.IsFresh) spawn at Stations.NewPlayerSpawn facing the island centre, so the NEW SHIBA
+-- pad (their first purchase, on the Shiba ring at the same angle) is right in front of them.
+local function newPlayerSpawn(island: Island): CFrame
+	local spot = Stations.NewPlayerSpawn
+	local up = Vector3.new(0, ISLAND.SpawnHeight, 0)
+	local position = island.Center + direction(island.HubAngle + math.rad(spot.Angle)) * spot.Radius + up
+	return CFrame.lookAt(position, island.Center + up)
+end
+
+local function isFresh(player: Player): boolean
+	local state = DataService.GetState(player)
+	return state ~= nil and Tutorial.IsFresh(state)
+end
+
 -- Puts the character on its island (or the hub without one).
 function IslandService.SpawnOnIsland(player: Player)
 	local island = islands[player]
@@ -244,7 +261,9 @@ function IslandService.SpawnOnIsland(player: Player)
 	if not character then
 		return
 	end
-	if island then
+	if island and isFresh(player) then
+		character:PivotTo(newPlayerSpawn(island))
+	elseif island then
 		-- Facing the hub, so the way back is obvious.
 		local position = island.Center + Vector3.new(0, ISLAND.SpawnHeight, 0)
 		character:PivotTo(CFrame.lookAt(position, position + direction(island.HubAngle)))
@@ -275,6 +294,8 @@ local function claim(player: Player, plot: Plot)
 
 	local model = Instance.new("Model")
 	model.Name = `{ISLAND.ModelPrefix}{player.UserId}`
+	-- The client's guidance (TutorialController) points at the field with it: the model has no parts to take it from.
+	model:SetAttribute(Tutorial.IslandCenterAttribute, plot.Center)
 	local projectileFolder = Instance.new("Folder")
 	projectileFolder.Name = "Projectiles"
 	projectileFolder.Parent = model
@@ -340,6 +361,13 @@ function IslandService.Start()
 	for _, player in Players:GetPlayers() do
 		onPlayerAdded(player)
 	end
+	-- The save usually loads after the first spawn (and an admin reset makes a fresh save): once the player is known
+	-- to be brand-new, move the character to the new-player spawn in front of the NEW SHIBA pad.
+	DataService.OnLoaded(function(player)
+		if player.Character and islands[player] and isFresh(player) then
+			IslandService.SpawnOnIsland(player)
+		end
+	end)
 
 	local sinceCheck = 0
 	RunService.Heartbeat:Connect(function(deltaTime)
