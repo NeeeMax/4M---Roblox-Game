@@ -391,13 +391,47 @@ local function buildPlatform(platform: ShibaPlatforms.Platform, frame: CFrame, p
 	folder.Parent = parent
 end
 
+-- Places a Platform_<AssetName> model (Config/ShibaPlatforms) instead of the parts: scaled so its StandPoint marker
+-- (else its top) ends `top` above the island surface and its bottom ModelSink below it, the marker right above the
+-- surface point. Visual only, like the parts (the barrier keeps players out).
+local function placePlatformModel(asset: Model, top: number, frame: CFrame, parent: Instance)
+	Assets.MakeVisualOnly(asset, true)
+	local marker = asset:FindFirstChild(ShibaPlatforms.StandMarkerName, true)
+	local standPart: BasePart? = if marker and marker:IsA("BasePart") then marker else nil
+	local function measure(): (CFrame, Vector3)
+		local box, size = asset:GetBoundingBox()
+		local bottom = box * CFrame.new(0, -size.Y / 2, 0)
+		local stand = if standPart then bottom:PointToObjectSpace(standPart.Position) else Vector3.new(0, size.Y, 0)
+		return bottom, stand
+	end
+	local _, stand = measure()
+	if stand.Y > 0 then
+		asset:ScaleTo(asset:GetScale() * (top + ShibaPlatforms.ModelSink) / stand.Y)
+	end
+	local bottom, scaled = measure()
+	local target = frame * CFrame.new(-scaled.X, -ShibaPlatforms.ModelSink, -scaled.Z)
+	asset:PivotTo(target * bottom:ToObjectSpace(asset:GetPivot()))
+	if standPart then
+		standPart.Transparency = 1
+		standPart.CastShadow = false
+	end
+	asset.Name = "Platform"
+	asset.Parent = parent
+end
+
 -- Invisible wall around platform and Shiba, so players can't walk through it. Only characters collide with it:
 -- no touches, no spatial queries (hit checks, camera), no shadow.
-local function buildBarrier(platform: ShibaPlatforms.Platform, surface: Vector3, height: number, parent: Instance)
+local function buildBarrier(
+	platform: ShibaPlatforms.Platform,
+	top: number,
+	surface: Vector3,
+	height: number,
+	parent: Instance
+)
 	local diameter = platform.Diameter + 2 * CONFIG.Barrier.Padding
 	-- From a little under the surface (no gap to squeeze through) up past the Shiba's head.
 	local sink = CONFIG.Barrier.Sink
-	local tall = sink + platform.Top + height + CONFIG.Barrier.ExtraHeight
+	local tall = sink + top + height + CONFIG.Barrier.ExtraHeight
 	local barrier = newShooterPart("Barrier", Vector3.new(tall, diameter, diameter), Color3.new(1, 1, 1), parent)
 	barrier.Shape = Enum.PartType.Cylinder
 	barrier.Transparency = 1
@@ -416,10 +450,12 @@ local function buildShooter(
 	local def = CONFIG.Tiers[tier + 1]
 	local height = if def then def.Height else CONFIG.Height
 	local platform = (if def then ShibaPlatforms.Platforms[def.AssetName] else nil) or ShibaPlatforms.Default
+	local platformModel = if def then Assets.CloneModel(`{ShibaPlatforms.ModelPrefix}{def.AssetName}`) else nil
+	local top = if platformModel then platform.ModelTop or platform.Top else platform.Top
 	-- Angle 0 is north (−Z), then clockwise. The Shiba stands on top of its platform, which ends at least
 	-- PlatformLift above the island surface (equal heights flicker).
 	local surface = center + Vector3.new(math.sin(angle), 0, -math.cos(angle)) * CONFIG.RingRadius
-	local ground = surface + Vector3.new(0, math.max(CONFIG.PlatformLift, platform.Top), 0)
+	local ground = surface + Vector3.new(0, math.max(CONFIG.PlatformLift, top), 0)
 
 	local model = Instance.new("Model")
 	local asset, isOwnModel = cloneTierModel(tier)
@@ -490,8 +526,13 @@ local function buildShooter(
 	end
 	model.Name = "Shooter"
 
-	buildPlatform(platform, CFrame.lookAt(surface, Vector3.new(center.X, surface.Y, center.Z)), model)
-	buildBarrier(platform, surface, shooter.Height, model)
+	local platformFrame = CFrame.lookAt(surface, Vector3.new(center.X, surface.Y, center.Z))
+	if platformModel then
+		placePlatformModel(platformModel, top, platformFrame, model)
+	else
+		buildPlatform(platform, platformFrame, model)
+	end
+	buildBarrier(platform, top, surface, shooter.Height, model)
 
 	model.Parent = parent
 	return shooter
@@ -611,6 +652,7 @@ function NPCShooterService.Start()
 	local modelNames: { string } = {}
 	for _, tier in CONFIG.Tiers do
 		table.insert(modelNames, tier.AssetName)
+		table.insert(modelNames, `{ShibaPlatforms.ModelPrefix}{tier.AssetName}`)
 	end
 	table.insert(modelNames, CONFIG.LegacyAssetName)
 	for _, id in Projectiles.Tiers do
