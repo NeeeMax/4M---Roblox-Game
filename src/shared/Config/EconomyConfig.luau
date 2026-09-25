@@ -9,8 +9,11 @@
 --   2. The target wait for purchase n (0-based) is  T(n) = MaxSeconds − (MaxSeconds − MinSeconds) · e^(−n / Knee):
 --      a few seconds at the start, settling into a minute rhythm.
 --   3. price(n) = income of the Baseline player right before purchase n × T(n) × the upgrade's PriceShare.
+--      Between two Shiba tiers the purchases are sorted cheapest first (what a player who buys the cheapest thing
+--      does anyway), so every price is based on the income the player really has when buying it.
 --   4. The Shiba tier multipliers grow by one constant factor, solved so that the last Shiba costs FinalShibaCost.
--- So changing FinalShibaCost, Pace or the Route re-prices the whole game consistently.
+-- So changing FinalShibaCost, Pace or the Route re-prices the whole game consistently. After a change, run the
+-- simulation and check its summary against the targets in docs/economy/BALANCING.md.
 --
 -- No requires, no side effects: the balancing simulation (lune run docs/economy/simulate.luau) loads this file directly.
 
@@ -20,9 +23,12 @@ local FINAL_SHIBA_COST = 1e33
 -- Target seconds between two purchases (see the header).
 local PACE = {
 	MinSeconds = 4,
-	MaxSeconds = 90,
-	-- Purchases until the wait has closed ~63 % of the gap to MaxSeconds; ~22 puts the minute rhythm around Shiba 10.
-	Knee = 22,
+	-- MaxSeconds is never reached: with Knee 50 the curve is almost a straight line from 4 s to ~2.5 min at the last
+	-- purchase. Waits pass 60 s around purchase 19 (the 9th Shiba, ~7.5 min in) and a whole first run takes ~67 min.
+	-- (A lower MaxSeconds keeps the end at ~1.5 min but the run then only lasts ~55 min.)
+	MaxSeconds = 200,
+	-- Purchases until the wait has closed ~63 % of the gap to MaxSeconds (larger = slower, straighter rise).
+	Knee = 50,
 }
 
 -- The player the prices are derived for (an average, active player).
@@ -32,9 +38,10 @@ local BASELINE = {
 	CatchPerSpeedLevel = 0.03,
 	MaxCatchRate = 0.9,
 	-- Nobody catches more than this many sticks per second, + per Move Speed level (with many fast Shibas the rest is
-	-- left for the intern and the basket).
+	-- left for the intern and the basket). Sticks land ~25 studs apart on average; at WalkSpeed 16 that is about one
+	-- per second, at 46 (Move Speed 10) about two.
 	MaxCatchesPerSecond = 1,
-	CatchesPerSecondPerSpeedLevel = 0.05,
+	CatchesPerSecondPerSpeedLevel = 0.1,
 	-- Average multiplier of a caught stick from catch quality, head hits and combo (see Bonk below).
 	ActiveBonus = 2,
 }
@@ -144,22 +151,24 @@ local PROJECTILE_GROWTH = 2.5
 
 -- Automation (docs/GAME_DESIGN.md → Automation). Per level (level 1 = unlocked). Only sticks the player does not
 -- catch are left for them: the intern goes for them first, the basket gets what the intern misses.
+-- Tuned so that an AFK player earns a real share: with basket and intern, active play earns ~3.5× the idle income at
+-- first and ~2× at the end of a run (the simulation prints it), so playing always pays more but idling is not zero.
 local AUTOMATION = {
 	Basket = {
 		-- Chance that a stick nobody caught ends up in the basket.
-		CatchChance = { 0.2, 0.28, 0.36, 0.44, 0.52, 0.6 },
+		CatchChance = { 0.4, 0.46, 0.52, 0.58, 0.64, 0.7 },
 		-- Pays this share of a Normal bonk.
-		Payout = { 0.3, 0.34, 0.38, 0.42, 0.46, 0.5 },
+		Payout = { 0.5, 0.55, 0.6, 0.65, 0.7, 0.75 },
 		-- Offline earnings (Shiba Bank) are capped at this many hours.
 		OfflineHours = { 2, 3, 4, 5, 6, 8 },
 	},
 	Intern = {
 		Names = { "Bonk Intern", "Hard-Hat Intern", "Junior Bonker", "Senior Bonker", "Bonk Manager", "Bonk CEO" },
-		WalkSpeed = { 12, 14, 16, 18, 20, 22 },
-		Payout = { 0.6, 0.65, 0.7, 0.75, 0.8, 0.85 },
+		WalkSpeed = { 18, 22, 26, 30, 34, 38 },
+		Payout = { 0.8, 0.82, 0.85, 0.9, 0.95, 1 },
 		-- Sticks per second the intern is expected to reach (used for pricing and the simulation only; in the game it
 		-- depends on where the sticks land and its WalkSpeed).
-		ExpectedCatchesPerSecond = { 0.3, 0.4, 0.5, 0.6, 0.7, 0.8 },
+		ExpectedCatchesPerSecond = { 0.8, 1, 1.2, 1.4, 1.6, 1.8 },
 	},
 	-- Offline (Shiba Bank): per minute away the player gets OfflineShare × their automation income per minute
 	-- (+ BaseOfflineShare × their active income per minute), for at most the basket's OfflineHours (NoBasketHours
@@ -171,8 +180,13 @@ local AUTOMATION = {
 
 -- Every purchase of a full run. Count = levels in the Route (the upgrade's MaxLevel); From/To = where in the run
 -- (0 = first purchase, 1 = last) its first and last level sit; PriceShare scales its price (utility upgrades that add
--- little income are cheaper so they still pay for themselves). Shooters starts at 0: the first purchase of the game
--- is the second Shiba (the NEW SHIBA pad in front of the spawn).
+-- little income are cheaper so they still pay for themselves within ~15 min). Shooters starts at 0: the first purchase
+-- of the game is the second Shiba (the NEW SHIBA pad in front of the spawn).
+-- Keep every PriceShare above ~1.2 / ShibaGrowth (≈ 0.15): a cheaper item placed right after a Shiba would still be
+-- cheaper than that Shiba, get bought before it and then pay for itself ShibaGrowth (×8) times slower than planned.
+-- Shares: Shibas and projectiles 1 (they multiply income); More Shibas 0.15 (with many Shibas you can't catch the
+-- extra sticks, they mostly feed the automation); Move Speed 0.16 (+~5 % income per level); Basket 0.25 and
+-- Intern 0.15 (judged by what they add while idle).
 export type RouteSpec = {
 	Upgrade: string,
 	Count: number,
@@ -182,19 +196,21 @@ export type RouteSpec = {
 }
 
 local ROUTE_SPECS: { RouteSpec } = {
-	{ Upgrade = "Shooters", Count = 7, From = 0, To = 0.5, PriceShare = 1 },
+	{ Upgrade = "Shooters", Count = 7, From = 0, To = 0.4, PriceShare = 0.15 },
 	{ Upgrade = "ShooterTier", Count = #BASE_SHIBAS * (1 + #EDITIONS) - 1, From = 0.02, To = 1, PriceShare = 1 },
 	{ Upgrade = "ProjectileTier", Count = PROJECTILE_TIERS - 1, From = 0.04, To = 0.85, PriceShare = 1 },
-	{ Upgrade = "MoveSpeed", Count = 10, From = 0.05, To = 0.8, PriceShare = 0.25 },
-	{ Upgrade = "Basket", Count = #AUTOMATION.Basket.CatchChance, From = 0.3, To = 0.9, PriceShare = 0.5 },
-	{ Upgrade = "Intern", Count = #AUTOMATION.Intern.Payout, From = 0.36, To = 0.94, PriceShare = 0.5 },
+	{ Upgrade = "MoveSpeed", Count = 10, From = 0.05, To = 0.8, PriceShare = 0.16 },
+	{ Upgrade = "Basket", Count = #AUTOMATION.Basket.CatchChance, From = 0.2, To = 0.9, PriceShare = 0.25 },
+	{ Upgrade = "Intern", Count = #AUTOMATION.Intern.Payout, From = 0.28, To = 0.94, PriceShare = 0.15 },
 }
 
 -- Levels past the Route (e.g. More Shibas with the +2 Shiba Slots pass) are priced by continuing the last two
 -- prices' ratio for this many levels.
 local EXTRA_LEVELS = 2
 
--- Trophies for total Bonk Dollars ever earned (Config/Shop → Trophies).
+-- Trophy prices in Bonk Dollars (Config/Shop → Trophies `Points`, bought in the shop): each costs about as much as
+-- the Shiba you buy around then (Wood ≈ Shiba 4, Bronze ≈ 7, Silver ≈ 12, Gold ≈ 20, Galaxy ≈ 27), so it is a
+-- choice between the next Shiba and a trophy for your island.
 local TROPHY_THRESHOLDS = {
 	Wood = 1e4,
 	Bronze = 1e8,
@@ -341,6 +357,63 @@ do
 		end
 		return incomes
 	end
+	-- Between two Shibas, a player who buys the cheapest thing first buys the cheap items first. Reorder every
+	-- segment (the purchases between two Shiba tiers) by price, cheapest first, and re-price until nothing moves.
+	-- Otherwise an item placed after a projectile tier (×PROJECTILE_GROWTH income) would be priced on that income,
+	-- bought before it anyway, and take much longer to pay for itself than planned. Within a segment the tier (and
+	-- so the growth) is the same, so ordering at growth 1 gives the same order as the final prices.
+	for _ = 1, 10 do
+		local incomes = incomesBefore()
+		local changed = false
+		-- The very first purchase (the second Shiba on the NEW SHIBA pad) stays first.
+		local first = 2
+		while first <= #route do
+			if route[first].Upgrade == "ShooterTier" then
+				first += 1
+				continue
+			end
+			local last = first
+			while last < #route and route[last + 1].Upgrade ~= "ShooterTier" do
+				last += 1
+			end
+			type Item = { Upgrade: string, Price: number, At: number }
+			local items: { Item } = {}
+			for index = first, last do
+				local step = route[index]
+				table.insert(items, {
+					Upgrade = step.Upgrade,
+					Price = incomes[index] * step.TargetSeconds * shareOf[step.Upgrade],
+					At = index,
+				})
+			end
+			table.sort(items, function(a: Item, b: Item): boolean
+				if a.Price ~= b.Price then
+					return a.Price < b.Price
+				end
+				return a.At < b.At
+			end)
+			-- Levels of one upgrade stay in order: each upgrade takes its lowest level of the segment first.
+			local lowest: { [string]: number } = {}
+			for index = first, last do
+				local step = route[index]
+				lowest[step.Upgrade] = math.min(lowest[step.Upgrade] or math.huge, step.Level)
+			end
+			for offset, item in items do
+				local step = route[first + offset - 1]
+				local level = lowest[item.Upgrade]
+				lowest[item.Upgrade] = level + 1
+				if step.Upgrade ~= item.Upgrade or step.Level ~= level then
+					changed = true
+				end
+				step.Upgrade = item.Upgrade
+				step.Level = level
+			end
+			first = last + 1
+		end
+		if not changed then
+			break
+		end
+	end
 	local last = route[#route]
 	assert(last.Upgrade == "ShooterTier" and last.Level == #shibas - 1, "the last purchase must be the last Shiba")
 	local flat = incomesBefore()
@@ -352,8 +425,13 @@ do
 	end
 	local incomes = incomesBefore()
 	for index, step in route do
-		step.Price = tidy(incomes[index] * step.TargetSeconds * shareOf[step.Upgrade])
+		-- The first purchase ignores its PriceShare: it costs exactly the start money, and a full share gives a
+		-- round, not-silly amount (B$ 10 rather than B$ 1).
+		local share = if index == 1 then 1 else shareOf[step.Upgrade]
+		step.Price = tidy(incomes[index] * step.TargetSeconds * share)
 	end
+	-- The rounded multipliers leave the last price ~1 % off; the last Shiba costs exactly FINAL_SHIBA_COST.
+	last.Price = FINAL_SHIBA_COST
 	EconomyConfig.ShibaGrowth = growth
 end
 
