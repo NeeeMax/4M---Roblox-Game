@@ -23,7 +23,7 @@ Casual Roblox players, roughly 8–14. Understandable in under 10 seconds withou
 |-------|-------|
 | Layout | a big **hub island** (radius 70) in the middle, **5 player islands** (radius 80) around it at 280 studs, each joined to the hub by a plank bridge with rails and lamps (tycoon style). Config: `Config/World` |
 | Hub | stations between the bridges: Daily Spin, Coin Flip, Shop, Daily Quests, Top Bonkers leaderboard; Shiba statue with "GET BONKED" in the middle; how-to-play board in front of the hub spawn. Menus open via ProximityPrompt |
-| Player island | grass island; in the middle the **field** (sand, radius 30, low white border with a gap toward the bridge) where sticks land; Shibas stand on the island around it; trophies on lit pedestals behind the field; trees and flowers on the outer ring; owner name on a sign where the bridge arrives |
+| Player island | grass island; in the middle the **field** (sand, radius 30, low white border with a gap toward the bridge) where sticks land; Shibas stand on the island around it; trophies on lit pedestals behind the field; the Bonk Basket and the Bonk Intern once bought (see Automation); trees and flowers on the outer ring; owner name on a sign where the bridge arrives |
 | Islands | one per player, assigned on join (first free plot), freed on leave; more than 5 players = the extra ones stay on the hub. **Max Players must be 5** (Creator Hub → Configure → Places) |
 | Target area | disc radius 28 inside the field; bounces can continue anywhere on the island |
 | Player spawn | own island centre, facing the hub (hub spawn in front of the how-to board if no island) |
@@ -347,6 +347,46 @@ Trophies stand on your island for everyone to see. Bought with Bonk Dollars (`Ec
 about the price of the Shiba you buy around then): Wooden 1e4, Bronze 1e8, Silver 1e14, Golden 1e22, Galaxy 1e30,
 plus exclusive ones (Starter, 7-Day Streak, VIP, Diamond, Rainbow).
 Receipts are granted exactly once (handled purchase ids are saved); pass ownership is checked with Roblox on every join.
+
+## Automation
+
+Two upgrades catch the sticks the player misses, for a share of their value (idle income, also the base of the
+offline earnings). Bought at their stands (`Basket`, `Intern` in `Config/Upgrades`, levels 0–6; level 0 = none).
+**All numbers** (catch chance, payout, walk speed, names) live in `Config/EconomyConfig → Automation`, entry n = level
+n; only look and tuning (position, colours, timings, effects) live in `Config/Automation`. The server decides and pays
+everything (`AutomationService`); clients only draw (`AutomationController`, remote `AutomationCatch`).
+
+Stick value = `RewardService.GetStickValue` (projectile BaseReward × Shiba tier × rebirth × golden × passes × 2× boost
+× server events), i.e. a Normal bonk without head bonus or combo. Automation pays `floor(stick value × Payout[level])`,
+at least 1, through `EconomyService.AddAutomationPoints` (counted as earned; sampled separately for the offline bank).
+It gives no combo, quest progress or Shiba-Index discoveries. Both helpers only work while the owner is on their
+island (like the Shibas). Order: the player first, then the intern, then the basket.
+
+**Bonk Basket** (`Basket` ≥ 1)
+- A big wicker basket (`Prop_Basket`, part-built until a model exists: woven brown body, dark bands and stakes, a rim
+  in the level colour, a handle) just outside the field border, 150° clockwise from the bridge direction, facing the
+  field. It grows a little per level (3.6 studs + 0.3 per level) and its rim changes colour.
+- When a stick's collectable window ends and nobody caught it, the basket rolls `CatchChance[level]` once (0.2 s later,
+  so a hand catch reported right at the end still wins). On success it pays `Payout[level]` × stick value.
+- Look: the stick flies in an arc from where it lay into the basket, sparkles pop at the opening, "+B$ X" rises above
+  the basket (only the owner sees it).
+
+**Bonk Intern** (`Intern` ≥ 1)
+- A blocky NPC (R6 proportions, built from parts) on the island with a name tag (`Names[level]`: Bonk Intern,
+  Hard-Hat Intern, Junior Bonker, Senior Bonker, Bonk Manager, Bonk CEO). Shirt colour per level, yellow hard hat from
+  level 2, long sleeves and a red tie from level 5, the CEO wears a dark suit, a gold tie and a crown.
+- Every 0.2 s it picks a target: an unpaid stick whose first landing point (later: where it is now) it can reach at
+  `WalkSpeed[level]` before the stick stops being collectable, inside radius 36 (it never leaves the Shiba ring),
+  preferring sticks far from the player. **The player gets first dibs:** sticks within 12 studs of the character are
+  left alone. Without a target it waits at the field's edge on the basket's side.
+- A stick passing within its radius + 3 studs of the intern's body bonks it: `Payout[level]` × stick value, then it
+  stands dazed for 0.9 s.
+- It walks with physics movers owned by the server (no collisions: players walk through it and it can't be pushed);
+  if it ever leaves the island it is put back. It is removed at level 0 (e.g. after a rebirth) or when the player
+  leaves, and rebuilt when the level changes.
+- Look: every client swings its arms and legs while it walks. On a bonk (owner only): it tips over and wobbles back
+  up with flailing arms, stars burst from its head, the stick bounces off and fades, a speech bubble says a random
+  line ("OW!", "Worth it!", "My pension!", "Is this in my contract?" …) and "+B$ X" rises.
 
 ## Offline Shiba Bank
 
