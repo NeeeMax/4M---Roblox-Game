@@ -38,8 +38,8 @@ local function onReplicated(player: Player)
 		return
 	end
 	state.Tutorial.Step = math.min(Tutorial.GuidedPurchases, state.Tutorial.Step + (total - last))
-	-- Runs this callback again, which then sees no new levels.
-	DataService.Replicate(player)
+	-- Deferred: this runs inside a Replicate (same as IndexService). The next run sees no new levels.
+	task.defer(DataService.Replicate, player)
 end
 
 function TutorialService.Start()
