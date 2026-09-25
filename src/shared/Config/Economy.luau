@@ -44,11 +44,12 @@ return {
 	AutosaveInterval = 60,
 	DataStoreAttempts = 3,
 
-	-- Shiba Bank (docs/GAME_DESIGN.md → Offline Shiba Bank): while the player is away, their Shibas keep earning
-	-- Share × their recent Bonk Points per minute, for at most MaxHours. Shorter absences than MinSeconds pay nothing.
+	-- Shiba Bank (docs/GAME_DESIGN.md → Offline Shiba Bank): while the player is away, their basket and intern keep
+	-- earning. Per minute away: EconomyConfig.Automation.OfflineShare × the automation's recent Bonk Points per minute
+	-- + BaseOfflineShare × the player's own recent Bonk Points per minute, for at most the basket's OfflineHours
+	-- (NoBasketHours without a basket). Those numbers live in EconomyConfig → Automation; the ones below are only
+	-- about measuring the rates. Shorter absences than MinSeconds pay nothing.
 	OfflineBank = {
-		Share = 0.1,
-		MaxHours = 8,
 		MinSeconds = 60,
 		-- The income rate is sampled every SampleSeconds of play and smoothed: rate += Smoothing × (sample − rate).
 		-- Samples shorter than MinSampleSeconds (a player who just joined or is leaving) are skipped.
