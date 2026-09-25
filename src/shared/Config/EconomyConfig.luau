@@ -78,12 +78,12 @@ local REBIRTH = {
 
 -- The Shibas (ShooterTier level n = Shibas[n + 1]). Each one throws faster and pays more; the RewardMultiplier is
 -- derived below. AssetName = the model in ReplicatedStorage.Assets (models are only referenced, never changed):
--- the Shiny and Mythic editions reuse the ten models with an outline and aura in their Color.
+-- Shibas 11-20 have their own models; the Mythic editions (21-30) reuse the ten originals with an outline and aura.
 -- Height = model height in studs. FireInterval = seconds between two throws of one Shiba.
 export type ShibaDef = {
 	Name: string,
 	AssetName: string,
-	-- nil for the ten originals, else "Shiny" or "Mythic".
+	-- nil for Shibas with their own model, else "Mythic".
 	Edition: string?,
 	Height: number,
 	Color: Color3,
@@ -105,23 +105,23 @@ local BASE_SHIBAS = {
 	{ Name = "Cheems God", AssetName = "CheemsGod", Height = 12, Color = Color3.fromRGB(255, 240, 170) },
 }
 
--- Editions after the ten originals, in order. Their Colors (one per base Shiba) are the outline/aura colours.
+-- Shibas 11-20: ten more designs with their own models (assets/models/build_shiba_tiers.py, NEW_DESIGNS).
+local SECOND_SHIBAS = {
+	{ Name = "Pirate Shiba", AssetName = "PirateShiba", Height = 7, Color = Color3.fromRGB(150, 85, 40) },
+	{ Name = "Cowboy Shiba", AssetName = "CowboyShiba", Height = 7, Color = Color3.fromRGB(200, 120, 55) },
+	{ Name = "Viking Shiba", AssetName = "VikingShiba", Height = 7.5, Color = Color3.fromRGB(165, 170, 180) },
+	{ Name = "Wizard Shiba", AssetName = "WizardShiba", Height = 8.5, Color = Color3.fromRGB(70, 80, 220) },
+	{ Name = "Astronaut Shiba", AssetName = "AstronautShiba", Height = 7.5, Color = Color3.fromRGB(240, 242, 248) },
+	{ Name = "Robot Shiba", AssetName = "RobotShiba", Height = 7.5, Color = Color3.fromRGB(70, 240, 255) },
+	{ Name = "Samurai Shiba", AssetName = "SamuraiShiba", Height = 7.5, Color = Color3.fromRGB(200, 30, 40) },
+	{ Name = "Vampire Shiba", AssetName = "VampireShiba", Height = 7, Color = Color3.fromRGB(170, 15, 35) },
+	{ Name = "Pharaoh Shiba", AssetName = "PharaohShiba", Height = 7.5, Color = Color3.fromRGB(255, 195, 40) },
+	{ Name = "Dragon Shiba", AssetName = "DragonShiba", Height = 8, Color = Color3.fromRGB(60, 180, 80) },
+}
+
+-- Editions after the twenty designs (Shibas 21-30): the ten originals once more with an outline and aura in the
+-- edition's Colors (one per original).
 local EDITIONS = {
-	{
-		Edition = "Shiny",
-		Colors = {
-			Color3.fromRGB(255, 235, 120),
-			Color3.fromRGB(200, 255, 255),
-			Color3.fromRGB(255, 160, 200),
-			Color3.fromRGB(255, 255, 200),
-			Color3.fromRGB(150, 220, 255),
-			Color3.fromRGB(255, 120, 150),
-			Color3.fromRGB(255, 250, 180),
-			Color3.fromRGB(220, 170, 255),
-			Color3.fromRGB(255, 200, 120),
-			Color3.fromRGB(255, 255, 255),
-		},
-	},
 	{
 		Edition = "Mythic",
 		Colors = {
@@ -197,7 +197,13 @@ export type RouteSpec = {
 
 local ROUTE_SPECS: { RouteSpec } = {
 	{ Upgrade = "Shooters", Count = 7, From = 0, To = 0.4, PriceShare = 0.15 },
-	{ Upgrade = "ShooterTier", Count = #BASE_SHIBAS * (1 + #EDITIONS) - 1, From = 0.02, To = 1, PriceShare = 1 },
+	{
+		Upgrade = "ShooterTier",
+		Count = #BASE_SHIBAS * (1 + #EDITIONS) + #SECOND_SHIBAS - 1,
+		From = 0.02,
+		To = 1,
+		PriceShare = 1,
+	},
 	{ Upgrade = "ProjectileTier", Count = PROJECTILE_TIERS - 1, From = 0.04, To = 0.85, PriceShare = 1 },
 	{ Upgrade = "MoveSpeed", Count = 10, From = 0.05, To = 0.8, PriceShare = 0.16 },
 	{ Upgrade = "Basket", Count = #AUTOMATION.Basket.CatchChance, From = 0.2, To = 0.9, PriceShare = 0.25 },
@@ -251,7 +257,7 @@ end
 
 -- Shibas with editions, fire intervals (multipliers come later).
 local shibas: { ShibaDef } = {}
--- Round 1 = the ten originals, round n = EDITIONS[n - 1].
+-- Round 1 = the ten originals, round n = EDITIONS[n - 1]; the second set goes between the originals and the editions.
 for round = 1, 1 + #EDITIONS do
 	local edition = if round > 1 then EDITIONS[round - 1] else nil
 	for baseIndex, base in BASE_SHIBAS do
@@ -264,6 +270,18 @@ for round = 1, 1 + #EDITIONS do
 			FireInterval = 0,
 			RewardMultiplier = 1,
 		})
+	end
+	if round == 1 then
+		for _, second in SECOND_SHIBAS do
+			table.insert(shibas, {
+				Name = second.Name,
+				AssetName = second.AssetName,
+				Height = second.Height,
+				Color = second.Color,
+				FireInterval = 0,
+				RewardMultiplier = 1,
+			})
+		end
 	end
 end
 for index, shiba in shibas do

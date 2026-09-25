@@ -55,7 +55,7 @@ return {
 		-- Shiba tiers (ShooterTier level n = Tiers[n + 1]), defined in Config/EconomyConfig → Shibas (names, models,
 		-- heights, colours, FireInterval, RewardMultiplier). Model: ReplicatedStorage.Assets.<AssetName>, scaled to the
 		-- tier's Height in studs, bottom on its platform (Config/ShibaPlatforms); effects and motion in Config/ShibaEffects.
-		-- Shiny/Mythic editions reuse a base model with an outline and aura in their Color; a missing model falls back to
+		-- Mythic editions reuse a base model with an outline and aura in their Color; a missing model falls back to
 		-- the next lower tier's model (then LegacyAssetName) with an outline in its Color.
 		Tiers = EconomyConfig.Shibas,
 		-- Older single-model name, still used when no tier model exists.

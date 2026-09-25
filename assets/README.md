@@ -16,6 +16,16 @@ Only models that code depends on. Keep this folder small; the world lives in the
 | `GalaxyShiba.fbx` | `GalaxyShiba` — indigo → violet → pink → cyan fur with star specks, glowing cyan eyes, a ringed planet and a moon flying around the head (`Orbit`, `OrbitCenter`) | Shiba Tier 8 |
 | `GiantShiba.fbx` | `GiantShiba` — kaiju: tiny buildings and trees, cracked ground, scars, orange eyes | Shiba Tier 9 |
 | `CheemsGod.fbx` | `CheemsGod` — golden throne on clouds, sun halo, six wings, laurel crown, orbiting golden sticks | Shiba Tier 10 |
+| `PirateShiba.fbx` | `PirateShiba` — tricorn with skull, eye patch, gold earring, red neckerchief, parrot on the shoulder | Shiba Tier 11 |
+| `CowboyShiba.fbx` | `CowboyShiba` — wide brown hat, red bandana, sheriff star, lasso | Shiba Tier 12 |
+| `VikingShiba.fbx` | `VikingShiba` — horned helmet with nose guard, braided beard, round shield | Shiba Tier 13 |
+| `WizardShiba.fbx` | `WizardShiba` — tall blue hat with stars, long white beard, crystal orb | Shiba Tier 14 |
+| `AstronautShiba.fbx` | `AstronautShiba` — white space suit, helmet window around the face, antenna, backpack with lights | Shiba Tier 15 |
+| `RobotShiba.fbx` | `RobotShiba` — metal fur, glowing visor, antenna, chest panel with buttons | Shiba Tier 16 |
+| `SamuraiShiba.fbx` | `SamuraiShiba` — red kabuto with golden crest, shoulder plates, topknot | Shiba Tier 17 |
+| `VampireShiba.fbx` | `VampireShiba` — pale fur, red eyes, fangs, stand-up collar and cape | Shiba Tier 18 |
+| `PharaohShiba.fbx` | `PharaohShiba` — striped gold/blue headdress with cobra, collar, false beard, ankh | Shiba Tier 19 |
+| `DragonShiba.fbx` | `DragonShiba` — green scales, horns, spine spikes, wings | Shiba Tier 20 |
 | `Stick.fbx` | `Stick` — chunky brown branch, stubby twig, two green leaves | projectile tier 1 (`Config/Projectiles`) |
 | `Newspaper.fbx` | `Newspaper` — rolled up, cream with grey print bands and a red headline band, hollow ends | projectile tier 2 |
 | `Baguette.fbx` | `Baguette` — slightly bent pointed loaf, golden crust, darker underside, pale score marks | projectile tier 3 |
