@@ -139,3 +139,21 @@ part platform is built as before.
 every imported **Model** (a one-mesh file may arrive as a single MeshPart, that works too) into `ReplicatedStorage/Assets` and keep its name exactly as the file name (e.g. `Prop_Tree`,
 `Trophy_Gold`, `Platform_PoliceShiba`). Keep the part names inside (`Body`, `Glow`, `StandPoint`). No scaling or
 rotating needed: the code does it. Start a playtest; Output lists props and platforms that are still missing.
+
+### Import all models at once
+
+The Studio file dialog takes one file at a time, so pack everything into one FBX first (Blender, no window):
+
+```
+blender --background --factory-startup --python assets/models/combine_for_import.py -- "E:\AllModels.fbx"
+```
+
+It ends with `GROUPS <n> MISMATCHES 0` (every group re-imported at the size of its single file). Add names after the
+path to pack only some (`... -- out.fbx Prop_Tree Stick`). Keep the output outside the repo (no big binaries in git).
+Then in Studio: Home → **Import 3D** → `AllModels.fbx` → Import (one Model `AllModels` with one child per file), and run
+this in the command bar. It cuts the `.<group>` suffix off the part names, replaces the old versions in `Assets` and
+removes `AllModels`:
+
+```lua
+local A=game.ReplicatedStorage.Assets local s=workspace.AllModels for _,m in ipairs(s:GetChildren()) do for _,d in ipairs(m:GetDescendants()) do local b=d.Name:match('^([^%.]+)%.') if b then d.Name=b end end local old=A:FindFirstChild(m.Name) if old then old:Destroy() end m.Parent=A end s:Destroy()
+```
