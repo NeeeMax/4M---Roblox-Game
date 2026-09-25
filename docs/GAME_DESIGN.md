@@ -23,7 +23,8 @@ Casual Roblox players, roughly 8–14. Understandable in under 10 seconds withou
 |-------|-------|
 | Layout | a big **hub island** (radius 70) in the middle, **5 player islands** (radius 80) around it at 280 studs, each joined to the hub by a plank bridge with rails and lamps (tycoon style). Config: `Config/World` |
 | Hub | stations between the bridges: Daily Spin, Coin Flip, Shop, Daily Quests, Top Bonkers leaderboard; Shiba statue with "GET BONKED" in the middle; how-to-play board in front of the hub spawn. Menus open via ProximityPrompt |
-| Player island | grass island; in the middle the **field** (sand, radius 30, low white border with a gap toward the bridge) where sticks land; Shibas stand on the island around it; trophies on lit pedestals behind the field; the Bonk Basket and the Bonk Intern once bought (see Automation); trees and flowers on the outer ring; owner name on a sign where the bridge arrives |
+| Player island | grass island; in the middle the **field** (sand, radius 30, low white border with a gap toward the bridge) where sticks land; Shibas stand on the island around it; trophies on lit pedestals behind the field; the Bonk Basket and the Bonk Intern once bought (see Automation); shop stalls, zone signs and a path on the outer ring (see Island layout); trees and flowers in a grove between the rebirth shrine and the bridge; owner name on a sign where the bridge arrives |
+| Island layout | themed zones on the outer ring (`Config/Stations`, checked by `lune run docs/economy/layout_check`, details in `docs/economy/LAYOUT.md`). Angles clockwise from the bridge, stalls at radius 74 facing the field, a wooden zone sign behind each zone (radius 78, board above the stall billboards, title in the zone colour): **Speed Gym** Move Speed 30°; **Shiba Shop** Shiba Tier 62°, More Shibas 118° (the new-player spawn at 90° is between them); **Throwables** Projectile Tier 150°; **Automation** Bonk Basket 185°, Bonk Intern 220°; **Rebirth** shrine 270°. Walking clockwise from the spawn = later in the game. A sandy cobblestone path (radius 70, 4 wide, visual only, no collisions) runs from the bridge clockwise to the rebirth shrine; stalls stand ≥ 30 studs apart, outside the Shibas' reach (radius 67), trees ≥ 10 studs from any stall, sign, spawn or path |
 | Islands | one per player, assigned on join (first free plot), freed on leave; more than 5 players = the extra ones stay on the hub. **Max Players must be 5** (Creator Hub → Configure → Places) |
 | Target area | disc radius 28 inside the field; bounces can continue anywhere on the island |
 | Player spawn | own island centre, facing the hub (hub spawn in front of the how-to board if no island) |
@@ -171,8 +172,14 @@ tier (×1 → ×2e26, solved so the last Shiba costs 1e33).
 - **Active Shibas:** buying adds a Shiba; the "More Shibas" card sets how many are active (1 … owned) for free.
 - Purchases are validated on the server: known upgrade id, below max level, enough Bonk Dollars, max 5 requests/s.
 - **Upgrade stands** (main way to buy, tycoon style, `Config/Stations`): on every player island one market-stall stand
-  per upgrade (`Prop_UpgradeStand_<UpgradeId>`, part-built until a model exists) on both sides of the path from the
-  bridge to the field (Shiba Tier / Projectile Tier nearer the field, More Shibas / Move Speed nearer the bridge).
+  per upgrade (`Prop_UpgradeStand_<UpgradeId>`, part-built until a model exists, colour from `Config/Upgrades`) on the
+  outer ring in its themed zone, facing the field (World → Island layout): Move Speed, Shiba Tier, More Shibas,
+  Projectile Tier, Bonk Basket, Bonk Intern.
+  - **Locked stands:** a stand whose upgrade unlocks later (`EconomyConfig.UnlockAtShibaTier`, e.g. Basket and Intern)
+    shows a grey shutter with a gold padlock and has no prompts until the player's Shiba Tier reaches that level.
+  - **Rebirth shrine** (`Prop_RebirthShrine`, purple stone altar under a golden arch with a glowing orb) at 270°: hold
+    **E "Rebirth"** for 3 s to rebirth (`RebirthService`). The prompt appears (and the orb lights up) only once the
+    player can rebirth; only the island owner can use it.
   Above each stand floats a billboard: upgrade name, current value (tier name in its colour / number), level badge
   `xN`, level bar, a big UPGRADE button look (green when affordable, grey when not, gold MAXED at the top) with the
   cost (green / grey) and an **E** key hint. Only the island owner can use their stands and sees the billboards.
