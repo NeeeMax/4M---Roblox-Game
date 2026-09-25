@@ -145,6 +145,24 @@ function ProjectilePath.GetState(path: Path, time: number): (Vector3, Vector3)
 	return position, segment.StartVelocity + acceleration * dt
 end
 
+-- Seconds after launch when the projectile first touches the ground: the end of the flight segment (= the start of
+-- the first bounce). A path without bounces (it fell off the island right away) "lands" at its EndTime.
+-- Catch quality (BonkService) and the landing ring (ProjectileController) are timed against it.
+function ProjectilePath.GetFirstLandingTime(path: Path): number
+	local bounce = path.Segments[2]
+	return if bounce then bounce.StartTime else path.EndTime
+end
+
+-- Where the projectile first touches the ground: the centre of its hit sphere at GetFirstLandingTime (one radius
+-- above the ground).
+function ProjectilePath.GetFirstLandingPosition(path: Path): Vector3
+	local bounce = path.Segments[2]
+	if bounce then
+		return bounce.StartPosition
+	end
+	return (ProjectilePath.GetState(path, path.EndTime))
+end
+
 -- Seconds after launch until which the projectile can be collected (client check and server validation).
 function ProjectilePath.GetCollectEndTime(path: Path): number
 	return path.EndTime + (if CONFIG.CollectableWhileFading then path.FadeTime else 0)

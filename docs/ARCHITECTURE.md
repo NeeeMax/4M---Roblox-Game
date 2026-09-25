@@ -63,4 +63,12 @@ Work is split by feature area. The owner reviews changes in their area and decid
 - **MVP exception:** islands, shooters, projectiles and the HUD/upgrade menu are created by code, so the prototype runs in an empty Baseplate place. Moving them to Studio-built assets later is fine.
 - Upgrade stands: `StationService` builds `Island_<UserId>/Stations` (stand props, `Station_<UpgradeId>` prompt parts,
   `ShibaPad`); `StationController` finds them by these names (`Config/Stations`) and draws the billboards client-side.
+- Automation: `AutomationService` builds `Island_<UserId>/Prop_Basket` (a `PropService` prop, so a model named
+  `Prop_Basket` in `ReplicatedStorage/Assets` replaces the placeholder) and `Island_<UserId>/BonkIntern` (part-built
+  rig: `Root` with the movers, `Torso`, `Head`, arms and legs joined by the Motor6Ds in `Config/Automation → Intern.Joints`);
+  `AutomationController` finds them by these names (`Config/Automation`).
+- Onboarding (`Config/Tutorial`): `IslandService` spawns brand-new players in front of the NEW SHIBA pad and stamps
+  `Island_<UserId>` with the attribute `IslandCenter`; `TutorialService` counts guided purchases in
+  `state.Tutorial.Step` (the only field it changes); `TutorialController` draws the guidance client-side, using
+  `StationController.CheapestAffordable / GetAnchor / GetPad / GetStand`.
 - Code references world objects by stable names/paths. When you rename something in the world that code uses, update the code in the same session and mention it in the PR.

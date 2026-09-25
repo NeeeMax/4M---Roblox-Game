@@ -1,7 +1,7 @@
 --!strict
 -- The player islands around the hub (Config/World): builds all plots with their bridges once, gives each joining
--- player a free plot (tycoon style), spawns them on it, puts fallen characters back, and frees the plot when they
--- leave. Players without a plot (server full) stay on the hub. The hub itself is built by HubService.
+-- player a free plot (tycoon style), spawns them on it (brand-new players in front of the NEW SHIBA pad, see
+-- Config/Tutorial), puts fallen characters back, and frees the plot when they leave. Players without a plot (server full) stay on the hub. The hub itself is built by HubService.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -9,8 +9,11 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
+local Stations = require(ReplicatedStorage.Shared.Config.Stations)
+local Tutorial = require(ReplicatedStorage.Shared.Config.Tutorial)
 local World = require(ReplicatedStorage.Shared.Config.World)
 
+local DataService = require(script.Parent.DataService)
 local PropService = require(script.Parent.PropService)
 local Signs = require(script.Parent.Parent.World.Signs)
 
@@ -145,6 +148,116 @@ local function buildField(center: Vector3, hubAngle: number, parent: Instance)
 	end
 end
 
+-- Island-relative polar spot (Config/Stations: degrees clockwise from the bridge, studs from the centre).
+local function polar(center: Vector3, hubAngle: number, angleDegrees: number, radius: number): Vector3
+	return center + direction(hubAngle + math.rad(angleDegrees)) * radius
+end
+
+-- One wooden sign per zone behind its stalls, the title in the zone colour, facing the island centre and high
+-- enough to read over the stalls and their billboards.
+local function buildZoneSigns(center: Vector3, hubAngle: number, parent: Instance)
+	local sign = Stations.ZoneSign
+	local boardBottom = sign.BoardHeight - sign.BoardSize.Y / 2
+	-- Posts reach from under the surface into the board, behind it so they don't cover the text.
+	local postBottom = -0.5
+	local postTop = boardBottom + 0.7
+	for _, zone in Stations.Zones do
+		local position = polar(center, hubAngle, zone.Angle, zone.Radius)
+		local facing = CFrame.lookAt(position, Vector3.new(center.X, position.Y, center.Z))
+		local signModel = Instance.new("Model")
+		signModel.Name = `ZoneSign_{zone.Id}`
+		for _, side in { -1, 1 } do
+			local post = newPart(
+				"Post",
+				Vector3.new(sign.PostWidth, postTop - postBottom, sign.PostWidth),
+				facing
+					* CFrame.new(
+						side * sign.PostOffset,
+						(postBottom + postTop) / 2,
+						sign.BoardSize.Z / 2 + sign.PostWidth / 2
+					),
+				sign.PostColor,
+				signModel
+			)
+			post.Material = Enum.Material.Wood
+		end
+		local board =
+			newPart("Board", sign.BoardSize, facing * CFrame.new(0, sign.BoardHeight, 0), sign.BoardColor, signModel)
+		board.Material = Enum.Material.WoodPlanks
+		Signs.Text(board, Enum.NormalId.Front, zone.Title, zone.Color)
+		signModel.Parent = parent
+	end
+end
+
+-- The path ring (Config/Stations → PathRing): flat, non-colliding segments at the path radius from the bridge
+-- clockwise to the rebirth shrine, and a link from where the bridge arrives. Every second segment sits a little
+-- higher, so the overlapping corners never flicker.
+local function buildPath(center: Vector3, hubAngle: number, parent: Instance)
+	local path = Stations.PathRing
+	local model = Instance.new("Model")
+	model.Name = "PathRing"
+	local function slab(size: Vector3, position: Vector3, along: Vector3, top: number, color: Color3): Part
+		local y = center.Y + top - path.Thickness / 2
+		local at = Vector3.new(position.X, y, position.Z)
+		local piece = newPart("Path", size, CFrame.lookAt(at, at + along), color, model)
+		piece.Material = path.Material
+		piece.CanCollide = false
+		piece.CanQuery = false
+		piece.CanTouch = false
+		piece.CastShadow = false
+		return piece
+	end
+
+	local span = path.ToAngle - path.FromAngle
+	local count = math.ceil(span / path.SegmentDegrees)
+	local step = span / count
+	-- Long enough to close the gap at the outer edge of the curve.
+	local length = 2 * (path.Radius + path.Width / 2) * math.tan(math.rad(step) / 2) + 0.1
+	for index = 0, count - 1 do
+		local middle = path.FromAngle + (index + 0.5) * step
+		local tangent = direction(hubAngle + math.rad(middle + 90))
+		slab(
+			Vector3.new(path.Width, path.Thickness, length),
+			polar(center, hubAngle, middle, path.Radius),
+			tangent,
+			path.TopHeight + (index % 2) * path.TopStep,
+			path.Colors[index % #path.Colors + 1]
+		)
+	end
+
+	-- From the bridge's end to the ring, along the bridge direction.
+	local linkLength = path.LinkTo - path.LinkFrom
+	slab(
+		Vector3.new(path.LinkWidth, path.Thickness, linkLength),
+		polar(center, hubAngle, 0, (path.LinkFrom + path.LinkTo) / 2),
+		direction(hubAngle),
+		path.TopHeight + 2 * path.TopStep,
+		path.Colors[1]
+	)
+	model.Parent = parent
+end
+
+-- Trees and flowers in the grove (Config/Stations → Grove): the sector between the rebirth shrine and the bridge,
+-- where no stall, sign or path stands, so they never block a stall or the view between the zones.
+local function buildGrove(center: Vector3, hubAngle: number, slot: number, parent: Instance)
+	local grove = Stations.Grove
+	local random = Random.new(slot)
+	local count = DECOR.TreesPerIsland
+	for index = 1, count do
+		local angle = grove.FromAngle + (index - 0.5) / count * (grove.ToAngle - grove.FromAngle)
+		local radius = grove.Radii[(index - 1) % #grove.Radii + 1]
+		PropService.Place(
+			"Prop_Tree",
+			CFrame.new(polar(center, hubAngle, angle, radius)) * CFrame.Angles(0, random:NextNumber(0, 2 * math.pi), 0),
+			random:NextNumber(11, 15),
+			PropService.Builders.Tree,
+			parent
+		)
+		local flowerPosition = polar(center, hubAngle, angle + grove.FlowerAngle, radius - grove.FlowerInset)
+		PropService.Place("Prop_Flowers", CFrame.new(flowerPosition), 1.5, PropService.Builders.Flowers, parent)
+	end
+end
+
 local function buildPlot(slot: number, parent: Instance): Plot
 	local angle = (slot - 1) / PLOTS.Count * 2 * math.pi
 	local center = HUB.Center + direction(angle) * PLOTS.Distance
@@ -184,22 +297,11 @@ local function buildPlot(slot: number, parent: Instance): Plot
 		model
 	)
 
-	-- Trees and flowers on the outer ring, never on the path from the bridge to the field.
-	local random = Random.new(slot)
-	for index = 1, DECOR.TreesPerIsland do
-		local treeAngle = hubAngle + math.rad(35) + (index - 1) / DECOR.TreesPerIsland * math.rad(290)
-		local distance = random:NextNumber(66, ISLAND.Radius - 5)
-		local position = center + direction(treeAngle) * distance
-		PropService.Place(
-			"Prop_Tree",
-			CFrame.new(position) * CFrame.Angles(0, random:NextNumber(0, 2 * math.pi), 0),
-			random:NextNumber(11, 15),
-			PropService.Builders.Tree,
-			model
-		)
-		local flowerPosition = center + direction(treeAngle + 0.2) * (distance - 5)
-		PropService.Place("Prop_Flowers", CFrame.new(flowerPosition), 1.5, PropService.Builders.Flowers, model)
-	end
+	-- The same for every owner, so built once per plot: zone signs, the path ring and the tree grove
+	-- (Config/Stations; the stalls themselves are per player, StationService).
+	buildZoneSigns(center, hubAngle, model)
+	buildPath(center, hubAngle, model)
+	buildGrove(center, hubAngle, slot, model)
 
 	-- Owner name on a sign post where the bridge arrives.
 	local signPosition = center + direction(hubAngle) * (ISLAND.Radius - 8) + direction(hubAngle + math.pi / 2) * 9
@@ -237,6 +339,20 @@ function IslandService.GetIsland(player: Player): Island?
 	return islands[player]
 end
 
+-- Brand-new players (Tutorial.IsFresh) spawn at Stations.NewPlayerSpawn facing the island centre, so the NEW SHIBA
+-- pad (their first purchase, on the Shiba ring at the same angle) is right in front of them.
+local function newPlayerSpawn(island: Island): CFrame
+	local spot = Stations.NewPlayerSpawn
+	local up = Vector3.new(0, ISLAND.SpawnHeight, 0)
+	local position = island.Center + direction(island.HubAngle + math.rad(spot.Angle)) * spot.Radius + up
+	return CFrame.lookAt(position, island.Center + up)
+end
+
+local function isFresh(player: Player): boolean
+	local state = DataService.GetState(player)
+	return state ~= nil and Tutorial.IsFresh(state)
+end
+
 -- Puts the character on its island (or the hub without one).
 function IslandService.SpawnOnIsland(player: Player)
 	local island = islands[player]
@@ -244,7 +360,9 @@ function IslandService.SpawnOnIsland(player: Player)
 	if not character then
 		return
 	end
-	if island then
+	if island and isFresh(player) then
+		character:PivotTo(newPlayerSpawn(island))
+	elseif island then
 		-- Facing the hub, so the way back is obvious.
 		local position = island.Center + Vector3.new(0, ISLAND.SpawnHeight, 0)
 		character:PivotTo(CFrame.lookAt(position, position + direction(island.HubAngle)))
@@ -275,6 +393,8 @@ local function claim(player: Player, plot: Plot)
 
 	local model = Instance.new("Model")
 	model.Name = `{ISLAND.ModelPrefix}{player.UserId}`
+	-- The client's guidance (TutorialController) points at the field with it: the model has no parts to take it from.
+	model:SetAttribute(Tutorial.IslandCenterAttribute, plot.Center)
 	local projectileFolder = Instance.new("Folder")
 	projectileFolder.Name = "Projectiles"
 	projectileFolder.Parent = model
@@ -340,6 +460,13 @@ function IslandService.Start()
 	for _, player in Players:GetPlayers() do
 		onPlayerAdded(player)
 	end
+	-- The save usually loads after the first spawn (and an admin reset makes a fresh save): once the player is known
+	-- to be brand-new, move the character to the new-player spawn in front of the NEW SHIBA pad.
+	DataService.OnLoaded(function(player)
+		if player.Character and islands[player] and isFresh(player) then
+			IslandService.SpawnOnIsland(player)
+		end
+	end)
 
 	local sinceCheck = 0
 	RunService.Heartbeat:Connect(function(deltaTime)

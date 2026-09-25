@@ -1,6 +1,7 @@
 # 0003 — The client reports hits, the server validates them
 
 - Status: accepted (replaces "hits are detected only on the server" from the first design)
+- Update 2026-09-25: the hit quality part (relative impact speed) is replaced by catch timing, see 0005. The reporting and validation described here still apply.
 - Date: 2026-09-24
 
 ## Context

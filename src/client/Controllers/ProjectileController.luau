@@ -4,7 +4,10 @@
 -- synced server clock. That keeps flights and bounces perfectly smooth. After its last settling hop the projectile
 -- lies still and fades out over the path's FadeTime. BonkController reads the drawn positions for its hit checks, so
 -- what the player sees is what counts. See docs/decisions/0004.
+-- For the local player's own projectiles it also draws a landing ring where each will first touch the ground,
+-- shrinking until it lands and gold during the Perfect window (Gameplay.LandingRing, docs/decisions/0005).
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -16,7 +19,17 @@ local Projectiles = require(ReplicatedStorage.Shared.Config.Projectiles)
 
 local ISLAND = Gameplay.Island
 local CONFIG = Gameplay.Projectiles
+local HITS = Gameplay.Hits
+local RING = Gameplay.LandingRing
 local GRIP_NAME = Gameplay.Shooters.HandProjectile.GripName
+-- Turns a cylinder adornment (axis along its Z) so it lies flat on the ground.
+local FLAT = CFrame.Angles(math.rad(90), 0, 0)
+
+-- A landing ring: the shrinking outline and the faint target disc under it. Pooled and reused.
+type Ring = {
+	Outline: CylinderHandleAdornment,
+	Target: CylinderHandleAdornment,
+}
 
 export type Drawn = {
 	Marker: BasePart,
@@ -45,11 +58,21 @@ export type Drawn = {
 	-- What is currently applied: Paid attribute seen, landing fade progress (0..1).
 	Paid: boolean,
 	FadeAlpha: number,
+	-- Own projectiles that land on the island: first landing (seconds after launch), the ground point under it and
+	-- the ring colour. The ring itself only while it is shown.
+	LandingTime: number?,
+	LandingGround: Vector3?,
+	RingColor: Color3,
+	Ring: Ring?,
 }
 
 local drawn: { [BasePart]: Drawn } = {}
 local pending: { [BasePart]: boolean } = {}
 local visualsFolder: Folder
+local ringFolder: Folder
+local freeRings: { Ring } = {}
+-- The local player's island Projectiles folder (only its projectiles get a landing ring).
+local ownFolder: Instance? = nil
 local random = Random.new()
 
 local ProjectileController = {}
@@ -155,7 +178,8 @@ local function tryStart(marker: BasePart): boolean
 	if not path then
 		return false
 	end
-	local model = buildModel(Projectiles.Defs[marker.Name], diameter)
+	local def = Projectiles.Defs[marker.Name]
+	local model = buildModel(def, diameter)
 	local highlight: Highlight? = nil
 	if marker:GetAttribute(CONFIG.GoldenAttribute) == true then
 		-- Golden projectile: gold outline and a gold trail (it pays GoldenMultiplier times as much).
@@ -180,6 +204,14 @@ local function tryStart(marker: BasePart): boolean
 	end
 	local position = path.Segments[1].StartPosition
 	local lastVelocity = path.Segments[#path.Segments].StartVelocity
+	-- Landing ring: own projectiles whose flight ends on the island (a path without bounces fell off the edge).
+	local landingTime: number? = nil
+	local landingGround: Vector3? = nil
+	if ownFolder and marker.Parent == ownFolder and #path.Segments >= 2 then
+		landingTime = ProjectilePath.GetFirstLandingTime(path)
+		landingGround = ProjectilePath.GetFirstLandingPosition(path) - Vector3.new(0, diameter / 2, 0)
+	end
+	local tierColor = if def then def.Color else Color3.new(1, 1, 1)
 	drawn[marker] = {
 		Marker = marker,
 		Path = path,
@@ -199,10 +231,79 @@ local function tryStart(marker: BasePart): boolean
 		Highlight = highlight,
 		Paid = false,
 		FadeAlpha = 0,
+		LandingTime = landingTime,
+		LandingGround = landingGround,
+		RingColor = tierColor:Lerp(Color3.new(1, 1, 1), RING.Brighten),
+		Ring = nil,
 	}
 	model:PivotTo(CFrame.new(position) * box:ToObjectSpace(model:GetPivot()))
 	model.Parent = visualsFolder
 	return true
+end
+
+local function newRingPiece(name: string): CylinderHandleAdornment
+	local piece = Instance.new("CylinderHandleAdornment")
+	piece.Name = name
+	piece.Adornee = Workspace.Terrain
+	piece.Height = RING.Height
+	piece.AlwaysOnTop = false
+	piece.Visible = false
+	piece.Parent = ringFolder
+	return piece
+end
+
+-- A landing ring from the pool (new ones only when all are in use), placed at `ground`.
+local function acquireRing(ground: Vector3): Ring
+	local ring: Ring = table.remove(freeRings)
+		or { Outline = newRingPiece("LandingRing"), Target = newRingPiece("LandingTarget") }
+	local frame = CFrame.new(ground + Vector3.new(0, RING.GroundOffset + RING.Height / 2, 0)) * FLAT
+	ring.Outline.CFrame = frame
+	-- The target disc a hair lower and thinner, so the outline is drawn over it.
+	ring.Target.CFrame = frame - Vector3.new(0, RING.Height / 4, 0)
+	ring.Target.Height = RING.Height / 2
+	ring.Target.InnerRadius = 0
+	ring.Target.Transparency = 1
+	ring.Outline.Transparency = 1
+	ring.Outline.Visible = true
+	ring.Target.Visible = true
+	return ring
+end
+
+local function releaseRing(entry: Drawn)
+	local ring = entry.Ring
+	if ring then
+		entry.Ring = nil
+		ring.Outline.Visible = false
+		ring.Target.Visible = false
+		table.insert(freeRings, ring)
+	end
+end
+
+-- Shows, updates or removes the entry's landing ring for this frame (`elapsed` seconds after launch).
+local function updateRing(entry: Drawn, elapsed: number)
+	local landingTime = entry.LandingTime
+	local ground = entry.LandingGround
+	if not landingTime or not ground or entry.Paid or elapsed >= landingTime or landingTime <= 0 then
+		releaseRing(entry)
+		return
+	end
+	local ring = entry.Ring or acquireRing(ground)
+	entry.Ring = ring
+	local remaining = landingTime - elapsed
+	local endRadius = entry.Radius + HITS.PickupPadding
+	local startRadius = math.max(RING.StartRadius, endRadius + RING.MinShrink)
+	local radius = endRadius + (startRadius - endRadius) * math.clamp(remaining / landingTime, 0, 1)
+	local perfect = remaining <= HITS.PerfectWindow
+	local color = if perfect then RING.PerfectColor else entry.RingColor
+	local thickness = RING.Thickness * (if perfect then RING.PerfectThicknessScale else 1)
+	local fadeIn = math.clamp(elapsed / RING.FadeInTime, 0, 1)
+	ring.Outline.Radius = radius
+	ring.Outline.InnerRadius = math.max(radius - thickness, 0)
+	ring.Outline.Color3 = color
+	ring.Outline.Transparency = 1 - (1 - RING.Transparency) * fadeIn
+	ring.Target.Radius = endRadius
+	ring.Target.Color3 = color
+	ring.Target.Transparency = 1 - (1 - RING.TargetTransparency) * fadeIn
 end
 
 local function stop(marker: BasePart)
@@ -210,6 +311,7 @@ local function stop(marker: BasePart)
 	local entry = drawn[marker]
 	if entry then
 		drawn[marker] = nil
+		releaseRing(entry)
 		entry.Model:Destroy()
 	end
 end
@@ -274,6 +376,7 @@ local function update()
 			entry.Visible = false
 			entry.Collectable = false
 			entry.Model.Parent = nil
+			releaseRing(entry)
 			continue
 		end
 		entry.Collectable = elapsed < ProjectilePath.GetCollectEndTime(path)
@@ -287,6 +390,7 @@ local function update()
 			entry.FadeAlpha = fadeAlpha
 			applyTransparency(entry)
 		end
+		updateRing(entry, elapsed)
 	end
 end
 
@@ -312,6 +416,9 @@ local function watchIsland(island: Instance)
 	task.spawn(function()
 		local folder = island:WaitForChild("Projectiles", 30)
 		if folder then
+			if island.Name == `{ISLAND.ModelPrefix}{Players.LocalPlayer.UserId}` then
+				ownFolder = folder
+			end
 			watchFolder(folder)
 		end
 	end)
@@ -337,6 +444,7 @@ function ProjectileController.Detach(marker: BasePart): Drawn?
 		return nil
 	end
 	drawn[marker] = nil
+	releaseRing(entry)
 	entry.Visible = false
 	entry.Collectable = false
 	entry.Paid = false
@@ -349,6 +457,9 @@ function ProjectileController.Init()
 	visualsFolder = Instance.new("Folder")
 	visualsFolder.Name = "ProjectileVisuals"
 	visualsFolder.Parent = Workspace
+	ringFolder = Instance.new("Folder")
+	ringFolder.Name = "LandingRings"
+	ringFolder.Parent = visualsFolder
 end
 
 function ProjectileController.Start()

@@ -13,6 +13,30 @@ NPCs lob silly objects at your personal floating island — run and jump **into*
 - **Every 1–5 minutes:** spend Bonk Dollars on one of 5 upgrades.
 - **Every session:** push upgrade levels higher; progress is saved.
 
+## Onboarding / first minute
+
+No tutorial text, no popups: the game shows the one next thing to do (`Config/Tutorial`).
+
+1. **Spawn (0 s):** a brand-new player (or one after RESET EVERYTHING) spawns on their island at the new-player spawn,
+   facing the centre, with exactly `EconomyConfig.StartingMoney` = the price of the second Shiba. Right in front: the
+   glowing green **NEW SHIBA** pad with a pulsing highlight, a line from the feet to it and **"Step here!"** above it.
+2. **Pad (~3 s):** stepping on it buys the second Shiba, which starts throwing within a few seconds.
+3. **First catch (< 30 s):** nothing is affordable now, so **"Catch the stick!"** floats over the field (with a line
+   there only if the player is far away). The very first caught stick pays `EconomyConfig.Bonk.FirstBonkMultiplier`
+   (×10, **FIRST BONK!**, BonkService / BonkController) — the "wow" moment, and usually enough for the next purchase.
+4. **Guided purchases:** whenever something is affordable, the line, the pulsing highlight and a hint of at most four
+   words point at the cheapest affordable, unlocked thing ("Upgrade your Shibas!", "Buy better sticks!", "Run faster
+   here!", "More Shibas here!" or "Step here!" on the pad …); with nothing affordable: "Get more money!" over the
+   field. Each hint disappears as soon as its goal is done (the target changes).
+5. **End:** after `Tutorial.GuidedPurchases` (6) purchases the guidance stops for good; the normal hints (NEW arrows,
+   "You can afford …" popup, yellow button) take over. Settings → Hints off hides the guidance too.
+
+- **Progress** is saved in `state.Tutorial.Step`: `TutorialService` (server) adds every rise of the sum of all upgrade
+  levels, up to GuidedPurchases. Players with saves from before the rework start with Step 1000 (no tutorial); after a
+  rebirth Step stays, so no tutorial and the normal spawn.
+- A brand-new player = every upgrade level 0 and `Tutorial.Step == 0`. The save loads after the first spawn, so the
+  server moves such a player to the new-player spawn once it is loaded (and again after an admin reset).
+
 ## Target players and session length
 
 Casual Roblox players, roughly 8–14. Understandable in under 10 seconds without a tutorial. Target session: 15–30 minutes.
@@ -23,10 +47,11 @@ Casual Roblox players, roughly 8–14. Understandable in under 10 seconds withou
 |-------|-------|
 | Layout | a big **hub island** (radius 70) in the middle, **5 player islands** (radius 80) around it at 280 studs, each joined to the hub by a plank bridge with rails and lamps (tycoon style). Config: `Config/World` |
 | Hub | stations between the bridges: Daily Spin, Coin Flip, Shop, Daily Quests, Top Bonkers leaderboard; Shiba statue with "GET BONKED" in the middle; how-to-play board in front of the hub spawn. Menus open via ProximityPrompt |
-| Player island | grass island; in the middle the **field** (sand, radius 30, low white border with a gap toward the bridge) where sticks land; Shibas stand on the island around it; trophies on lit pedestals behind the field; trees and flowers on the outer ring; owner name on a sign where the bridge arrives |
+| Player island | grass island; in the middle the **field** (sand, radius 30, low white border with a gap toward the bridge) where sticks land; Shibas stand on the island around it; trophies on lit pedestals behind the field; the Bonk Basket and the Bonk Intern once bought (see Automation); shop stalls, zone signs and a path on the outer ring (see Island layout); trees and flowers in a grove between the rebirth shrine and the bridge; owner name on a sign where the bridge arrives |
+| Island layout | themed zones on the outer ring (`Config/Stations`, checked by `lune run docs/economy/layout_check`, details in `docs/economy/LAYOUT.md`). Angles clockwise from the bridge, stalls at radius 74 facing the field, a wooden zone sign behind each zone (radius 78, board above the stall billboards, title in the zone colour): **Speed Gym** Move Speed 30°; **Shiba Shop** Shiba Tier 62°, More Shibas 118° (the new-player spawn at 90° is between them); **Throwables** Projectile Tier 150°; **Automation** Bonk Basket 185°, Bonk Intern 220°; **Rebirth** shrine 270°. Walking clockwise from the spawn = later in the game. A sandy cobblestone path (radius 70, 4 wide, visual only, no collisions) runs from the bridge clockwise to the rebirth shrine; stalls stand ≥ 30 studs apart, outside the Shibas' reach (radius 67), trees ≥ 10 studs from any stall, sign, spawn or path |
 | Islands | one per player, assigned on join (first free plot), freed on leave; more than 5 players = the extra ones stay on the hub. **Max Players must be 5** (Creator Hub → Configure → Places) |
 | Target area | disc radius 28 inside the field; bounces can continue anywhere on the island |
-| Player spawn | own island centre, facing the hub (hub spawn in front of the how-to board if no island) |
+| Player spawn | own island centre, facing the hub (hub spawn in front of the how-to board if no island). Brand-new players (nothing bought, tutorial not started) spawn at `Config/Stations → NewPlayerSpawn` (90° right of the bridge, radius 72) facing the island centre, the NEW SHIBA pad right in front of them (see Onboarding) |
 | Shooter ring | Shibas on platforms at radius 56, evenly spaced, with the bridge side exactly between two of them. Each Shiba sits inside an invisible wall (cylinder around platform and Shiba) so players can't walk through it; it doesn't affect projectiles or hits |
 | Shiba platforms | per tier, built from parts (`Config/ShibaPlatforms`), the Shiba stands and throws from its top: Shiba wooden stump (1.4 studs), Shades black-and-gold podium (2), Buff gym weight plate (1.05), Chef kitchen counter with cutting board (2.9), Police blue-white striped pedestal with siren lights (1.8), Ninja dark stone with red trim (1.6), Gold coin stack (2), Galaxy purple space rock floating over a glowing ring (3.2), Giant cracked rock plateau (1.8, 21 studs wide), Cheems God golden temple column on a cloud (10). Tops are at least 0.2 studs above the island surface (equal heights flicker) |
 | Shooter look | per Shiba Tier (see Upgrades): `ReplicatedStorage/Assets/Shiba`, `ShadesShiba`, `BuffShiba`, `ChefShiba`, `PoliceShiba`, `NinjaShiba`, `GoldShiba`, `GalaxyShiba`, `GiantShiba`, `CheemsGod`, each scaled to its tier's height (Ninja 5.5 … Shiba 6 … Buff/Chef 7.5 … Cheems God 12, Giant 16 studs). From the Gold Shiba on, every tier gets a glow and particles, more special with each tier but kept moderate so they don't blow out the screen (`Config/ShibaEffects`: Gold glints; Galaxy stars and nebula haze, floats gently up and down, a small planet and moon orbit its head; Giant dust and embers; Cheems God holy glow, sparkles and light motes). Every Shiba holds the player's current projectile (Projectile Tier) in its paw (its `Grip` marker on the paw, long side along the paw's stick; it swings with the throwing arm and is gone from the paw for 0.4 s after each release). A missing model falls back to the next lower tier's model with an outline in the tier colour, then `Shooter`, then a red block with barrel |
@@ -46,7 +71,7 @@ Casual Roblox players, roughly 8–14. Understandable in under 10 seconds withou
 
 ## Projectiles
 
-Projectile tiers (upgrade `ProjectileTier`): **Stick** (BaseReward 10) → **Newspaper** (13) → **Baguette** (16) → **Rolling Pin** (20) → **Baseball Bat** (25) → **Giant Bone** (32) → **Squeaky Hammer** (40) → **BONK Sign** (50) → **Neon Stick** (63) → **Legendary Stick** (80). They fly the same; only look and reward differ. Models `ReplicatedStorage/Assets/Stick`, `Bone`, `GoldenStick`, `DiamondStick`; a missing model uses the next lower tier's model, tiers above Stick draw a trail in their colour, no model at all = coloured sphere. Hits use an invisible sphere of the projectile's diameter; the model is scaled so its longest side equals that diameter and spins in flight.
+Projectile tiers (upgrade `ProjectileTier`): **Stick** (BaseReward 10) → **Newspaper** (13) → **Baguette** (16) → **Rolling Pin** (20) → **Baseball Bat** (25) → **Giant Bone** (32) → **Squeaky Hammer** (40) → **BONK Sign** (50) → **Neon Stick** (63) → **Legendary Stick** (80). They fly the same; look, reward and the impact burst on a catch differ (Feedback). Models `ReplicatedStorage/Assets/Stick`, `Bone`, `GoldenStick`, `DiamondStick`; a missing model uses the next lower tier's model, tiers above Stick draw a trail in their colour, no model at all = coloured sphere. Hits use an invisible sphere of the projectile's diameter; the model is scaled so its longest side equals that diameter and spins in flight.
 
 | Field | Bonk Stick |
 |-------|------|
@@ -57,6 +82,8 @@ Projectile tiers (upgrade `ProjectileTier`): **Stick** (BaseReward 10) → **New
 **Flight (visible arc):** launched at a fixed 45° angle toward the target point. Per projectile, gravity is set (with a `VectorForce`) to `g = v² / d` (v = launch speed, d = horizontal distance) so it lands exactly on the target. Every shot has the same readable arc shape (apex = d / 4); higher speed only shortens the flight time. At base speed a 60-stud shot flies 2.4 s.
 
 **Bounces:** after landing it bounces **twice**: each bounce keeps 50 % of the vertical and 70 % of the horizontal speed (at base speed and a 60-stud shot: first bounce ≈ 3.7 studs high, second ≈ 1 stud; shorter shots have higher gravity and lower bounces). Then it makes **two small settling hops** of fixed height (0.7 and 0.3 studs, never higher than the hop before) keeping 45 % of the horizontal speed each, so the landing is visible whatever the shot's gravity, and comes to rest. While hopping, the model turns to lie flat along its direction of travel, and near the ground it is drawn with its lowest point on the ground (the hit sphere centre stays one radius above the ground). The whole path is computed when the shot is planned (`src/shared/Util/ProjectilePath.luau`, `Build`); every client draws the projectile along it (`docs/decisions/0004`). A bounce that leaves the island makes it fall off the edge. Tuning: `Gameplay.Projectiles` `Bounces`, `BounceRestitution`, `BounceFriction`, `SettleHopHeights`, `SettleFriction`, `LandingFadeTime`, `CollectableWhileFading`.
+
+**Landing ring:** the owner's client draws a ring on the ground at the first landing point (`ProjectilePath.GetFirstLandingPosition`), in the tier colour, shrinking until the landing and gold during the Perfect window; it disappears at the landing or when the projectile is caught (details under Hits → Catch quality). Other players' projectiles get no ring.
 
 **Lifetime / cleanup:** after its last settling hop it lies still and **fades out over 0.6 s** (`LandingFadeTime`), then each client stops drawing it (all on the synced server clock). It **can be collected during flight, bounces and settling hops, not while it fades** (`CollectableWhileFading = false`; the client check and the server validation both follow this setting). A projectile that falls off the island edge has no fade: it vanishes 20 studs below the island. The server destroys its marker 0.5 s after the fade ends (`DespawnDelay`), 15 s after launch at the latest, and validates hit reports until 2 s (`ReportGracePeriod`) after the collectable window ended (network delay). Max 60 live projectiles per island; the oldest is destroyed first. All projectiles of a player are destroyed when they leave.
 
@@ -72,30 +99,43 @@ Projectile tiers (upgrade `ProjectileTier`): **Stick** (BaseReward 10) → **New
 ### Reward
 
 ```
-Reward = floor(BaseReward × QualityMult × HeadMult × ComboMult × ShibaTierMult × BoostMult), at least 1
+Reward = floor(StickValue × QualityMult × HeadMult × ComboMult × FirstBonkMult), at least 1
 
-BaseReward    = projectile tier: 10 / 13 / 16 / 20 / 25 / 32 / 40 / 50 / 63 / 80
+StickValue    = RewardService.GetStickValue: projectile BaseReward × Shiba tier RewardMultiplier × rebirth
+                × golden (5) × 2× boost × passes (2× Bonk Dollars, VIP) × server events
+QualityMult   = catch quality (below): 1 / 2 / 4   (EconomyConfig.Bonk.QualityMultipliers)
 HeadMult      = 2 if the projectile touched the head, else 1
 ComboMult     = 1 + 0.1 × (combo − 1), at most 3
-ShibaTierMult = see Upgrades (1 → 60)
-BoostMult     = 2 while the 2× Bonk Dollars boost runs, else 1
-GoldenMult    = 5 for golden projectiles, else 1
-PassMult      = 2 with the 2× Bonk Dollars pass, × 1.25 with VIP
+FirstBonkMult = 10 for a new player's very first paid hit (EconomyConfig.Bonk.FirstBonkMultiplier), else 1
 ```
 
-### Hit quality — one rule
+All multipliers live in `Config/EconomyConfig` (Bonk section).
 
-`r = |projectile velocity − player velocity| / projectile launch speed`, measured at the moment of the hit (projectile velocity from its flight path at the closest point, player velocity from the server's view of the character).
+### Catch quality — when you catch it
 
-The player velocity is clamped before use: horizontal ≤ current WalkSpeed, vertical ≤ 50 (jump velocity), so knockback or a spoofed client velocity can't inflate it.
+Decided by the server from **when** the stick was caught, compared with the moment it first touches the ground (the end of
+its flight, `ProjectilePath.GetFirstLandingTime`). See `docs/decisions/0005-catch-timing-quality.md`.
 
-| Quality | r | Multiplier | How you get it (base stats) |
-|---------|---|-----------|-----------------------------|
-| Normal | < 1.2 | 1× | walk under it (r ≈ 1.1) |
-| Good | 1.2 – < 1.5 | 2× | run into it (r ≈ 1.35) |
-| Hard | 1.5 – < 1.8 | 5× | run + jump into it (r ≈ 1.6) |
-| Massive | 1.8 – < 2.2 | 10× | run + jump, well timed (r ≈ 1.9) |
-| Legendary | ≥ 2.2 | 50× | run + jump right at take-off, perfect timing (max ≈ 2.4 at base stats) |
+| Quality | Popup | When | Multiplier |
+|---------|-------|------|-----------|
+| Normal | `BONK` | after it touched the ground (bounces, settling hops) | 1× |
+| Good | `AIR BONK!` | in the air | 2× |
+| Perfect | `PERFECT BONK!!` | in the air, at most `Gameplay.Hits.PerfectWindow` (0.25 s) before it lands | 4× |
+
+- **Landing ring:** for each of your own projectiles a ring on the ground shows where it will first land. It shrinks from
+  10 studs to the pickup size as the landing approaches and turns gold (and thicker) during the Perfect window. Standing
+  inside the ring when it closes = PERFECT BONK; catching it earlier (a few studs in front, or jumping into it) = AIR BONK;
+  arriving after it touched the ground = BONK.
+- **Catch moment (server):** the first time the planned path came within projectile radius + pickup padding + 1 stud of
+  the character's body line (3 studs below the root part up to the head), searched only in the last
+  `ping + 0.12 s` (at most 0.6 s) before the report arrived (the client reports as soon as it sees the touch; without
+  this bound a player reaching the landing spot late would get Perfect, because the descent passed through it). If the
+  path never came that close (network delay), the time of its closest approach to the root in that window.
+- Why 0.25 s: a stick comes down at ≈ 25 studs/s, so a standing player gets it ≈ 0.15 s (on the landing spot) to
+  ≈ 0.3 s (a few studs in front) before it lands; earlier catches need a jump. Tune `PerfectWindow` in `Config/Gameplay`.
+- **Auto-Catch pass** catches always pay Normal.
+- **First bonk:** a new player's first paid hit (`Tutorial.FirstBonkDone` false in the save) pays ×10, sets the flag and
+  shows a `FIRST BONK! ×10` splash (`BonkHit` argument `firstBonk`).
 
 ### Head hits and combo
 
@@ -103,58 +143,67 @@ The player velocity is clamped before use: horizontal ≤ current WalkSpeed, ver
   passed within projectile radius + 2 (pickup padding) + 4 studs of the server-side head.
 - **Combo:** every hit within the combo window of the previous hit adds 0.1 to the multiplier (max ×3 at 21 hits).
   Window = 2 s + 1.5 × time between two shots (interval / active shooters), so it stays fair with more or faster shooters.
-  The HUD shows `COMBO xN ×M` with a bar that runs out when the window ends.
+  The HUD shows `COMBO xN ×M` with a bar that runs out when the window ends, plus a tier name in its colour from
+  ×1.5 `ON FIRE`, ×2 `BONKTASTIC`, ×3 `MAX BONK` (`Gameplay.Bonk.ComboTiers`); the meter punches when a new tier is reached.
 
 ## Feedback (client)
 
-- Popup above the character: `+X BONK` for 1.0 s; for Good and above prefixed with the quality, e.g. `HARD BONK! +50`.
-- One bonk sound (a custom cartoon "bonk", ≈ 0.9 s, `Gameplay.Bonk.SoundId`); pitch 1.0 + 0.05 per quality tier above Normal. Every hit plays its own copy, so quick hits overlap.
-- Head hits say `HEADBONK!` instead of `BONK`.
-- Stars burst from the head in the quality colour (6 + 6 per tier above Normal); from Hard on the camera shakes briefly.
+All tunable in `Config/Gameplay` → `Bonk` (per quality: `Bonk.Qualities`).
+
+| | BONK (Normal) | AIR BONK (Good) | PERFECT BONK (Perfect) |
+|--|--|--|--|
+| Popup (1.0 s, rises) | `BONK +X`, white | `AIR BONK! +X`, green, ×1.2 size | `PERFECT BONK!! +X`, gold, ×1.6 size, pops in big and bounces |
+| Sound pitch | 1.0 | 1.08 | 1.18 |
+| Coins from the character | 4 | 8 | 16 |
+| Stars from the head | 6 | 10 | 18 |
+| Camera shake | — | tiny | strong (× 1.3 on head hits and golden sticks) |
+
+- Head hits say `HEADBONK` instead of `BONK` (`PERFECT HEADBONK!! +X`); golden sticks add `GOLDEN ` and are gold.
+- One bonk sound (a custom cartoon "bonk", ≈ 0.9 s, `Gameplay.Bonk.SoundId`). Every hit plays its own copy, so quick hits overlap.
+- **Impact burst** where the projectile hit (hand catches), in the projectile's tier colour (gold for golden ones),
+  8 + 3 per tier particles and bigger per tier; some throwables burst differently (`Bonk.Impact.Textures`: smoke for
+  the newspaper, baguette and bone, fire for the BONK sign and the Legendary Stick).
+- **First bonk:** `FIRST BONK! ×10` big in the middle of the screen for 2.5 s.
+- **Landing ring** for your own projectiles (see Catch quality; `Gameplay.LandingRing`).
 
 ## Upgrades
 
-Cost of the next level: `cost(n) = floor(BaseCost × Growth^n × (1 + Curve × n²))`, n = current level. The `Curve`
-term keeps the first levels cheap and bends the late ones up (see **Pacing** below). Four upgrades (projectile size and
+Prices are **derived** from a target pace in `Config/EconomyConfig` (single source of truth, see **Pacing** and
+`docs/economy/BALANCING.md`); `Config/Upgrades` only has names, effects and colours. Six upgrades (projectile size and
 fire rate were removed on 2026-09-24: projectiles always have the same size, the fire rate comes with the Shiba tier).
 
-| Id | Menu name | Effect per level | Level 0 | Max level | BaseCost | Growth | Curve |
-|----|-----------|-----------------|---------|-----------|----------|--------|-------|
-| `ShooterTier` | Shiba Tier | all Shibas evolve: new model, faster throws, more points | Shiba | 9 | 400 | 3.5 | 0.1 |
-| `ProjectileTier` | Projectile Tier | next projectile (see Projectiles) | Stick | 9 | 150 | 3.6 | 0.15 |
-| `Shooters` | More Shibas | +1 Shiba | 1 | 7 (8 Shibas) | 60 | 5.5 | 0.2 |
-| `MoveSpeed` | Move Speed | WalkSpeed +3 | 16 | 10 (46) | 40 | 3.5 | 0.1 |
+| Id | Menu name | Effect per level | Level 0 | Max level | Unlocks with |
+|----|-----------|-----------------|---------|-----------|--------------|
+| `Shooters` | More Shibas | +1 Shiba | 1 | 7 (8 Shibas; 9 with the pass) | start (the first purchase, B$ 10) |
+| `ShooterTier` | Shiba Tier | all Shibas evolve: new model/edition, faster throws, ×8.08 dollars | Shiba | 29 (30 Shibas) | start |
+| `ProjectileTier` | Projectile Tier | next projectile (×2.5 BaseReward) | Stick | 9 | Shades Shiba |
+| `MoveSpeed` | Move Speed | WalkSpeed +3 | 16 | 10 (46) | Shades Shiba |
+| `Basket` | Bonk Basket | catches missed sticks, sets the offline hours | none | 6 | Gold Shiba |
+| `Intern` | Bonk Intern | a helper who catches missed sticks (Bonk Intern … Bonk CEO) | none | 6 | Giant Shiba |
 
-Costs per level:
+- **Unlocks** come from `EconomyConfig.UnlockAtShibaTier` (derived from the Route): a locked upgrade shows "Unlocks with
+  <Shiba>" (menu, stand) and the server refuses it (`UpgradeService.TryPurchase`).
+- **Prices** (examples; the simulation prints all of them): Shibas 38 → 2K → 36K → 340K → … → 570B (Shiba 10) →
+  78Sx (Shiba 20) → **1Dc = 1e33** (Shiba 30). More Shibas 10 … 190T, Move Speed 75 … 1.5Oc, Basket 450M … 3.4No,
+  Intern 74B … 18No, Projectile Tier 647 … 79Oc.
 
-| Upgrade | 0→1 | 1→2 | 2→3 | 3→4 | 4→5 | 5→6 | 6→7 | 7→8 | 8→9 | 9→10 |
-|---------|-----|-----|-----|-----|-----|-----|-----|-----|-----|------|
-| Shiba Tier | 400 | 1.5K | 6.9K | 33K | 156K | 735K | 3.4M | 15M | 67M | — |
-| Projectile Tier | 150 | 621 | 3.1K | 16K | 86K | 431K | 2.1M | 9.8M | 45M | — |
-| More Shibas | 60 | 396 | 3.3K | 28K | 231K | 1.8M | 14M | — | — | — |
-| Move Speed | 40 | 154 | 686 | 3.3K | 16K | 74K | 338K | 1.5M | 6.7M | 29M |
-
-Shiba tiers (`Config/Gameplay → Shooters.Tiers`):
-
-| Tier | Throws every | Points × |
-|------|-------------|----------|
-| Shiba | 5.0 s | 1 |
-| Shades Shiba | 4.3 s | 1.6 |
-| Buff Shiba | 3.7 s | 2.5 |
-| Chef Shiba | 3.2 s | 3.9 |
-| Police Shiba | 2.7 s | 6.2 |
-| Ninja Shiba | 2.4 s | 9.7 |
-| Gold Shiba | 2.0 s | 15 |
-| Galaxy Shiba | 1.8 s | 24 |
-| Giant Shiba | 1.5 s | 38 |
-| Cheems God | 1.3 s | 60 |
+Shiba tiers (`EconomyConfig.Shibas`, used by `Config/Gameplay → Shooters.Tiers`): 30 = the ten models (Shiba, Shades,
+Buff, Chef, Police, Ninja, Gold, Galaxy, Giant, Cheems God), then the same ten as **Shiny** and **Mythic** editions
+(same model, outline and aura in the edition colour). Throw interval 5.0 s → 1.2 s (geometric), dollars ×8.08 per
+tier (×1 → ×2e26, solved so the last Shiba costs 1e33).
 
 - MoveSpeed exists so the player can **reach impact points in time** (not to dodge). It also raises the achievable hit quality.
 - **Active Shibas:** buying adds a Shiba; the "More Shibas" card sets how many are active (1 … owned) for free.
 - Purchases are validated on the server: known upgrade id, below max level, enough Bonk Dollars, max 5 requests/s.
 - **Upgrade stands** (main way to buy, tycoon style, `Config/Stations`): on every player island one market-stall stand
-  per upgrade (`Prop_UpgradeStand_<UpgradeId>`, part-built until a model exists) on both sides of the path from the
-  bridge to the field (Shiba Tier / Projectile Tier nearer the field, More Shibas / Move Speed nearer the bridge).
+  per upgrade (`Prop_UpgradeStand_<UpgradeId>`, part-built until a model exists, colour from `Config/Upgrades`) on the
+  outer ring in its themed zone, facing the field (World → Island layout): Move Speed, Shiba Tier, More Shibas,
+  Projectile Tier, Bonk Basket, Bonk Intern.
+  - **Locked stands:** a stand whose upgrade unlocks later (`EconomyConfig.UnlockAtShibaTier`, e.g. Basket and Intern)
+    shows a grey shutter with a gold padlock and has no prompts until the player's Shiba Tier reaches that level.
+  - **Rebirth shrine** (`Prop_RebirthShrine`, purple stone altar under a golden arch with a glowing orb) at 270°: hold
+    **E "Rebirth"** for 3 s to rebirth (`RebirthService`). The prompt appears (and the orb lights up) only once the
+    player can rebirth; only the island owner can use it.
   Above each stand floats a billboard: upgrade name, current value (tier name in its colour / number), level badge
   `xN`, level bar, a big UPGRADE button look (green when affordable, grey when not, gold MAXED at the top) with the
   cost (green / grey) and an **E** key hint. Only the island owner can use their stands and sees the billboards.
@@ -164,43 +213,65 @@ Shiba tiers (`Config/Gameplay → Shooters.Tiers`):
   - **More Shibas** also has a glowing green **NEW SHIBA** pad with its cost on the Shiba ring, where the next Shiba will
     stand (of the new ring's spots, the one farthest from the Shibas standing now). Stepping on it buys the Shiba
     (2 s cooldown). The pad disappears at the max.
+  - Every stand billboard (and the NEW SHIBA pad) also has a **money bar**: your Bonk Dollars / the next level's cost
+    in %, gold while saving up, green **READY!** once affordable ("almost there" pull).
+  - **Locked stands** (`EconomyConfig.UnlockAtShibaTier`: the Shiba tier at which the upgrade comes up in the Route;
+    the server's `Locked` attribute on the anchor wins when set) look grey: button **LOCKED**, "unlocks with
+    <Shiba name>" instead of the cost, no money bar, no hints.
+  - **Next Shiba** next to the Shiba Tier stand: the next Shiba's model as a slowly turning black silhouette (outline in
+    its colour), with "NEXT: ???" (its name, in its colour, once affordable), its price and a money bar.
+  - **REBIRTH shrine** billboard: REBIRTH, rebirth count and current income multiplier, then either "Needs <Shiba>"
+    (`EconomyConfig.Rebirth.MinShibaTier`) with a Shiba progress bar, or "Hold E: ×N income forever" (N = the
+    multiplier after the next rebirth).
   - **Hints** (off with Settings → Hints): a bouncing **NEW** arrow over every stand whose next level you can afford, and
     once per upgrade level a popup "You can afford a new upgrade! [SHOW ME]" (only when you are not already at that
-    stand; several newly affordable upgrades give one popup, for the cheapest). SHOW ME draws a glowing line from your
-    character to the stand for 8 s (or until you arrive).
+    stand; several newly affordable upgrades give one popup, for the cheapest; never during the guided tutorial, see
+    Onboarding). SHOW ME draws a glowing line from your character to the stand for 8 s (or until you arrive).
   - The big round **yellow arrow button** at the bottom centre does the same as SHOW ME for the cheapest affordable
-    upgrade ("Nothing affordable yet" otherwise).
+    upgrade ("Nothing affordable yet" otherwise). Locked stands never count as affordable.
 - **Run Faster** pass: WalkSpeed ×1.5 on top of Move Speed.
 
 ### Pacing
 
-Goal: the first upgrades come fast (first buy within ~30 s, five within ~4 min), later ones slower but never a wall
-(at most ~75 min of play for the very last levels), so boosts and instant upgrades are worth buying in the mid and late
-game. Estimated with a player who always buys the cheapest upgrade next:
+Goal: the first purchase right away, a quick buy every few seconds at the start, a **minute rhythm from around the
+9th Shiba**, never a wall, and a whole first run (30 Shibas, 67 purchases) in **60–90 min**; every purchase pays for
+itself within ~15 min. Full model, tables and how to retune: `docs/economy/BALANCING.md`
+(`lune run docs/economy/simulate.luau`).
 
 ```
-income / min = 60 / FireInterval(Shiba tier) × Shibas × catch rate × BaseReward(projectile) × Shiba tier mult × 1.3
-catch rate   = 60 % (+2 % per Move Speed level); 1.3 = average bonus from quality, head hits, combo and golden sticks
+target wait T(n) = 200 − 196 · e^(−n / 50) s   (4 s for the first purchase → 2.5 min for the last)
+price(n)         = Baseline income before purchase n × T(n) × PriceShare(upgrade)
+Baseline income  = stick value × (caught/s × 2 + intern catches × payout + basket catches × payout)
+caught/s         = min(sticks/s × (60 % + 3 % per Move Speed), 1 + 0.1 per Move Speed)
 ```
 
-| Buy # | Upgrade bought | Cost | Income at that stage (/min) | Wait for it (min) | Play time so far |
-|-------|----------------|------|-----------------------------|-------------------|------------------|
-| 1 | Move Speed 1 | 40 | 94 | 0.4 | 26 s |
-| 2 | More Shibas 1 | 60 | 95 | 0.6 | 1.1 min |
-| 3 | Projectile Tier 1 | 150 | 191 | 0.8 | 1.8 min |
-| 5 | More Shibas 2 | 396 | 253 | 1.6 | 4 min |
-| 6 | Shiba Tier 1 | 400 | 380 | 1.1 | 5 min |
-| 10 | Projectile Tier 3 | 3.1K | 1.6K | 1.9 | 10 min |
-| 15 | Projectile Tier 4 | 16K | 5.0K | 3.3 | 23 min |
-| 20 | Shiba Tier 5 | 156K | 19K | 8 | 50 min |
-| 25 | Move Speed 8 | 1.5M | 96K | 16 | 1.8 h |
-| 30 | Projectile Tier 8 | 9.8M | 258K | 38 | 3.8 h |
-| 35 | Shiba Tier 9 (all maxed) | 67M | 911K | 73 | 8.2 h |
+A player who always buys the cheapest affordable upgrade (run 1, no rebirth, no passes):
+
+| Shiba | 1 | 2 | 5 | 9 | 10 | 20 | 21 (rebirth) | 30 (1e33) |
+|-------|---|---|---|---|----|----|--------------|-----------|
+| play time | start | 8 s | 1.7 min | 7.5 min | 9.1 min | 36.6 min | 39.0 min | 66.9 min |
+| wait for it | — | 8 s | 29 s | 64 s | 71 s | 2.1 min | 2.1 min | 2.5 min |
+
+Between two Shibas come quick side buys (More Shibas, Move Speed, Basket, Intern: 2–35 s each) and every few Shibas a
+projectile tier (as long as a Shiba). Active play earns ~3.7× the idle (AFK) income once the intern is hired and ~2×
+at the end of the run.
 
 Robux speeds this up without selling Bonk Dollars: 2× Dollars (pass or 30 min boost) halves every wait, 2× Fire Rate
 nearly does, and the instant upgrades skip one level.
 - Upgrade menu: one card per upgrade with level badge, current → next value (tier names in their colours), what the next
-  level gives, one dot per level, buy button (green when affordable). The UPGRADES button shows "!" when something is affordable.
+  level gives, one dot per level (Shiba Tier: 29 small dots), buy button (green when affordable, "LOCKED" with
+  "Unlocks with <Shiba>" before its Shiba). At the bottom a **REBIRTH** card: rebirths and income multiplier, "Needs
+  the Mythic Shiba (Shiba 21) · next: income ×N", READY when it can be done (at the shrine on the island). The UPGRADES
+  button shows "!" when something unlocked is affordable.
+
+### Rebirth
+
+Once you own the **Mythic Shiba (Shiba 21)** you can rebirth at the rebirth shrine on your island
+(`RebirthService.TryRebirth`, `EconomyConfig.Rebirth`): Bonk Dollars back to the start amount, all six upgrades back
+to 0; your income is multiplied by **1 + rebirths** for good (×2, ×3 …, `RewardService.GetRebirthMultiplier`). Kept:
+passes, trophies, Shiba-Index, quests, streaks, boosts, Bonk Rains, pending Shiba Bank earnings, settings; the
+measured income rates are reset (so a rebirth can't cash the old run's income offline). Run 2 takes about half as
+long (Shiba 21 after ~20 min), run 3 a third. The HUD shows a small "REBIRTH n · ×m INCOME" pill after the first one.
 
 ## Hub features
 
@@ -221,10 +292,13 @@ worth it at every stage. Config: `Config/Hub`.
 - **Duels:** challenge another player in the server for 100 / 1,000 / 10,000 / 100,000; they get a popup (20 s) to accept;
   both pay the stake, a fair coin decides, the winner gets both. One open duel per player.
 - **Daily Quests:** 3 per UTC day (same for everyone, never two of the same kind), e.g. catch N sticks, N headbonks, reach a
-  xN combo, N Hard+ bonks, win coin flips, spin the wheel, buy upgrades. Claim for 20–120 bonks. QUESTS button shows "!" when claimable.
-- **Leaderboard:** "Bonk Dollars" in the Roblox player list; the TOP BONKERS board ranks the top 10 by total Bonk Dollars
-  ever earned (all servers, OrderedDataStore, refreshed every minute; this server only when DataStores are unavailable).
-  Admin gifts and coin-flip stakes coming back don't count, only real earnings.
+  xN combo, N PERFECT BONKS, win coin flips, spin the wheel, buy upgrades. Claim for 20–120 bonks. QUESTS button shows "!" when claimable.
+- **Leaderboard:** "Bonk Dollars" in the Roblox player list (short text, "1.5Dc": a StringValue, since amounts pass
+  the 9.2e18 limit of an IntValue; the list sorts it as text); the TOP BONKERS board ranks the top 10 by total Bonk
+  Dollars ever earned (all servers, OrderedDataStore `TotalEarned_v2`, refreshed every minute; this server only when
+  DataStores are unavailable). The store keeps `floor(log10(total + 1) × 1e14)` (an OrderedDataStore only holds whole
+  numbers below 2^63; the log keeps the order and ~14 digits, up to 1e90) and the board decodes it for display. The old
+  `TotalEarned_v1` board starts over. Admin gifts and coin-flip stakes coming back don't count, only real earnings.
 - Only earned points can be bet. Bonk Dollars must never be sold for Robux while coin flips exist (Roblox rules on paid random items).
 
 ## Server events
@@ -245,13 +319,15 @@ right away (`EventService.StartNow(eventId)`, hooked into the admin menu later).
 
 ## Shiba-Index
 
-A collection book (INDEX menu, `Config/Index`) with one entry per Shiba tier (10), projectile tier (10), the golden stick
-and each trophy (10): 31 entries today, new tiers and trophies are added automatically. An entry is **found** when you
-first reach it: Shiba / projectile tier bought (or skipped past), first golden stick caught, trophy owned. Unfound entries
-show as a dark "???" silhouette. Each found entry pays a one-time discovery reward you claim on its card (in bonks, see
-Hub features): Shibas 20 + 10 per tier, projectiles 15 + 5 per tier, golden stick 50, trophies by rarity (Common 25,
-Rare 50, Epic 100, Legendary 200, Exclusive 300). Finding all entries unlocks a completion bonus of 1,000 bonks.
-A bar on top shows the progress ("12/31 found").
+A collection book (INDEX menu, `Config/Index`) with one entry per Shiba tier (30: the ten originals, then the Shiny
+and Mythic editions), projectile tier (10), the golden stick and each trophy (10): 51 entries today, new tiers and
+trophies are added automatically. Entry ids are saved: the ten original Shibas keep `Shiba_<Model>`, editions are
+`Shiba_<Edition><Model>` (e.g. `Shiba_ShinyShiba`). An entry is **found** when you first reach it: Shiba / projectile
+tier bought (or skipped past), first golden stick caught, trophy owned; a rebirth never un-finds anything. Unfound
+entries show as a dark "???" silhouette. Each found entry pays a one-time discovery reward you claim on its card (in
+bonks, see Hub features): Shibas 20 + 10 per tier (20 … 310), projectiles 15 + 5 per tier, golden stick 50, trophies
+by rarity (Common 25, Rare 50, Epic 100, Legendary 200, Exclusive 300). Finding all entries unlocks a completion bonus
+of 1,000 bonks. A bar on top shows the progress ("12/51 found").
 ## Obby (jump and run)
 
 A spiral tower of chunky green / yellow / orange platforms in the hub centre (`ObbyService`, layout in `Config/Obby`),
@@ -308,28 +384,76 @@ Roblox ids live in `Config/Shop` (0 = not created yet: free test purchase in Stu
 | Stack Upgrade | 149 | buy several upgrade levels at once (x1 → x10) | UpgradeService |
 | Auto-Catch | 249 | every 0.25 s, sticks whose current position is within 10 studs of the character are collected as a Normal bonk (no head bonus, combo counts); only while they could be caught by hand. Look (client only): a small red/silver magnet circles the owner; each auto-caught stick is pulled into the player with a beam and a trail, sparkles pop and the magnet wiggles | AutoCatchService, MagnetController |
 
-Trophies stand on your island for everyone to see: Wooden 5K, Bronze 50K, Silver 500K, Golden 5M, Galaxy 100M Bonk
-Points (long-term goals), plus exclusive ones (Starter, 7-Day Streak, VIP, Diamond, Rainbow).
+Trophies stand on your island for everyone to see. Bought with Bonk Dollars (`EconomyConfig.TrophyThresholds`, each
+about the price of the Shiba you buy around then): Wooden 1e4, Bronze 1e8, Silver 1e14, Golden 1e22, Galaxy 1e30,
+plus exclusive ones (Starter, 7-Day Streak, VIP, Diamond, Rainbow).
 Receipts are granted exactly once (handled purchase ids are saved); pass ownership is checked with Roblox on every join.
+
+## Automation
+
+Two upgrades catch the sticks the player misses, for a share of their value (idle income, also the base of the
+offline earnings). Bought at their stands (`Basket`, `Intern` in `Config/Upgrades`, levels 0–6; level 0 = none).
+**All numbers** (catch chance, payout, walk speed, names) live in `Config/EconomyConfig → Automation`, entry n = level
+n; only look and tuning (position, colours, timings, effects) live in `Config/Automation`. The server decides and pays
+everything (`AutomationService`); clients only draw (`AutomationController`, remote `AutomationCatch`).
+
+Stick value = `RewardService.GetStickValue` (projectile BaseReward × Shiba tier × rebirth × golden × passes × 2× boost
+× server events), i.e. a Normal bonk without head bonus or combo. Automation pays `floor(stick value × Payout[level])`,
+at least 1, through `EconomyService.AddAutomationPoints` (counted as earned; sampled separately for the offline bank).
+It gives no combo, quest progress or Shiba-Index discoveries. Both helpers only work while the owner is on their
+island (like the Shibas). Order: the player first, then the intern, then the basket.
+
+**Bonk Basket** (`Basket` ≥ 1)
+- A big wicker basket (`Prop_Basket`, part-built until a model exists: woven brown body, dark bands and stakes, a rim
+  in the level colour, a handle) just outside the field border, 150° clockwise from the bridge direction, facing the
+  field. It grows a little per level (3.6 studs + 0.3 per level) and its rim changes colour.
+- When a stick's collectable window ends and nobody caught it, the basket rolls `CatchChance[level]` once (0.2 s later,
+  so a hand catch reported right at the end still wins). On success it pays `Payout[level]` × stick value.
+- Look: the stick flies in an arc from where it lay into the basket, sparkles pop at the opening, "+B$ X" rises above
+  the basket (only the owner sees it).
+
+**Bonk Intern** (`Intern` ≥ 1)
+- A blocky NPC (R6 proportions, built from parts) on the island with a name tag (`Names[level]`: Bonk Intern,
+  Hard-Hat Intern, Junior Bonker, Senior Bonker, Bonk Manager, Bonk CEO). Shirt colour per level, yellow hard hat from
+  level 2, long sleeves and a red tie from level 5, the CEO wears a dark suit, a gold tie and a crown.
+- Every 0.2 s it picks a target: an unpaid stick whose first landing point (later: where it is now) it can reach at
+  `WalkSpeed[level]` before the stick stops being collectable, inside radius 36 (it never leaves the Shiba ring),
+  preferring sticks far from the player. **The player gets first dibs:** sticks within 12 studs of the character are
+  left alone. Without a target it waits at the field's edge on the basket's side.
+- A stick passing within its radius + 3 studs of the intern's body bonks it: `Payout[level]` × stick value, then it
+  stands dazed for 0.9 s.
+- It walks with physics movers owned by the server (no collisions: players walk through it and it can't be pushed);
+  if it ever leaves the island it is put back. It is removed at level 0 (e.g. after a rebirth) or when the player
+  leaves, and rebuilt when the level changes.
+- Look: every client swings its arms and legs while it walks. On a bonk (owner only): it tips over and wobbles back
+  up with flailing arms, stars burst from its head, the stick bounces off and fades, a speech bubble says a random
+  line ("OW!", "Worth it!", "My pension!", "Is this in my contract?" …) and "+B$ X" rises.
 
 ## Offline Shiba Bank
 
-While the player is away, their Shibas keep earning (Config/Economy → `OfflineBank`, OfflineService):
+While the player is away, their basket and intern keep earning (OfflineService; numbers in `EconomyConfig →
+Automation`, sampling in `Config/Economy → OfflineBank`):
 
-- **Income rate:** every 60 s of play the Bonk Dollars earned in that minute (hits, spin, quests, gifts, coin-flip wins;
-  not admin gifts or the offline payout itself) are smoothed into `Bank.IncomePerMinute`
-  (`rate += 0.3 × (sample − rate)`, the first sample sets it). A sample counts at most 8 normal bonks per Shiba throw,
-  so a big coin-flip win can't inflate the rate.
+- **Income rates:** every 60 s of play two rates are smoothed (`rate += 0.3 × (sample − rate)`, the first sample sets
+  it): `Bank.IncomePerMinute` = what the player earned themselves (hits, spin, quests, gifts, coin-flip wins; not
+  admin gifts or the offline payout) and `Bank.AutomationPerMinute` = what the basket and intern earned
+  (`EconomyService.AddAutomationPoints`). Each sample counts at most 8 normal bonks per Shiba throw, so a big coin-flip
+  win can't inflate a rate. A rebirth resets both rates.
 - **Last seen:** every save (leave, autosave, shutdown) stamps `Bank.LastSeenAt`.
-- **On join:** time away = now − LastSeenAt, only if at least 60 s, capped at 8 h.
-  `Pending += IncomePerMinute × minutes away × 10 %`, then the "WELCOME BACK!" popup shows the time away and the amount.
+- **On join:** time away = now − LastSeenAt, only if at least 60 s, capped at the basket's offline hours (Basket level
+  1…6: 2 / 3 / 4 / 5 / 6 / 8 h; no basket: 1 h).
+  `Pending += minutes away × (1 × AutomationPerMinute + 5 % × IncomePerMinute)`, then the "WELCOME BACK!" popup shows
+  the time away and the amount.
 - **OKAY** pays Pending (counts for the leaderboard). **x2 DOUBLE IT! (R$ 39)** opens the "Double Offline Earnings" product;
   when Roblox grants it, 2× Pending is paid. Unclaimed earnings stay pending (and add up) until claimed.
-- Example: 1,000 points/min while playing, away 2 h → 1,000 × 120 × 0.1 = 12,000 (24,000 doubled).
+- Example: automation 1,000/min and own income 4,000/min, Basket level 2, away 5 h → capped at 3 h = 180 min ×
+  (1,000 + 200) = 216,000 (432,000 doubled).
 
 ## Admin (testing)
 
-- Admins get an **ADMIN** button (left) with: +1K / +100K / +10M / +1B points, set points to 0; each upgrade −/+ and MAX ALL;
+- Admins get an **ADMIN** button (left) with: +1K / +1M / +1B / +1T … +1Dc points (every ×1000 up to 1e33,
+  `Admin.PointAmounts`), set points to 0; each upgrade −/+ and MAX ALL (ignores the Shiba unlocks); rebirth now (no
+  Shiba needed), +1 rebirth (only the multiplier), reset rebirths, with the current count and multiplier;
   reset daily spin, new quests, finish quests; 2× Dollars / 2× fire rate boost (10 min), clear boosts; teleport to hub / own
   island, all Shibas fire now; toggle each pass, +1 Bonk Rain, start a rain, all trophies, unlock gifts, show the
   starter offer again; RESET EVERYTHING (second click confirms; keeps the leaderboard total and Robux purchases).
@@ -338,7 +462,11 @@ While the player is away, their Shibas keep earning (Config/Economy → `Offline
 
 ## Economy
 
-- Currency: **Bonk Dollars** (integer). Earned by hits, daily spin, quests and coin flips. Start with 0.
+- Currency: **Bonk Dollars** (whole numbers, up to 1e33 and beyond: a double, written short from 1e6 with
+  `Format.Money` / `Format.Short`: K, M, B, T, Qa, Qi, Sx, Sp, Oc, No, Dc …). Earned by hits, automation (basket,
+  intern), daily spin, quests, coin flips and the Shiba Bank. A new player starts with **B$ 10** =
+  `EconomyConfig.StartingMoney`, exactly the price of the first purchase (the second Shiba on the NEW SHIBA pad).
+  Every price, income and multiplier lives in `Config/EconomyConfig` (see Upgrades → Pacing, `docs/economy/BALANCING.md`).
   (It used to be called Bonk Points: the saved field and the code keep the name `BonkPoints` / `AddPoints`, so saves
   are unchanged; only what players see changed. Name and plain-text symbol live in `Config/Economy → Currency`.)
 - **Symbol:** a bold capital **B with a vertical bar through it** (like "฿"), drawn in front of every amount:
@@ -352,8 +480,9 @@ While the player is away, their Shibas keep earning (Config/Economy → `Offline
 - Where the symbol shows: HUD counter, upgrade card prices and "per bonk" line, upgrade stand billboards and the
   Shiba pad, shop trophy prices, coin flip bets/stakes/results/duel invites, bonk popups, spin result, obby reward,
   "Welcome back" popup, notifications.
-- Pacing target (for tuning): first upgrade after ~30 s of active play, 5 purchases within the first 5 minutes, all
-  upgrades maxed after ~8 h (see Upgrades → Pacing). While away, the Offline Shiba Bank pays 10 % of the recent income.
+- Pacing target (for tuning): first purchase right away, minute rhythm from around the 9th Shiba, a whole first run
+  (Shiba 30, 1e33) in ~67 min, no purchase with a payback over ~15 min (see Upgrades → Pacing). While away, the
+  Offline Shiba Bank pays the automation's income (+5 % of your own) for up to the basket's offline hours.
 
 ## UI (MVP)
 
@@ -378,7 +507,13 @@ Look and usability follow successful Roblox tycoons: few buttons on screen, big 
 
 ## Saving
 
-Per player (DataStore, key = UserId): the whole `Types.PlayerState` (Bonk Dollars as `BonkPoints`, total earned, levels, active Shibas, spins used today, boost end times, quests, login streak, playtime, trophies, Bonk Rains, first join, starter pack, passes, handled receipts). Loaded on join, saved on leave, every 60 s, and on server shutdown.
+Per player (DataStore `PlayerData_v1`, key = UserId): the whole `Types.PlayerState` (Bonk Dollars as `BonkPoints`, total earned, levels of all six upgrades, active Shibas, spins used today, boost end times, quests, login streak, playtime, trophies, Bonk Rains, first join, starter pack, passes, handled receipts, Shiba Bank, obby, Shiba-Index, settings, rebirths, tutorial). Loaded on join, saved on leave, every 60 s, and on server shutdown; a rebirth saves right away.
+
+- **Save version 2** (economy rework): adds `Rebirths`, `Tutorial`, `Bank.AutomationPerMinute` and the `Basket` /
+  `Intern` levels. Version-1 saves load unchanged (money, levels, everything); their players skip the tutorial.
+  Old Bonk Dollar amounts stay as they are (tiny next to the new prices, which is fine: they start the new curve).
+- Big numbers are plain doubles in the save (a DataStore holds them fine); only the leaderboard's OrderedDataStore
+  needs the log encoding (see Hub features → Leaderboard).
 
 ## Scope of the first playable version (MVP)
 

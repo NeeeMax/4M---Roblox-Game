@@ -18,7 +18,8 @@ Every RemoteEvent and RemoteFunction is listed here. A PR that adds or changes a
 | `SetActiveShooters` | RemoteEvent | C→S | `count: number` | integer, 1 ≤ count ≤ owned shooters, ≤ 5/s | Marco |
 | `ReportHit` | RemoteEvent | C→S | `projectileId: number, onHead: boolean` | number (+ boolean, anything else = false), projectile exists and belongs to the player, not paid, player alive and not immune, report arrives within `ReportGracePeriod` (2 s) after the projectile stopped being collectable (`ProjectilePath.GetCollectEndTime`), path so far passed within radius + `PickupPadding` (2) + `HitTolerance` (6) studs of the server-side root, ≤ 10/s (see `docs/decisions/0003`); `onHead` only counts if the path also passed within radius + `PickupPadding` + `HeadTolerance` of the server-side head | Max |
 | `AdminCommand` | RemoteEvent | C→S | `command: string, argument: string \| number \| nil` | sender is admin (`Config/Admin.IsAdmin`, checked on the server), known command, argument validated per command (point amounts only from `Admin.PointAmounts`, upgrade ids only from `Upgrades.Order`), ≤ 10/s | both |
-| `BonkHit` | RemoteEvent | S→C | `reward: number, quality: HitQuality, knockbackDirection: Vector3, onHead: boolean, combo: number, comboWindow: number, golden: boolean` | — (server → client) | Max |
+| `BonkHit` | RemoteEvent | S→C | `reward: number, quality: HitQuality, knockbackDirection: Vector3, onHead: boolean, combo: number, comboWindow: number, golden: boolean, firstBonk: boolean` (quality: `"Normal"` = BONK, after it touched the ground · `"Good"` = AIR BONK · `"Perfect"` = PERFECT BONK, see decisions/0005; `firstBonk` = this was the player's first paid hit, reward already × `EconomyConfig.Bonk.FirstBonkMultiplier`) | — (server → client) | Max |
+| `AutomationCatch` | RemoteEvent | S→C | `source: AutomationSource ("Basket" \| "Intern"), projectileId: number, reward: number` — the basket or the intern caught one of the player's sticks (already paid by the server, `AutomationService`); sent only to the owner, **right before** the projectile's `Paid` attribute is set, so `AutomationController` takes the drawn stick over (basket: flies into `Prop_Basket`; intern: bounces off `BonkIntern`'s head) before other controllers react to `Paid`; drives the catch visuals and the "+B$ reward" popup | — (server → client) | Marco |
 | `StateChanged` | RemoteEvent | S→C | `state: PlayerState` (a copy of the whole saved state, `Types.PlayerState`) | — | Marco |
 | `Notify` | RemoteEvent | S→C | `message: string, kind: "Info" \| "Good" \| "Bad"` | — (server → client). Amounts are written with `Format.Money` ("B$ 1,234"); the HUD draws "B$" as the Bonk Dollars symbol | both |
 | `RequestSpin` | RemoteEvent | C→S | — | spins left today (1, VIP 2), ≤ 2/s | Max |
@@ -58,6 +59,16 @@ server → client only and purely visual (`Controllers/ShibaController`):
 - `ThrowAt` (number, server clock `Workspace:GetServerTimeNow()`): when the projectile leaves the paw. The server sets
   it when the Shiba starts aiming and clears it when the throw is cancelled; clients swing the `ThrowArm` toward that
   moment, and hide what is in the paw from then on for `Shooters.HandStickHideTime` (the server never changes it).
+Island stalls (`StationService`, names in `Config/Stations`): the invisible anchor parts
+`Workspace/Islands/Island_<UserId>/Stations/Station_<UpgradeId>` and `…/Stations/Station_Rebirth` carry three
+attributes, server → client only, read by `Controllers/StationController` for the billboards:
+- `Kind` (string): `"Upgrade"` or `"Rebirth"`.
+- `Locked` (boolean): upgrade stall: the owner's Shiba Tier is below `UnlockAt` (grey shutter, prompts disabled);
+  rebirth shrine: `RebirthService.CanRebirth` is false (hold prompt disabled). Updated on every `StateChanged`.
+- `UnlockAt` (number): the ShooterTier level that unlocks it (`EconomyConfig.UnlockAtShibaTier[id]` or 0; the shrine:
+  `EconomyConfig.Rebirth.MinShibaTier`). Never changes.
+The shrine's hold prompt is named `UpgradeStand_Rebirth` (shares the stand prefix, so other players' clients hide it);
+triggering it calls `RebirthService.TryRebirth` on the server (owner only, one trigger per 2 s).
 `BonkHit` drives the client-only effects: popup, sound, knockback (the owning client moves its own character), head-hit
 bonus text and the combo counter (`combo` hits in a row; it ends if no hit follows within `comboWindow` seconds).
 
