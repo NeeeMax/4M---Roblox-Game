@@ -7,11 +7,13 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TextService = game:GetService("TextService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Icons = require(ReplicatedStorage.Shared.Config.Icons)
+local Format = require(ReplicatedStorage.Shared.Util.Format)
 
 local Theme = require(script.Parent.Theme)
 
@@ -34,6 +36,25 @@ export type Checkbox = {
 	Frame: Frame,
 	-- Sets the tick without calling onChanged.
 	Set: (checked: boolean) -> (),
+}
+
+-- How Bonk Dollars text is drawn (Widgets.MoneySymbol / MoneyText).
+export type MoneyStyle = {
+	-- Thickness of a thick outline (like Widgets.Outline); without it the plain text stroke below is used.
+	Outline: number?,
+	-- TextStrokeTransparency without Outline (default like Widgets.Label: 0.45 from size 18 up, else none).
+	StrokeTransparency: number?,
+	Font: Enum.Font?,
+	-- Where the lines line up (default centred).
+	Align: Enum.TextXAlignment?,
+}
+
+export type MoneyText = {
+	-- Sizes itself to the text (AutomaticSize); place it with AnchorPoint and Position.
+	Frame: Frame,
+	-- New text; every Format.CurrencySymbol ("B$") in it is drawn as the symbol. "\n" starts a new line.
+	Set: (text: string) -> (),
+	SetColor: (color: Color3) -> (),
 }
 
 -- Panel border: thickness and gap between studs (pixels).
@@ -221,7 +242,327 @@ function Widgets.Badge(parent: GuiObject): TextLabel
 	return dot
 end
 
--- A yellow price pill: coin icon (Robux) or cash icon (Bonk Points) and the price. Place and size it yourself
+-- Bonk Dollars symbol (docs/GAME_DESIGN.md → Economy): a bold "B" with a vertical bar through it, like "฿". The game
+-- fonts have no such glyph, so it is built from a TextLabel and two bar Frames, all sized from the text size:
+-- a bar with the outline behind the letter (its outline shows only where the bar sticks out above and below),
+-- the letter, and the same bar without outline on top (hides the letter's outline inside the bowls).
+local SYMBOL_TEXT = Format.CurrencySymbol
+-- Relative to the text size. A capital is ~0.7 of the text size tall, so the bar sticks out ~0.14 above and below.
+local SYMBOL_BAR_WIDTH = 0.11
+local SYMBOL_BAR_LENGTH = 0.98
+-- Where the bar crosses the letter (0 = left edge, 1 = right edge of the "B").
+local SYMBOL_BAR_X = 0.47
+-- Height of a line of money text relative to its text size.
+local MONEY_LINE_HEIGHT = 1.2
+-- SetMoneyText on a TextScaled label draws at this size and scales it to fit (UIScale).
+local MONEY_SCALED_SIZE = 40
+
+local function moneyLineHeight(size: number): number
+	return math.ceil(size * MONEY_LINE_HEIGHT)
+end
+
+local function baseZIndex(parent: Instance): number
+	return if parent:IsA("GuiObject") then parent.ZIndex else 1
+end
+
+-- The symbol for text of `size` in `color`; about as wide as a "B". Put it in a horizontal UIListLayout next to
+-- the amount, or use Widgets.MoneyText / SetMoneyText which do that for you.
+function Widgets.MoneySymbol(parent: Instance, size: number, color: Color3, style: MoneyStyle?): Frame
+	local options: MoneyStyle = style or {}
+	local font = options.Font or Theme.Font
+	local base = baseZIndex(parent)
+	local width = TextService:GetTextSize("B", size, font, Vector2.new(10000, 10000)).X
+
+	local holder = Instance.new("Frame")
+	holder.Name = "MoneySymbol"
+	holder.BackgroundTransparency = 1
+	holder.Size = UDim2.fromOffset(math.ceil(width), moneyLineHeight(size))
+	holder.ZIndex = base
+	holder.Parent = parent
+
+	local function bar(name: string, zIndex: number): Frame
+		local frame = Instance.new("Frame")
+		frame.Name = name
+		frame.AnchorPoint = Vector2.new(0.5, 0.5)
+		frame.Position = UDim2.fromScale(SYMBOL_BAR_X, 0.5)
+		frame.Size =
+			UDim2.fromOffset(math.max(2, math.round(size * SYMBOL_BAR_WIDTH)), math.round(size * SYMBOL_BAR_LENGTH))
+		frame.BackgroundColor3 = color
+		frame.BorderSizePixel = 0
+		frame.ZIndex = zIndex
+		frame.Parent = holder
+		local corner = Instance.new("UICorner")
+		corner.CornerRadius = UDim.new(0.5, 0)
+		corner.Parent = frame
+		return frame
+	end
+	local under = bar("BarUnder", base)
+
+	local letter = Instance.new("TextLabel")
+	letter.Name = "Letter"
+	letter.BackgroundTransparency = 1
+	letter.Size = UDim2.fromScale(1, 1)
+	letter.Font = font
+	letter.Text = "B"
+	letter.TextSize = size
+	letter.TextColor3 = color
+	letter.TextStrokeColor3 = Theme.Stroke
+	letter.ZIndex = base + 1
+	letter.Parent = holder
+
+	bar("BarOver", base + 2)
+
+	local outline = options.Outline
+	if outline then
+		letter.TextStrokeTransparency = 1
+		Widgets.Outline(letter, outline)
+		local stroke = Instance.new("UIStroke")
+		stroke.Thickness = outline
+		stroke.Color = Theme.Stroke
+		stroke.LineJoinMode = Enum.LineJoinMode.Round
+		stroke.Parent = under
+	else
+		local transparency = options.StrokeTransparency or (if size >= 18 then 0.45 else 1)
+		letter.TextStrokeTransparency = transparency
+		if transparency < 1 then
+			local stroke = Instance.new("UIStroke")
+			stroke.Thickness = 1
+			stroke.Color = Theme.Stroke
+			stroke.Transparency = transparency
+			stroke.Parent = under
+		end
+	end
+	return holder
+end
+
+type MoneyPiece = { Text: string? }
+
+-- "+B$ 1,234 today" → "+", symbol, "1,234 today". Spaces next to a symbol are dropped (the layout adds the gap).
+local function moneyPieces(line: string): { MoneyPiece }
+	local pieces: { MoneyPiece } = {}
+	local start = 1
+	while true do
+		local first, last = string.find(line, SYMBOL_TEXT, start, true)
+		local chunk = string.sub(line, start, if first then first - 1 else #line)
+		if start > 1 then
+			chunk = string.gsub(chunk, "^ +", "")
+		end
+		if first then
+			chunk = string.gsub(chunk, " +$", "")
+		end
+		if chunk ~= "" then
+			table.insert(pieces, { Text = chunk })
+		end
+		if not first or not last then
+			break
+		end
+		table.insert(pieces, { Text = nil })
+		start = last + 1
+	end
+	return pieces
+end
+
+-- Text with Bonk Dollars amounts: every "B$" in `text` is drawn as the symbol, e.g. Format.Money(1234) →
+-- [symbol] 1,234. Lines don't wrap; use "\n" for a second line.
+function Widgets.MoneyText(parent: Instance, text: string, size: number, color: Color3, style: MoneyStyle?): MoneyText
+	local options: MoneyStyle = style or {}
+	local align = options.Align or Enum.TextXAlignment.Center
+	local base = baseZIndex(parent)
+
+	local frame = Instance.new("Frame")
+	frame.Name = "MoneyText"
+	frame.BackgroundTransparency = 1
+	frame.AutomaticSize = Enum.AutomaticSize.XY
+	frame.Size = UDim2.new()
+	frame.ZIndex = base
+	frame.Parent = parent
+	local lines = Instance.new("UIListLayout")
+	lines.SortOrder = Enum.SortOrder.LayoutOrder
+	lines.HorizontalAlignment = if align == Enum.TextXAlignment.Left
+		then Enum.HorizontalAlignment.Left
+		elseif align == Enum.TextXAlignment.Right then Enum.HorizontalAlignment.Right
+		else Enum.HorizontalAlignment.Center
+	lines.Parent = frame
+
+	local currentText = ""
+	local currentColor = color
+	local function build()
+		for _, child in frame:GetChildren() do
+			if child:IsA("GuiObject") then
+				child:Destroy()
+			end
+		end
+		local lineOrder = 0
+		for line in string.gmatch(currentText .. "\n", "([^\n]*)\n") do
+			lineOrder += 1
+			local row = Instance.new("Frame")
+			row.Name = "Line"
+			row.BackgroundTransparency = 1
+			row.AutomaticSize = Enum.AutomaticSize.X
+			row.Size = UDim2.fromOffset(0, moneyLineHeight(size))
+			row.LayoutOrder = lineOrder
+			row.ZIndex = base
+			row.Parent = frame
+			local layout = Instance.new("UIListLayout")
+			layout.FillDirection = Enum.FillDirection.Horizontal
+			layout.VerticalAlignment = Enum.VerticalAlignment.Center
+			layout.SortOrder = Enum.SortOrder.LayoutOrder
+			layout.Padding = UDim.new(0, math.max(1, math.round(size * 0.12)))
+			layout.Parent = row
+			for index, piece in moneyPieces(line) do
+				local item: GuiObject
+				local pieceText = piece.Text
+				if pieceText then
+					local label = Widgets.Label(row, pieceText, size, currentColor)
+					label.Font = options.Font or Theme.Font
+					label.AutomaticSize = Enum.AutomaticSize.X
+					label.Size = UDim2.fromOffset(0, moneyLineHeight(size))
+					label.ZIndex = base
+					if options.Outline then
+						label.TextStrokeTransparency = 1
+						Widgets.Outline(label, options.Outline)
+					elseif options.StrokeTransparency then
+						label.TextStrokeTransparency = options.StrokeTransparency
+					end
+					item = label
+				else
+					item = Widgets.MoneySymbol(row, size, currentColor, options)
+				end
+				item.LayoutOrder = index
+			end
+		end
+	end
+
+	local money: MoneyText = {
+		Frame = frame,
+		Set = function(newText: string)
+			if newText ~= currentText then
+				currentText = newText
+				build()
+			end
+		end,
+		SetColor = function(newColor: Color3)
+			if newColor ~= currentColor then
+				currentColor = newColor
+				build()
+			end
+		end,
+	}
+	money.Set(text)
+	return money
+end
+
+-- "[symbol] 1,234" for an amount of Bonk Dollars.
+function Widgets.Money(parent: Instance, amount: number, size: number, color: Color3, style: MoneyStyle?): MoneyText
+	return Widgets.MoneyText(parent, Format.Money(amount), size, color, style)
+end
+
+type MoneyEntry = { Money: MoneyText, Scale: UIScale? }
+-- Label → its money overlay (weak keys: destroyed labels drop out).
+-- `:: any`: the weak-keys metatable doesn't change the table's type, it only lets the analyzer accept the cast.
+local moneyEntries: { [GuiObject]: MoneyEntry } = setmetatable({} :: any, { __mode = "k" })
+
+-- The analyzer can't write a property on a TextLabel | TextButton union; narrow it first.
+local function setText(object: TextLabel | TextButton, text: string)
+	if object:IsA("TextButton") then
+		object.Text = text
+	else
+		local label = object :: TextLabel
+		label.Text = text
+	end
+end
+
+-- Sets a label's or button's text; when it contains "B$" (Format.Money …) the text is drawn by a MoneyText inside
+-- the label instead, in the label's font, colour, stroke and alignment. TextScaled labels are fitted into their box.
+-- Set the label's TextColor3 before calling this. `size` overrides the label's TextSize.
+function Widgets.SetMoneyText(label: TextLabel | TextButton, text: string, size: number?)
+	local entry = moneyEntries[label]
+	if not string.find(text, SYMBOL_TEXT, 1, true) then
+		if entry then
+			entry.Money.Frame.Visible = false
+		end
+		setText(label, text)
+		return
+	end
+	setText(label, "")
+	if entry then
+		entry.Money.SetColor(label.TextColor3)
+		entry.Money.Set(text)
+		entry.Money.Frame.Visible = true
+		return
+	end
+
+	local scaled = label.TextScaled
+	local style: MoneyStyle = {
+		Font = label.Font,
+		Align = label.TextXAlignment,
+		StrokeTransparency = label.TextStrokeTransparency,
+	}
+	local stroke = label:FindFirstChildOfClass("UIStroke")
+	if stroke and stroke.ApplyStrokeMode == Enum.ApplyStrokeMode.Contextual then
+		style.Outline = stroke.Thickness
+	end
+	local textSize = size or (if scaled then MONEY_SCALED_SIZE else label.TextSize)
+	local money = Widgets.MoneyText(label, text, textSize, label.TextColor3, style)
+	local frame = money.Frame
+	local x = if label.TextXAlignment == Enum.TextXAlignment.Left
+		then 0
+		elseif label.TextXAlignment == Enum.TextXAlignment.Right then 1
+		else 0.5
+	frame.AnchorPoint = Vector2.new(x, 0.5)
+	frame.Position = UDim2.fromScale(x, 0.5)
+	local newEntry: MoneyEntry = { Money = money }
+	moneyEntries[label] = newEntry
+
+	if scaled then
+		local scale = Instance.new("UIScale")
+		scale.Parent = frame
+		newEntry.Scale = scale
+		local limit = label:FindFirstChildOfClass("UITextSizeConstraint")
+		local function fit()
+			local current = scale.Scale
+			-- AbsoluteSize includes this UIScale; divide it out to get the unscaled size.
+			local own = frame.AbsoluteSize / current
+			local box = label.AbsoluteSize
+			if own.X <= 0 or own.Y <= 0 or box.X <= 0 or box.Y <= 0 then
+				return
+			end
+			local fitted = math.min(box.X * 0.95 / own.X, box.Y / own.Y)
+			if limit then
+				fitted = math.min(fitted, limit.MaxTextSize / textSize)
+			end
+			fitted = math.max(fitted, 0.01)
+			if math.abs(fitted - current) > 0.001 then
+				scale.Scale = fitted
+			end
+		end
+		label:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit)
+		frame:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit)
+		task.defer(fit)
+	end
+end
+
+-- Fades a GUI and everything in it (texts, backgrounds, strokes) out over `seconds`.
+function Widgets.FadeOut(root: GuiObject, seconds: number)
+	local info = TweenInfo.new(seconds)
+	local function fade(object: Instance)
+		if object:IsA("TextLabel") or object:IsA("TextButton") then
+			TweenService
+				:Create(object, info, { TextTransparency = 1, TextStrokeTransparency = 1, BackgroundTransparency = 1 })
+				:Play()
+		elseif object:IsA("Frame") then
+			TweenService:Create(object, info, { BackgroundTransparency = 1 }):Play()
+		elseif object:IsA("UIStroke") then
+			TweenService:Create(object, info, { Transparency = 1 }):Play()
+		end
+	end
+	fade(root)
+	for _, descendant in root:GetDescendants() do
+		fade(descendant)
+	end
+end
+
+-- A yellow price pill: coin icon (Robux) or the Bonk Dollars symbol and the price. Place and size it yourself
 -- (default 130 × 44). Returns the pill and its text label.
 function Widgets.PricePill(parent: Instance, text: string, isRobux: boolean): (Frame, TextLabel)
 	local pill = Instance.new("Frame")
@@ -235,10 +576,16 @@ function Widgets.PricePill(parent: Instance, text: string, isRobux: boolean): (F
 	shade.Color = ColorSequence.new(Color3.new(1, 1, 1), Color3.fromRGB(225, 225, 225))
 	shade.Rotation = 90
 	shade.Parent = pill
-	local icon = Widgets.Icon(pill, if isRobux then "Coin" else "Cash", 30)
-	icon.AnchorPoint = Vector2.new(0, 0.5)
-	icon.Position = UDim2.new(0, 8, 0.5, 0)
-	icon.Size = UDim2.new(0, 30, 1, -12)
+	if isRobux then
+		local icon = Widgets.Icon(pill, "Coin", 30)
+		icon.AnchorPoint = Vector2.new(0, 0.5)
+		icon.Position = UDim2.new(0, 8, 0.5, 0)
+		icon.Size = UDim2.new(0, 30, 1, -12)
+	else
+		local symbol = Widgets.MoneySymbol(pill, 28, Theme.DarkText, { StrokeTransparency = 1 })
+		symbol.AnchorPoint = Vector2.new(0.5, 0.5)
+		symbol.Position = UDim2.new(0, 23, 0.5, 0)
+	end
 	local label = Widgets.Label(pill, text, 26, Theme.DarkText)
 	label.Name = "Text"
 	label.Position = UDim2.fromOffset(44, 0)

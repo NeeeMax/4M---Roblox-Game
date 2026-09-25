@@ -92,12 +92,13 @@ local function show(amount: number, seconds: number)
 	amountBox.BackgroundColor3 = Theme.Panel
 	amountBox.Parent = inner
 	Widgets.Corner(amountBox, 46)
-	local amountLabel = Widgets.Label(amountBox, Format.Number(amount), 54, MONEY_GREEN)
+	local amountLabel = Widgets.Label(amountBox, "", 54, MONEY_GREEN)
 	amountLabel.Position = UDim2.fromOffset(0, 4)
 	amountLabel.Size = UDim2.new(1, 0, 0, 58)
 	amountLabel.TextXAlignment = Enum.TextXAlignment.Center
 	amountLabel.TextStrokeTransparency = 0
-	local unit = Widgets.Label(amountBox, "Bonk Points", 22, MONEY_GREEN)
+	Widgets.SetMoneyText(amountLabel, Format.Money(amount))
+	local unit = Widgets.Label(amountBox, Format.CurrencyName, 22, MONEY_GREEN)
 	unit.Position = UDim2.fromOffset(0, 60)
 	unit.Size = UDim2.new(1, 0, 0, 26)
 	unit.TextXAlignment = Enum.TextXAlignment.Center

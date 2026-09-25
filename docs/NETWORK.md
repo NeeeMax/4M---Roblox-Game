@@ -20,7 +20,7 @@ Every RemoteEvent and RemoteFunction is listed here. A PR that adds or changes a
 | `AdminCommand` | RemoteEvent | C→S | `command: string, argument: string \| number \| nil` | sender is admin (`Config/Admin.IsAdmin`, checked on the server), known command, argument validated per command (point amounts only from `Admin.PointAmounts`, upgrade ids only from `Upgrades.Order`), ≤ 10/s | both |
 | `BonkHit` | RemoteEvent | S→C | `reward: number, quality: HitQuality, knockbackDirection: Vector3, onHead: boolean, combo: number, comboWindow: number, golden: boolean` | — (server → client) | Max |
 | `StateChanged` | RemoteEvent | S→C | `state: PlayerState` (a copy of the whole saved state, `Types.PlayerState`) | — | Marco |
-| `Notify` | RemoteEvent | S→C | `message: string, kind: "Info" \| "Good" \| "Bad"` | — | both |
+| `Notify` | RemoteEvent | S→C | `message: string, kind: "Info" \| "Good" \| "Bad"` | — (server → client). Amounts are written with `Format.Money` ("B$ 1,234"); the HUD draws "B$" as the Bonk Dollars symbol | both |
 | `RequestSpin` | RemoteEvent | C→S | — | spins left today (1, VIP 2), ≤ 2/s | Max |
 | `SpinResult` | RemoteEvent | S→C | `segmentIndex: number, text: string` | — | Max |
 | `CoinFlip` | RemoteEvent | C→S | `betFraction: number, side: "Heads" \| "Tails"` | fraction is one of `Hub.CoinFlip.BetFractions`, side valid, bet ≥ MinBet, ≤ 2/s | Max |
@@ -40,7 +40,7 @@ Every RemoteEvent and RemoteFunction is listed here. A PR that adds or changes a
 | `OfflineEarnings` | RemoteEvent | S→C | `amount: number, seconds: number` (pending offline earnings, time away they cover) | — (server → client; sent on join when `Bank.Pending` > 0) | Marco |
 | `ClaimOffline` | RemoteEvent | C→S | `double: boolean` | boolean, data loaded, `Bank.Pending` > 0, ≤ 2/s; `false` pays Pending and clears it; `true` only opens the Roblox prompt for the "DoubleOffline" product (Studio with id 0: test grant), 2× Pending is paid in ProcessReceipt (`ShopService.Grant`) | Marco |
 | `ObbyStarted` | RemoteEvent | S→C | — | — (server → client). Sent when the server sees the character's root leave the start pad (position check 10×/s, alive character) | Max |
-| `ObbyFinished` | RemoteEvent | S→C | `time: number, reward: number, bestTime: number, nextRewardAt: number` | — (server → client). Sent only when the server-side run is valid: started from the start pad, root inside the finish zone, ≥ `Obby.MinTime` (8 s), ≥ half of the checkpoints passed, ≤ `MaxRunTime`, never left `LeaveRadius`; time measured on the server; reward only if `RewardCooldown` passed since `state.Obby.LastRewardAt` | Max |
+| `ObbyFinished` | RemoteEvent | S→C | `time: number, reward: number, bestTime: number, nextRewardAt: number` | — (server → client). Sent only when the server-side run is valid: started from the start pad, root inside the finish zone, ≥ `Obby.MinTime` (8 s), ≥ half of the platforms passed (`Obby.MinStageShare`, invisible zones, no checkpoints), never landed back on the plaza after climbing (`Obby.FallHeight`), ≤ `MaxRunTime`, never left `LeaveRadius`; time measured on the server; reward only if `RewardCooldown` passed since `state.Obby.LastRewardAt` | Max |
 
 Remotes live in `ReplicatedStorage/Remotes`, created by `Net.CreateRemotes()` from `Main.server.luau`. Get one with `Net.Get(Net.BonkHit)`.
 `StateChanged` is sent after the player's data loads and after every change to points, levels or active shooters.
@@ -57,7 +57,7 @@ server → client only and purely visual (`Controllers/ShibaController`):
   marks the rest pose they turn from.
 - `ThrowAt` (number, server clock `Workspace:GetServerTimeNow()`): when the projectile leaves the paw. The server sets
   it when the Shiba starts aiming and clears it when the throw is cancelled; clients swing the `ThrowArm` toward that
-  moment.
+  moment, and hide what is in the paw from then on for `Shooters.HandStickHideTime` (the server never changes it).
 `BonkHit` drives the client-only effects: popup, sound, knockback (the owning client moves its own character), head-hit
 bonus text and the combo counter (`combo` hits in a row; it ends if no hit follows within `comboWindow` seconds).
 

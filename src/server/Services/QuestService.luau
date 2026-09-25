@@ -125,7 +125,7 @@ local function onClaimQuest(player: Player, index: unknown)
 	quests.Claimed[index] = true
 	local reward = RewardService.Hits(player, def.RewardHits)
 	EconomyService.AddPoints(player, reward)
-	NotifyService.Send(player, `Quest reward: +{Format.Number(reward)} Bonk Points`, "Good")
+	NotifyService.Send(player, `Quest reward: +{Format.Money(reward)}`, "Good")
 end
 
 -- Admin testing tools.

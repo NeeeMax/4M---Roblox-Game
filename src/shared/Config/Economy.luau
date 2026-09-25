@@ -22,6 +22,15 @@ local hitQualities: { HitQualityDef } = {
 }
 
 return {
+	-- What players see (docs/GAME_DESIGN.md → Economy). The saved field stays `BonkPoints`; only the display changed.
+	-- Menus draw the symbol as a bold B with a vertical bar through it (Widgets.MoneySymbol / MoneyText /
+	-- SetMoneyText, which replace every `Symbol` in a string with the drawn symbol). `Symbol` is the plain-text form
+	-- for strings that can't hold a UI element (leaderstats, 3D boards, chat); notifications are drawn by the HUD.
+	Currency = {
+		Name = "Bonk Dollars",
+		Symbol = "B$",
+	},
+
 	StartingPoints = 0,
 	HitQualities = hitQualities,
 

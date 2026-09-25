@@ -1,7 +1,7 @@
 --!strict
 -- Always-on HUD, kept uncluttered (docs/GAME_DESIGN.md → UI). Top centre: menu button (opens a small list: SHOP,
 -- GIFTS, QUESTS, SPIN, INDEX, SETTINGS, ADMIN), clipboard button (MANAGE: the upgrade menu with the Manage pass,
--- else the shop to buy it) and the Bonk Points counter ("324.316 quadrillion"). Below it: running boosts. "!" badges
+-- else the shop to buy it) and the Bonk Dollars counter ("324.316 quadrillion"). Below it: running boosts. "!" badges
 -- sit on the menu button and its entries when something can be claimed (hidden with Settings → Hints off).
 -- Also: the Bonk Rain button, short server messages (Notify), and opening hub menus from their ProximityPrompts.
 
@@ -9,7 +9,6 @@ local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Admin = require(ReplicatedStorage.Shared.Config.Admin)
@@ -184,9 +183,10 @@ local function build()
 	money.Parent = top
 	Widgets.Corner(money, 12)
 	Widgets.DotPattern(money, Color3.new(0, 0, 0), 22, 0.55)
-	local cash = Widgets.Icon(money, "Cash", 44)
-	cash.AnchorPoint = Vector2.new(0, 0.5)
-	cash.Position = UDim2.new(0, 10, 0.5, 0)
+	-- The Bonk Dollars symbol in front of the amount.
+	local symbol = Widgets.MoneySymbol(money, 44, Theme.Money, { Outline = 3, Font = Theme.Font })
+	symbol.AnchorPoint = Vector2.new(0.5, 0.5)
+	symbol.Position = UDim2.new(0, 34, 0.5, 0)
 	pointsLabel = Widgets.Label(money, "0", 44, Theme.Money)
 	pointsLabel.Name = "Points"
 	pointsLabel.Position = UDim2.fromOffset(62, 4)
@@ -262,33 +262,35 @@ local toastCount = 0
 function HudController.Toast(message: string, kind: string)
 	toastCount += 1
 	local color = if kind == "Good" then Theme.Good elseif kind == "Bad" then Theme.Bad else Theme.Info
-	local toast = Widgets.Label(toastHolder, message, 22)
+	-- A frame sized to its text; amounts ("B$ 1,234" from the server) show the Bonk Dollars symbol.
+	local toast = Instance.new("Frame")
+	toast.Name = "Toast"
 	toast.Size = UDim2.fromOffset(0, 40)
 	toast.AutomaticSize = Enum.AutomaticSize.X
 	toast.BackgroundTransparency = 0.08
 	toast.BackgroundColor3 = Theme.Background
-	toast.TextXAlignment = Enum.TextXAlignment.Center
-	toast.TextStrokeTransparency = 0.3
 	toast.LayoutOrder = toastCount
+	toast.Parent = toastHolder
 	Widgets.Corner(toast, 12)
 	Widgets.Stroke(toast, 3, color)
 	local padding = Instance.new("UIPadding")
 	padding.PaddingLeft = UDim.new(0, 18)
 	padding.PaddingRight = UDim.new(0, 18)
 	padding.Parent = toast
+	local layout = Instance.new("UIListLayout")
+	layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	layout.VerticalAlignment = Enum.VerticalAlignment.Center
+	layout.Parent = toast
+	Widgets.MoneyText(toast, message, 22, Theme.Text, { StrokeTransparency = 0.3 })
 	task.delay(3, function()
-		TweenService:Create(
-			toast,
-			TweenInfo.new(0.4),
-			{ TextTransparency = 1, TextStrokeTransparency = 1, BackgroundTransparency = 1 }
-		):Play()
+		Widgets.FadeOut(toast, 0.4)
 		task.wait(0.4)
 		toast:Destroy()
 	end)
 	-- At most 4 on screen.
 	local children = {}
 	for _, child in toastHolder:GetChildren() do
-		if child:IsA("TextLabel") then
+		if child:IsA("Frame") then
 			table.insert(children, child)
 		end
 	end
@@ -374,7 +376,7 @@ local function tick()
 	local parts = {}
 	local pointsLeft = (state.Boosts.Points or 0) - now
 	if pointsLeft > 0 then
-		table.insert(parts, `2× POINTS {Widgets.Duration(pointsLeft)}`)
+		table.insert(parts, `2× DOLLARS {Widgets.Duration(pointsLeft)}`)
 	end
 	local fireLeft = (state.Boosts.FireRate or 0) - now
 	if fireLeft > 0 then

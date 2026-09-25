@@ -43,7 +43,7 @@ function RewardService.Hits(player: Player, hits: number): number
 	return math.max(1, math.floor(RewardService.GetHitValue(player) * hits))
 end
 
--- Hands out a reward and returns what the player got, in words ("+1,200 Bonk Points", "Bonk Rain").
+-- Hands out a reward and returns what the player got, in words ("+B$ 1,200", "Bonk Rain").
 function RewardService.Give(player: Player, reward: Hub.Reward): string
 	local state = DataService.GetState(player)
 	if not state then
@@ -65,7 +65,7 @@ function RewardService.Give(player: Player, reward: Hub.Reward): string
 	if reward.Hits then
 		local amount = RewardService.Hits(player, reward.Hits)
 		EconomyService.AddPoints(player, amount)
-		table.insert(parts, `+{Format.Number(amount)} Bonk Points`)
+		table.insert(parts, `+{Format.Money(amount)}`)
 	end
 	return table.concat(parts, " · ")
 end

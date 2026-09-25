@@ -39,9 +39,9 @@ local UpgradeController = {}
 local function describe(id: string, level: number): string
 	if id == "ShooterTier" then
 		local tier = Gameplay.Shooters.Tiers[level + 1]
-		return string.format("throws every %.1fs · ×%s points", tier.FireInterval, tostring(tier.RewardMultiplier))
+		return string.format("throws every %.1fs · ×%s dollars", tier.FireInterval, tostring(tier.RewardMultiplier))
 	elseif id == "ProjectileTier" then
-		return `{Projectiles.ForTier(level).BaseReward} points per bonk`
+		return `{Format.Money(Projectiles.ForTier(level).BaseReward)} per bonk`
 	elseif id == "Shooters" then
 		local count = Upgrades.GetValue(id, level)
 		return `{count} Shiba{if count == 1 then "" else "s"} around your island`
@@ -194,8 +194,8 @@ local function refresh()
 		local currentColor = valueColor(id, level):ToHex()
 		if level >= maxLevel then
 			card.Value.Text = `<font color="#{currentColor}">{current}</font>`
-			card.Detail.Text = describe(id, level)
-			card.Button.Text = "MAX"
+			Widgets.SetMoneyText(card.Detail, describe(id, level))
+			Widgets.SetMoneyText(card.Button, "MAX")
 			card.CanBuy = false
 			Widgets.SetButtonColor(card.Button, Theme.Accent)
 		else
@@ -203,9 +203,9 @@ local function refresh()
 			local nextColor = valueColor(id, level + 1):ToHex()
 			card.Value.Text =
 				`<font color="#{currentColor}">{current}</font>  →  <font color="#{nextColor}">{nextText}</font>`
-			card.Detail.Text = `Next: {describe(id, level + 1)}`
+			Widgets.SetMoneyText(card.Detail, `Next: {describe(id, level + 1)}`)
 			local cost = Upgrades.GetCost(id, level)
-			card.Button.Text = Format.Short(cost)
+			Widgets.SetMoneyText(card.Button, Format.MoneyShort(cost))
 			card.CanBuy = state.BonkPoints >= cost
 			Widgets.SetButtonColor(card.Button, if card.CanBuy then Theme.Good else Theme.Disabled)
 		end

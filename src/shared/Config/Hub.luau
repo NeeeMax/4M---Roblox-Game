@@ -43,7 +43,7 @@ local spinSegments: { SpinSegment } = {
 	{ Text = "Nothing", Kind = "Nothing", Weight = 16, Color = Color3.fromRGB(90, 90, 110) },
 	{ Text = "10 Bonks", Kind = "Points", Hits = 10, Weight = 20, Color = Color3.fromRGB(120, 220, 120) },
 	{
-		Text = "2× Points 5 min",
+		Text = "2× Dollars 5 min",
 		Kind = "Boost",
 		Boost = "Points",
 		Seconds = 300,
@@ -67,7 +67,7 @@ local spinSegments: { SpinSegment } = {
 local streakRewards: { Reward } = {
 	{ Text = "10 Bonks", Kind = "Points", Hits = 10 },
 	{ Text = "20 Bonks", Kind = "Points", Hits = 20 },
-	{ Text = "2× Points 10 min", Kind = "Boost", Boost = "Points", Seconds = 600 },
+	{ Text = "2× Dollars 10 min", Kind = "Boost", Boost = "Points", Seconds = 600 },
 	{ Text = "40 Bonks", Kind = "Points", Hits = 40 },
 	{ Text = "Bonk Rain", Kind = "BonkRain" },
 	{ Text = "80 Bonks", Kind = "Points", Hits = 80 },

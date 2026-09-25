@@ -454,17 +454,17 @@ local function refreshBoard(board: Board, state: Types.PlayerState, hints: boole
 	if maxed then
 		board.Button.BackgroundColor3 = GOLD
 		board.ButtonText.Text = "MAXED"
-		board.Cost.Text = ""
+		Widgets.SetMoneyText(board.Cost, "")
 	elseif count > 0 then
 		board.Button.BackgroundColor3 = BUTTON_READY
 		board.ButtonText.Text = if count > 1 then `UPGRADE ×{count}` else "UPGRADE"
-		board.Cost.Text = `{Format.Number(total)} Bonk Points`
 		board.Cost.TextColor3 = AFFORDABLE
+		Widgets.SetMoneyText(board.Cost, Format.Money(total))
 	else
 		board.Button.BackgroundColor3 = BUTTON_IDLE
 		board.ButtonText.Text = "UPGRADE"
-		board.Cost.Text = `{Format.Number(total)} Bonk Points`
 		board.Cost.TextColor3 = UNAFFORDABLE
+		Widgets.SetMoneyText(board.Cost, Format.Money(total))
 	end
 
 	local pathHere = path ~= nil and path.Id == id
@@ -486,8 +486,8 @@ local function refresh()
 		local nextCost = if shooterCount > 0
 			then Upgrades.GetCost("Shooters", state.UpgradeLevels.Shooters or 0)
 			else shooterCost
-		padCost.Text = `{Format.Number(nextCost)} Bonk Points`
 		padCost.TextColor3 = if shooterCount > 0 then AFFORDABLE else UNAFFORDABLE
+		Widgets.SetMoneyText(padCost, Format.Money(nextCost))
 	end
 
 	if not hints then
