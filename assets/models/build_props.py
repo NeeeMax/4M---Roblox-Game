@@ -1530,8 +1530,8 @@ def platform_viking():
         body.append(cube(c + d * 0.07, (0.3, 0.3, 1.5), cb, rot=(0, 0, a)))
         body.append(ico(c + d * 0.12, 0.2, IRON, sub=1))
     # Carved dragon-head prow rising behind the Shiba (back left), looking over the deck toward the field.
-    pts = [Vector((-1.9, 4.0, top - 0.2)), Vector((-2.1, 4.5, 2.6)), Vector((-2.2, 4.6, 4.2)), Vector((-2.2, 4.3, 5.6)),
-           Vector((-2.15, 3.8, 6.6))]
+    pts = [Vector((-2.4, 3.4, top - 0.2)), Vector((-3.0, 3.9, 3.0)), Vector((-3.4, 4.1, 5.2)), Vector((-3.5, 3.9, 7.2)),
+           Vector((-3.3, 3.3, 8.6))]
     for k, (a, b) in enumerate(zip(pts, pts[1:])):
         body.append(rod(a, b, 0.55 - 0.08 * k, fn=vary(wood_d, 0.06, k), segs=6, r2=0.5 - 0.08 * k))
         body.append(torus(b, 0.5 - 0.08 * k, 0.07, GOLD, segs=8, minor=3, rot=tilt(b - a)))
@@ -1908,9 +1908,23 @@ def platform_knight():
                           rot=tilt(d)))
         body.append(prism([(-0.7, 0), (0.7, 0), (0, -0.45)], 0.08, red if k == 0 else blue, loc=c + Vector((0, 0, -1.05)),
                           rot=(math.pi / 2, 0, a + math.pi / 2)))
-    body.append(rod((-2.4, 2.4, top - 0.1), (-2.4, 2.4, top + 6.0), 0.08, srgb(120, 80, 45), segs=6))
-    body.append(ico((-2.4, 2.4, top + 6.1), 0.16, GOLD, sub=1))
-    body.append(prism([(0, 0.55), (2.4, 0.1), (0, -0.55)], 0.05, red, loc=(-2.4, 2.4, top + 5.35), rot=(math.pi / 2, 0, 0.2)))
+    # Corbels under the parapet, arrow slits, and two banner poles with long pennants at the back corners.
+    for k in range(20):
+        a = 2 * math.pi * (k + 0.5) / 20
+        d = Vector((math.cos(a), math.sin(a), 0))
+        body.append(cube(d * 4.05 + Vector((0, 0, 2.2)), (0.35, 0.4, 0.4), fn=vary(stone_d, 0.05, k), rot=(0, 0, a)))
+    for a in (-math.pi / 2 + 0.65, -math.pi / 2 - 0.65, 0.3, math.pi - 0.3):
+        d = Vector((math.cos(a), math.sin(a), 0))
+        body.append(cube(d * 3.91 + Vector((0, 0, 1.2)), (0.22, 0.06, 0.9), srgb(30, 28, 34), rot=(0, 0, a + math.pi / 2)))
+    for s, col in ((-1, red), (1, blue)):
+        x, y = s * 3.1, 2.7
+        body.append(rod((x, y, top - 0.1), (x, y, top + 8.2), 0.1, srgb(120, 80, 45), segs=6))
+        body.append(ico((x, y, top + 8.3), 0.2, GOLD, sub=1))
+        body.append(prism([(0, 0.7), (3.0, 0.15), (2.4, 0), (3.0, -0.15), (0, -0.7)], 0.06, col,
+                          loc=(x, y, top + 7.4), rot=(math.pi / 2, 0, 0.35 if s > 0 else math.pi - 0.35)))
+        body.append(prism([(0.3, 0.3), (0.6, 0), (0.3, -0.3), (0, 0)], 0.08, fn=metal(GOLD),
+                          loc=(x + s * 0.9 * math.cos(0.35), y - 0.9 * math.sin(0.35) - 0.05, top + 7.4),
+                          rot=(math.pi / 2, 0, 0.35 if s > 0 else math.pi - 0.35)))
     return platform("KnightShiba", top, body)
 
 
@@ -2012,11 +2026,21 @@ def platform_magma():
     for (x, y, a, L) in [(1.2, 1.0, 0.6, 3.2), (-1.4, -0.6, -0.8, 2.6), (0.4, -2.0, 1.6, 2.0), (-1.0, 2.0, 2.4, 1.8)]:
         body.append(cube((x, y, top + 0.01), (0.2, L, 0.04), lava, rot=(0, 0, a)))
     # Two little vents at the back spitting lava blobs.
-    for k, (x, y, h) in enumerate([(-2.8, 3.2, 2.8), (2.9, 3.0, 2.0)]):
-        body.append(lathe([(1.1, SINK), (0.5, h), (0.32, h), (0, h - 0.1)], segs=7, loc=(x, y, 0), fn=vary(basalt_d, 0.1, k)))
-        body.append(cyl((x, y, h - 0.02), 0.34, 0.06, lava_l, segs=7))
-        for j in range(3):
-            body.append(ico((x + 0.3 * (j - 1), y - 0.2 * j, h + 0.6 + 0.7 * j), 0.18 - 0.03 * j, lava if j else lava_l, sub=1))
+    for k, (x, y, h) in enumerate([(-2.9, 3.3, 4.6), (3.1, 3.0, 3.4)]):
+        body.append(lathe([(1.7, SINK, 0.05), (1.2, h * 0.5, 0.05), (0.62, h), (0.45, h), (0, h - 0.2)], segs=7,
+                          loc=(x, y, 0), fn=vary(basalt_d, 0.12, k), seed=k))
+        body.append(cyl((x, y, h - 0.02), 0.5, 0.06, lava_l, segs=7))
+        for j in range(2):
+            a = 3.9 + 1.2 * j + k
+            d = Vector((math.cos(a), math.sin(a), 0))
+            base = Vector((x, y, 0))
+            body.append(rod(base + d * 0.55 + Vector((0, 0, h)), base + d * 1.2 + Vector((0, 0, h * 0.45)), 0.14, lava,
+                            segs=4))
+            body.append(rod(base + d * 1.2 + Vector((0, 0, h * 0.45)), base + d * 1.75 + Vector((0, 0, 0.0)), 0.13,
+                            lava_l, segs=4))
+        for j in range(4):
+            body.append(ico((x + 0.35 * math.sin(j * 2.1), y - 0.25 * j, h + 0.5 + 0.8 * j), 0.3 - 0.05 * j,
+                            lava_l if j % 2 else lava, sub=1))
     return platform("MagmaShiba", top, body)
 
 
@@ -2049,21 +2073,35 @@ def platform_mecha():
         body.append(rod(c * 4.62 + Vector((0, 0, 0.5)), c * 4.45 + Vector((0, 0, 1.55)), 0.2, SILVER, segs=6))
         body.append(ico(c * 4.4 + Vector((0, 0, 1.62)), 0.14, srgb(255, 60, 60) if k % 2 else srgb(60, 255, 120), sub=1))
     body.append(torus((0, 0, top + 0.02), 2.0, 0.07, yellow, segs=18, minor=3))
-    # Two pylons with antennas and lights at the back.
+    # Hangar gantry arching over the back: two armoured columns with glowing strips, a beam with warning lights and a
+    # hanging docking clamp; glowing vents on the pad's side panels.
     for s in (-1, 1):
-        x, y = s * 2.3, 3.4
-        body.append(cube((x, y, top + 1.0), (0.7, 0.7, 2.0), fn=metal(steel, 0.3)))
-        body.append(cube((x, y - 0.36, top + 1.3), (0.4, 0.04, 1.0), cyan))
-        body.append(rod((x, y, top + 2.0), (x, y, top + 3.4), 0.05, dark, segs=4))
-        body.append(ico((x, y, top + 3.45), 0.16, cyan, sub=1))
+        x, y = s * 3.5, 2.9
+        body.append(cube((x, y, (SINK + 8.0) / 2), (1.0, 1.0, 8.0 - SINK), fn=metal(steel, 0.3, 3 + s)))
+        body.append(cube((x - s * 0.52, y - 0.2, 4.0), (0.06, 0.25, 5.5), cyan))
+        body.append(cube((x, y - 0.52, 4.0), (0.25, 0.06, 5.5), cyan))
+        for z in (1.5, 3.5, 5.5):
+            body.append(cube((x, y, z), (1.12, 1.12, 0.2), yellow))
+    body.append(cube((0, 2.9, 8.3), (8.2, 1.1, 0.8), fn=metal(dark, 0.3)))
+    for k in range(7):
+        body.append(cube((-3.0 + k, 2.33, 8.3), (0.45, 0.06, 0.8), yellow if k % 2 else BLACK))
+    for x in (-2.2, 2.2):
+        body.append(ico((x, 2.9, 8.8), 0.22, srgb(255, 60, 60), sub=1))
+    body.append(rod((0, 2.9, 7.9), (0, 2.9, 7.2), 0.12, SILVER, segs=6))
+    for s in (-1, 1):
+        body.append(cube((s * 0.45, 2.9, 6.9), (0.2, 0.5, 0.7), fn=metal(steel, 0.3), rot=(0, s * 0.35, 0)))
+    for k in range(6):
+        am = 2 * math.pi * (k + 0.5) / 6
+        d = Vector((math.cos(am), math.sin(am), 0))
+        body.append(cube(d * 4.0 + Vector((0, 0, 0.25)), (1.6, 0.06, 0.18), cyan, rot=(0, 0, am + math.pi / 2)))
     return platform("MechaShiba", top, body)
 
 
 @model("Platform_AngelShiba", P2)
 def platform_angel():
     top = 2.2
-    white, shade = srgb(252, 252, 255), srgb(205, 215, 240)
-    cloud = lambda p, n, i: mix(shade, white, (p.z + 0.5) / 2.2 + max(0.0, n.z) * 0.4)
+    white, shade = srgb(255, 255, 255), srgb(222, 230, 250)
+    cloud = lambda p, n, i: mix(shade, white, (p.z + 0.5) / 1.6 + max(0.0, n.z) * 0.5)
     body = [lathe([(4.4, SINK), (4.6, 0.5), (4.0, 1.4), (0, 1.5)], segs=10, fn=cloud)]
     for k in range(9):
         a = 2 * math.pi * k / 9 + 0.3
@@ -2079,15 +2117,17 @@ def platform_angel():
         body.append(ico((math.cos(a) * 3.72, math.sin(a) * 3.72, 1.62), 0.16, fn=metal(GOLD_LIGHT), sub=1))
     # A pair of white wings with gold edges rising at the sides, a floating halo above the back.
     for s in (-1, 1):
-        root = Vector((s * 3.9, 0.9, 1.5))
-        for k in range(5):
-            L = 3.2 - 0.45 * k
-            ang = math.radians(20 + 14 * k)
-            d = Vector((s * math.cos(ang), 0.15, math.sin(ang)))
-            c = root + d * L / 2 + Vector((0, 0.05 * k, -0.1 * k))
-            col = GOLD_LIGHT if k == 0 else white
-            body.append(prism([(-L / 2, -0.28), (L / 2 - 0.3, -0.25), (L / 2, 0), (L / 2 - 0.3, 0.25), (-L / 2, 0.3)],
-                              0.12, col, loc=c, rot=(math.pi / 2, -s * ang, 0), scale=(s, 1, 1)))
+        # Wing: long feathers fanning from the root (upper ones longest), each a flat blade in the XZ plane with a
+        # gold edge on the top one; a gold shoulder where they meet.
+        root = Vector((s * 3.4, 1.4, 1.9))
+        for k in range(6):
+            L = 4.2 - 0.45 * k
+            ang = math.radians(62 - 11 * k)
+            d = Vector((s * math.cos(ang), 0.18, math.sin(ang))).normalized()
+            c = root + d * L / 2 + Vector((0, 0.06 * k, 0))
+            body.append(cube(c, (L, 0.14, 0.62), GOLD_LIGHT if k == 0 else white, rot=(0, -s * ang, 0)))
+            body.append(cube(c + d * (L / 2 - 0.3), (0.7, 0.16, 0.5), white if k else GOLD_LIGHT, rot=(0, -s * ang + s * 0.3, 0)))
+        body.append(ico(root, 0.55, fn=metal(GOLD), sub=1))
     body.append(torus((0, 3.2, 8.2), 1.1, 0.16, fn=metal(GOLD_LIGHT), segs=18, minor=4, rot=(math.radians(70), 0, 0)))
     for loc, sz in [((-3.4, -3.2, 3.4), 0.45), ((3.2, -3.0, 4.4), 0.4), ((0.5, -4.4, 2.9), 0.3)]:
         body += sparkle(loc, sz, GOLD_LIGHT)
@@ -2116,16 +2156,24 @@ def platform_demon():
         lean = (d * 0.4 + Vector((0, 0, 1))).normalized()
         body.append(cyl(d * 4.2 + lean * h / 2 + Vector((0, 0, SINK)), 0.5, h, fn=lambda p, n, i: mix(obs, obs_l, max(0.0, n.dot(LIGHT))),
                         segs=5, r2=0, rot=tilt(lean)))
+    # Two huge horns rising from the rock at the back sides, curling inward over the Shiba.
     for s in (-1, 1):
-        pts = [Vector((s * 2.2, 3.4, 0.5)), Vector((s * 3.0, 3.6, 2.6)), Vector((s * 3.1, 3.4, 4.4)),
-               Vector((s * 2.6, 2.9, 5.6)), Vector((s * 1.9, 2.5, 6.0))]
+        pts = [Vector((s * 3.0, 2.6, 1.0)), Vector((s * 4.3, 3.0, 3.4)), Vector((s * 4.6, 2.8, 5.8)),
+               Vector((s * 4.1, 2.2, 7.8)), Vector((s * 3.0, 1.6, 9.0)), Vector((s * 2.0, 1.4, 9.3))]
         for k, (a, b) in enumerate(zip(pts, pts[1:])):
-            body.append(rod(a, b, 0.55 - 0.12 * k, srgb(120, 25, 30) if k % 2 else srgb(80, 15, 25), segs=6,
-                            r2=0.45 - 0.12 * k if k < 3 else 0.02))
-    # Hellfire: flames at the foot, front and sides.
-    for k, (x, y, h) in enumerate([(-3.4, -2.6, 1.6), (3.3, -2.8, 1.3), (-4.3, 0.8, 1.2), (4.2, 1.0, 1.5),
-                                   (0.0, -4.3, 0.9)]):
-        body += flame((x, y, 0.0), h, k)
+            body.append(rod(a, b, 0.8 - 0.15 * k, srgb(130, 25, 30) if k % 2 else srgb(80, 15, 25), segs=6,
+                            r2=0.68 - 0.15 * k if k < 4 else 0.03))
+            if k < 4:
+                body.append(torus(b, 0.66 - 0.15 * k, 0.08, srgb(40, 10, 15), segs=8, minor=3, rot=tilt(b - a)))
+    # Hellfire: flames burning all around the foot of the rock, and glowing cracks down its sides.
+    for k in range(9):
+        a = 2 * math.pi * k / 9 + 0.55
+        body += flame((math.cos(a) * 4.9, math.sin(a) * 4.9, SINK + 0.3), 1.4 + 0.6 * (k % 3), k)
+    for k in range(6):
+        a = 2 * math.pi * k / 6
+        d = Vector((math.cos(a), math.sin(a), 0))
+        body.append(rod(d * 3.65 + Vector((0, 0, top - 0.05)), d * 4.35 + Vector((0, 0, 0.9)), 0.12, crack, segs=4))
+        body.append(rod(d * 4.35 + Vector((0, 0, 0.9)), d * 4.25 + Vector((0, 0, SINK)), 0.1, srgb(255, 150, 40), segs=4))
     return platform("DemonShiba", top, body)
 
 
@@ -2157,9 +2205,9 @@ def platform_eternal():
     body.append(cube((0.8, 1.3, top + 0.04), (0.28, 3.0, 0.05), srgb(40, 40, 110), rot=(0, 0, -0.55)))
     body.append(cube((-1.1, 0.6, top + 0.05), (0.32, 2.4, 0.05), srgb(40, 40, 110), rot=(0, 0, 1.05)))
     # Steps up the front.
-    for k in range(3):
-        body.append(cube((0, -5.6 + 0.55 * k, 1.2 + 0.55 * k), (3.0 - 0.3 * k, 1.2, 0.5), fn=metal(GOLD, 0.25) if k == 2
-                         else vary(marble, 0.03)))
+    for k in range(4):
+        body.append(cube((0, -5.9 + 0.6 * k, 1.05 + 0.6 * k), (3.4 - 0.3 * k, 1.3, 0.55), fn=vary(marble, 0.03)))
+        body.append(cube((0, -6.52 + 0.6 * k, 1.3 + 0.6 * k), (3.44 - 0.3 * k, 0.1, 0.1), fn=metal(GOLD)))
     # Giant standing clock behind the Shiba: gold ring with twelve marks, deep blue face with gold hands at 10:10.
     cc = Vector((0, 4.4, top + 5.8))
     face = (math.pi / 2, 0, 0)
@@ -2174,10 +2222,34 @@ def platform_eternal():
         d = Vector((math.cos(ang), 0, math.sin(ang)))
         body.append(cube(cc + d * L / 2 + Vector((0, -0.25, 0)), (L, 0.08, w), fn=metal(GOLD), rot=(0, -ang, 0)))
     body.append(cyl(cc + Vector((0, -0.28, 0)), 0.35, 0.12, fn=metal(GOLD), segs=10, rot=face))
+    # Sunburst of golden rays behind the clock, alternating long and short.
+    for k in range(16):
+        a = 2 * math.pi * (k + 0.5) / 16
+        L = 2.4 if k % 2 else 1.5
+        body.append(prism([(0, -0.45), (L, 0), (0, 0.45)], 0.12, fn=metal(GOLD_LIGHT if k % 2 else GOLD, 0.3),
+                          loc=cc + Vector((math.cos(a) * 4.9, 0.25, math.sin(a) * 4.9)), rot=(math.pi / 2, -a, 0)))
+    # Twin golden columns at the clock's sides: a sun on the right, a crescent moon on the left.
     for s in (-1, 1):
-        body.append(lathe([(0.45, 2.7), (0.35, top + 1.3), (0, top + 1.3)], segs=8, loc=(s * 3.6, 4.4, 0),
-                          fn=metal(GOLD)))
-        body.append(ico((s * 3.6, 4.4, top + 1.5), 0.4, fn=metal(srgb(120, 220, 255)), sub=1))
+        body.append(lathe([(0.55, 2.7), (0.42, top + 3.0), (0.6, top + 3.2), (0.6, top + 3.4), (0, top + 3.4)], segs=8,
+                          loc=(s * 5.2, 3.8, 0), fn=metal(GOLD)))
+    sun = Vector((5.2, 3.8, top + 4.4))
+    body.append(ico(sun, 0.75, fn=metal(srgb(255, 190, 40)), sub=2))
+    for k in range(8):
+        a = 2 * math.pi * k / 8
+        d = Vector((math.cos(a), 0, math.sin(a)))
+        body.append(cyl(sun + d * 1.05, 0.22, 0.55, fn=metal(GOLD_LIGHT), segs=4, r2=0, rot=tilt(d)))
+    moon = Vector((-5.2, 3.8, top + 4.4))
+    body.append(torus(moon, 0.62, 0.3, fn=metal(srgb(210, 230, 255), 0.3), segs=12, minor=5, arc=math.radians(220),
+                      rot=(math.pi / 2, 0, 0), scale=(1, 1, 1)))
+    # A floating hourglass at the front left.
+    hg = Vector((-4.6, -3.6, 5.6))
+    for dz in (-0.9, 0.9):
+        body.append(cyl(hg + Vector((0, 0, dz)), 0.7, 0.18, fn=metal(GOLD), segs=8))
+    for sx, sy in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
+        body.append(rod(hg + Vector((sx * 0.55, sy * 0.55, -0.9)), hg + Vector((sx * 0.55, sy * 0.55, 0.9)), 0.06,
+                        GOLD, segs=4))
+    body.append(lathe([(0.5, -0.8), (0.12, 0.0), (0.5, 0.8), (0, 0.8)], segs=8, loc=hg,
+                      fn=lambda p, n, i: srgb(255, 215, 120) if p.z < hg.z - 0.25 else srgb(200, 230, 250)))
     # Two armillary rings crossing around the dais, little planets on them, sparkles.
     for k, rot in enumerate([(math.radians(14), 0, 0), (math.radians(-10), math.radians(12), 0.6)]):
         body.append(torus((0, 0, 3.0 + k * 0.6), 7.0 - 0.4 * k, 0.12, fn=metal(GOLD_LIGHT), segs=32, minor=4, rot=rot))
@@ -2218,6 +2290,43 @@ def platform_void():
                       if n.z < 0.9 else flat(srgb(20, 12, 38))(p, n, i), phase=0.0))
     body.append(cyl((0, 0, top - 0.07), 3.45, 0.14, srgb(28, 16, 52), segs=16))
     body.append(torus((0, 0, top - 0.1), 3.7, 0.22, fn=lambda p, n, i: rim_col(p), segs=24, minor=4))
+    body.append(torus((0, 0, 0.25), 2.2, 0.25, pink, segs=20, minor=4))
+    # Glowing ribbons spiralling up the vortex (following its profile), three pink and three cyan.
+    for rib in range(6):
+        prev = None
+        for k in range(13):
+            t = k / 12
+            z = 0.2 + t * (top - 0.5)
+            r = surf_z([(pz, pr) for pr, pz in prof[:-1]], z) + 0.12
+            a = rib * math.pi / 3 + t * 4.2
+            pt = Vector((math.cos(a) * r, math.sin(a) * r, z))
+            if prev is not None:
+                body.append(rod(prev, pt, 0.11, pink if rib % 2 else cyan, segs=4))
+            prev = pt
+    # Void portal standing behind the Shiba: a black disc swirling with glowing arms inside a thick rim that runs
+    # purple -> pink -> cyan, on two dark crystal struts rising out of the black hole.
+    pc = Vector((0, 5.2, top + 5.0))
+    face = (math.pi / 2, 0, 0)
+    body.append(cyl(pc, 5.0, 0.3, black, segs=28, rot=face))
+    body.append(torus(pc, 5.2, 0.45, fn=lambda p, n, i: mix(purple, pink if p.x > 0 else cyan,
+                                                              (math.sin(math.atan2(p.z - pc.z, p.x) * 2) + 1) / 2),
+                      segs=32, minor=5, rot=face))
+    body.append(torus(pc + Vector((0, -0.1, 0)), 5.85, 0.1, cyan, segs=32, minor=3, rot=face))
+    for arm in range(5):
+        prev = None
+        for k in range(9):
+            t = k / 8
+            r = 4.6 * (1 - t) + 0.3
+            a = arm * 2 * math.pi / 5 + t * 3.4
+            pt = pc + Vector((math.cos(a) * r, -0.22, math.sin(a) * r))
+            if prev is not None:
+                body.append(rod(prev, pt, 0.22 * (1 - 0.5 * t), mix(purple, pink, t) if arm % 2 else mix(purple, cyan, t),
+                                segs=4))
+            prev = pt
+    body.append(ico(pc + Vector((0, -0.25, 0)), 0.6, srgb(255, 240, 255), sub=1))
+    for s in (-1, 1):
+        body.append(cyl(Vector((s * 3.6, 5.2, (0.1 + top + 1.4) / 2)), 0.7, top + 1.3, srgb(40, 22, 70), segs=5,
+                        r2=0.35, rot=(0, s * -0.12, 0)))
     # Tilted glowing rings around the vortex and floating dark crystal shards with glowing tips.
     body.append(torus((0, 0, 3.4), 5.0, 0.13, pink, segs=28, minor=3, rot=(math.radians(18), 0, 0.4)))
     body.append(torus((0, 0, 4.2), 6.2, 0.11, cyan, segs=32, minor=3, rot=(math.radians(-14), math.radians(10), 1.2)))
@@ -2228,10 +2337,10 @@ def platform_void():
         z = rnd.uniform(2.5, 9.0)
         axis = Vector((rnd.uniform(-0.4, 0.4), rnd.uniform(-0.4, 0.4), 1)).normalized()
         c = Vector((math.cos(a) * r, math.sin(a) * r, z))
-        L = rnd.uniform(1.0, 1.8)
-        body.append(cyl(c + axis * L * 0.25, 0.4, L * 0.5, srgb(35, 20, 60), segs=4, r2=0, rot=tilt(axis)))
-        body.append(cyl(c - axis * L * 0.25, 0.4, L * 0.5, black, segs=4, r2=0, rot=tilt(-axis)))
-        body.append(ico(c + axis * L * 0.52, 0.12, [purple, pink, cyan][k % 3], sub=1))
+        L = rnd.uniform(1.8, 3.0)
+        body.append(cyl(c + axis * L * 0.25, 0.55, L * 0.5, srgb(45, 25, 80), segs=4, r2=0, rot=tilt(axis)))
+        body.append(cyl(c - axis * L * 0.25, 0.55, L * 0.5, black, segs=4, r2=0, rot=tilt(-axis)))
+        body.append(ico(c + axis * L * 0.52, 0.18, [purple, pink, cyan][k % 3], sub=1))
     for k in range(12):
         a, r = rnd.uniform(0, 6.3), rnd.uniform(3.5, 9.5)
         body.append(ico((math.cos(a) * r, math.sin(a) * r, rnd.uniform(1.5, 11.0)), rnd.uniform(0.08, 0.16), WHITE, sub=1))
