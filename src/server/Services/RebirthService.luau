@@ -2,7 +2,8 @@
 -- Rebirth (prestige, Config/EconomyConfig → Rebirth). Once a player owns the Shiba at ShooterTier level
 -- Rebirth.MinShibaTier, they can rebirth: Bonk Dollars go back to the starting amount, every upgrade level (Shibas,
 -- Shiba tier, projectile, speed, basket, intern) back to 0, and state.Rebirths goes up by one, which raises every
--- income for good (RewardService.GetRebirthMultiplier). Passes, trophies, Shiba-Index, quests, streaks, boosts,
+-- income for good (RewardService.GetRebirthMultiplier). Passes, trophies, Shiba-Index, Shiba variants (state.Variants,
+-- a variant slot comes back when that Shiba is bought again), quests, streaks, boosts,
 -- Bonk Rains, pending Shiba Bank earnings and settings are kept. The server alone decides (TryRebirth is called from
 -- the rebirth shrine's hold prompt, StationService). Admin tools: ForceRebirth, SetRebirths (AdminService).
 

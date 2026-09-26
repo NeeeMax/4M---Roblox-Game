@@ -494,9 +494,131 @@ local editions: { [string]: EditionLook } = {
 	},
 }
 
+-- ===== Shiba Variants (docs/GAME_DESIGN.md → Shiba Variants) =====
+-- Look of a variant slot (EconomyConfig.Variants), added by NPCShooterService on top of the tier's own effects. The
+-- outline is a Highlight named EditionOutlineName, so it shares the edition outlines' budget (only the
+-- MaxEditionOutlines nearest to the camera are drawn, ShibaController). HueCycle: clients cycle the outline (and the
+-- Huge platform ring) through the rainbow every RainbowCycleSeconds; the model carries the attribute VariantAttribute
+-- (the VariantId) so clients know. Particles with empty Colors use OutlineColor fading toward white.
+export type VariantLook = {
+	-- Index card and reveal colour.
+	Color: Color3,
+	OutlineColor: Color3,
+	FillColor: Color3,
+	FillTransparency: number,
+	OutlineTransparency: number,
+	HueCycle: boolean,
+	-- A glowing neon ring on the platform under the Shiba (Huge).
+	PlatformRing: boolean,
+	Light: { Color: Color3, Brightness: number, Range: number }?,
+	Particles: { Particles },
+}
+
+local RAINBOW_COLORS = {
+	Color3.fromRGB(255, 70, 70),
+	Color3.fromRGB(255, 200, 60),
+	Color3.fromRGB(80, 230, 110),
+	Color3.fromRGB(70, 170, 255),
+	Color3.fromRGB(190, 90, 255),
+}
+
+local variantLooks: { [string]: VariantLook } = {
+	Shiny = {
+		Color = Color3.fromRGB(255, 236, 150),
+		OutlineColor = Color3.fromRGB(255, 240, 180),
+		FillColor = Color3.fromRGB(255, 225, 120),
+		FillTransparency = 0.88,
+		OutlineTransparency = 0,
+		HueCycle = false,
+		PlatformRing = false,
+		Light = { Color = Color3.fromRGB(255, 235, 170), Brightness = 0.6, Range = 8 },
+		Particles = {
+			{
+				Texture = "Sparkles",
+				Colors = { Color3.fromRGB(255, 255, 255), Color3.fromRGB(255, 220, 110) },
+				Rate = 7,
+				Size = 0.45,
+				Lifetime = 1.4,
+				Speed = 0.4,
+				Rise = 0.8,
+				LightEmission = 0.7,
+				Transparency = 0.1,
+				Area = "Body",
+			},
+		},
+	},
+	Rainbow = {
+		Color = Color3.fromRGB(255, 110, 210),
+		OutlineColor = RAINBOW_COLORS[1],
+		FillColor = Color3.fromRGB(255, 255, 255),
+		FillTransparency = 0.9,
+		OutlineTransparency = 0,
+		HueCycle = true,
+		PlatformRing = false,
+		Light = { Color = Color3.fromRGB(255, 180, 240), Brightness = 0.7, Range = 10 },
+		Particles = {
+			{
+				Texture = "Sparkles",
+				Colors = RAINBOW_COLORS,
+				Rate = 10,
+				Size = 0.5,
+				Lifetime = 1.6,
+				Speed = 0.5,
+				Rise = 1,
+				LightEmission = 0.75,
+				Transparency = 0.1,
+				Area = "Body",
+			},
+		},
+	},
+	Huge = {
+		Color = Color3.fromRGB(180, 110, 255),
+		OutlineColor = RAINBOW_COLORS[5],
+		FillColor = Color3.fromRGB(255, 255, 255),
+		FillTransparency = 0.85,
+		OutlineTransparency = 0,
+		HueCycle = true,
+		PlatformRing = true,
+		Light = { Color = Color3.fromRGB(220, 170, 255), Brightness = 1.2, Range = 16 },
+		Particles = {
+			{
+				Texture = "Sparkles",
+				Colors = RAINBOW_COLORS,
+				Rate = 14,
+				Size = 0.6,
+				Lifetime = 1.8,
+				Speed = 0.7,
+				Rise = 1.2,
+				LightEmission = 0.8,
+				Transparency = 0.05,
+				Area = "Body",
+			},
+			{
+				-- The strong aura: a glowing haze rising from the feet.
+				Texture = "Smoke",
+				Colors = { Color3.fromRGB(200, 140, 255), Color3.fromRGB(255, 255, 255) },
+				Rate = 6,
+				Size = 1.8,
+				Lifetime = 2.4,
+				Speed = 0.35,
+				Rise = 1,
+				LightEmission = 0.5,
+				Transparency = 0.65,
+				Area = "Feet",
+			},
+		},
+	},
+}
+-- ===== end Shiba Variants =====
+
 return {
 	Effects = effects,
 	Editions = editions,
+	-- Shiba Variants (block above).
+	Variants = variantLooks,
+	VariantAttribute = "Variant",
+	VariantRingName = "VariantRing",
+	RainbowCycleSeconds = 3,
 	-- Name of the edition outline (Highlight). Roblox draws at most 31 Highlights at once (golden sticks use some too),
 	-- so each client keeps only the MaxEditionOutlines nearest to its camera enabled (Controllers/ShibaController).
 	EditionOutlineName = "EditionOutline",

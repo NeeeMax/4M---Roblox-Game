@@ -6,7 +6,10 @@
 --   editions, Config/Index ids); a rebirth resets the levels but never the book (seen and claimed stay).
 -- * Trophies: seen once owned.
 -- * Golden stick: seen on the first golden catch (BonkService calls DiscoverGolden).
--- Seeing every entry unlocks the completion bonus (ClaimIndex(Index.CompleteId)).
+-- * Variants ("Rainbow Samurai Shiba"): seen while an owned Shiba slot has that variant and the ring is at that tier
+--   (VariantService rolls the slots; checked after every state change like the tiers).
+-- Seeing every entry that counts (Index.CountsForCompletion: no Robux-only trophies, no variants) unlocks the
+-- completion bonus (ClaimIndex(Index.CompleteId)).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -16,6 +19,7 @@ local Index = require(ReplicatedStorage.Shared.Config.Index)
 local Net = require(ReplicatedStorage.Shared.Net)
 local RateLimiter = require(ReplicatedStorage.Shared.Util.RateLimiter)
 local Types = require(ReplicatedStorage.Shared.Types)
+local Upgrades = require(ReplicatedStorage.Shared.Config.Upgrades)
 
 local DataService = require(script.Parent.DataService)
 local EconomyService = require(script.Parent.EconomyService)
@@ -26,21 +30,39 @@ local claimLimiter = RateLimiter.New(Index.MaxClaimsPerSecond, 1)
 
 local IndexService = {}
 
-local function isReached(state: Types.PlayerState, entry: Index.Entry): boolean
+-- Variants the player's owned Shiba slots have right now (VariantId → true).
+local function ownedVariants(state: Types.PlayerState): { [string]: boolean }
+	local present: { [string]: boolean } = {}
+	local owned = Upgrades.GetValue("Shooters", state.UpgradeLevels.Shooters or 0)
+	for slot = 1, owned do
+		local variant = state.Variants.Slots[tostring(slot)]
+		if variant then
+			present[variant] = true
+		end
+	end
+	return present
+end
+
+local function isReached(state: Types.PlayerState, entry: Index.Entry, variants: { [string]: boolean }): boolean
 	if entry.Kind == "Shiba" then
 		return (state.UpgradeLevels.ShooterTier or 0) >= entry.Level
 	elseif entry.Kind == "Projectile" then
 		return (state.UpgradeLevels.ProjectileTier or 0) >= entry.Level
 	elseif entry.Kind == "Trophy" then
 		return state.Trophies[entry.Trophy] == true
+	elseif entry.Kind == "Variant" then
+		-- "Rainbow Samurai Shiba": a Rainbow slot while the ring is at the Samurai tier (exact variant; evolving a
+		-- variant slot fills that variant's page tier by tier).
+		return (state.UpgradeLevels.ShooterTier or 0) == entry.Level and variants[entry.Variant] == true
 	end
 	-- Golden: only DiscoverGolden marks it.
 	return false
 end
 
+-- Every entry the completion bonus needs is seen (Robux-only trophies and variants never count, Config/Index).
 local function allSeen(state: Types.PlayerState): boolean
 	for _, entry in Index.Entries do
-		if entry.Required and not state.Index.Seen[entry.Id] then
+		if Index.CountsForCompletion(entry) and not state.Index.Seen[entry.Id] then
 			return false
 		end
 	end
@@ -69,8 +91,9 @@ local function scan(player: Player)
 		return
 	end
 	local newIds: { string } = {}
+	local variants = ownedVariants(state)
 	for _, entry in Index.Entries do
-		if not state.Index.Seen[entry.Id] and isReached(state, entry) then
+		if not state.Index.Seen[entry.Id] and isReached(state, entry, variants) then
 			table.insert(newIds, entry.Id)
 		end
 	end

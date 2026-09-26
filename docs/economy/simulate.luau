@@ -333,3 +333,71 @@ for r = 2, 5 do
 		)
 	)
 end
+
+-- Shiba Variants (EconomyConfig.Variants): how many rolls a run gives, and the expected income bonus. Each owned slot
+-- rolls on every Shiba Tier purchase, a new slot on its More Shibas purchase (VariantService). Per slot after k rolls:
+-- P(≥ Shiny) = 1 − (1 − pS − pR − pH)^k, P(≥ Rainbow) = 1 − (1 − pR − pH)^k, P(Huge) = 1 − (1 − pH)^k (pity ignored:
+-- it only binds after 800 / 8,000 rolls). Expected slot multiplier = 1 + 0.5·P(≥Shiny) + 1.5·P(≥Rainbow) + 3·P(Huge).
+local V = E.Variants
+print("\n## Shiba Variants\n")
+local pS, pR, pH = 1 / V.OneIn.Shiny, 1 / V.OneIn.Rainbow, 1 / V.OneIn.Huge
+local function expectedSlot(k: number): number
+	local atLeastShiny = 1 - (1 - pS - pR - pH) ^ k
+	local atLeastRainbow = 1 - (1 - pR - pH) ^ k
+	local huge = 1 - (1 - pH) ^ k
+	return 1
+		+ (V.Multiplier.Shiny - 1) * atLeastShiny
+		+ (V.Multiplier.Rainbow - V.Multiplier.Shiny) * atLeastRainbow
+		+ (V.Multiplier.Huge - V.Multiplier.Rainbow) * huge
+end
+-- Plays `runs` runs in a row (variants carry over through rebirth). Returns the rolls per run and, per run, the
+-- time-weighted average ring multiplier (mean over the owned slots, weighted by how long each state lasted).
+local slotRolls: { [number]: number } = {}
+for r = 1, 5 do
+	local rr = run(E.RebirthMultiplier(r - 1))
+	local rolls = 0
+	local weighted, duration = 0, 0
+	local owned = 1
+	for _, p in rr do
+		-- Income before this purchase ran for p.Wait seconds with the current slots.
+		local sum = 0
+		for slot = 1, owned do
+			sum += expectedSlot(slotRolls[slot] or 0)
+		end
+		weighted += p.Wait * sum / owned
+		duration += p.Wait
+		if p.Upgrade == "ShooterTier" then
+			for slot = 1, owned do
+				slotRolls[slot] = (slotRolls[slot] or 0) + 1
+				rolls += 1
+			end
+		elseif p.Upgrade == "Shooters" then
+			owned = 1 + p.Level
+			slotRolls[owned] = (slotRolls[owned] or 0) + 1
+			rolls += 1
+		end
+	end
+	local endSum = 0
+	for slot = 1, owned do
+		endSum += expectedSlot(slotRolls[slot] or 0)
+	end
+	print(
+		string.format(
+			"- run %d: %d rolls; expected income bonus over the run +%.1f %%, at its end +%.1f %%",
+			r,
+			rolls,
+			(weighted / math.max(duration, 1e-9) - 1) * 100,
+			(endSum / owned - 1) * 100
+		)
+	)
+end
+local extreme = run(V.Multiplier.Huge)
+print(
+	string.format(
+		"- extreme (every slot Huge, ×%g): whole run %s instead of %s; each payback ÷ %g, the Route order is unchanged",
+		V.Multiplier.Huge,
+		fmtTime(extreme[#extreme].Time),
+		fmtTime(purchases[#purchases].Time),
+		V.Multiplier.Huge
+	)
+)

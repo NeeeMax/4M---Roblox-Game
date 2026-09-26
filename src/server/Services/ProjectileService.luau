@@ -42,8 +42,12 @@ export type ShotPlan = {
 	Mega: boolean,
 	-- Stick density cap (Gameplay.Shooters.MaxThrowsPerSecond): how many throws this stick stands for. 1 by default;
 	-- NPCShooterService sets it before Fire when the ring is capped. Every payout (bonk, basket, intern) multiplies
-	-- the stick value by it (RewardService.GetStickValue).
+	-- the stick value by it (RewardService.GetStickValue). Shiba Variants: NPCShooterService multiplies the throwing
+	-- slot's VariantMultiplier into it, so every payout gets the variant too.
 	ValueMultiplier: number,
+	-- Shiba Variants: the throwing Shiba's variant multiplier (EconomyConfig.Variants.Multiplier), already included in
+	-- ValueMultiplier; kept separately for logs and tests. 1 for Bonk Rain drops.
+	VariantMultiplier: number,
 }
 
 export type ProjectileInfo = {
@@ -147,6 +151,7 @@ function ProjectileService.Plan(owner: Player, from: Vector3, target: Vector3): 
 		Golden = rollGolden(owner),
 		Mega = mega,
 		ValueMultiplier = 1,
+		VariantMultiplier = 1,
 	}
 end
 
@@ -175,6 +180,7 @@ function ProjectileService.PlanDrop(owner: Player, target: Vector3, height: numb
 		Mega = false,
 		-- Bonk Rain sticks are extra sticks on top of the Shibas' (their own fixed Rate): plain value.
 		ValueMultiplier = 1,
+		VariantMultiplier = 1,
 	}
 end
 

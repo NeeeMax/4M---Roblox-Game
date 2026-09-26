@@ -371,17 +371,35 @@ Research: `docs/research/ROBLOX_PACING.md` §5.2 (co-play is a ranking signal; c
   boost; "Fake invite reward" plays both sides of an invite on yourself.
 - Creator Hub (optional): enable the Friend Referral banner; its reward text must match.
 
+## Shiba Variants
+
+Rare luck on top of the Shiba ladder (`VariantService`, numbers in `EconomyConfig.Variants`). Every slot on the Shiba
+ring (the 1st … 10th Shiba) has a variant: **Normal**, **Shiny** (1 in 40, sticks ×1.5, sparkles + gold-white
+outline), **Rainbow** (1 in 400, ×3, colour-cycling outline) or **Huge** (1 in 4,000, ×6, 1.6× taller with a strong
+aura).
+- A slot **rolls** when the player buys a Shiba Tier with Bonk Dollars (every owned slot rolls once per level bought)
+  or More Shibas (the new slot rolls). Robux purchases and admin levels never roll (no paid random items).
+- Variants only go **up** and stay through evolutions and rebirths. **Pity:** after 800 rolls without a new
+  Rainbow-or-better (8,000 without a Huge) the next roll that can improve a slot is guaranteed.
+- The throwing Shiba's variant multiplies its sticks' value (together with the stick-density multiplier).
+- **Weekend Bonk Party:** luck ×3 (`EventService.VariantLuckMultiplier`).
+- A new variant shows a reveal card (`VariantRolled`); a Huge is announced to everyone in the server.
+- Shiba-Index: a **VARIANTS** tab with one entry per variant × Shiba (`Variant_<Variant>_<AssetName>`, rewards
+  30 / 100 / 400 bonks) and its own progress; variants never count for the normal completion bonus.
+- Kept out of the pacing baseline (rare luck on top): `docs/economy/BALANCING.md`. Admin: Shiba Variants section
+  (force a variant on a slot, roll all, luck ×10, reset).
+
 ## Shiba-Index
 
-A collection book (INDEX menu, `Config/Index`) with one entry per Shiba tier (30: the ten originals, then the Shiny
-and Mythic editions), projectile tier (10), the golden stick and each trophy (12): 53 entries today, new tiers and
+A collection book (INDEX menu, `Config/Index`) with one entry per Shiba tier (30, each with its own model), projectile tier (10), the golden stick and each trophy (12): 53 entries today, new tiers and
 trophies are added automatically. Entry ids are saved: the ten original Shibas keep `Shiba_<Model>`, editions are
 `Shiba_<Edition><Model>` (e.g. `Shiba_ShinyShiba`). An entry is **found** when you first reach it: Shiba / projectile
 tier bought (or skipped past), first golden stick caught, trophy owned; a rebirth never un-finds anything. Unfound
 entries show as a dark "???" silhouette. Each found entry pays a one-time discovery reward you claim on its card (in
 bonks, see Hub features): Shibas 20 + 10 per tier (20 … 310), projectiles 15 + 5 per tier, golden stick 50, trophies
-by rarity (Common 25, Rare 50, Epic 100, Legendary 200, Exclusive 300). Finding all entries unlocks a completion bonus
-of 1,000 bonks. A bar on top shows the progress ("12/52 found"). Optional trophies (Bonk Buddies, it needs a
+by rarity (Common 25, Rare 50, Epic 100, Legendary 200, Exclusive 300). Finding all entries that count unlocks a completion bonus
+of 1,000 bonks; Robux-only trophies (VIP, Diamond, Rainbow, Starter), optional ones and variants never count, so
+every player can finish it. A bar on top shows the progress ("12/52 found"). Optional trophies (Bonk Buddies, it needs a
 friend) show and pay their reward but are not counted for completion.
 ## Obby (jump and run)
 

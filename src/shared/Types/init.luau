@@ -148,6 +148,23 @@ export type PlayerState = {
 	-- Social + Bonk Party (feat/social-party).
 	Social: SocialState,
 	Party: PartyState,
+	-- ===== Shiba Variants (save v3, VariantService) =====
+	Variants: VariantState,
+	-- ===== end Shiba Variants =====
 }
+
+-- ===== Shiba Variants (VariantService, EconomyConfig.Variants, docs/GAME_DESIGN.md → Shiba Variants) =====
+export type VariantId = "Normal" | "Shiny" | "Rainbow" | "Huge"
+
+export type VariantState = {
+	-- Ring slot ("1" … "10", string keys for the DataStore and the network) → variant. Missing = "Normal".
+	-- Kept through evolutions and rebirths; never goes down.
+	Slots: { [string]: VariantId },
+	-- Rolls since the player last gained a Rainbow-or-better slot / a Huge slot (pity, EconomyConfig.Variants.Pity).
+	RollsSinceRainbow: number,
+	RollsSinceHuge: number,
+	TotalRolls: number,
+}
+-- ===== end Shiba Variants =====
 
 return {}

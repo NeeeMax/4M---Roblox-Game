@@ -29,6 +29,7 @@ local ShopService = require(script.Parent.ShopService)
 local SocialService = require(script.Parent.SocialService)
 local StreakService = require(script.Parent.StreakService)
 local UpgradeService = require(script.Parent.UpgradeService)
+local VariantService = require(script.Parent.VariantService)
 
 local limiter = RateLimiter.New(10, 1)
 
@@ -175,6 +176,36 @@ local HANDLERS: { [string]: Handler } = {
 		SocialService.FakeInvite(player)
 	end,
 	-- ==== end Social + Bonk Party ====
+	-- ===== Shiba Variants (VariantService): force a variant on slot N ("<slot>:<VariantId>", e.g. "3:Rainbow";
+	-- "Normal" clears it), every slot back to Normal, roll every owned slot once now, luck ×10 on / off.
+	VariantSet = function(player, argument)
+		if typeof(argument) ~= "string" then
+			return
+		end
+		local slotText, variant = string.match(argument, "^(%d+):(%a+)$")
+		local slot = if slotText then tonumber(slotText) else nil
+		if slot and variant and slot <= Admin.MaxVariantSlot then
+			VariantService.SetSlot(player, slot, variant)
+		end
+	end,
+	VariantReset = function(player)
+		VariantService.ResetAll(player)
+		NotifyService.Send(player, "Variants reset: every Shiba slot is Normal", "Info")
+	end,
+	VariantRoll = function(player)
+		local improved = VariantService.RollSlots(player, VariantService.OwnedSlots(player))
+		DataService.Replicate(player)
+		NotifyService.Send(player, `Rolled every Shiba slot: {improved} got better`, "Info")
+	end,
+	VariantLuck = function(player)
+		-- The party multiplies luck too, so compare against it to see whether the admin boost is on.
+		local luck = if VariantService.GetLuck(player) > EventService.VariantLuckMultiplier()
+			then 1
+			else Admin.VariantLuck
+		VariantService.SetAdminLuck(player, luck)
+		NotifyService.Send(player, `Variant luck ×{luck}`, "Info")
+	end,
+	-- ===== end Shiba Variants
 	AllTrophies = function(player)
 		local state = DataService.GetState(player)
 		if state then

@@ -80,6 +80,12 @@ local Net = {
 	-- C→S () — claim the Bonk Party quest reward
 	ClaimPartyQuest = "ClaimPartyQuest",
 	-- ==== end Social + Bonk Party ====
+	-- ===== Shiba Variants =====
+	-- S→C (finderUserId: number, finderName: string, slot: number, variant: VariantId, shibaName: string) — a Shiba
+	-- slot rolled a better variant. Sent to the finder for every new variant (reveal card) and, for Huge, to everyone
+	-- in the server (chat line).
+	VariantRolled = "VariantRolled",
+	-- ===== end Shiba Variants =====
 }
 
 local ALL_NAMES = {
@@ -116,6 +122,8 @@ local ALL_NAMES = {
 	Net.FriendBoostChanged,
 	Net.PartyChanged,
 	Net.ClaimPartyQuest,
+	-- Shiba Variants
+	Net.VariantRolled,
 }
 
 function Net.CreateRemotes()
