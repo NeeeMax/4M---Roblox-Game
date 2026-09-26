@@ -4,9 +4,9 @@
 -- nothing (docs/decisions/0002). Shooters take turns: with n shooters, one fires every interval / n seconds.
 -- The interval comes from the Shiba tier (and the fire-rate boost, StickStorm), held to the stick density cap
 -- (UpgradeService.GetThrowRate, Gameplay.Shooters.MaxThrowsPerSecond): above it the ring throws at the cap and every
--- stick carries ValueMultiplier = natural ÷ capped rate, so income stays the same. Each shooter turns toward its target AimTime
--- before it fires. Shooters only fire while their owner is on (or next to) their island. The ring leaves a gap
--- where the bridge from the hub arrives.
+-- stick carries ValueMultiplier = natural ÷ capped rate, so income stays the same. Each shooter turns toward its
+-- target AimTime before it fires. Shooters only fire while their owner is on (or next to) their island. The ring
+-- leaves a gap where the bridge from the hub arrives.
 -- Looks: the ShooterTier's model from ReplicatedStorage.Assets (see Config/Gameplay → Shooters.Tiers), else a lower
 -- tier's model with an outline in the tier colour, else a red block. Shiny / Mythic editions use their base model
 -- with an outline and a light aura in the tier colour (Config/ShibaEffects → Editions). Each Shiba stands on its tier's platform
@@ -589,7 +589,7 @@ local function syncRing(player: Player, island: IslandService.Island, now: numbe
 	-- Tier interval, fire-rate boost and StickStorm, held to the stick density cap. The shooters take turns, so each
 	-- one throws every `wanted` / throws-per-second seconds.
 	local throwsPerSecond, valueMultiplier = UpgradeService.GetThrowRate(player)
-	local interval = wanted / throwsPerSecond
+	local interval = if throwsPerSecond > 0 then wanted / throwsPerSecond else math.huge
 	local tier = UpgradeService.GetLevel(player, "ShooterTier")
 	local projectileTier = UpgradeService.GetLevel(player, "ProjectileTier")
 	local ring = rings[player]
