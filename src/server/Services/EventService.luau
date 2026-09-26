@@ -6,7 +6,8 @@
 -- * MegaStick: ProjectileService plans each player's next shot as a giant stick (HasMegaPending / TakeMega),
 --   BonkService pays RewardMultiplier(true).
 -- * DoublePoints: BonkService multiplies every reward (RewardMultiplier).
--- * StickStorm: NPCShooterService multiplies the fire interval (FireIntervalMultiplier).
+-- * StickStorm: UpgradeService.GetThrowRate multiplies the fire interval (FireIntervalMultiplier) and the stick
+--   density cap (MaxThrowsMultiplier).
 -- It requires no other gameplay service, so everything above can require it without a cycle.
 -- Clients learn about events through ServerEvent(eventId, time): eventId = the running event and time = when it
 -- ends, or eventId "" and time = when the next one starts. Times are server clock (Workspace:GetServerTimeNow()).
@@ -111,6 +112,11 @@ end
 -- Multiplier for every Shiba's fire interval (StickStorm: faster).
 function EventService.FireIntervalMultiplier(): number
 	return if currentId == "StickStorm" then Events.StickStorm.FireIntervalMultiplier else 1
+end
+
+-- Multiplier for the stick density cap (StickStorm: a few more sticks at once).
+function EventService.MaxThrowsMultiplier(): number
+	return if currentId == "StickStorm" then Events.StickStorm.MaxThrowsMultiplier else 1
 end
 
 -- Whether this player's next planned shot should be the MegaStick giant stick.

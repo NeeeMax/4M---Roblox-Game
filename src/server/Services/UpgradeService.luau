@@ -1,6 +1,6 @@
 --!strict
 -- Upgrade levels, server-validated purchases, the active-shooter count, and applying MoveSpeed to the character.
--- Other services read upgrade effects through GetValue / GetLevel / GetFireInterval / GetActiveShooters.
+-- Other services read upgrade effects through GetValue / GetLevel / GetFireInterval / GetActiveShooters / GetThrowRate.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -17,6 +17,7 @@ local Upgrades = require(ReplicatedStorage.Shared.Config.Upgrades)
 local BoostService = require(script.Parent.BoostService)
 local DataService = require(script.Parent.DataService)
 local EconomyService = require(script.Parent.EconomyService)
+local EventService = require(script.Parent.EventService)
 local NotifyService = require(script.Parent.NotifyService)
 local QuestService = require(script.Parent.QuestService)
 local RewardService = require(script.Parent.RewardService)
@@ -53,6 +54,18 @@ end
 -- Seconds between two throws of one Shiba: set by the Shiba tier, halved by the fire-rate boost.
 function UpgradeService.GetFireInterval(player: Player): number
 	return RewardService.GetShooterTier(player).FireInterval / BoostService.GetMultiplier(player, "FireRate")
+end
+
+-- Sticks per second the player's ring of Shibas really throws, and the ValueMultiplier each stick carries: the
+-- natural rate (active Shibas / fire interval, fire-rate boost and StickStorm included) held to the stick density cap
+-- (Gameplay.Shooters.MaxThrowsPerSecond, raised during a StickStorm). throws/s × multiplier = the natural rate.
+function UpgradeService.GetThrowRate(player: Player): (number, number)
+	local interval = UpgradeService.GetFireInterval(player) * EventService.FireIntervalMultiplier()
+	return EconomyConfig.ThrowRate(
+		UpgradeService.GetActiveShooters(player),
+		interval,
+		EventService.MaxThrowsMultiplier()
+	)
 end
 
 local function applyMovement(player: Player)

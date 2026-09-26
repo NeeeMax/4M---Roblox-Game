@@ -41,6 +41,12 @@ return {
 			-- It starts this far under the island surface, so there is no gap at its foot.
 			Sink = 0.5,
 		},
+		-- Stick density cap: the whole ring throws at most this many sticks per second (Shibas take turns, so each
+		-- Shiba throws every Shibas / MaxThrowsPerSecond seconds when capped). Above the cap every stick carries the
+		-- value of natural ÷ capped throws (ValueMultiplier, "×N" tag on the stick), so income is unchanged. Defined
+		-- in Config/EconomyConfig → StickDensity (the pricing model needs it); the StickStorm event raises it by
+		-- Events.StickStorm.MaxThrowsMultiplier.
+		MaxThrowsPerSecond = EconomyConfig.StickDensity.MaxThrowsPerSecond,
 		-- The shooter turns toward its target this long before firing.
 		AimTime = 0.5,
 		-- Delay before a freshly placed ring of shooters fires for the first time.
@@ -158,6 +164,27 @@ return {
 		PaidTransparency = 0.5,
 		-- Attribute set on each projectile marker, read by the client (the path itself: Util/ProjectilePath).
 		IdAttribute = "ProjectileId",
+		-- Stick density cap (Shooters.MaxThrowsPerSecond): a stick worth several throws carries its ValueMultiplier
+		-- (number, only set when > 1) in this marker attribute. Clients show it (Controllers/ProjectileController):
+		-- from MinShown on, a small "×N" tag above the stick (N with one decimal) and a trail in the tier colour that
+		-- gets wider and longer with N, up to WidthMax × the diameter and LifetimeMax seconds at N = FullAt.
+		ValueMultiplierAttribute = "ValueMultiplier",
+		ValueTag = {
+			MinShown = 1.05,
+			FullAt = 6,
+			Color = Color3.fromRGB(255, 235, 140),
+			StrokeColor = Color3.fromRGB(60, 35, 10),
+			-- Tag size in studs (it scales with distance like the stick) and height above the stick's centre, in
+			-- diameters. Hidden beyond MaxDistance studs.
+			Width = 3,
+			Height = 1.2,
+			Offset = 0.9,
+			MaxDistance = 140,
+			WidthMin = 1.2,
+			WidthMax = 2.2,
+			LifetimeMin = 0.25,
+			LifetimeMax = 0.45,
+		},
 	},
 
 	-- Landing ring (Controllers/ProjectileController, only for your own projectiles): a flat ring on the ground where

@@ -40,6 +40,10 @@ export type ShotPlan = {
 	Golden: boolean,
 	-- MegaStick server event: the giant stick (Events.MegaStick.DiameterScale × diameter, pays RewardMultiplier ×).
 	Mega: boolean,
+	-- Stick density cap (Gameplay.Shooters.MaxThrowsPerSecond): how many throws this stick stands for. 1 by default;
+	-- NPCShooterService sets it before Fire when the ring is capped. Every payout (bonk, basket, intern) multiplies
+	-- the stick value by it (RewardService.GetStickValue).
+	ValueMultiplier: number,
 }
 
 export type ProjectileInfo = {
@@ -142,6 +146,7 @@ function ProjectileService.Plan(owner: Player, from: Vector3, target: Vector3): 
 		Path = ProjectilePath.Build(island.Center, radius, from, velocity, gravity),
 		Golden = rollGolden(owner),
 		Mega = mega,
+		ValueMultiplier = 1,
 	}
 end
 
@@ -168,6 +173,8 @@ function ProjectileService.PlanDrop(owner: Player, target: Vector3, height: numb
 		Path = ProjectilePath.Build(island.Center, radius, from, velocity, gravity),
 		Golden = rollGolden(owner),
 		Mega = false,
+		-- Bonk Rain sticks are extra sticks on top of the Shibas' (their own fixed Rate): plain value.
+		ValueMultiplier = 1,
 	}
 end
 
@@ -297,6 +304,10 @@ function ProjectileService.Fire(owner: Player, plan: ShotPlan)
 	marker.CFrame = CFrame.new(plan.From)
 	marker:SetAttribute(CONFIG.IdAttribute, id)
 	marker:SetAttribute(CONFIG.GoldenAttribute, plan.Golden)
+	if plan.ValueMultiplier > 1 then
+		-- Clients show the "×N" tag and a stronger trail (ProjectileController).
+		marker:SetAttribute(CONFIG.ValueMultiplierAttribute, plan.ValueMultiplier)
+	end
 	if plan.Mega then
 		marker:SetAttribute(Events.MegaStick.Attribute, true)
 		NotifyService.Send(owner, `MEGA STICK incoming! Catch it for x{Events.MegaStick.RewardMultiplier}!`, "Good")

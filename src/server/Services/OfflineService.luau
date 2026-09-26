@@ -35,9 +35,11 @@ local claimLimiter = RateLimiter.New(2, 1)
 local OfflineService = {}
 
 -- Highest believable earnings per minute right now: every throw of every active Shiba caught for MaxBonksPerThrow
--- normal bonks. Caps samples so coin-flip wins or gifts don't inflate the offline rate.
+-- normal bonks. Caps samples so coin-flip wins or gifts don't inflate the offline rate. Throws are counted before
+-- the stick density cap (capped throws × their ValueMultiplier), which is what they pay.
 local function maxPerMinute(player: Player): number
-	local throwsPerMinute = 60 / UpgradeService.GetFireInterval(player) * UpgradeService.GetActiveShooters(player)
+	local throwsPerSecond, valueMultiplier = UpgradeService.GetThrowRate(player)
+	local throwsPerMinute = 60 * throwsPerSecond * valueMultiplier
 	return throwsPerMinute * RewardService.GetHitValue(player) * BANK.MaxBonksPerThrow
 end
 
