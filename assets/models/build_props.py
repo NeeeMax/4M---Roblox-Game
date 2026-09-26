@@ -2347,6 +2347,132 @@ def platform_void():
     return platform("VoidShiba", top, body)
 
 
+# --- Drop zone beach props (Config/FieldDecor → EdgeProps): small, cheerful, readable from the field ------------
+SAND = srgb(236, 204, 140)
+SAND_DARK = srgb(206, 170, 108)
+SAND_LIGHT = srgb(248, 226, 172)
+
+
+@model("Prop_Sandcastle", "FieldDecor")
+def prop_sandcastle():
+    """Sand mound with a keep, four round towers with crenellations, a door, windows and a red pennant (3.2 tall)."""
+    body = [lathe([(2.35, -0.05, 0.03), (2.2, 0.25, 0.04), (1.75, 0.5, 0.03), (0, 0.55)], segs=10,
+                  fn=vary(SAND_DARK, 0.07, 1), jit=0.05, seed=1)]
+    sand = vary(SAND, 0.07, 2)
+    body.append(cube((0, 0, 1.2), (2.0, 1.6, 1.4), fn=sand))
+    for k in range(3):  # keep crenellations
+        for side in (-1, 1):
+            body.append(cube((-0.7 + k * 0.7, side * 0.72, 2.05), (0.34, 0.2, 0.3), fn=sand))
+    body.append(cube((0, 0, 2.2), (1.1, 0.9, 0.9), fn=vary(SAND_LIGHT, 0.06, 3)))
+    for x, y in ((-1.15, -0.9), (1.15, -0.9), (-1.15, 0.9), (1.15, 0.9)):
+        h = 2.25 if y < 0 else 2.55
+        body.append(cyl((x, y, 0.4 + h / 2), 0.5, h, fn=vary(SAND, 0.07, int(x * 10 + y)), segs=8))
+        for k in range(4):
+            a = k * math.pi / 2 + math.pi / 4
+            body.append(cube((x + math.cos(a) * 0.4, y + math.sin(a) * 0.4, 0.4 + h + 0.12), (0.24, 0.24, 0.24),
+                             fn=sand, rot=(0, 0, a)))
+        body.append(cyl((x, y, 0.4 + h + 0.01), 0.36, 0.04, SAND_DARK, segs=8))
+    body.append(cube((0, -0.81, 0.85), (0.55, 0.06, 0.75), srgb(120, 88, 56)))
+    body.append(cyl((0, -0.81, 1.22), 0.275, 0.06, srgb(120, 88, 56), segs=8, rot=(math.pi / 2, 0, 0)))
+    for x in (-0.55, 0.55):
+        body.append(cube((x, -0.81, 1.45), (0.18, 0.06, 0.24), srgb(110, 80, 52)))
+    body.append(cube((0, -0.46, 2.35), (0.2, 0.06, 0.26), srgb(110, 80, 52)))
+    # Pennant on the back-right tower, a shell and a starfish at the foot.
+    body.append(rod((1.15, 0.9, 3.0), (1.15, 0.9, 3.75), 0.035, WOOD_DARK, segs=4))
+    body.append(prism([(0, 0), (0.55, -0.15), (0, -0.32)], 0.04, srgb(240, 70, 70), loc=(1.15, 0.9, 3.72),
+                      rot=(math.pi / 2, 0, 0)))
+    body.append(prism(star_pts(5, 0.28, 0.12), 0.08, srgb(255, 140, 90), loc=(1.5, -1.55, 0.12), rot=(0.1, 0, 0.3)))
+    body.append(lathe([(0.2, 0), (0.16, 0.08), (0, 0.13)], segs=6, color=srgb(255, 205, 190), loc=(-1.55, -1.45, 0.02),
+                      scale=(1, 1.2, 1)))
+    return {"Body": body}
+
+
+@model("Prop_BeachBall", "FieldDecor")
+def prop_beach_ball():
+    """Classic six-panel beach ball with white caps (1.9 tall, rests slightly squashed)."""
+    panels = [srgb(240, 60, 60), WHITE, srgb(60, 130, 240), srgb(255, 205, 50), WHITE, srgb(70, 200, 110)]
+
+    def fn(p, n, i):
+        if abs(n.z) > 0.9:
+            return WHITE
+        a = (math.atan2(p.y, p.x - 0.0) + math.pi) / (2 * math.pi)
+        return mul(panels[int(a * 6) % 6], 1 + random.Random(i).uniform(-0.03, 0.03))
+    return {"Body": [ball((0, 0, 0.93), 0.95, fn=fn, segs=18, rings=10, scale=(1, 1, 0.98))]}
+
+
+@model("Prop_BeachUmbrella", "FieldDecor")
+def prop_beach_umbrella():
+    """Red-and-white beach umbrella over a striped towel (6.5 tall, canopy 5.6 wide), slightly tilted."""
+    red, white = srgb(235, 65, 60), srgb(250, 246, 238)
+    lean = Vector((0.12, 0.05, 1)).normalized()
+    foot = Vector((0.3, 0.4, 0.0))
+    top = foot + lean * 6.6
+    body = [rod(foot, top, 0.07, srgb(230, 230, 235), segs=6)]
+    rot = tilt(lean)
+    segs = 10
+
+    def canopy(p, n, i):
+        local = p - top
+        a = math.atan2(local.y, local.x) + math.pi
+        return mul(red if int(a / (2 * math.pi) * segs) % 2 == 0 else white, 1 + random.Random(i).uniform(-0.03, 0.03))
+    body.append(lathe([(2.8, -1.05), (2.6, -0.9), (1.9, -0.5), (1.0, -0.18), (0, 0)], segs=segs, fn=canopy,
+                      loc=top, rot=rot, phase=0))
+    body.append(ball(top + lean * 0.12, 0.13, red, segs=6, rings=4))
+    # Towel on the ground, blue and white stripes.
+    for k in range(6):
+        body.append(cube((-0.8 + k * 0.35, -1.2, 0.03), (0.36, 3.2, 0.06), srgb(60, 140, 235) if k % 2 == 0 else WHITE))
+    return {"Body": body}
+
+
+@model("Prop_BucketSpade", "FieldDecor")
+def prop_bucket_spade():
+    """Blue bucket full of sand with a handle, a yellow spade stuck in the sand next to it (2.2 tall)."""
+    blue = srgb(55, 140, 235)
+    body = [lathe([(0.52, 0), (0.64, 1.1), (0.72, 1.14), (0.72, 1.24), (0.62, 1.24), (0.55, 0.12), (0, 0.12)], segs=12,
+                  fn=metal(blue, 0.25))]
+    body.append(lathe([(0.6, 1.05), (0.4, 1.28), (0, 1.33)], segs=12, fn=vary(SAND, 0.05, 4)))
+    body.append(torus((0, 0, 1.2), 0.7, 0.04, srgb(240, 240, 245), segs=12, minor=4, arc=math.pi,
+                      rot=(math.pi / 2 - 0.5, 0, 0)))
+    body.append(lathe([(0.5, -0.03), (0.42, 0.05), (0, 0.08)], segs=10, color=SAND_DARK, loc=(0.95, -0.25, 0)))
+    yellow = srgb(255, 200, 40)
+    tip = Vector((0.95, -0.25, 0.25))
+    top = tip + Vector((0.28, 0.05, 1.75))
+    body.append(rod(tip + (top - tip) * 0.25, top, 0.06, yellow, segs=6))
+    body.append(cube(top + Vector((0, 0, 0.06)), (0.36, 0.1, 0.12), yellow, rot=tilt(top - tip)))
+    blade = tip + (top - tip) * 0.12
+    body.append(prism([(-0.28, 0.25), (0.28, 0.25), (0.26, -0.1), (0, -0.3), (-0.26, -0.1)], 0.05,
+                      fn=metal(srgb(255, 170, 30), 0.2), loc=blade, rot=(math.pi / 2, tilt(top - tip).y, 0)))
+    return {"Body": body}
+
+
+@model("Prop_BoneToy", "FieldDecor")
+def prop_bone_toy():
+    """Chew-toy bone lying flat, cream with a pink squeak band (0.75 tall, 2.7 long)."""
+    cream = srgb(250, 238, 212)
+    body = [cyl((0, 0, 0.37), 0.2, 2.0, fn=vary(cream, 0.04, 1), segs=8, rot=(0, math.pi / 2, 0))]
+    for x in (-1.0, 1.0):
+        for y in (-0.2, 0.2):
+            body.append(ball((x, y, 0.36), 0.36, fn=vary(cream, 0.05, int(x * 3 + y * 7)), segs=8, rings=6))
+    body.append(cyl((0, 0, 0.37), 0.23, 0.28, srgb(255, 130, 160), segs=8, rot=(0, math.pi / 2, 0)))
+    return {"Body": body}
+
+
+@model("Prop_GrassTuft", "FieldDecor")
+def prop_grass_tuft():
+    """A tuft of pointed blades on a small grass mound (1.3 tall)."""
+    rnd = random.Random(8)
+    body = [lathe([(0.55, -0.05, 0.05), (0.45, 0.1), (0, 0.16)], segs=7, fn=vary(GRASS, 0.08, 1), jit=0.05, seed=1)]
+    for k in range(9):
+        a = k * 2.4 + rnd.uniform(-0.3, 0.3)
+        r = rnd.uniform(0.05, 0.35)
+        base = Vector((math.cos(a) * r, math.sin(a) * r, 0.05))
+        lean = Vector((math.cos(a) * rnd.uniform(0.2, 0.6), math.sin(a) * rnd.uniform(0.2, 0.6), 1)).normalized()
+        h = rnd.uniform(0.75, 1.25)
+        body.append(cyl(base + lean * h / 2, 0.09, h, fn=zgrad(LEAF_DARK, LEAF_LIGHT, 0, 1.2, 0.05, k), segs=3,
+                        r2=0.0, rot=tilt(lean)))
+    return {"Body": body}
+
+
 # ---------------------------------------------------------------------------------------------------------------
 # Build, export, preview
 # ---------------------------------------------------------------------------------------------------------------

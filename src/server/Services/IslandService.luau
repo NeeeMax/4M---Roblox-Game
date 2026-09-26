@@ -15,6 +15,7 @@ local World = require(ReplicatedStorage.Shared.Config.World)
 
 local DataService = require(script.Parent.DataService)
 local PropService = require(script.Parent.PropService)
+local FieldDecor = require(script.Parent.Parent.World.FieldDecor)
 local Signs = require(script.Parent.Parent.World.Signs)
 
 local ISLAND = Gameplay.Island
@@ -113,39 +114,20 @@ local function buildBridge(angle: number, parent: Instance)
 	model.Parent = parent
 end
 
--- The field in the middle of an island: a sandy disc with a low border, open toward the bridge.
-local function buildField(center: Vector3, hubAngle: number, parent: Instance)
+-- The field in the middle of an island: a sandy disc with its decoration (paint, rope border, props).
+local function buildField(center: Vector3, hubAngle: number, slot: number, parent: Instance)
 	local field = newPart(
 		"Field",
 		Vector3.new(0.3, ISLAND.FieldRadius * 2, ISLAND.FieldRadius * 2),
-		CFrame.new(center + Vector3.new(0, -0.1, 0)) * CFrame.Angles(0, 0, math.rad(90)),
+		CFrame.new(center + Vector3.new(0, ISLAND.FieldTop - 0.15, 0)) * CFrame.Angles(0, 0, math.rad(90)),
 		Color3.fromRGB(235, 215, 160),
 		parent
 	)
 	field.Shape = Enum.PartType.Cylinder
 	field.Material = Enum.Material.Sand
 
-	-- The border: short blocks around the circle, leaving a gap toward the hub.
-	local segments = 40
-	local radius = ISLAND.FieldRadius + ISLAND.BorderWidth / 2
-	local segmentLength = 2 * math.pi * radius / segments + 0.3
-	local halfGap = math.rad(ISLAND.BorderGapDegrees) / 2
-	for index = 0, segments - 1 do
-		local angle = index / segments * 2 * math.pi
-		local fromGap = math.abs(math.atan2(math.sin(angle - hubAngle), math.cos(angle - hubAngle)))
-		if fromGap < halfGap then
-			continue
-		end
-		local position = center + direction(angle) * radius + Vector3.new(0, ISLAND.BorderHeight / 2, 0)
-		local block = newPart(
-			"Border",
-			Vector3.new(ISLAND.BorderWidth, ISLAND.BorderHeight, segmentLength),
-			CFrame.lookAt(position, position + direction(angle + math.pi / 2)),
-			Color3.fromRGB(245, 245, 250),
-			parent
-		)
-		block.Material = Enum.Material.SmoothPlastic
-	end
+	-- Paint, rope border, signs, beach props, lights and glitter (Config/FieldDecor), open toward the bridge.
+	FieldDecor.Build(center, hubAngle, slot, parent)
 end
 
 -- Island-relative polar spot (Config/Stations: degrees clockwise from the bridge, studs from the centre).
@@ -286,7 +268,7 @@ local function buildPlot(slot: number, parent: Instance): Plot
 	)
 	rim.Shape = Enum.PartType.Cylinder
 
-	buildField(center, hubAngle, model)
+	buildField(center, hubAngle, slot, model)
 
 	-- Floating-island rock underneath.
 	PropService.Place(

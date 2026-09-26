@@ -12,13 +12,15 @@ return {
 		-- The whole island: the Shibas stand on it, the field is in the middle. Sticks bounce anywhere on it.
 		Radius = 80,
 		Thickness = 6,
-		-- The field in the middle (with a low border around it). Shots land inside TargetRadius.
+		-- The field in the middle (sand with painted target rings and a rope border, Config/FieldDecor). Shots land
+		-- inside TargetRadius.
 		FieldRadius = 30,
 		TargetRadius = 28,
-		BorderHeight = 1.5,
+		-- The field's sand top is this far above the island surface (the paint plate and the landing ring float
+		-- above it).
+		FieldTop = 0.05,
+		-- Room kept for the rope border round the field (Config/FieldDecor → Border); the Bonk Basket stands outside it.
 		BorderWidth = 2,
-		-- Gap in the border toward the bridge, in degrees.
-		BorderGapDegrees = 30,
 		-- Below this height the character is put back on its island (or the hub).
 		FallOffY = 50,
 		-- Shooters only fire while the owner is within this distance of their island's centre (not on the hub).
@@ -198,9 +200,10 @@ return {
 		MinShrink = 3,
 		Thickness = 0.5,
 		PerfectThicknessScale = 1.8,
-		-- Height of the flat cylinders and how far above the ground they float (no z-fighting with the island).
+		-- Height of the flat cylinders and how far above the ground they float: over the field's paint plate
+		-- (Island.FieldTop 0.05 + FieldDecor.Paint.Lift 0.04), so the ring always draws on top of the paint.
 		Height = 0.1,
-		GroundOffset = 0.08,
+		GroundOffset = 0.16,
 		Transparency = 0.2,
 		TargetTransparency = 0.72,
 		-- Fades in over this many seconds after launch.

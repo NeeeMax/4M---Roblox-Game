@@ -24,6 +24,13 @@ return {
 	NoCollide = {
 		Prop_Flowers = true,
 		Prop_Cloud = true,
+		-- Beach props round the drop zone (Config/FieldDecor → EdgeProps).
+		Prop_Sandcastle = true,
+		Prop_BeachBall = true,
+		Prop_BeachUmbrella = true,
+		Prop_BucketSpade = true,
+		Prop_BoneToy = true,
+		Prop_GrassTuft = true,
 	} :: { [string]: boolean },
 
 	-- Parts of a model named like this glow (Neon, no collisions); the first one also holds the prop's light.
