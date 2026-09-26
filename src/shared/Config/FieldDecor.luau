@@ -56,28 +56,31 @@ return {
 		-- Plate top above the field's top (the field's top is 0.05 above the island surface).
 		Lift = 0.04,
 		PixelsPerStud = 16,
-		-- The whole canvas turned by this many degrees (180 if the lettering reads upside down in Studio).
+		-- The whole canvas turned by this many degrees. The canvas top should point at the bridge (the plate faces it);
+		-- if "GET BONKED" does not read upright from the field centre looking at the bridge, try 180 (or 90 / 270).
 		CanvasRotation = 0,
-		-- Painted bands (drawn as outlined circles, inside to outside order does not matter).
+		-- Painted bands (outlined circles; later entries draw over earlier ones). The landing rings are warm (tier
+		-- colour mixed toward white: tan, cream, red, pink, gold), so the target lines are a cool teal and the middle
+		-- band a soft mint: brown sticks, white and warm rings all stay clearly apart from the paint.
 		Rings = {
-			-- The bullseye's white rim, the middle band (tinted), the white target lines, the edge curb.
-			{ Radius = 12, Width = 8, Color = Color3.fromRGB(255, 176, 110), Transparency = 0.72 },
-			{ Radius = 6.2, Width = 0.45, Color = Color3.fromRGB(255, 252, 240), Transparency = 0.3 },
-			{ Radius = 12, Width = 0.45, Color = Color3.fromRGB(255, 252, 240), Transparency = 0.35 },
-			{ Radius = 20, Width = 0.45, Color = Color3.fromRGB(255, 252, 240), Transparency = 0.35 },
-			{ Radius = 27.6, Width = 0.5, Color = Color3.fromRGB(255, 252, 240), Transparency = 0.3 },
-			{ Radius = 29.1, Width = 0.9, Color = Color3.fromRGB(255, 196, 90), Transparency = 0.25 },
+			-- The mint middle band, the teal target lines (bullseye rim, 12, 20, 28), the orange edge curb.
+			{ Radius = 12, Width = 8, Color = Color3.fromRGB(150, 210, 215), Transparency = 0.62 },
+			{ Radius = 6.2, Width = 0.5, Color = Color3.fromRGB(60, 165, 200), Transparency = 0.35 },
+			{ Radius = 12, Width = 0.5, Color = Color3.fromRGB(60, 165, 200), Transparency = 0.45 },
+			{ Radius = 20, Width = 0.5, Color = Color3.fromRGB(60, 165, 200), Transparency = 0.45 },
+			{ Radius = 27.6, Width = 0.55, Color = Color3.fromRGB(60, 165, 200), Transparency = 0.4 },
+			{ Radius = 29.1, Width = 0.9, Color = Color3.fromRGB(255, 176, 70), Transparency = 0.3 },
 		} :: { Ring },
 		-- The bullseye disc and the paw print on it.
-		Bullseye = { Radius = 6.2, Color = Color3.fromRGB(255, 120, 90), Transparency = 0.45 },
+		Bullseye = { Radius = 6.2, Color = Color3.fromRGB(95, 190, 215), Transparency = 0.5 },
 		PawColor = Color3.fromRGB(255, 250, 235),
-		PawTransparency = 0.15,
+		PawTransparency = 0.1,
 		Paw = {
-			{ X = 0, Y = 1.1, Width = 4.6, Height = 3.9, Rotation = 0 },
-			{ X = -2.75, Y = -1.9, Width = 1.6, Height = 2.1, Rotation = -25 },
-			{ X = -0.95, Y = -3.2, Width = 1.7, Height = 2.25, Rotation = -8 },
-			{ X = 0.95, Y = -3.2, Width = 1.7, Height = 2.25, Rotation = 8 },
-			{ X = 2.75, Y = -1.9, Width = 1.6, Height = 2.1, Rotation = 25 },
+			{ X = 0, Y = 1.25, Width = 5.3, Height = 4.5, Rotation = 0 },
+			{ X = -3.15, Y = -2.2, Width = 1.85, Height = 2.4, Rotation = -25 },
+			{ X = -1.1, Y = -3.7, Width = 1.95, Height = 2.6, Rotation = -8 },
+			{ X = 1.1, Y = -3.7, Width = 1.95, Height = 2.6, Rotation = 8 },
+			{ X = 3.15, Y = -2.2, Width = 1.85, Height = 2.4, Rotation = 25 },
 		} :: { Blob },
 		-- Lettering in the tinted middle band, reading upright from the field centre.
 		LetteringColor = Color3.fromRGB(255, 132, 48),
@@ -127,11 +130,11 @@ return {
 		},
 		RopeHeight = 1.85,
 		RopeSag = 0.55,
-		RopeWidth = 0.16,
+		RopeWidth = 0.2,
 		RopeColor = Color3.fromRGB(235, 215, 175),
 		-- Pennants hang from the rope at these fractions of every span.
 		FlagSpots = { 1 / 3, 2 / 3 },
-		FlagSize = Vector2.new(0.85, 0.95),
+		FlagSize = Vector2.new(1.1, 1.25),
 		FlagColors = {
 			Color3.fromRGB(255, 90, 80),
 			Color3.fromRGB(255, 205, 60),
@@ -162,14 +165,15 @@ return {
 	-- Small beach props just outside the rope (PropService; placeholders until the models are imported). All of
 	-- them are in Config/Props → NoCollide.
 	EdgeProps = {
-		{ Name = "Prop_Sandcastle", Angle = 55, Radius = 34.5, Height = 3.2, Yaw = 0 },
-		{ Name = "Prop_BeachBall", Angle = 103, Radius = 33.5, Height = 1.9, Yaw = 30 },
-		{ Name = "Prop_BucketSpade", Angle = 243, Radius = 34, Height = 2.2, Yaw = -20 },
-		{ Name = "Prop_BoneToy", Angle = 28, Radius = 33.2, Height = 0.75, Yaw = 60 },
-		{ Name = "Prop_BoneToy", Angle = 300, Radius = 33.8, Height = 0.75, Yaw = -35 },
-		{ Name = "Prop_GrassTuft", Angle = 78, Radius = 32.6, Height = 1.3, Yaw = 0 },
-		{ Name = "Prop_GrassTuft", Angle = 255, Radius = 33, Height = 1.2, Yaw = 40 },
-		{ Name = "Prop_GrassTuft", Angle = 327, Radius = 32.8, Height = 1.4, Yaw = 80 },
+		{ Name = "Prop_Sandcastle", Angle = 55, Radius = 35, Height = 4, Yaw = 0 },
+		{ Name = "Prop_BeachBall", Angle = 98, Radius = 33.6, Height = 2.3, Yaw = 30 },
+		{ Name = "Prop_BeachUmbrella", Angle = 114, Radius = 36.5, Height = 6.5, Yaw = 25 },
+		{ Name = "Prop_BucketSpade", Angle = 243, Radius = 34, Height = 2.5, Yaw = -20 },
+		{ Name = "Prop_BoneToy", Angle = 28, Radius = 33.2, Height = 0.85, Yaw = 60 },
+		{ Name = "Prop_BoneToy", Angle = 300, Radius = 33.8, Height = 0.85, Yaw = -35 },
+		{ Name = "Prop_GrassTuft", Angle = 78, Radius = 32.6, Height = 1.5, Yaw = 0 },
+		{ Name = "Prop_GrassTuft", Angle = 255, Radius = 33, Height = 1.4, Yaw = 40 },
+		{ Name = "Prop_GrassTuft", Angle = 327, Radius = 32.8, Height = 1.6, Yaw = 80 },
 	} :: { EdgeProp },
 
 	-- A faint glitter rising from the sand (one emitter per field).

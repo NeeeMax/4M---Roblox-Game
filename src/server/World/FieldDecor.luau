@@ -2,7 +2,7 @@
 -- The drop zone's decoration (Config/FieldDecor, docs/GAME_DESIGN.md → World → Field look), built once per plot by
 -- IslandService: paint in the sand (a SurfaceGui on an invisible plate, so nothing flickers), the rope border with
 -- posts, caps, pennants and soft lights, mini BONK signs on the posts, beach props round the edge (PropService) and a
--- faint sand glitter. Everything is anchored and visual only (no collisions, queries or touches). About 77 parts per
+-- faint sand glitter. Everything is anchored and visual only (no collisions, queries or touches). About 81 parts per
 -- plot with every prop still a placeholder.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -20,6 +20,7 @@ local BORDER = Config.Border
 local BUILDERS: { [string]: PropService.Builder } = {
 	Prop_Sandcastle = PropService.Builders.Sandcastle,
 	Prop_BeachBall = PropService.Builders.BeachBall,
+	Prop_BeachUmbrella = PropService.Builders.BeachUmbrella,
 	Prop_BucketSpade = PropService.Builders.BucketSpade,
 	Prop_BoneToy = PropService.Builders.BoneToy,
 	Prop_GrassTuft = PropService.Builders.GrassTuft,
@@ -347,13 +348,11 @@ local function buildBorder(center: Vector3, hubAngle: number, parent: Instance):
 			local flag = Instance.new("WedgePart")
 			flag.Name = "Pennant"
 			flag.Size = Vector3.new(0.06, flagSize.Y, flagSize.X)
-			local sideways = if spotIndex % 2 == 0 then along else -along
-			flag.CFrame = CFrame.fromMatrix(
-				position - Vector3.new(0, flagSize.Y / 2 + 0.02, 0),
-				outward,
-				Vector3.yAxis,
-				sideways
-			) * CFrame.Angles(0, 0, math.pi)
+			-- Z = X × Y (right-handed); every second pennant turned round, so the points alternate.
+			local turn = if spotIndex % 2 == 0 then math.pi else 0
+			flag.CFrame = CFrame.fromMatrix(position - Vector3.new(0, flagSize.Y / 2 + 0.02, 0), outward, Vector3.yAxis)
+				* CFrame.Angles(0, turn, 0)
+				* CFrame.Angles(0, 0, math.pi)
 			flag.Color = BORDER.FlagColors[(flagNumber - 1) % #BORDER.FlagColors + 1]
 			flag.Material = Enum.Material.Fabric
 			flag.CastShadow = false

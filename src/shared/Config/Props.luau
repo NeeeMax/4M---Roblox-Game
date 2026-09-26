@@ -27,6 +27,7 @@ return {
 		-- Beach props round the drop zone (Config/FieldDecor → EdgeProps).
 		Prop_Sandcastle = true,
 		Prop_BeachBall = true,
+		Prop_BeachUmbrella = true,
 		Prop_BucketSpade = true,
 		Prop_BoneToy = true,
 		Prop_GrassTuft = true,

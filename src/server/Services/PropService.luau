@@ -411,6 +411,34 @@ PropService.Builders = {
 		)
 	end :: Builder,
 
+	-- A red beach umbrella (pole and a flat canopy) over a blue towel.
+	BeachUmbrella = function(model: Model, height: number)
+		part(
+			model,
+			Enum.PartType.Cylinder,
+			Vector3.new(height, 0.15, 0.15),
+			CFrame.new(0, height / 2, 0) * CFrame.Angles(0, 0, math.rad(90)),
+			Color3.fromRGB(230, 230, 235),
+			Enum.Material.Metal
+		)
+		part(
+			model,
+			Enum.PartType.Cylinder,
+			Vector3.new(0.35, height * 0.85, height * 0.85),
+			CFrame.new(0, height * 0.88, 0) * CFrame.Angles(0, 0, math.rad(90)),
+			Color3.fromRGB(235, 65, 60),
+			Enum.Material.Fabric
+		)
+		part(
+			model,
+			Enum.PartType.Block,
+			Vector3.new(height * 0.3, 0.06, height * 0.5),
+			CFrame.new(0, 0.03, -height * 0.18),
+			Color3.fromRGB(60, 140, 235),
+			Enum.Material.Fabric
+		)
+	end :: Builder,
+
 	-- A blue sand bucket with a yellow spade leaning on it.
 	BucketSpade = function(model: Model, height: number)
 		local bucket = height * 0.62
