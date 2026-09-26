@@ -30,7 +30,8 @@ local PARTY = Events.Party
 local HUB = World.Hub
 -- The sign hangs above the two plaza boards (how-to-play, obby best times), facing the hub spawn.
 local SIGN_OFFSET = Vector3.new(0, 16, 19)
-local SIGN_SIZE = Vector3.new(24, 3.4, 0.5)
+-- Wide enough that the poles stand outside both boards (they reach x = ±13.4).
+local SIGN_SIZE = Vector3.new(28, 3.4, 0.5)
 
 local claimLimiter = RateLimiter.New(5, 1)
 local signLabel: TextLabel? = nil
