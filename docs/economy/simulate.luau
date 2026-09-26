@@ -201,7 +201,9 @@ if minuteStart then
 		)
 	)
 end
-print(string.format("- longest payback (automation judged by idle payback): %s for %s", fmtTime(maxPayback), maxPaybackAt))
+print(
+	string.format("- longest payback (automation judged by idle payback): %s for %s", fmtTime(maxPayback), maxPaybackAt)
+)
 print(string.format("- purchases in a different order than the Route: %d of %d", routeMismatch, #purchases))
 print(string.format("- last price: %s", fmtNum(purchases[#purchases].Price)))
 
@@ -235,7 +237,15 @@ print("| purchase | price | active payback | idle payback |")
 print("|----------|-------|----------------|--------------|")
 for _, p in purchases do
 	if p.Upgrade == "Basket" or p.Upgrade == "Intern" then
-		print(string.format("| %s | %s | %s | %s |", label(p), fmtNum(p.Price), fmtTime(payback(p)), fmtTime(idlePayback(p))))
+		print(
+			string.format(
+				"| %s | %s | %s | %s |",
+				label(p),
+				fmtNum(p.Price),
+				fmtTime(payback(p)),
+				fmtTime(idlePayback(p))
+			)
+		)
 	end
 end
 
@@ -251,6 +261,37 @@ for n = 1, #E.Shibas do
 	end
 end
 print("```")
+
+-- Stick density cap (EconomyConfig.ThrowRate): sticks in the air per second before and after the cap.
+print("\n## Stick density (cap " .. E.StickDensity.MaxThrowsPerSecond .. " sticks/s)\n")
+print("| situation | FireInterval | sticks/s without cap | sticks/s thrown | value per stick |")
+print("|-----------|--------------|----------------------|-----------------|-----------------|")
+for _, case in
+	{
+		{ "Shiba 5, 3 Shibas", 5, 3, 1, 1 },
+		{ "Shiba 8, 5 Shibas", 8, 5, 1, 1 },
+		{ "Shiba 10, 6 Shibas", 10, 6, 1, 1 },
+		{ "Shiba 15, 8 Shibas", 15, 8, 1, 1 },
+		{ "Shiba 30, 8 Shibas", 30, 8, 1, 1 },
+		{ "Shiba 30, 10 Shibas (Shiba Slots pass)", 30, 10, 1, 1 },
+		{ "… + 2× Fire Rate boost", 30, 10, 2, 1 },
+		{ "… + Stick Storm (cap ×1.5)", 30, 10, 4, 1.5 },
+	}
+do
+	local shiba = E.Shibas[case[2]]
+	local interval = shiba.FireInterval / case[4]
+	local thrown, multiplier = E.ThrowRate(case[3], interval, case[5])
+	print(
+		string.format(
+			"| %s | %.1f s | %.2f | %.2f | ×%.1f |",
+			case[1],
+			shiba.FireInterval,
+			case[3] / interval,
+			thrown,
+			multiplier
+		)
+	)
+end
 
 -- Rebirth.
 local gate = E.Rebirth.MinShibaTier + 1
@@ -292,3 +333,71 @@ for r = 2, 5 do
 		)
 	)
 end
+
+-- Shiba Variants (EconomyConfig.Variants): how many rolls a run gives, and the expected income bonus. Each owned slot
+-- rolls on every Shiba Tier purchase, a new slot on its More Shibas purchase (VariantService). Per slot after k rolls:
+-- P(≥ Shiny) = 1 − (1 − pS − pR − pH)^k, P(≥ Rainbow) = 1 − (1 − pR − pH)^k, P(Huge) = 1 − (1 − pH)^k (pity ignored:
+-- it only binds after 800 / 8,000 rolls). Expected slot multiplier = 1 + 0.5·P(≥Shiny) + 1.5·P(≥Rainbow) + 3·P(Huge).
+local V = E.Variants
+print("\n## Shiba Variants\n")
+local pS, pR, pH = 1 / V.OneIn.Shiny, 1 / V.OneIn.Rainbow, 1 / V.OneIn.Huge
+local function expectedSlot(k: number): number
+	local atLeastShiny = 1 - (1 - pS - pR - pH) ^ k
+	local atLeastRainbow = 1 - (1 - pR - pH) ^ k
+	local huge = 1 - (1 - pH) ^ k
+	return 1
+		+ (V.Multiplier.Shiny - 1) * atLeastShiny
+		+ (V.Multiplier.Rainbow - V.Multiplier.Shiny) * atLeastRainbow
+		+ (V.Multiplier.Huge - V.Multiplier.Rainbow) * huge
+end
+-- Plays `runs` runs in a row (variants carry over through rebirth). Returns the rolls per run and, per run, the
+-- time-weighted average ring multiplier (mean over the owned slots, weighted by how long each state lasted).
+local slotRolls: { [number]: number } = {}
+for r = 1, 5 do
+	local rr = run(E.RebirthMultiplier(r - 1))
+	local rolls = 0
+	local weighted, duration = 0, 0
+	local owned = 1
+	for _, p in rr do
+		-- Income before this purchase ran for p.Wait seconds with the current slots.
+		local sum = 0
+		for slot = 1, owned do
+			sum += expectedSlot(slotRolls[slot] or 0)
+		end
+		weighted += p.Wait * sum / owned
+		duration += p.Wait
+		if p.Upgrade == "ShooterTier" then
+			for slot = 1, owned do
+				slotRolls[slot] = (slotRolls[slot] or 0) + 1
+				rolls += 1
+			end
+		elseif p.Upgrade == "Shooters" then
+			owned = 1 + p.Level
+			slotRolls[owned] = (slotRolls[owned] or 0) + 1
+			rolls += 1
+		end
+	end
+	local endSum = 0
+	for slot = 1, owned do
+		endSum += expectedSlot(slotRolls[slot] or 0)
+	end
+	print(
+		string.format(
+			"- run %d: %d rolls; expected income bonus over the run +%.1f %%, at its end +%.1f %%",
+			r,
+			rolls,
+			(weighted / math.max(duration, 1e-9) - 1) * 100,
+			(endSum / owned - 1) * 100
+		)
+	)
+end
+local extreme = run(V.Multiplier.Huge)
+print(
+	string.format(
+		"- extreme (every slot Huge, ×%g): whole run %s instead of %s; each payback ÷ %g, the Route order is unchanged",
+		V.Multiplier.Huge,
+		fmtTime(extreme[#extreme].Time),
+		fmtTime(purchases[#purchases].Time),
+		V.Multiplier.Huge
+	)
+)

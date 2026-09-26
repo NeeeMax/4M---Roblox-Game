@@ -147,9 +147,25 @@ unless `Config/Props → ShowPlaceholderMarkers` is true.
 | — (not built yet) | `Prop_UpgradeStand_Basket`, `Prop_UpgradeStand_Intern` | automation stands (part-built placeholder until a model exists) | 7 | — |
 | — (not built yet) | `Prop_RebirthShrine` | rebirth shrine at 270° (StationService, part-built placeholder, purple and gold) | see `Config/Stations` | — |
 | — (not built yet) | `Prop_Basket` | the Bonk Basket at the field edge (AutomationService, part-built woven basket) | grows per level, `Config/Automation` | — |
+| `Prop_Sandcastle.fbx` | `Prop_Sandcastle` | drop zone edge (FieldDecor, no collisions): keep, four towers, pennant, shell, starfish | 4 | 724 |
+| `Prop_BeachBall.fbx` | `Prop_BeachBall` | drop zone edge (no collisions): six-panel ball | 2.3 | 324 |
+| `Prop_BeachUmbrella.fbx` | `Prop_BeachUmbrella` | drop zone edge (no collisions): red-white umbrella over a striped towel | 6.5 | 206 |
+| `Prop_BucketSpade.fbx` | `Prop_BucketSpade` | drop zone edge (no collisions): blue bucket full of sand, yellow spade | 2.5 | 374 |
+| `Prop_BoneToy.fbx` | `Prop_BoneToy` | drop zone edge (no collisions): chew-toy bone lying flat | 0.85 | 376 |
+| `Prop_GrassTuft.fbx` | `Prop_GrassTuft` | drop zone edge (no collisions): grass tuft | 1.4–1.6 | 62 |
 | `Trophy_Wood/Bronze/Silver/Gold/Galaxy/Starter/Streak/VIP/Diamond/Rainbow.fbx` | `Trophy_<Id>` | trophies on the island pedestals (TrophyService) | 4 | 268–982 |
 | `Platform_<AssetName>.fbx` (Shiba, ShadesShiba, BuffShiba, ChefShiba, PoliceShiba, NinjaShiba, GoldShiba, GalaxyShiba, GiantShiba, CheemsGod) | `Platform_<AssetName>` (parts `Body`, `StandPoint`) | the platform each tier's Shibas stand on (NPCShooterService) | see below | 346–1650 |
 | `Platform_<AssetName>.fbx` for Shibas 11-30 (see the table below) | `Platform_<AssetName>` (parts `Body`, `StandPoint`) | same | see below | 552–4860 |
+
+Drop zone props (group `FieldDecor`, `props/FieldDecor_props.png`): placed by `Config/FieldDecor → EdgeProps` just
+outside the field's rope border, all in `Config/Props → NoCollide`. The whole field (paint, rope border, signs, props)
+is previewed in `props/FieldDecor_preview.jpg`, rendered by `preview_field_decor.py` (it mirrors `Config/FieldDecor` by
+hand; re-run after changing either):
+
+```
+blender --background --disable-autoexec shiba_bonk_default.blend --python build_props.py -- <out> <out>/prev Prop_Sandcastle,Prop_BeachBall,Prop_BeachUmbrella,Prop_BucketSpade,Prop_BoneToy,Prop_GrassTuft
+blender --background --factory-startup --python preview_field_decor.py -- <out> <out>
+```
 
 `Prop_ObbyTower` is exactly 10 × 40.2 (TowerRadius 5, FinishHeight − Thickness − plaza): scaled to the tower height it
 has the same footprint as the part tower. If `Config/Obby` changes those numbers, rebuild it with the new ratio.

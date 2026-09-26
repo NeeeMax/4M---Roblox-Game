@@ -71,4 +71,8 @@ Work is split by feature area. The owner reviews changes in their area and decid
   `Island_<UserId>` with the attribute `IslandCenter`; `TutorialService` counts guided purchases in
   `state.Tutorial.Step` (the only field it changes); `TutorialController` draws the guidance client-side, using
   `StationController.CheapestAffordable / GetAnchor / GetPad / GetStand`.
+- Social + Bonk Party: `SocialService` owns the Friend Boost (friend cache) and invite rewards (`state.Social`, the
+  `ReferralsPending` DataStore); `RewardService.GetStickValue` multiplies by `SocialService.GetFriendMultiplier`.
+  `EventService` owns the Bonk Party schedule (`IsPartyActive`, `GetPartyWindow`, `VariantLuckMultiplier`);
+  `PartyService` owns the party quest (`state.Party`) and builds `Workspace/BonkPartySign`.
 - Code references world objects by stable names/paths. When you rename something in the world that code uses, update the code in the same session and mention it in the PR.

@@ -1,6 +1,6 @@
 --!strict
 -- Upgrade levels, server-validated purchases, the active-shooter count, and applying MoveSpeed to the character.
--- Other services read upgrade effects through GetValue / GetLevel / GetFireInterval / GetActiveShooters.
+-- Other services read upgrade effects through GetValue / GetLevel / GetFireInterval / GetActiveShooters / GetThrowRate.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -17,9 +17,11 @@ local Upgrades = require(ReplicatedStorage.Shared.Config.Upgrades)
 local BoostService = require(script.Parent.BoostService)
 local DataService = require(script.Parent.DataService)
 local EconomyService = require(script.Parent.EconomyService)
+local EventService = require(script.Parent.EventService)
 local NotifyService = require(script.Parent.NotifyService)
 local QuestService = require(script.Parent.QuestService)
 local RewardService = require(script.Parent.RewardService)
+local VariantService = require(script.Parent.VariantService)
 
 -- The Run Faster game pass (Config/Shop): WalkSpeed ×1.5.
 local RUN_FASTER_MULTIPLIER = 1.5
@@ -53,6 +55,18 @@ end
 -- Seconds between two throws of one Shiba: set by the Shiba tier, halved by the fire-rate boost.
 function UpgradeService.GetFireInterval(player: Player): number
 	return RewardService.GetShooterTier(player).FireInterval / BoostService.GetMultiplier(player, "FireRate")
+end
+
+-- Sticks per second the player's ring of Shibas really throws, and the ValueMultiplier each stick carries: the
+-- natural rate (active Shibas / fire interval, fire-rate boost and StickStorm included) held to the stick density cap
+-- (Gameplay.Shooters.MaxThrowsPerSecond, raised during a StickStorm). throws/s × multiplier = the natural rate.
+function UpgradeService.GetThrowRate(player: Player): (number, number)
+	local interval = UpgradeService.GetFireInterval(player) * EventService.FireIntervalMultiplier()
+	return EconomyConfig.ThrowRate(
+		UpgradeService.GetActiveShooters(player),
+		interval,
+		EventService.MaxThrowsMultiplier()
+	)
 end
 
 local function applyMovement(player: Player)
@@ -131,6 +145,18 @@ function UpgradeService.TryPurchase(player: Player, id: string, count: number): 
 	end
 
 	local newLevel = startLevel + bought
+	-- ===== Shiba Variants: Bonk-Dollar evolutions roll every owned slot (once per level), a new Shiba rolls its slot.
+	-- Robux grants use SetLevel and never roll (VariantService header).
+	if def.Id == "ShooterTier" then
+		VariantService.RollSlots(player, VariantService.OwnedSlots(player), bought)
+	elseif def.Id == "Shooters" then
+		local newSlots: { number } = {}
+		for slot = Upgrades.GetValue("Shooters", startLevel) + 1, Upgrades.GetValue("Shooters", newLevel) do
+			table.insert(newSlots, slot)
+		end
+		VariantService.RollSlots(player, newSlots)
+	end
+	-- ===== end Shiba Variants
 	if def.Id == "Shooters" then
 		-- A newly bought shooter starts active.
 		state.ActiveShooters = Upgrades.GetValue("Shooters", newLevel)

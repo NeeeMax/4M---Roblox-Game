@@ -42,13 +42,20 @@ Every RemoteEvent and RemoteFunction is listed here. A PR that adds or changes a
 | `ClaimOffline` | RemoteEvent | C→S | `double: boolean` | boolean, data loaded, `Bank.Pending` > 0, ≤ 2/s; `false` pays Pending and clears it; `true` only opens the Roblox prompt for the "DoubleOffline" product (Studio with id 0: test grant), 2× Pending is paid in ProcessReceipt (`ShopService.Grant`) | Marco |
 | `ObbyStarted` | RemoteEvent | S→C | — | — (server → client). Sent when the server sees the character's root leave the start pad (position check 10×/s, alive character) | Max |
 | `ObbyFinished` | RemoteEvent | S→C | `time: number, reward: number, bestTime: number, nextRewardAt: number` | — (server → client). Sent only when the server-side run is valid: started from the start pad, root inside the finish zone, ≥ `Obby.MinTime` (8 s), ≥ half of the platforms passed (`Obby.MinStageShare`, invisible zones, no checkpoints), never landed back on the plaza after climbing (`Obby.FallHeight`), ≤ `MaxRunTime`, never left `LeaveRadius`; time measured on the server; reward only if `RewardCooldown` passed since `state.Obby.LastRewardAt` | Max |
+| `FriendBoostChanged` | RemoteEvent | S→C | `friends: number, multiplier: number` — Roblox friends in this server that count for the Friend Boost (capped at `EconomyConfig.Social.MaxFriends`, admin pretend friends included) and the income multiplier `1 + PerFriend × friends`. Sent on join (0, 1) and whenever the count changes (`SocialService`) | — (server → client) | Marco |
+| `PartyChanged` | RemoteEvent | S→C | `startsAt: number, endsAt: number` — the running Weekend Bonk Party (`startsAt <= now < endsAt`) or the next one, Unix time (compare with `Workspace:GetServerTimeNow()`); admin start/end included. Sent to each player on join and to everyone when the window changes (`EventService`) | — (server → client) | Marco |
+| `VariantRolled` | RemoteEvent | S→C | `finderUserId: number, finderName: string, slot: number, variant: VariantId, shibaName: string` — a Shiba slot rolled a better variant; sent to the finder (reveal card) and, for Huge, to everyone in the server (chat line) | — (server → client) | Marco |
+| `ClaimPartyQuest` | RemoteEvent | C→S | — | data loaded, `state.Party.Catches` ≥ `Events.Party.QuestCatches` (counted on the server from validated catches during the party), not claimed yet, ≤ 5/s; reward computed on the server (`RewardService.Hits(EconomyConfig.Party.RewardHits)`) | Marco |
+
+The INVITE button needs no remote: the client opens Roblox's invite dialog itself (`SocialController`), and the server
+reads the invite from the joining player's `GetJoinData().ReferredByPlayerId` (`SocialService`).
 
 Remotes live in `ReplicatedStorage/Remotes`, created by `Net.CreateRemotes()` from `Main.server.luau`. Get one with `Net.Get(Net.BonkHit)`.
 `StateChanged` is sent after the player's data loads and after every change to points, levels or active shooters.
 Projectiles are invisible, anchored marker parts in `Workspace/Islands/Island_<UserId>/Projectiles`. They carry the
 attribute `ProjectileId` (number) so the client can report hits, plus their planned path (`LaunchTime` on the server
 clock, `Gravity`, `SettleTime`, `EndTime`, `FadeTime`, `Diameter`, `SegmentCount`, `S<n>Time/Position/Velocity`), written and read only by
-`src/shared/Util/ProjectilePath.luau`, and `Paid` (true once it paid out), `Golden` and `Mega` (the MegaStick event's giant stick; its bigger size is already in `Diameter`). Clients draw the model along that path
+`src/shared/Util/ProjectilePath.luau`, and `Paid` (true once it paid out), `Golden`, `Mega` (the MegaStick event's giant stick; its bigger size is already in `Diameter`) and `ValueMultiplier` (number, only when > 1: the stick density cap made it worth that many throws; clients show "×N"). Clients draw the model along that path
 (`docs/decisions/0004`): small settling hops from `SettleTime`, lying still from `EndTime`, fully faded at `EndTime + FadeTime`.
 Shooter models (the imported Shiba inside `Workspace/Islands/Island_<UserId>/…/Shooter`) carry two attributes, both
 server → client only and purely visual (`Controllers/ShibaController`):

@@ -24,7 +24,8 @@ local FINAL_SHIBA_COST = 1e33
 local PACE = {
 	MinSeconds = 4,
 	-- MaxSeconds is never reached: with Knee 50 the curve is almost a straight line from 4 s to ~2.5 min at the last
-	-- purchase. Waits pass 60 s around purchase 19 (the 9th Shiba, ~7.5 min in) and a whole first run takes ~67 min.
+	-- purchase. Waits pass 60 s around purchase 18 (while owning the 8th Shiba, ~6.5 min in) and a whole first run takes
+	-- ~66 min.
 	-- (A lower MaxSeconds keeps the end at ~1.5 min but the run then only lasts ~55 min.)
 	MaxSeconds = 200,
 	-- Purchases until the wait has closed ~63 % of the gap to MaxSeconds (larger = slower, straighter rise).
@@ -37,13 +38,16 @@ local BASELINE = {
 	CatchRate = 0.6,
 	CatchPerSpeedLevel = 0.03,
 	MaxCatchRate = 0.9,
-	-- Nobody catches more than this many sticks per second, + per Move Speed level (with many fast Shibas the rest is
-	-- left for the intern and the basket). Sticks land ~25 studs apart on average; at WalkSpeed 16 that is about one
-	-- per second, at 46 (Move Speed 10) about two.
+	-- Nobody catches more than this many sticks per second, + per Move Speed level (the rest is left for the intern
+	-- and the basket). Sticks land ~25 studs apart on average; at WalkSpeed 16 that is about one per second, at 46
+	-- (Move Speed 10) about two. With the stick density cap (StickDensity, ~1.4 sticks/s) this rarely binds.
 	MaxCatchesPerSecond = 1,
 	CatchesPerSecondPerSpeedLevel = 0.1,
-	-- Average multiplier of a caught stick from catch quality, head hits and combo (see Bonk below).
+	-- Average multiplier of a caught stick from catch quality, head hits and combo (see Bonk below), + per Move Speed
+	-- level: a faster player gets under more sticks before they land (AIR ×2 / PERFECT ×4 instead of a Normal
+	-- pick-up). Since the density cap keeps the sticks few enough to reach, speed mostly pays through catch quality.
 	ActiveBonus = 2,
+	ActiveBonusPerSpeedLevel = 0.05,
 }
 
 -- Bonk payouts. A caught stick pays: stick value × quality × head × combo × golden × boosts/passes/events × rebirth.
@@ -68,7 +72,8 @@ local BONK = {
 }
 
 -- Rebirth (prestige): resets Bonk Dollars and all upgrade levels (Shibas, tiers, projectiles, speed, basket, intern)
--- for a permanent income multiplier. Keeps passes, trophies, Shiba-Index, quests, streaks, boosts, Bonk Rains, settings.
+-- for a permanent income multiplier. Keeps passes, trophies, Shiba-Index, Shiba variants, quests, streaks, boosts,
+-- Bonk Rains, settings.
 local REBIRTH = {
 	-- ShooterTier level needed to rebirth (level 20 = the 21st Shiba).
 	MinShibaTier = 20,
@@ -131,6 +136,20 @@ local SHIBA_LIST = {
 local FIRST_FIRE_INTERVAL = 5
 local LAST_FIRE_INTERVAL = 1.2
 
+-- Stick density cap (docs/GAME_DESIGN.md → Shooters). The ring of Shibas throws at most MaxThrowsPerSecond sticks per
+-- second, however many Shibas, however fast their tier, fire-rate boost or StickStorm. When the natural rate
+-- (Shibas / FireInterval, with boosts and events) is higher, the ring throws at the cap and every stick is worth
+-- natural ÷ capped times as much (its ValueMultiplier, shown on the stick as "×N"), so Bonk Dollars per second stay
+-- exactly the same, only in fewer, bigger sticks. Mirrored as Gameplay.Shooters.MaxThrowsPerSecond.
+-- Why 1.4: sticks land ~25 studs apart and a player at WalkSpeed 16 reaches about one per second (two at max Move
+-- Speed); with a flight of ~1.5 s plus bounces that keeps ~4–5 sticks in the air, few enough to follow every one.
+-- Below 1.2 the early mid game (3–4 Shibas) already hits the cap and feels slow; above ~1.8 the late game gets
+-- chaotic again. The cap first bites at about 5 Shibas on Shiba 8 (natural 1.4/s) and at the end (8 Shibas at
+-- 1.2 s = 6.7/s natural) each stick carries ×4.8.
+local STICK_DENSITY = {
+	MaxThrowsPerSecond = 1.4,
+}
+
 -- Projectile tiers (Config/Projectiles has names and models, same order): BaseReward of the first one, and the
 -- factor from one tier to the next. PROJECTILE_TIERS must match Config/Projectiles → Tiers.
 local PROJECTILE_TIERS = 10
@@ -139,23 +158,30 @@ local PROJECTILE_GROWTH = 2.5
 
 -- Automation (docs/GAME_DESIGN.md → Automation). Per level (level 1 = unlocked). Only sticks the player does not
 -- catch are left for them: the intern goes for them first, the basket gets what the intern misses.
--- Tuned so that an AFK player earns a real share: with basket and intern, active play earns ~3.5× the idle income at
--- first and ~2× at the end of a run (the simulation prints it), so playing always pays more but idling is not zero.
+-- Tuned so that an AFK player earns a real share: with basket and intern, active play earns ~3.8× the idle income at
+-- first, ~3× from Shiba 16 and ~2.4× at the end of a run (the simulation prints it), so playing always pays more but
+-- idling is not zero. The stick density cap (StickDensity) means there is no flood of missed sticks: the intern takes
+-- a share of what the player leaves and the basket rolls on the rest, so both keep mattering; their levels step up in
+-- big increments so every level still pays for itself (idle) within ~15 min.
 local AUTOMATION = {
 	Basket = {
 		-- Chance that a stick nobody caught ends up in the basket.
-		CatchChance = { 0.4, 0.46, 0.52, 0.58, 0.64, 0.7 },
+		CatchChance = { 0.35, 0.48, 0.61, 0.74, 0.87, 1 },
 		-- Pays this share of a Normal bonk.
-		Payout = { 0.5, 0.55, 0.6, 0.65, 0.7, 0.75 },
+		Payout = { 0.45, 0.56, 0.67, 0.78, 0.89, 1 },
 		-- Offline earnings (Shiba Bank) are capped at this many hours.
 		OfflineHours = { 2, 3, 4, 5, 6, 8 },
 	},
 	Intern = {
 		Names = { "Bonk Intern", "Hard-Hat Intern", "Junior Bonker", "Senior Bonker", "Bonk Manager", "Bonk CEO" },
 		WalkSpeed = { 18, 22, 26, 30, 34, 38 },
-		Payout = { 0.8, 0.82, 0.85, 0.9, 0.95, 1 },
-		-- Sticks per second the intern is expected to reach (used for pricing and the simulation only; in the game it
-		-- depends on where the sticks land and its WalkSpeed).
+		Payout = { 0.7, 0.76, 0.82, 0.88, 0.94, 1 },
+		-- The model of what the intern reaches (pricing and the simulation only; in the game it depends on where the
+		-- sticks land and its WalkSpeed): CatchShare of the sticks the player leaves, at most ExpectedCatchesPerSecond.
+		-- CatchShare follows the Baseline player's rule (60 % at WalkSpeed 16, +1 % per stud/s): with the density cap
+		-- there are at most ~1.4 sticks/s, so a walker can't take all of them however fast it is, and the basket
+		-- keeps getting the rest.
+		CatchShare = { 0.5, 0.56, 0.62, 0.68, 0.74, 0.8 },
 		ExpectedCatchesPerSecond = { 0.8, 1, 1.2, 1.4, 1.6, 1.8 },
 	},
 	-- Offline (Shiba Bank): per minute away the player gets OfflineShare × their automation income per minute
@@ -172,9 +198,11 @@ local AUTOMATION = {
 -- of the game is the second Shiba (the NEW SHIBA pad in front of the spawn).
 -- Keep every PriceShare above ~1.2 / ShibaGrowth (≈ 0.15): a cheaper item placed right after a Shiba would still be
 -- cheaper than that Shiba, get bought before it and then pay for itself ShibaGrowth (×8) times slower than planned.
--- Shares: Shibas and projectiles 1 (they multiply income); More Shibas 0.15 (with many Shibas you can't catch the
--- extra sticks, they mostly feed the automation); Move Speed 0.16 (+~5 % income per level); Basket 0.25 and
--- Intern 0.15 (judged by what they add while idle).
+-- Shares: Shibas and projectiles 1 (they multiply income); More Shibas 0.15 (cheap, quick buys: with the density cap
+-- each extra Shiba adds its full share of value); Move Speed 0.16 (+3 % catch rate, +0.05 catch bonus ≈ +4 % income
+-- per level); Basket 0.15 and Intern 0.12 (judged by what they add while idle). The Intern is below the ~0.15 rule:
+-- its levels sit mid-segment, and the simulation shows none of them is bought out of Route order (re-check after
+-- moving its From / To).
 export type RouteSpec = {
 	Upgrade: string,
 	Count: number,
@@ -194,9 +222,36 @@ local ROUTE_SPECS: { RouteSpec } = {
 	},
 	{ Upgrade = "ProjectileTier", Count = PROJECTILE_TIERS - 1, From = 0.04, To = 0.85, PriceShare = 1 },
 	{ Upgrade = "MoveSpeed", Count = 10, From = 0.05, To = 0.8, PriceShare = 0.16 },
-	{ Upgrade = "Basket", Count = #AUTOMATION.Basket.CatchChance, From = 0.2, To = 0.9, PriceShare = 0.25 },
-	{ Upgrade = "Intern", Count = #AUTOMATION.Intern.Payout, From = 0.28, To = 0.94, PriceShare = 0.15 },
+	{ Upgrade = "Basket", Count = #AUTOMATION.Basket.CatchChance, From = 0.2, To = 0.9, PriceShare = 0.15 },
+	{ Upgrade = "Intern", Count = #AUTOMATION.Intern.Payout, From = 0.28, To = 0.94, PriceShare = 0.12 },
 }
+
+-- ===== Shiba Variants (VariantService, docs/GAME_DESIGN.md → Shiba Variants) =======================================
+-- Every Shiba slot on the ring (1 … 10) has a variant: Normal, Shiny, Rainbow or Huge. A slot rolls when the player
+-- buys a Shiba Tier with Bonk Dollars (every owned slot rolls once per level bought) or More Shibas (the new slot
+-- rolls). Robux purchases and admin levels never roll (paid random items would need odds disclosure). A roll draws
+-- one number: Huge with Luck / OneIn.Huge, else Rainbow with Luck / OneIn.Rainbow, else Shiny with Luck / OneIn.Shiny;
+-- it only counts if it is better than what the slot has (variants never go down; they stay through evolutions and
+-- rebirths). Pity: after Pity.Rainbow rolls without gaining a Rainbow-or-better slot (Pity.Huge without a Huge), the
+-- next roll that can improve a slot is a guaranteed Rainbow (Huge). The throwing Shiba's variant multiplies its
+-- sticks' value (Multiplier). Kept out of the pacing baseline on purpose: variants are rare luck on top
+-- (docs/economy/BALANCING.md → Shiba Variants).
+local VARIANTS = {
+	-- Roll order, best first.
+	Order = { "Huge", "Rainbow", "Shiny" },
+	OneIn = { Shiny = 40, Rainbow = 400, Huge = 4000 } :: { [string]: number },
+	Multiplier = { Normal = 1, Shiny = 1.5, Rainbow = 3, Huge = 6 } :: { [string]: number },
+	Pity = { Rainbow = 800, Huge = 8000 },
+	-- Divides the "1 in N" numbers. A later event (weekend party, weather) may raise it (VariantService.GetLuck).
+	Luck = 1,
+	-- Shiba-Index discovery reward in normal bonks, one-time per entry "Variant_<Variant>_<AssetName>".
+	IndexReward = { Shiny = 30, Rainbow = 100, Huge = 400 } :: { [string]: number },
+	-- Huge Shibas are this much taller (the platform stays the same).
+	HugeScale = 1.6,
+	-- "Better than": Normal 0 < Shiny 1 < Rainbow 2 < Huge 3.
+	Rank = { Normal = 0, Shiny = 1, Rainbow = 2, Huge = 3 } :: { [string]: number },
+}
+-- ===== end Shiba Variants ===========================================================================================
 
 -- Levels past the Route (e.g. More Shibas with the +2 Shiba Slots pass) are priced by continuing the last two
 -- prices' ratio for this many levels.
@@ -212,6 +267,30 @@ local TROPHY_THRESHOLDS = {
 	Gold = 1e22,
 	Galaxy = 1e30,
 }
+
+-- ==== Social + Bonk Party (feat/social-party) ====
+-- Friend Boost + invite rewards (docs/GAME_DESIGN.md → Friends and invites). A bonus on top of the paced income: the
+-- route and the simulation never count it (SocialService, RewardService.GetStickValue).
+local SOCIAL = {
+	-- Income multiplier = 1 + PerFriend × min(Roblox friends in the server, MaxFriends).
+	PerFriend = 0.1,
+	-- Servers hold 5 players, so at most 4 friends: +40 %.
+	MaxFriends = 4,
+	-- What both the inviter and the invited friend get the first time a friend joins through an invite.
+	InviteReward = { BonkRains = 1, Trophy = "BonkBuddies" },
+	-- Inviter rewards per week (days since 1970 // 7); more wait as pending for next week.
+	MaxInviteRewardsPerWeek = 10,
+	-- DataStore for inviter rewards earned while the inviter was offline (key = inviter UserId, value = count).
+	PendingStoreName = "ReferralsPending",
+}
+
+-- Weekend Bonk Party quest reward (schedule and look: Config/Events → Party).
+local PARTY = {
+	-- Normal bonks' worth (RewardService.Hits) for finishing the party quest.
+	RewardHits = 150,
+	Trophy = "Party",
+}
+-- ==== end Social + Bonk Party ====
 
 ------------------------------------------------------------------------------------------------------------------------
 -- Derivation (pure maths, runs once on require).
@@ -302,15 +381,29 @@ end
 
 local EconomyConfig = {}
 
+-- The stick density cap (STICK_DENSITY above) for a ring of `shibaCount` Shibas that each throw every `fireInterval`
+-- seconds (fire-rate boost and StickStorm already applied). `capScale` multiplies the cap (StickStorm lets a few
+-- more sticks fly; default 1). Returns the sticks per second the ring really throws and the ValueMultiplier every
+-- stick carries (≥ 1): throws/s × multiplier = shibaCount / fireInterval, so income never changes with the cap.
+function EconomyConfig.ThrowRate(shibaCount: number, fireInterval: number, capScale: number?): (number, number)
+	local natural = shibaCount / math.max(fireInterval, 1e-3)
+	local cap = STICK_DENSITY.MaxThrowsPerSecond * (capScale or 1)
+	if natural <= cap then
+		return natural, 1
+	end
+	return cap, natural / cap
+end
+
 -- Bonk Dollars per second of the Baseline player at these upgrade levels (active play + automation), without
 -- rebirth, boosts or passes. `idleOnly` = the player catches nothing (AFK): only the intern and basket earn.
--- Used to derive prices and by the simulation.
+-- Used to derive prices and by the simulation. Sticks are counted after the density cap (ThrowRate): fewer sticks,
+-- each worth ValueMultiplier times as much, so the per-second catch limits below apply to the capped sticks.
 function EconomyConfig.BaselineIncome(levels: Levels, idleOnly: boolean?): number
 	local shibaCount = 1 + (levels.Shooters or 0)
 	local shiba = shibas[math.clamp((levels.ShooterTier or 0) + 1, 1, #shibas)]
 	local reward = projectileRewards[math.clamp((levels.ProjectileTier or 0) + 1, 1, #projectileRewards)]
-	local sticksPerSecond = shibaCount / shiba.FireInterval
-	local value = reward * shiba.RewardMultiplier
+	local sticksPerSecond, valueMultiplier = EconomyConfig.ThrowRate(shibaCount, shiba.FireInterval)
+	local value = reward * shiba.RewardMultiplier * valueMultiplier
 	local speed = levels.MoveSpeed or 0
 	local caught = if idleOnly
 		then 0
@@ -322,12 +415,16 @@ function EconomyConfig.BaselineIncome(levels: Levels, idleOnly: boolean?): numbe
 	local internLevel = levels.Intern or 0
 	local basketLevel = levels.Basket or 0
 	local byIntern = if internLevel > 0
-		then math.min(missed, AUTOMATION.Intern.ExpectedCatchesPerSecond[internLevel])
+		then math.min(
+			missed * AUTOMATION.Intern.CatchShare[internLevel],
+			AUTOMATION.Intern.ExpectedCatchesPerSecond[internLevel]
+		)
 		else 0
 	local internPay = if internLevel > 0 then AUTOMATION.Intern.Payout[internLevel] else 0
 	local byBasket = if basketLevel > 0 then (missed - byIntern) * AUTOMATION.Basket.CatchChance[basketLevel] else 0
 	local basketPay = if basketLevel > 0 then AUTOMATION.Basket.Payout[basketLevel] else 0
-	return value * (caught * BASELINE.ActiveBonus + byIntern * internPay + byBasket * basketPay)
+	local activeBonus = BASELINE.ActiveBonus + BASELINE.ActiveBonusPerSpeedLevel * speed
+	return value * (caught * activeBonus + byIntern * internPay + byBasket * basketPay)
 end
 
 -- Price the route with Shiba tier multiplier growth 1, then solve the growth that makes the last Shiba cost
@@ -457,8 +554,14 @@ EconomyConfig.Baseline = BASELINE
 EconomyConfig.Bonk = BONK
 EconomyConfig.Rebirth = REBIRTH
 EconomyConfig.Automation = AUTOMATION
+EconomyConfig.StickDensity = STICK_DENSITY
 EconomyConfig.RouteSpecs = ROUTE_SPECS
 EconomyConfig.TrophyThresholds = TROPHY_THRESHOLDS
+-- Social + Bonk Party (feat/social-party).
+EconomyConfig.Social = SOCIAL
+EconomyConfig.Party = PARTY
+-- Shiba Variants (block above).
+EconomyConfig.Variants = VARIANTS
 
 -- Derived tables.
 EconomyConfig.Shibas = shibas

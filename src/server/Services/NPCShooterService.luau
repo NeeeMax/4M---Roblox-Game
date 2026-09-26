@@ -2,13 +2,17 @@
 -- NPC shooters around each island. They never aim at the player: every shot targets a random point on the island,
 -- and its whole path (flight + bounces) must stay away from where the player stands, so standing still earns
 -- nothing (docs/decisions/0002). Shooters take turns: with n shooters, one fires every interval / n seconds.
--- The interval comes from the Shiba tier (and the fire-rate boost). Each shooter turns toward its target AimTime
--- before it fires. Shooters only fire while their owner is on (or next to) their island. The ring leaves a gap
--- where the bridge from the hub arrives.
+-- The interval comes from the Shiba tier (and the fire-rate boost, StickStorm), held to the stick density cap
+-- (UpgradeService.GetThrowRate, Gameplay.Shooters.MaxThrowsPerSecond): above it the ring throws at the cap and every
+-- stick carries ValueMultiplier = natural ÷ capped rate, so income stays the same. Each shooter turns toward its
+-- target AimTime before it fires. Shooters only fire while their owner is on (or next to) their island. The ring
+-- leaves a gap where the bridge from the hub arrives.
 -- Looks: the ShooterTier's model from ReplicatedStorage.Assets (see Config/Gameplay → Shooters.Tiers), else a lower
 -- tier's model with an outline in the tier colour, else a red block. Shiny / Mythic editions use their base model
 -- with an outline and a light aura in the tier colour (Config/ShibaEffects → Editions). Each Shiba stands on its tier's platform
 -- (Config/ShibaPlatforms) inside an invisible wall, and holds the player's current projectile in its paw.
+-- Shiba Variants: shooter n is ring slot n; its variant (VariantService) adds a look (Config/ShibaEffects → Variants,
+-- attribute Variant on the model, Huge = HugeScale× taller + platform ring) and multiplies its sticks' value.
 -- The server places a custom model once and then only publishes where it should face (attribute
 -- Shooters.Motion.AimYawAttribute); clients turn it smoothly (Controllers/ShibaController). Throw points are
 -- computed from the aim, never read from the (client-turned) model.
@@ -19,15 +23,16 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Assets = require(ReplicatedStorage.Shared.Util.Assets)
+local EconomyConfig = require(ReplicatedStorage.Shared.Config.EconomyConfig)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local Projectiles = require(ReplicatedStorage.Shared.Config.Projectiles)
 local ShibaEffects = require(ReplicatedStorage.Shared.Config.ShibaEffects)
 local ShibaPlatforms = require(ReplicatedStorage.Shared.Config.ShibaPlatforms)
 
-local EventService = require(script.Parent.EventService)
 local IslandService = require(script.Parent.IslandService)
 local ProjectileService = require(script.Parent.ProjectileService)
 local UpgradeService = require(script.Parent.UpgradeService)
+local VariantService = require(script.Parent.VariantService)
 
 local CONFIG = Gameplay.Shooters
 local ISLAND = Gameplay.Island
@@ -57,11 +62,16 @@ type Shooter = {
 	Barrel: BasePart?,
 	NextFireAt: number,
 	Plan: ProjectileService.ShotPlan?,
+	-- Shiba Variants: the slot's variant the model was built with (VariantService; a change rebuilds the ring).
+	Variant: string,
 }
 
 type Ring = {
 	Shooters: { Shooter },
+	-- Seconds between two throws of one shooter (after the density cap).
 	Interval: number,
+	-- What every stick of this ring is worth in throws (density cap; 1 below the cap).
+	ValueMultiplier: number,
 	-- ShooterTier and ProjectileTier levels the models were built for.
 	Tier: number,
 	ProjectileTier: number,
@@ -394,6 +404,57 @@ local function addEditionLook(model: Model, look: ShibaEffects.EditionLook, colo
 	}, height)
 end
 
+-- ===== Shiba Variants: the slot's look (Config/ShibaEffects → Variants) on top of the tier's own effects. The outline
+-- shares the edition outlines' name (and so their Highlight budget on the client); the model carries the attribute
+-- ShibaEffects.VariantAttribute, and clients cycle the colours of Rainbow / Huge (ShibaController).
+local function addVariantLook(model: Model, variant: string, height: number)
+	local look = ShibaEffects.Variants[variant]
+	if not look then
+		return
+	end
+	model:SetAttribute(ShibaEffects.VariantAttribute, variant)
+	-- Replaces a placeholder outline: a model shows one Highlight.
+	for _, child in model:GetChildren() do
+		if child:IsA("Highlight") then
+			child:Destroy()
+		end
+	end
+	local outline = Instance.new("Highlight")
+	outline.Name = ShibaEffects.EditionOutlineName
+	outline.FillColor = look.FillColor
+	outline.FillTransparency = look.FillTransparency
+	outline.OutlineColor = look.OutlineColor
+	outline.OutlineTransparency = look.OutlineTransparency
+	outline.DepthMode = Enum.HighlightDepthMode.Occluded
+	outline.Parent = model
+	local particles: { ShibaEffects.Particles } = {}
+	for _, entry in look.Particles do
+		local copy = table.clone(entry)
+		if #copy.Colors == 0 then
+			copy.Colors = { look.OutlineColor, look.OutlineColor:Lerp(Color3.new(1, 1, 1), 0.6) }
+		end
+		table.insert(particles, copy)
+	end
+	addEffects(model, { Light = look.Light, Particles = particles }, height)
+end
+
+-- Huge: a glowing neon ring on the platform, around the Shiba's feet (clients cycle its colour).
+local function addVariantRing(variant: string, ground: Vector3, height: number, parent: Instance)
+	local look = ShibaEffects.Variants[variant]
+	if not (look and look.PlatformRing) then
+		return
+	end
+	local diameter = math.max(4, height * 0.7)
+	local ring =
+		newShooterPart(ShibaEffects.VariantRingName, Vector3.new(0.3, diameter, diameter), look.OutlineColor, parent)
+	ring.Shape = Enum.PartType.Cylinder
+	ring.Material = Enum.Material.Neon
+	ring.Transparency = 0.35
+	ring.CastShadow = false
+	ring.CFrame = CFrame.new(ground + Vector3.new(0, 0.1, 0)) * CFrame.Angles(0, 0, math.rad(90))
+end
+-- ===== end Shiba Variants
+
 -- Builds the platform's pieces around `frame` (on the island surface, facing the island centre).
 local function buildPlatform(platform: ShibaPlatforms.Platform, frame: CFrame, parent: Instance)
 	local folder = Instance.new("Model")
@@ -472,10 +533,13 @@ local function buildShooter(
 	center: Vector3,
 	angle: number,
 	tier: number,
-	projectileLevel: number
+	projectileLevel: number,
+	variant: string
 ): Shooter
 	local def = CONFIG.Tiers[tier + 1]
-	local height = if def then def.Height else CONFIG.Height
+	-- Shiba Variants: a Huge Shiba is HugeScale times taller (its throw point and barrier follow the height).
+	local sizeScale = if variant == "Huge" then EconomyConfig.Variants.HugeScale else 1
+	local height = (if def then def.Height else CONFIG.Height) * sizeScale
 	local platform = (if def then ShibaPlatforms.Platforms[def.AssetName] else nil) or ShibaPlatforms.Default
 	local platformModel = if def then Assets.CloneModel(`{ShibaPlatforms.ModelPrefix}{def.AssetName}`) else nil
 	local top = if platformModel then platform.ModelTop or platform.Top else platform.Top
@@ -508,6 +572,8 @@ local function buildShooter(
 		if def and editionLook then
 			addEditionLook(asset, editionLook, def.Color, height)
 		end
+		-- Shiba Variants: Shiny / Rainbow / Huge look of this slot.
+		addVariantLook(asset, variant, height)
 		-- Markers only tell the client where the throwing arm turns and what the orbit spins around.
 		hideMarker(asset, CONFIG.Throw.ShoulderName)
 		hideMarker(asset, MOTION.OrbitCenterName)
@@ -529,6 +595,7 @@ local function buildShooter(
 				then asset:GetPivot():PointToObjectSpace(muzzle.WorldPosition)
 				else nil,
 			NextFireAt = 0,
+			Variant = variant,
 		}
 		asset.Parent = model
 	else
@@ -553,6 +620,7 @@ local function buildShooter(
 			Body = body,
 			Barrel = barrel,
 			NextFireAt = 0,
+			Variant = variant,
 		}
 		faceTarget(shooter, center)
 	end
@@ -565,6 +633,7 @@ local function buildShooter(
 		buildPlatform(platform, platformFrame, model)
 	end
 	buildBarrier(platform, top, surface, shooter.Height, model)
+	addVariantRing(variant, ground, shooter.Height, model)
 
 	model.Parent = parent
 	return shooter
@@ -582,13 +651,33 @@ end
 -- Keeps the ring in sync with the active-shooter count, the tiers and the fire interval. Returns the player's ring.
 local function syncRing(player: Player, island: IslandService.Island, now: number): Ring
 	local wanted = UpgradeService.GetActiveShooters(player)
-	-- StickStorm server event: faster (EventService).
-	local interval = UpgradeService.GetFireInterval(player) * EventService.FireIntervalMultiplier()
+	-- Tier interval, fire-rate boost and StickStorm, held to the stick density cap. The shooters take turns, so each
+	-- one throws every `wanted` / throws-per-second seconds.
+	local throwsPerSecond, valueMultiplier = UpgradeService.GetThrowRate(player)
+	local interval = if throwsPerSecond > 0 then wanted / throwsPerSecond else math.huge
 	local tier = UpgradeService.GetLevel(player, "ShooterTier")
 	local projectileTier = UpgradeService.GetLevel(player, "ProjectileTier")
 	local ring = rings[player]
-	if ring and #ring.Shooters == wanted and ring.Tier == tier and ring.ProjectileTier == projectileTier then
-		if ring.Interval ~= interval then
+	-- Shiba Variants: shooter n is ring slot n; a slot whose variant changed rebuilds the ring (rare: purchases/admin).
+	local variantsMatch = ring ~= nil
+	if ring then
+		for index, shooter in ring.Shooters do
+			if shooter.Variant ~= VariantService.GetVariant(player, index) then
+				variantsMatch = false
+				break
+			end
+		end
+	end
+	if
+		ring
+		and variantsMatch
+		and #ring.Shooters == wanted
+		and ring.Tier == tier
+		and ring.ProjectileTier == projectileTier
+	then
+		ring.ValueMultiplier = valueMultiplier
+		-- Tolerance: the interval is recomputed from a division every frame.
+		if math.abs(ring.Interval - interval) > 1e-6 then
 			ring.Interval = interval
 			schedule(ring, now)
 		end
@@ -599,11 +688,21 @@ local function syncRing(player: Player, island: IslandService.Island, now: numbe
 			shooter.Model:Destroy()
 		end
 	end
-	local rebuilt: Ring = { Shooters = {}, Interval = interval, Tier = tier, ProjectileTier = projectileTier }
+	local rebuilt: Ring = {
+		Shooters = {},
+		Interval = interval,
+		ValueMultiplier = valueMultiplier,
+		Tier = tier,
+		ProjectileTier = projectileTier,
+	}
 	for index = 1, wanted do
 		-- Evenly spaced, with the bridge side (HubAngle) exactly between two shooters.
 		local angle = island.HubAngle + (index - 0.5) / wanted * 2 * math.pi
-		table.insert(rebuilt.Shooters, buildShooter(island.ShooterFolder, island.Center, angle, tier, projectileTier))
+		local variant = VariantService.GetVariant(player, index)
+		table.insert(
+			rebuilt.Shooters,
+			buildShooter(island.ShooterFolder, island.Center, angle, tier, projectileTier, variant)
+		)
 	end
 	schedule(rebuilt, now)
 	rings[player] = rebuilt
@@ -651,6 +750,12 @@ local function updatePlayer(player: Player, now: number)
 				plan = findShot(player, shooter, island.Center, root.Position)
 			end
 			if plan then
+				-- Density cap: this stick stands for ValueMultiplier throws (read at release, so a boost or event
+				-- that starts during the aim counts right away).
+				-- Shiba Variants: × the throwing slot's variant multiplier (Shiny 1.5, Rainbow 3, Huge 6), so every
+				-- payout of this stick (bonk, basket, intern, magnet) gets it through GetStickValue.
+				plan.VariantMultiplier = EconomyConfig.Variants.Multiplier[shooter.Variant] or 1
+				plan.ValueMultiplier = ring.ValueMultiplier * plan.VariantMultiplier
 				-- Clients hide what is in the paw at the release themselves (ShibaController, from ThrowAt).
 				ProjectileService.Fire(player, plan)
 			elseif shooter.Visual then

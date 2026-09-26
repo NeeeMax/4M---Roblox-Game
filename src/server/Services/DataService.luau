@@ -25,7 +25,11 @@ type Session = {
 
 -- 2: economy rework (Rebirths, Tutorial, Bank.AutomationPerMinute, Basket/Intern levels). Version-1 saves are
 -- migrated in stateFromSaved: nothing is lost, levels and Bonk Dollars are kept as they are.
-local SAVE_VERSION = 2
+-- 3: additive fields only (Social, Party: feat/social-party), filled with defaults for older saves; no logic depends on
+-- the number.
+-- 3: additive fields only, each with a default for older saves (no code depends on the number):
+--    Shiba Variants: `Variants` (slots Normal, counters 0).
+local SAVE_VERSION = 3
 
 local stateChanged = Net.Get(Net.StateChanged)
 
@@ -66,6 +70,17 @@ local function defaultState(): PlayerState
 		Settings = { Music = 0.5, Effects = 1, Hints = true },
 		Rebirths = 0,
 		Tutorial = { Step = 0, FirstBonkDone = false },
+		-- Social + Bonk Party (feat/social-party).
+		Social = {
+			ReferralRewarded = false,
+			InviteRewardsWeek = 0,
+			InviteRewardsThisWeek = 0,
+			PendingInviteRewards = 0,
+		},
+		Party = { Id = 0, Catches = 0, Claimed = false, Count = 0 },
+		-- ===== Shiba Variants (save v3) =====
+		Variants = { Slots = {}, RollsSinceRainbow = 0, RollsSinceHuge = 0, TotalRolls = 0 },
+		-- ===== end Shiba Variants =====
 	}
 end
 
@@ -242,6 +257,51 @@ local function stateFromSaved(saved: unknown): PlayerState
 		-- Migration from version 1: players from before the rework already know the game, so no tutorial.
 		state.Tutorial = { Step = 1000, FirstBonkDone = true }
 	end
+	-- ==== Social + Bonk Party (feat/social-party) ====
+	local social = data.Social
+	if typeof(social) == "table" then
+		state.Social = {
+			ReferralRewarded = social.ReferralRewarded == true,
+			InviteRewardsWeek = if isNumber(social.InviteRewardsWeek) then math.floor(social.InviteRewardsWeek) else 0,
+			InviteRewardsThisWeek = if isNumber(social.InviteRewardsThisWeek)
+				then math.max(0, math.floor(social.InviteRewardsThisWeek))
+				else 0,
+			PendingInviteRewards = if isNumber(social.PendingInviteRewards)
+				then math.clamp(math.floor(social.PendingInviteRewards), 0, 1000)
+				else 0,
+		}
+	end
+	local party = data.Party
+	if typeof(party) == "table" then
+		state.Party = {
+			Id = if isNumber(party.Id) then math.floor(party.Id) else 0,
+			Catches = if isNumber(party.Catches) then math.max(0, math.floor(party.Catches)) else 0,
+			Claimed = party.Claimed == true,
+			Count = if isNumber(party.Count) then math.max(0, math.floor(party.Count)) else 0,
+		}
+	end
+	-- ==== end Social + Bonk Party ====
+	-- ===== Shiba Variants (save v3; older saves keep the default: every slot Normal) =====
+	local variants = data.Variants
+	if typeof(variants) == "table" then
+		if typeof(variants.Slots) == "table" then
+			for slot, variant in variants.Slots do
+				local index = if typeof(slot) == "string" then tonumber(slot) else nil
+				local rank = if typeof(variant) == "string" then EconomyConfig.Variants.Rank[variant] else nil
+				-- Slots 1 … 99 with a known, better-than-Normal variant (99: room for more slot passes later).
+				if index and index == math.floor(index) and index >= 1 and index <= 99 and rank and rank > 0 then
+					state.Variants.Slots[tostring(index)] = variant :: Types.VariantId
+				end
+			end
+		end
+		local function counter(value: unknown): number
+			return if isNumber(value) then math.max(0, math.floor(value :: number)) else 0
+		end
+		state.Variants.RollsSinceRainbow = counter(variants.RollsSinceRainbow)
+		state.Variants.RollsSinceHuge = counter(variants.RollsSinceHuge)
+		state.Variants.TotalRolls = counter(variants.TotalRolls)
+	end
+	-- ===== end Shiba Variants =====
 	local owned = Upgrades.GetValue("Shooters", state.UpgradeLevels.Shooters)
 	state.ActiveShooters = owned
 	if isNumber(data.ActiveShooters) then
@@ -373,6 +433,15 @@ function DataService.SaveNow(player: Player)
 		task.spawn(save, player, session)
 	end
 end
+
+-- ==== Social + Bonk Party (feat/social-party) ====
+-- Whether this player's state will be saved (false while loading failed): SocialService only takes pending invite
+-- rewards out of their DataStore key when they can be kept.
+function DataService.CanSave(player: Player): boolean
+	local session = sessions[player]
+	return session ~= nil and session.CanSave and store ~= nil
+end
+-- ==== end Social + Bonk Party ====
 
 -- Admin testing tool: puts the player back to a brand-new save (keeps TotalEarned for the leaderboard).
 function DataService.Reset(player: Player)

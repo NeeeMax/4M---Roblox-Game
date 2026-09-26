@@ -16,6 +16,9 @@ local Admin = {
 	PointAmounts = { 1e3, 1e6, 1e9, 1e12, 1e15, 1e18, 1e21, 1e24, 1e27, 1e30, 1e33 } :: { number },
 	-- Buttons per row in the admin menu's Bonk Dollars section.
 	PointButtonsPerRow = 6,
+	-- Shiba Variants tools: highest slot the "set variant" tool accepts, and the luck of the "Luck ×10" toggle.
+	MaxVariantSlot = 10,
+	VariantLuck = 10,
 }
 
 function Admin.IsAdmin(userId: number): boolean

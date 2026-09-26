@@ -20,8 +20,21 @@ local levelLabels: { [string]: TextLabel } = {}
 local passButtonsById: { [string]: TextButton } = {}
 -- "Rebirths: 2 · income ×3" in the rebirth section.
 local rebirthInfo: TextLabel? = nil
+-- Shiba Variants tools: the slot the variant buttons act on, and its "Slot 3: Rainbow" label.
+local variantSlot = 1
+local variantSlotLabel: TextLabel? = nil
 
 local AdminController = {}
+
+local function refreshVariantSlot()
+	local label = variantSlotLabel
+	if not label then
+		return
+	end
+	local state = State.Get()
+	local variant = if state then state.Variants.Slots[tostring(variantSlot)] or "Normal" else "Normal"
+	label.Text = `Slot {variantSlot}: {variant}`
+end
 
 local function send(command: string, argument: (string | number)?)
 	Net.Get(Net.AdminCommand):FireServer(command, argument)
@@ -252,7 +265,88 @@ local function build()
 		send("SimulateOffline")
 	end)
 
-	local danger = section(list, "Danger zone", 9)
+	-- ==== Social + Bonk Party (feat/social-party) ====
+	local social = section(list, "Bonk Party · Friends", 9)
+	local partyButtons = buttonRow(
+		social,
+		1,
+		{ { "Start party (10 min)" }, { "End party" }, { "Finish party quest" } },
+		Color3.fromRGB(255, 90, 200)
+	)
+	partyButtons[1].Activated:Connect(function()
+		send("StartParty")
+	end)
+	partyButtons[2].Activated:Connect(function()
+		send("StopParty")
+	end)
+	partyButtons[3].Activated:Connect(function()
+		send("CompletePartyQuest")
+	end)
+	local friendButtons = buttonRow(
+		social,
+		2,
+		{ { "Pretend friend +1 (cycles 0-4)" }, { "Fake invite reward" } },
+		Color3.fromRGB(255, 150, 60)
+	)
+	friendButtons[1].Activated:Connect(function()
+		send("FakeFriend")
+	end)
+	friendButtons[2].Activated:Connect(function()
+		send("FakeInvite")
+	end)
+	-- ==== end Social + Bonk Party ====
+	-- ===== Shiba Variants (VariantService): pick a slot, force a variant on it, roll all, luck ×10, reset.
+	local variants = section(list, "Shiba Variants", 10)
+	local slotRow = Instance.new("Frame")
+	slotRow.LayoutOrder = 1
+	slotRow.Size = UDim2.new(1, 0, 0, 36)
+	slotRow.BackgroundTransparency = 1
+	slotRow.Parent = variants
+	local slotLabel = Widgets.Label(slotRow, "", 18)
+	slotLabel.Size = UDim2.new(1, -90, 1, 0)
+	variantSlotLabel = slotLabel
+	local slotMinus = Widgets.Button(slotRow, "−", Theme.CardLight, 20)
+	slotMinus.AnchorPoint = Vector2.new(1, 0)
+	slotMinus.Position = UDim2.new(1, -44, 0, 0)
+	slotMinus.Size = UDim2.fromOffset(38, 36)
+	local slotPlus = Widgets.Button(slotRow, "+", Theme.CardLight, 20)
+	slotPlus.AnchorPoint = Vector2.new(1, 0)
+	slotPlus.Position = UDim2.fromScale(1, 0)
+	slotPlus.Size = UDim2.fromOffset(38, 36)
+	slotMinus.Activated:Connect(function()
+		variantSlot = math.max(1, variantSlot - 1)
+		refreshVariantSlot()
+	end)
+	slotPlus.Activated:Connect(function()
+		variantSlot = math.min(Admin.MaxVariantSlot, variantSlot + 1)
+		refreshVariantSlot()
+	end)
+	local variantIds = { "Shiny", "Rainbow", "Huge", "Normal" }
+	local setButtons =
+		buttonRow(variants, 2, { { "Shiny" }, { "Rainbow" }, { "Huge" }, { "Normal" } }, Color3.fromRGB(255, 110, 210))
+	for index, variantId in variantIds do
+		setButtons[index].Activated:Connect(function()
+			send("VariantSet", `{variantSlot}:{variantId}`)
+		end)
+	end
+	local variantTools = buttonRow(
+		variants,
+		3,
+		{ { "Roll all now" }, { `Luck ×{Admin.VariantLuck}` }, { "Reset variants" } },
+		Color3.fromRGB(120, 110, 220)
+	)
+	variantTools[1].Activated:Connect(function()
+		send("VariantRoll")
+	end)
+	variantTools[2].Activated:Connect(function()
+		send("VariantLuck")
+	end)
+	variantTools[3].Activated:Connect(function()
+		send("VariantReset")
+	end)
+	-- ===== end Shiba Variants
+
+	local danger = section(list, "Danger zone", 10)
 	local reset = buttonRow(danger, 1, { { "RESET EVERYTHING" } }, Theme.Bad)[1]
 	local armedAt = 0
 	reset.Activated:Connect(function()
@@ -287,6 +381,7 @@ local function refresh()
 	if rebirthInfo then
 		rebirthInfo.Text = `Rebirths: {state.Rebirths} · income ×{EconomyConfig.RebirthMultiplier(state.Rebirths)}`
 	end
+	refreshVariantSlot()
 end
 
 function AdminController.Init()
