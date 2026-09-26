@@ -252,7 +252,38 @@ local function build()
 		send("SimulateOffline")
 	end)
 
-	local danger = section(list, "Danger zone", 9)
+	-- ==== Social + Bonk Party (feat/social-party) ====
+	local social = section(list, "Bonk Party · Friends", 9)
+	local partyButtons = buttonRow(
+		social,
+		1,
+		{ { "Start party (10 min)" }, { "End party" }, { "Finish party quest" } },
+		Color3.fromRGB(255, 90, 200)
+	)
+	partyButtons[1].Activated:Connect(function()
+		send("StartParty")
+	end)
+	partyButtons[2].Activated:Connect(function()
+		send("StopParty")
+	end)
+	partyButtons[3].Activated:Connect(function()
+		send("CompletePartyQuest")
+	end)
+	local friendButtons = buttonRow(
+		social,
+		2,
+		{ { "Pretend friend +1 (cycles 0-4)" }, { "Fake invite reward" } },
+		Color3.fromRGB(255, 150, 60)
+	)
+	friendButtons[1].Activated:Connect(function()
+		send("FakeFriend")
+	end)
+	friendButtons[2].Activated:Connect(function()
+		send("FakeInvite")
+	end)
+	-- ==== end Social + Bonk Party ====
+
+	local danger = section(list, "Danger zone", 10)
 	local reset = buttonRow(danger, 1, { { "RESET EVERYTHING" } }, Theme.Bad)[1]
 	local armedAt = 0
 	reset.Activated:Connect(function()
