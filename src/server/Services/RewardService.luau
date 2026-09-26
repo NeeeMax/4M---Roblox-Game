@@ -51,9 +51,16 @@ function RewardService.GetHitValue(player: Player): number
 end
 
 -- A stick's value before how it was caught (catch quality, head, combo): BaseReward × Shiba tier × rebirth × golden ×
--- 2× boost × passes × server events. BonkService multiplies the catch bonuses on top; automation (basket, intern)
--- pays its share of it. `baseReward`, `golden` and `mega` come from the projectile's ShotPlan.
-function RewardService.GetStickValue(player: Player, baseReward: number, golden: boolean, mega: boolean): number
+-- 2× boost × passes × server events × ValueMultiplier (stick density cap: how many throws the stick stands for).
+-- BonkService multiplies the catch bonuses on top; automation (basket, intern) pays its share of it. `baseReward`,
+-- `golden`, `mega` and `valueMultiplier` come from the projectile's ShotPlan.
+function RewardService.GetStickValue(
+	player: Player,
+	baseReward: number,
+	golden: boolean,
+	mega: boolean,
+	valueMultiplier: number
+): number
 	local goldenMultiplier = if golden then EconomyConfig.Bonk.GoldenMultiplier else 1
 	local passMultiplier = (
 		if RewardService.HasPass(player, "DoublePoints") then Shop.Pass.DoublePointsMultiplier else 1
@@ -65,6 +72,7 @@ function RewardService.GetStickValue(player: Player, baseReward: number, golden:
 		* passMultiplier
 		* BoostService.GetMultiplier(player, "Points")
 		* EventService.RewardMultiplier(mega) -- server events: DoublePoints, MegaStick
+		* math.max(valueMultiplier, 1)
 end
 
 -- `hits` normal bonks' worth, at least 1.

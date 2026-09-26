@@ -2,9 +2,11 @@
 -- NPC shooters around each island. They never aim at the player: every shot targets a random point on the island,
 -- and its whole path (flight + bounces) must stay away from where the player stands, so standing still earns
 -- nothing (docs/decisions/0002). Shooters take turns: with n shooters, one fires every interval / n seconds.
--- The interval comes from the Shiba tier (and the fire-rate boost). Each shooter turns toward its target AimTime
--- before it fires. Shooters only fire while their owner is on (or next to) their island. The ring leaves a gap
--- where the bridge from the hub arrives.
+-- The interval comes from the Shiba tier (and the fire-rate boost, StickStorm), held to the stick density cap
+-- (UpgradeService.GetThrowRate, Gameplay.Shooters.MaxThrowsPerSecond): above it the ring throws at the cap and every
+-- stick carries ValueMultiplier = natural ÷ capped rate, so income stays the same. Each shooter turns toward its
+-- target AimTime before it fires. Shooters only fire while their owner is on (or next to) their island. The ring
+-- leaves a gap where the bridge from the hub arrives.
 -- Looks: the ShooterTier's model from ReplicatedStorage.Assets (see Config/Gameplay → Shooters.Tiers), else a lower
 -- tier's model with an outline in the tier colour, else a red block. Shiny / Mythic editions use their base model
 -- with an outline and a light aura in the tier colour (Config/ShibaEffects → Editions). Each Shiba stands on its tier's platform
@@ -24,7 +26,6 @@ local Projectiles = require(ReplicatedStorage.Shared.Config.Projectiles)
 local ShibaEffects = require(ReplicatedStorage.Shared.Config.ShibaEffects)
 local ShibaPlatforms = require(ReplicatedStorage.Shared.Config.ShibaPlatforms)
 
-local EventService = require(script.Parent.EventService)
 local IslandService = require(script.Parent.IslandService)
 local ProjectileService = require(script.Parent.ProjectileService)
 local UpgradeService = require(script.Parent.UpgradeService)
@@ -61,7 +62,10 @@ type Shooter = {
 
 type Ring = {
 	Shooters: { Shooter },
+	-- Seconds between two throws of one shooter (after the density cap).
 	Interval: number,
+	-- What every stick of this ring is worth in throws (density cap; 1 below the cap).
+	ValueMultiplier: number,
 	-- ShooterTier and ProjectileTier levels the models were built for.
 	Tier: number,
 	ProjectileTier: number,
@@ -582,13 +586,17 @@ end
 -- Keeps the ring in sync with the active-shooter count, the tiers and the fire interval. Returns the player's ring.
 local function syncRing(player: Player, island: IslandService.Island, now: number): Ring
 	local wanted = UpgradeService.GetActiveShooters(player)
-	-- StickStorm server event: faster (EventService).
-	local interval = UpgradeService.GetFireInterval(player) * EventService.FireIntervalMultiplier()
+	-- Tier interval, fire-rate boost and StickStorm, held to the stick density cap. The shooters take turns, so each
+	-- one throws every `wanted` / throws-per-second seconds.
+	local throwsPerSecond, valueMultiplier = UpgradeService.GetThrowRate(player)
+	local interval = if throwsPerSecond > 0 then wanted / throwsPerSecond else math.huge
 	local tier = UpgradeService.GetLevel(player, "ShooterTier")
 	local projectileTier = UpgradeService.GetLevel(player, "ProjectileTier")
 	local ring = rings[player]
 	if ring and #ring.Shooters == wanted and ring.Tier == tier and ring.ProjectileTier == projectileTier then
-		if ring.Interval ~= interval then
+		ring.ValueMultiplier = valueMultiplier
+		-- Tolerance: the interval is recomputed from a division every frame.
+		if math.abs(ring.Interval - interval) > 1e-6 then
 			ring.Interval = interval
 			schedule(ring, now)
 		end
@@ -599,7 +607,13 @@ local function syncRing(player: Player, island: IslandService.Island, now: numbe
 			shooter.Model:Destroy()
 		end
 	end
-	local rebuilt: Ring = { Shooters = {}, Interval = interval, Tier = tier, ProjectileTier = projectileTier }
+	local rebuilt: Ring = {
+		Shooters = {},
+		Interval = interval,
+		ValueMultiplier = valueMultiplier,
+		Tier = tier,
+		ProjectileTier = projectileTier,
+	}
 	for index = 1, wanted do
 		-- Evenly spaced, with the bridge side (HubAngle) exactly between two shooters.
 		local angle = island.HubAngle + (index - 0.5) / wanted * 2 * math.pi
@@ -651,6 +665,9 @@ local function updatePlayer(player: Player, now: number)
 				plan = findShot(player, shooter, island.Center, root.Position)
 			end
 			if plan then
+				-- Density cap: this stick stands for ValueMultiplier throws (read at release, so a boost or event
+				-- that starts during the aim counts right away).
+				plan.ValueMultiplier = ring.ValueMultiplier
 				-- Clients hide what is in the paw at the release themselves (ShibaController, from ThrowAt).
 				ProjectileService.Fire(player, plan)
 			elseif shooter.Visual then

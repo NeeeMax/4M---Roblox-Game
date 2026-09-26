@@ -201,7 +201,9 @@ if minuteStart then
 		)
 	)
 end
-print(string.format("- longest payback (automation judged by idle payback): %s for %s", fmtTime(maxPayback), maxPaybackAt))
+print(
+	string.format("- longest payback (automation judged by idle payback): %s for %s", fmtTime(maxPayback), maxPaybackAt)
+)
 print(string.format("- purchases in a different order than the Route: %d of %d", routeMismatch, #purchases))
 print(string.format("- last price: %s", fmtNum(purchases[#purchases].Price)))
 
@@ -235,7 +237,15 @@ print("| purchase | price | active payback | idle payback |")
 print("|----------|-------|----------------|--------------|")
 for _, p in purchases do
 	if p.Upgrade == "Basket" or p.Upgrade == "Intern" then
-		print(string.format("| %s | %s | %s | %s |", label(p), fmtNum(p.Price), fmtTime(payback(p)), fmtTime(idlePayback(p))))
+		print(
+			string.format(
+				"| %s | %s | %s | %s |",
+				label(p),
+				fmtNum(p.Price),
+				fmtTime(payback(p)),
+				fmtTime(idlePayback(p))
+			)
+		)
 	end
 end
 
@@ -251,6 +261,37 @@ for n = 1, #E.Shibas do
 	end
 end
 print("```")
+
+-- Stick density cap (EconomyConfig.ThrowRate): sticks in the air per second before and after the cap.
+print("\n## Stick density (cap " .. E.StickDensity.MaxThrowsPerSecond .. " sticks/s)\n")
+print("| situation | FireInterval | sticks/s without cap | sticks/s thrown | value per stick |")
+print("|-----------|--------------|----------------------|-----------------|-----------------|")
+for _, case in
+	{
+		{ "Shiba 5, 3 Shibas", 5, 3, 1, 1 },
+		{ "Shiba 8, 5 Shibas", 8, 5, 1, 1 },
+		{ "Shiba 10, 6 Shibas", 10, 6, 1, 1 },
+		{ "Shiba 15, 8 Shibas", 15, 8, 1, 1 },
+		{ "Shiba 30, 8 Shibas", 30, 8, 1, 1 },
+		{ "Shiba 30, 10 Shibas (Shiba Slots pass)", 30, 10, 1, 1 },
+		{ "… + 2× Fire Rate boost", 30, 10, 2, 1 },
+		{ "… + Stick Storm (cap ×1.5)", 30, 10, 4, 1.5 },
+	}
+do
+	local shiba = E.Shibas[case[2]]
+	local interval = shiba.FireInterval / case[4]
+	local thrown, multiplier = E.ThrowRate(case[3], interval, case[5])
+	print(
+		string.format(
+			"| %s | %.1f s | %.2f | %.2f | ×%.1f |",
+			case[1],
+			shiba.FireInterval,
+			case[3] / interval,
+			thrown,
+			multiplier
+		)
+	)
+end
 
 -- Rebirth.
 local gate = E.Rebirth.MinShibaTier + 1

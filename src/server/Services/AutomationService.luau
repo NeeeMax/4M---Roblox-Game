@@ -90,10 +90,11 @@ local function ownerRootAtHome(player: Player, island: IslandService.Island): Ba
 	return root
 end
 
--- Pays `share` of the stick's value (RewardService.GetStickValue: tier, rebirth, golden, passes, boosts, events).
+-- Pays `share` of the stick's value (RewardService.GetStickValue: tier, rebirth, golden, passes, boosts, events,
+-- density-cap ValueMultiplier).
 local function pay(player: Player, info: ProjectileInfo, source: Types.AutomationSource, share: number): number
 	local plan = info.Plan
-	local value = RewardService.GetStickValue(player, plan.Def.BaseReward, plan.Golden, plan.Mega)
+	local value = RewardService.GetStickValue(player, plan.Def.BaseReward, plan.Golden, plan.Mega, plan.ValueMultiplier)
 	local reward = math.max(1, math.floor(value * share))
 	-- Tell the client before the Paid attribute changes, so AutomationController takes the drawn stick over for its
 	-- catch effect before other controllers react to Paid (MagnetController pulls "Paid without a hand report"

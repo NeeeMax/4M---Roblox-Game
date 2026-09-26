@@ -21,6 +21,7 @@ local ISLAND = Gameplay.Island
 local CONFIG = Gameplay.Projectiles
 local HITS = Gameplay.Hits
 local RING = Gameplay.LandingRing
+local VALUE_TAG = CONFIG.ValueTag
 local GRIP_NAME = Gameplay.Shooters.HandProjectile.GripName
 -- Turns a cylinder adornment (axis along its Z) so it lies flat on the ground.
 local FLAT = CFrame.Angles(math.rad(90), 0, 0)
@@ -55,6 +56,8 @@ export type Drawn = {
 	BaseParts: { [BasePart]: number },
 	BaseDecals: { [Decal]: number },
 	Highlight: Highlight?,
+	-- The "×N" tag of a stick worth several throws (stick density cap), if any.
+	ValueLabel: TextLabel?,
 	-- What is currently applied: Paid attribute seen, landing fade progress (0..1).
 	Paid: boolean,
 	FadeAlpha: number,
@@ -77,14 +80,19 @@ local random = Random.new()
 
 local ProjectileController = {}
 
--- A trail in the def's colour behind the model's biggest part.
-local function addTrail(model: Model, color: Color3, diameter: number)
+local function biggestPart(model: Model): BasePart?
 	local biggest: BasePart? = nil
 	for _, descendant in model:GetDescendants() do
 		if descendant:IsA("BasePart") and (not biggest or descendant.Size.Magnitude > biggest.Size.Magnitude) then
 			biggest = descendant
 		end
 	end
+	return biggest
+end
+
+-- A trail in the def's colour behind the model's biggest part, `lifetime` seconds long (default 0.2).
+local function addTrail(model: Model, color: Color3, diameter: number, lifetime: number?)
+	local biggest = biggestPart(model)
 	if not biggest then
 		return
 	end
@@ -100,10 +108,55 @@ local function addTrail(model: Model, color: Color3, diameter: number)
 	trail.Color = ColorSequence.new(color)
 	trail.Transparency = NumberSequence.new(0.3, 1)
 	trail.WidthScale = NumberSequence.new(1, 0)
-	trail.Lifetime = 0.2
+	trail.Lifetime = lifetime or 0.2
 	trail.LightEmission = 0.6
 	trail.FaceCamera = true
 	trail.Parent = biggest
+end
+
+-- "×3.5" (whole numbers without the decimal: "×4").
+local function multiplierText(multiplier: number): string
+	local rounded = math.floor(multiplier * 10 + 0.5) / 10
+	if rounded == math.floor(rounded) then
+		return `×{math.floor(rounded)}`
+	end
+	return string.format("×%.1f", rounded)
+end
+
+-- Stick density cap (Gameplay.Projectiles.ValueTag): a stick worth `multiplier` throws gets a small "×N" tag above it
+-- (in world space, so it doesn't spin with the stick) and a trail in `color` that grows with N. Returns the label, so
+-- the paid look and the landing fade can fade it.
+local function addValueLook(model: Model, multiplier: number, color: Color3, diameter: number): TextLabel?
+	local strength = math.clamp((multiplier - 1) / math.max(VALUE_TAG.FullAt - 1, 1e-3), 0, 1)
+	addTrail(
+		model,
+		color,
+		diameter * (VALUE_TAG.WidthMin + (VALUE_TAG.WidthMax - VALUE_TAG.WidthMin) * strength),
+		VALUE_TAG.LifetimeMin + (VALUE_TAG.LifetimeMax - VALUE_TAG.LifetimeMin) * strength
+	)
+	local anchor = biggestPart(model)
+	if not anchor then
+		return nil
+	end
+	local billboard = Instance.new("BillboardGui")
+	billboard.Name = "ValueTag"
+	billboard.Size = UDim2.fromScale(VALUE_TAG.Width, VALUE_TAG.Height)
+	billboard.StudsOffsetWorldSpace = Vector3.new(0, diameter * VALUE_TAG.Offset, 0)
+	billboard.LightInfluence = 0
+	billboard.MaxDistance = VALUE_TAG.MaxDistance
+	billboard.Adornee = anchor
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.fromScale(1, 1)
+	label.BackgroundTransparency = 1
+	label.Font = Enum.Font.FredokaOne
+	label.TextScaled = true
+	label.Text = multiplierText(multiplier)
+	label.TextColor3 = VALUE_TAG.Color
+	label.TextStrokeColor3 = VALUE_TAG.StrokeColor
+	label.TextStrokeTransparency = 0
+	label.Parent = billboard
+	billboard.Parent = anchor
+	return label
 end
 
 local function cloneFirst(names: { string }): Model?
@@ -181,7 +234,8 @@ local function tryStart(marker: BasePart): boolean
 	local def = Projectiles.Defs[marker.Name]
 	local model = buildModel(def, diameter)
 	local highlight: Highlight? = nil
-	if marker:GetAttribute(CONFIG.GoldenAttribute) == true then
+	local golden = marker:GetAttribute(CONFIG.GoldenAttribute) == true
+	if golden then
 		-- Golden projectile: gold outline and a gold trail (it pays GoldenMultiplier times as much).
 		local outline = Instance.new("Highlight")
 		outline.FillColor = CONFIG.GoldenColor
@@ -191,6 +245,14 @@ local function tryStart(marker: BasePart): boolean
 		outline.Parent = model
 		highlight = outline
 		addTrail(model, CONFIG.GoldenColor, diameter * 1.6)
+	end
+	-- Stick density cap: this stick stands for several throws.
+	local valueMultiplier = marker:GetAttribute(CONFIG.ValueMultiplierAttribute)
+	local valueLabel: TextLabel? = nil
+	if typeof(valueMultiplier) == "number" and valueMultiplier >= VALUE_TAG.MinShown then
+		local tierColor = if def then def.Color else Color3.new(1, 1, 1)
+		local trailColor = if golden then CONFIG.GoldenColor else tierColor:Lerp(Color3.new(1, 1, 1), RING.Brighten)
+		valueLabel = addValueLook(model, valueMultiplier, trailColor, diameter)
 	end
 	local box, boxSize = model:GetBoundingBox()
 	local baseParts: { [BasePart]: number } = {}
@@ -229,6 +291,7 @@ local function tryStart(marker: BasePart): boolean
 		BaseParts = baseParts,
 		BaseDecals = baseDecals,
 		Highlight = highlight,
+		ValueLabel = valueLabel,
 		Paid = false,
 		FadeAlpha = 0,
 		LandingTime = landingTime,
@@ -335,6 +398,12 @@ local function applyTransparency(entry: Drawn)
 	if highlight then
 		highlight.FillTransparency = faded(CONFIG.GoldenFillTransparency, alpha)
 		highlight.OutlineTransparency = faded(0, alpha)
+	end
+	local valueLabel = entry.ValueLabel
+	if valueLabel then
+		local transparency = faded(minimum, alpha)
+		valueLabel.TextTransparency = transparency
+		valueLabel.TextStrokeTransparency = transparency
 	end
 end
 

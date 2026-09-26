@@ -64,9 +64,11 @@ function BonkService.QualityForTiming(hitTime: number, landingTime: number): Eco
 	return BonkService.GetQuality("Good")
 end
 
--- How long after a hit the next one still continues the combo: longer when shots come less often.
+-- How long after a hit the next one still continues the combo: longer when shots come less often (the real throw
+-- rate, after the stick density cap).
 local function comboWindow(player: Player): number
-	local timeBetweenShots = UpgradeService.GetFireInterval(player) / UpgradeService.GetActiveShooters(player)
+	local throwsPerSecond = UpgradeService.GetThrowRate(player)
+	local timeBetweenShots = 1 / math.max(throwsPerSecond, 1e-3)
 	return COMBO.BaseWindow + COMBO.ShotsWindow * timeBetweenShots
 end
 
@@ -180,7 +182,8 @@ function BonkService.AwardHit(
 	local headMultiplier = if onHead then HITS.HeadMultiplier else 1
 	local firstBonk = takeFirstBonk(player)
 	local firstMultiplier = if firstBonk then EconomyConfig.Bonk.FirstBonkMultiplier else 1
-	local stickValue = RewardService.GetStickValue(player, plan.Def.BaseReward, plan.Golden, plan.Mega)
+	local stickValue =
+		RewardService.GetStickValue(player, plan.Def.BaseReward, plan.Golden, plan.Mega, plan.ValueMultiplier)
 	local reward =
 		math.max(1, math.floor(stickValue * quality.Multiplier * headMultiplier * comboMultiplier * firstMultiplier))
 	EconomyService.AddPoints(player, reward)

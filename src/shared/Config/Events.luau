@@ -76,5 +76,9 @@ return {
 	StickStorm = {
 		-- The Shibas' fire interval is multiplied by this.
 		FireIntervalMultiplier = 0.5,
+		-- The stick density cap (Gameplay.Shooters.MaxThrowsPerSecond) is multiplied by this during the storm, so it
+		-- still looks like a storm on islands that are already at the cap (a short spectacle; value per stick still
+		-- keeps the income right).
+		MaxThrowsMultiplier = 1.5,
 	},
 }
