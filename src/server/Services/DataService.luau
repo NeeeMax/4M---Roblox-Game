@@ -25,7 +25,9 @@ type Session = {
 
 -- 2: economy rework (Rebirths, Tutorial, Bank.AutomationPerMinute, Basket/Intern levels). Version-1 saves are
 -- migrated in stateFromSaved: nothing is lost, levels and Bonk Dollars are kept as they are.
-local SAVE_VERSION = 2
+-- 3: additive fields only, each with a default for older saves (no code depends on the number):
+--    Shiba Variants: `Variants` (slots Normal, counters 0).
+local SAVE_VERSION = 3
 
 local stateChanged = Net.Get(Net.StateChanged)
 
@@ -66,6 +68,9 @@ local function defaultState(): PlayerState
 		Settings = { Music = 0.5, Effects = 1, Hints = true },
 		Rebirths = 0,
 		Tutorial = { Step = 0, FirstBonkDone = false },
+		-- ===== Shiba Variants (save v3) =====
+		Variants = { Slots = {}, RollsSinceRainbow = 0, RollsSinceHuge = 0, TotalRolls = 0 },
+		-- ===== end Shiba Variants =====
 	}
 end
 
@@ -242,6 +247,27 @@ local function stateFromSaved(saved: unknown): PlayerState
 		-- Migration from version 1: players from before the rework already know the game, so no tutorial.
 		state.Tutorial = { Step = 1000, FirstBonkDone = true }
 	end
+	-- ===== Shiba Variants (save v3; older saves keep the default: every slot Normal) =====
+	local variants = data.Variants
+	if typeof(variants) == "table" then
+		if typeof(variants.Slots) == "table" then
+			for slot, variant in variants.Slots do
+				local index = if typeof(slot) == "string" then tonumber(slot) else nil
+				local rank = if typeof(variant) == "string" then EconomyConfig.Variants.Rank[variant] else nil
+				-- Slots 1 … 99 with a known, better-than-Normal variant (99: room for more slot passes later).
+				if index and index == math.floor(index) and index >= 1 and index <= 99 and rank and rank > 0 then
+					state.Variants.Slots[tostring(index)] = variant :: Types.VariantId
+				end
+			end
+		end
+		local function counter(value: unknown): number
+			return if isNumber(value) then math.max(0, math.floor(value :: number)) else 0
+		end
+		state.Variants.RollsSinceRainbow = counter(variants.RollsSinceRainbow)
+		state.Variants.RollsSinceHuge = counter(variants.RollsSinceHuge)
+		state.Variants.TotalRolls = counter(variants.TotalRolls)
+	end
+	-- ===== end Shiba Variants =====
 	local owned = Upgrades.GetValue("Shooters", state.UpgradeLevels.Shooters)
 	state.ActiveShooters = owned
 	if isNumber(data.ActiveShooters) then

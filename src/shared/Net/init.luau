@@ -69,6 +69,12 @@ local Net = {
 	-- S→C (source: AutomationSource, projectileId: number, reward: number) — the basket or the intern caught one of the
 	-- player's sticks and paid `reward` (visual only)
 	AutomationCatch = "AutomationCatch",
+	-- ===== Shiba Variants =====
+	-- S→C (finderUserId: number, finderName: string, slot: number, variant: VariantId, shibaName: string) — a Shiba
+	-- slot rolled a better variant. Sent to the finder for every new variant (reveal card) and, for Huge, to everyone
+	-- in the server (chat line).
+	VariantRolled = "VariantRolled",
+	-- ===== end Shiba Variants =====
 }
 
 local ALL_NAMES = {
@@ -101,6 +107,8 @@ local ALL_NAMES = {
 	Net.ClaimIndex,
 	Net.SaveSettings,
 	Net.AutomationCatch,
+	-- Shiba Variants
+	Net.VariantRolled,
 }
 
 function Net.CreateRemotes()

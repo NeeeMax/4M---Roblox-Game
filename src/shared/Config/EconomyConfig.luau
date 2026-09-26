@@ -225,6 +225,33 @@ local ROUTE_SPECS: { RouteSpec } = {
 	{ Upgrade = "Intern", Count = #AUTOMATION.Intern.Payout, From = 0.28, To = 0.94, PriceShare = 0.12 },
 }
 
+-- ===== Shiba Variants (VariantService, docs/GAME_DESIGN.md → Shiba Variants) =======================================
+-- Every Shiba slot on the ring (1 … 10) has a variant: Normal, Shiny, Rainbow or Huge. A slot rolls when the player
+-- buys a Shiba Tier with Bonk Dollars (every owned slot rolls once per level bought) or More Shibas (the new slot
+-- rolls). Robux purchases and admin levels never roll (paid random items would need odds disclosure). A roll draws
+-- one number: Huge with Luck / OneIn.Huge, else Rainbow with Luck / OneIn.Rainbow, else Shiny with Luck / OneIn.Shiny;
+-- it only counts if it is better than what the slot has (variants never go down; they stay through evolutions and
+-- rebirths). Pity: after Pity.Rainbow rolls without gaining a Rainbow-or-better slot (Pity.Huge without a Huge), the
+-- next roll that can improve a slot is a guaranteed Rainbow (Huge). The throwing Shiba's variant multiplies its
+-- sticks' value (Multiplier). Kept out of the pacing baseline on purpose: variants are rare luck on top
+-- (docs/economy/BALANCING.md → Shiba Variants).
+local VARIANTS = {
+	-- Roll order, best first.
+	Order = { "Huge", "Rainbow", "Shiny" },
+	OneIn = { Shiny = 40, Rainbow = 400, Huge = 4000 } :: { [string]: number },
+	Multiplier = { Normal = 1, Shiny = 1.5, Rainbow = 3, Huge = 6 } :: { [string]: number },
+	Pity = { Rainbow = 800, Huge = 8000 },
+	-- Divides the "1 in N" numbers. A later event (weekend party, weather) may raise it (VariantService.GetLuck).
+	Luck = 1,
+	-- Shiba-Index discovery reward in normal bonks, one-time per entry "Variant_<Variant>_<AssetName>".
+	IndexReward = { Shiny = 30, Rainbow = 100, Huge = 400 } :: { [string]: number },
+	-- Huge Shibas are this much taller (the platform stays the same).
+	HugeScale = 1.6,
+	-- "Better than": Normal 0 < Shiny 1 < Rainbow 2 < Huge 3.
+	Rank = { Normal = 0, Shiny = 1, Rainbow = 2, Huge = 3 } :: { [string]: number },
+}
+-- ===== end Shiba Variants ===========================================================================================
+
 -- Levels past the Route (e.g. More Shibas with the +2 Shiba Slots pass) are priced by continuing the last two
 -- prices' ratio for this many levels.
 local EXTRA_LEVELS = 2
@@ -505,6 +532,8 @@ EconomyConfig.Automation = AUTOMATION
 EconomyConfig.StickDensity = STICK_DENSITY
 EconomyConfig.RouteSpecs = ROUTE_SPECS
 EconomyConfig.TrophyThresholds = TROPHY_THRESHOLDS
+-- Shiba Variants (block above).
+EconomyConfig.Variants = VARIANTS
 
 -- Derived tables.
 EconomyConfig.Shibas = shibas
