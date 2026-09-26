@@ -24,7 +24,8 @@ local FINAL_SHIBA_COST = 1e33
 local PACE = {
 	MinSeconds = 4,
 	-- MaxSeconds is never reached: with Knee 50 the curve is almost a straight line from 4 s to ~2.5 min at the last
-	-- purchase. Waits pass 60 s around purchase 19 (the 9th Shiba, ~7.5 min in) and a whole first run takes ~67 min.
+	-- purchase. Waits pass 60 s around purchase 18 (while owning the 8th Shiba, ~6.5 min in) and a whole first run takes
+	-- ~66 min.
 	-- (A lower MaxSeconds keeps the end at ~1.5 min but the run then only lasts ~55 min.)
 	MaxSeconds = 200,
 	-- Purchases until the wait has closed ~63 % of the gap to MaxSeconds (larger = slower, straighter rise).
@@ -156,8 +157,11 @@ local PROJECTILE_GROWTH = 2.5
 
 -- Automation (docs/GAME_DESIGN.md → Automation). Per level (level 1 = unlocked). Only sticks the player does not
 -- catch are left for them: the intern goes for them first, the basket gets what the intern misses.
--- Tuned so that an AFK player earns a real share: with basket and intern, active play earns ~3.5× the idle income at
--- first and ~2× at the end of a run (the simulation prints it), so playing always pays more but idling is not zero.
+-- Tuned so that an AFK player earns a real share: with basket and intern, active play earns ~3.8× the idle income at
+-- first, ~3× from Shiba 16 and ~2.4× at the end of a run (the simulation prints it), so playing always pays more but
+-- idling is not zero. The stick density cap (StickDensity) means there is no flood of missed sticks: the intern takes
+-- a share of what the player leaves and the basket rolls on the rest, so both keep mattering; their levels step up in
+-- big increments so every level still pays for itself (idle) within ~15 min.
 local AUTOMATION = {
 	Basket = {
 		-- Chance that a stick nobody caught ends up in the basket.
@@ -193,9 +197,11 @@ local AUTOMATION = {
 -- of the game is the second Shiba (the NEW SHIBA pad in front of the spawn).
 -- Keep every PriceShare above ~1.2 / ShibaGrowth (≈ 0.15): a cheaper item placed right after a Shiba would still be
 -- cheaper than that Shiba, get bought before it and then pay for itself ShibaGrowth (×8) times slower than planned.
--- Shares: Shibas and projectiles 1 (they multiply income); More Shibas 0.15 (with many Shibas you can't catch the
--- extra sticks, they mostly feed the automation); Move Speed 0.16 (+~5 % income per level); Basket 0.25 and
--- Intern 0.15 (judged by what they add while idle).
+-- Shares: Shibas and projectiles 1 (they multiply income); More Shibas 0.15 (cheap, quick buys: with the density cap
+-- each extra Shiba adds its full share of value); Move Speed 0.16 (+3 % catch rate, +0.05 catch bonus ≈ +4 % income
+-- per level); Basket 0.15 and Intern 0.12 (judged by what they add while idle). The Intern is below the ~0.15 rule:
+-- its levels sit mid-segment, and the simulation shows none of them is bought out of Route order (re-check after
+-- moving its From / To).
 export type RouteSpec = {
 	Upgrade: string,
 	Count: number,
