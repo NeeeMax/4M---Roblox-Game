@@ -47,5 +47,9 @@ return {
 
 	-- HUD square buttons.
 	MenuButton = Color3.fromRGB(60, 60, 72),
+	-- Every ScreenGui built by Widgets.Screen is scaled by viewport height / 820 × UIScale, clamped to Min … Max.
+	UIScale = 0.8,
+	UIScaleMin = 0.5,
+	UIScaleMax = 0.9,
 	ManageButton = Color3.fromRGB(60, 215, 70),
 }

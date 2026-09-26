@@ -2,7 +2,7 @@
 -- Shiba-Index (Config/Index, docs/GAME_DESIGN.md → Shiba-Index): marks entries as seen in state.Index.Seen once the
 -- player reaches them, and pays each entry's one-time discovery reward when the player claims it (ClaimIndex).
 -- * Shiba / projectile tiers: seen up to the current ShooterTier / ProjectileTier level (checked after every state
---   change, so tier skips, admin levels and old saves count too). 30 Shibas (10 originals + Shiny + Mythic
+--   change, so tier skips, admin levels and old saves count too). 30 Shibas (10 originals + 10 new designs + Mythic
 --   editions, Config/Index ids); a rebirth resets the levels but never the book (seen and claimed stay).
 -- * Trophies: seen once owned.
 -- * Golden stick: seen on the first golden catch (BonkService calls DiscoverGolden).

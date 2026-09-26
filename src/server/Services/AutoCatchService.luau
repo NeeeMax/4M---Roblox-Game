@@ -1,5 +1,5 @@
 --!strict
--- Auto-Catch game pass (Config/Shop → Passes "AutoCatch", Shop.Pass.AutoCatchRadius / AutoCatchInterval).
+-- Magnet boost (timed, Config/Shop → Products "Magnet15", Shop.Pass.AutoCatchRadius / AutoCatchInterval).
 -- Every AutoCatchInterval seconds, for each owner: their live, unpaid projectiles whose current position on the
 -- planned path is within AutoCatchRadius studs of the character are paid out like a Normal bonk (no head bonus,
 -- combo counts, a new player's first paid hit gets the first-bonk bonus) through BonkService.AwardHit. Only the server's own path and character position are used.
@@ -10,13 +10,15 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local ProjectilePath = require(ReplicatedStorage.Shared.Util.ProjectilePath)
 local Shop = require(ReplicatedStorage.Shared.Config.Shop)
+local Types = require(ReplicatedStorage.Shared.Types)
 
 local BonkService = require(script.Parent.BonkService)
+local BoostService = require(script.Parent.BoostService)
 local IslandService = require(script.Parent.IslandService)
 local ProjectileService = require(script.Parent.ProjectileService)
-local RewardService = require(script.Parent.RewardService)
 
-local PASS_ID = "AutoCatch"
+-- Timed boost (Types.BoostId): the magnet runs out.
+local MAGNET: Types.BoostId = "Magnet"
 local ID_ATTRIBUTE = Gameplay.Projectiles.IdAttribute
 -- Auto-catches are gentle: no knockback direction (the client only does its small hop).
 local NO_KNOCKBACK = Vector3.zero
@@ -56,7 +58,7 @@ function AutoCatchService.Start()
 		while true do
 			task.wait(Shop.Pass.AutoCatchInterval)
 			for _, player in Players:GetPlayers() do
-				if RewardService.HasPass(player, PASS_ID) then
+				if BoostService.IsActive(player, MAGNET) then
 					catchFor(player)
 				end
 			end

@@ -10,7 +10,8 @@ export type HitQuality = "Normal" | "Good" | "Perfect"
 -- Who caught a stick for the player (automation, Config/EconomyConfig → Automation).
 export type AutomationSource = "Basket" | "Intern"
 
-export type BoostId = "Points" | "FireRate"
+-- Magnet: the Auto-Catch magnet, a timed boost (Config/Shop → Products "Magnet15").
+export type BoostId = "Points" | "FireRate" | "Magnet"
 
 -- Today's daily quests (Config/Hub → Quests). `Day` = days since 1970 (UTC); a new day gets new quests.
 export type QuestState = {

@@ -91,6 +91,9 @@ local HANDLERS: { [string]: Handler } = {
 	BoostFireRate = function(player)
 		BoostService.Give(player, "FireRate", 600)
 	end,
+	BoostMagnet = function(player)
+		BoostService.Give(player, "Magnet", 300)
+	end,
 	ClearBoosts = function(player)
 		BoostService.Clear(player)
 	end,

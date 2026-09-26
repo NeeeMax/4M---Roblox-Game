@@ -22,15 +22,13 @@ local TAB_NAMES = { "POWERS", "PASSES", "ITEMS", "TROPHIES" }
 local PRICE_YELLOW = Color3.fromRGB(255, 214, 40)
 local PRICE_TEXT = Color3.fromRGB(40, 30, 0)
 
--- The POWERS tab, in this order: icon and the "before → after" line (nil = none). Effects: AutoCatchService
--- (AutoCatch), UpgradeService (RunFaster, StackUpgrade), HudController (Manage).
+-- The POWERS tab, in this order: icon and the "before → after" line (nil = none). Effects: UpgradeService (RunFaster, StackUpgrade), HudController (Manage).
 type PowerInfo = { Icon: string, Change: string? }
-local POWER_ORDER = { "Manage", "RunFaster", "StackUpgrade", "AutoCatch" }
+local POWER_ORDER = { "Manage", "RunFaster", "StackUpgrade" }
 local POWERS: { [string]: PowerInfo } = {
 	Manage = { Icon = "📋" },
 	RunFaster = { Icon = "🏃", Change = "x1 → x1.5" },
 	StackUpgrade = { Icon = "⏫", Change = "x1 → x10" },
-	AutoCatch = { Icon = "🧲", Change = `0 → {Shop.Pass.AutoCatchRadius} studs` },
 }
 
 type Card = {
