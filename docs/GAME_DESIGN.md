@@ -66,7 +66,8 @@ Casual Roblox players, roughly 8–14. Understandable in under 10 seconds withou
 - **Anti-farm rule:** the projectile's whole path (flight, bounces, settling hops and resting point) must stay at least `projectile radius + 6` studs away from the player's position at fire time; otherwise pick again (max 30 tries, then skip the turn). Standing still therefore earns 0 points.
 - **Spread:** the random target point is the spread; additionally the launch speed varies ±10 % per shot.
 - **Telegraph:** the shooter turns (smoothly) toward its target 0.5 s before firing and winds up its throwing arm.
-- Fire interval: set by the Shiba tier (5.0 s → 1.3 s, see Upgrades), halved by the 2× fire-rate boost. Shooters only fire while their owner is within 45 studs of their island centre (not on the hub). **Shooters take turns:** with n shooters one of them fires every `interval / n` seconds, never two at once.
+- Fire interval: set by the Shiba tier (5.0 s → 1.2 s, see Upgrades), halved by the 2× fire-rate boost (and by the Stick Storm event). Shooters only fire while their owner is within 45 studs of their island centre (not on the hub). **Shooters take turns:** with n shooters one of them fires every `interval / n` seconds, never two at once.
+- **Stick density cap** (`Gameplay.Shooters.MaxThrowsPerSecond` = `EconomyConfig.StickDensity.MaxThrowsPerSecond` = **1.4**): the whole ring never throws more than 1.4 sticks per second, so the player can follow every stick. When the natural rate (n / interval, boost and events included) is higher, the ring throws at the cap (each Shiba every n / 1.4 s) and every stick carries a **ValueMultiplier** = natural ÷ capped rate: Bonk Dollars per second stay exactly the same, in fewer, more valuable sticks. The cap first bites around the 8th Shiba with 5 Shibas; at the end of a run (8 Shibas at 1.2 s) each stick is worth ×4.8, with the Shiba Slots pass ×6, with the 2× Fire Rate boost ×9.5–11.9. During a Stick Storm the cap is ×1.5 (2.1 sticks/s) so the storm still looks like one. Every payout uses it (bonk, golden ×5, Mega Stick, basket, intern, and through them the offline bank); Bonk Rain sticks are extra sticks with their own rate and carry no multiplier. Clients show it on the stick: a small "×N" tag above it and a wider, longer trail (`Gameplay.Projectiles.ValueTag`). The anti-farm rule is unchanged (every stick is still planned and checked the same way). Code: `EconomyConfig.ThrowRate`, `UpgradeService.GetThrowRate`, `NPCShooterService`.
 - A shooter model may contain a part named `Stick` (replaced by the current projectile's model, which is hidden for 0.4 s after each throw; without a projectile model the stick itself is) and an Attachment `Muzzle` (where the throw starts). Throws start from the Shiba's standing height on its platform.
 
 ## Projectiles
@@ -85,7 +86,9 @@ Projectile tiers (upgrade `ProjectileTier`): **Stick** (BaseReward 10) → **New
 
 **Landing ring:** the owner's client draws a ring on the ground at the first landing point (`ProjectilePath.GetFirstLandingPosition`), in the tier colour, shrinking until the landing and gold during the Perfect window; it disappears at the landing or when the projectile is caught (details under Hits → Catch quality). Other players' projectiles get no ring.
 
-**Lifetime / cleanup:** after its last settling hop it lies still and **fades out over 0.6 s** (`LandingFadeTime`), then each client stops drawing it (all on the synced server clock). It **can be collected during flight, bounces and settling hops, not while it fades** (`CollectableWhileFading = false`; the client check and the server validation both follow this setting). A projectile that falls off the island edge has no fade: it vanishes 20 studs below the island. The server destroys its marker 0.5 s after the fade ends (`DespawnDelay`), 15 s after launch at the latest, and validates hit reports until 2 s (`ReportGracePeriod`) after the collectable window ended (network delay). Max 60 live projectiles per island; the oldest is destroyed first. All projectiles of a player are destroyed when they leave.
+**Lifetime / cleanup:** after its last settling hop it lies still and **fades out over 0.6 s** (`LandingFadeTime`), then each client stops drawing it (all on the synced server clock). It **can be collected during flight, bounces and settling hops, not while it fades** (`CollectableWhileFading = false`; the client check and the server validation both follow this setting). A projectile that falls off the island edge has no fade: it vanishes 20 studs below the island. The server destroys its marker 0.5 s after the fade ends (`DespawnDelay`), 15 s after launch at the latest, and validates hit reports until 2 s (`ReportGracePeriod`) after the collectable window ended (network delay). Max 60 live projectiles per island; the oldest is destroyed first (with the stick density cap only a Bonk Rain comes near it).
+
+**Value tag:** a stick worth several throws (stick density cap, NPC shooters) carries its multiplier in the marker attribute `ValueMultiplier`; from ×1.05 on every client draws "×N" (one decimal, gold text with a dark outline, in world space so it doesn't spin) above it and an extra trail in the tier colour (gold for golden sticks) that grows from 1.2× to 2.2× the diameter wide and 0.25 → 0.45 s long between ×1 and ×6. Tag and trail fade with the paid look and the landing fade. All projectiles of a player are destroyed when they leave.
 
 ## Hits (server decides)
 
@@ -142,7 +145,7 @@ its flight, `ProjectilePath.GetFirstLandingTime`). See `docs/decisions/0005-catc
 - **Head hit (×2):** the client reports whether the projectile touched the head; the server accepts it if the path also
   passed within projectile radius + 2 (pickup padding) + 4 studs of the server-side head.
 - **Combo:** every hit within the combo window of the previous hit adds 0.1 to the multiplier (max ×3 at 21 hits).
-  Window = 2 s + 1.5 × time between two shots (interval / active shooters), so it stays fair with more or faster shooters.
+  Window = 2 s + 1.5 × time between two shots (1 / real throws per second, after the stick density cap), so it stays fair with more or faster shooters.
   The HUD shows `COMBO xN ×M` with a bar that runs out when the window ends, plus a tier name in its colour from
   ×1.5 `ON FIRE`, ×2 `BONKTASTIC`, ×3 `MAX BONK` (`Gameplay.Bonk.ComboTiers`); the meter punches when a new tier is reached.
 
@@ -175,7 +178,7 @@ fire rate were removed on 2026-09-24: projectiles always have the same size, the
 | Id | Menu name | Effect per level | Level 0 | Max level | Unlocks with |
 |----|-----------|-----------------|---------|-----------|--------------|
 | `Shooters` | More Shibas | +1 Shiba | 1 | 7 (8 Shibas; 9 with the pass) | start (the first purchase, B$ 10) |
-| `ShooterTier` | Shiba Tier | all Shibas evolve: new model/edition, faster throws, ×8.08 dollars | Shiba | 29 (30 Shibas) | start |
+| `ShooterTier` | Shiba Tier | all Shibas evolve: new model/edition, faster throws, ×7.87 dollars | Shiba | 29 (30 Shibas) | start |
 | `ProjectileTier` | Projectile Tier | next projectile (×2.5 BaseReward) | Stick | 9 | Shades Shiba |
 | `MoveSpeed` | Move Speed | WalkSpeed +3 | 16 | 10 (46) | Shades Shiba |
 | `Basket` | Bonk Basket | catches missed sticks, sets the offline hours | none | 6 | Gold Shiba |
@@ -183,14 +186,15 @@ fire rate were removed on 2026-09-24: projectiles always have the same size, the
 
 - **Unlocks** come from `EconomyConfig.UnlockAtShibaTier` (derived from the Route): a locked upgrade shows "Unlocks with
   <Shiba>" (menu, stand) and the server refuses it (`UpgradeService.TryPurchase`).
-- **Prices** (examples; the simulation prints all of them): Shibas 38 → 2K → 36K → 340K → … → 570B (Shiba 10) →
-  78Sx (Shiba 20) → **1Dc = 1e33** (Shiba 30). More Shibas 10 … 190T, Move Speed 75 … 1.5Oc, Basket 450M … 3.4No,
-  Intern 74B … 18No, Projectile Tier 647 … 79Oc.
+- **Prices** (examples; the simulation prints all of them): Shibas 38 → 2.1K → 35K → 330K → … → 480B (Shiba 10) →
+  80Sx (Shiba 20) → **1Dc = 1e33** (Shiba 30). More Shibas 10 … 170T, Move Speed 75 … 1.5Oc, Basket 220M … 2.2No,
+  Intern 42B … 15No, Projectile Tier 664 … 84Oc.
 
 Shiba tiers (`EconomyConfig.Shibas`, used by `Config/Gameplay → Shooters.Tiers`): 30 = the ten models (Shiba, Shades,
 Buff, Chef, Police, Ninja, Gold, Galaxy, Giant, Cheems God), then the same ten as **Shiny** and **Mythic** editions
-(same model, outline and aura in the edition colour). Throw interval 5.0 s → 1.2 s (geometric), dollars ×8.08 per
-tier (×1 → ×2e26, solved so the last Shiba costs 1e33).
+(same model, outline and aura in the edition colour). Throw interval 5.0 s → 1.2 s (geometric), dollars ×7.87 per
+tier (×1 → ×1e26, solved so the last Shiba costs 1e33). From about the 8th Shiba the stick density cap turns faster
+throws into more valuable sticks instead of more sticks (NPC shooters).
 
 - MoveSpeed exists so the player can **reach impact points in time** (not to dodge). It also raises the achievable hit quality.
 - **Active Shibas:** buying adds a Shiba; the "More Shibas" card sets how many are active (1 … owned) for free.
@@ -241,20 +245,22 @@ itself within ~15 min. Full model, tables and how to retune: `docs/economy/BALAN
 ```
 target wait T(n) = 200 − 196 · e^(−n / 50) s   (4 s for the first purchase → 2.5 min for the last)
 price(n)         = Baseline income before purchase n × T(n) × PriceShare(upgrade)
-Baseline income  = stick value × (caught/s × 2 + intern catches × payout + basket catches × payout)
+sticks/s         = min(Shibas / FireInterval, 1.4)   (density cap; stick value × natural ÷ capped rate)
+Baseline income  = stick value × (caught/s × (2 + 0.05 per Move Speed) + intern catches × payout + basket catches × payout)
 caught/s         = min(sticks/s × (60 % + 3 % per Move Speed), 1 + 0.1 per Move Speed)
+intern catches   = min(missed × intern CatchShare, ExpectedCatchesPerSecond); the basket rolls on the rest
 ```
 
 A player who always buys the cheapest affordable upgrade (run 1, no rebirth, no passes):
 
 | Shiba | 1 | 2 | 5 | 9 | 10 | 20 | 21 (rebirth) | 30 (1e33) |
 |-------|---|---|---|---|----|----|--------------|-----------|
-| play time | start | 8 s | 1.7 min | 7.5 min | 9.1 min | 36.6 min | 39.0 min | 66.9 min |
-| wait for it | — | 8 s | 29 s | 64 s | 71 s | 2.1 min | 2.1 min | 2.5 min |
+| play time | start | 8 s | 1.7 min | 7.5 min | 9.0 min | 35.9 min | 38.2 min | 65.7 min |
+| wait for it | — | 8 s | 30 s | 63 s | 72 s | 2.1 min | 2.1 min | 2.5 min |
 
-Between two Shibas come quick side buys (More Shibas, Move Speed, Basket, Intern: 2–35 s each) and every few Shibas a
-projectile tier (as long as a Shiba). Active play earns ~3.7× the idle (AFK) income once the intern is hired and ~2×
-at the end of the run.
+Between two Shibas come quick side buys (More Shibas, Move Speed, Basket, Intern: 2–25 s each) and every few Shibas a
+projectile tier (as long as a Shiba). Active play earns ~3.8× the idle (AFK) income right after the intern is hired,
+~3× from about Shiba 16 and ~2.4× at the end of the run.
 
 Robux speeds this up without selling Bonk Dollars: 2× Dollars (pass or 30 min boost) halves every wait, 2× Fire Rate
 nearly does, and the instant upgrades skip one level.
@@ -311,7 +317,7 @@ the server starts) one random event (equal weights) runs for everyone in the ser
 | **Golden Minute** | 60 s | every projectile is golden (pays the golden ×5) |
 | **Mega Stick** | 90 s | each player's Shibas throw ONE giant stick (3× diameter) onto their field; catching it pays ×50. Only thrown while you are on your island; a player who joins during the event gets one too |
 | **Double Dollars** | 120 s | every bonk pays ×2 (stacks with passes, boosts, golden) |
-| **Stick Storm** | 90 s | every Shiba's fire interval is halved |
+| **Stick Storm** | 90 s | every Shiba's fire interval is halved; the stick density cap rises ×1.5 (to 2.1 sticks/s) |
 
 A banner at the top of the screen shows the running event and its countdown (a big splash when it starts); between
 events a small line shows "Next event in mm:ss". Players who join mid-event see it right away. Admins can start one
@@ -398,7 +404,10 @@ n; only look and tuning (position, colours, timings, effects) live in `Config/Au
 everything (`AutomationService`); clients only draw (`AutomationController`, remote `AutomationCatch`).
 
 Stick value = `RewardService.GetStickValue` (projectile BaseReward × Shiba tier × rebirth × golden × passes × 2× boost
-× server events), i.e. a Normal bonk without head bonus or combo. Automation pays `floor(stick value × Payout[level])`,
+× server events × the stick's ValueMultiplier from the density cap), i.e. a Normal bonk without head bonus or combo.
+Because the density cap keeps sticks few (≤ 1.4/s), the helpers can't count on a flood of missed sticks: the pricing
+model gives the intern a share of what the player leaves (`CatchShare` 50 % → 80 %, like the player's own catch rate)
+and the basket rolls on the rest (`CatchChance` 35 % → 100 %, `Payout` 45 % → 100 %); intern `Payout` 70 % → 100 %. Automation pays `floor(stick value × Payout[level])`,
 at least 1, through `EconomyService.AddAutomationPoints` (counted as earned; sampled separately for the offline bank).
 It gives no combo, quest progress or Shiba-Index discoveries. Both helpers only work while the owner is on their
 island (like the Shibas). Order: the player first, then the intern, then the basket.
@@ -481,7 +490,7 @@ Automation`, sampling in `Config/Economy → OfflineBank`):
   Shiba pad, shop trophy prices, coin flip bets/stakes/results/duel invites, bonk popups, spin result, obby reward,
   "Welcome back" popup, notifications.
 - Pacing target (for tuning): first purchase right away, minute rhythm from around the 9th Shiba, a whole first run
-  (Shiba 30, 1e33) in ~67 min, no purchase with a payback over ~15 min (see Upgrades → Pacing). While away, the
+  (Shiba 30, 1e33) in ~66 min, no purchase with a payback over ~15 min (see Upgrades → Pacing). While away, the
   Offline Shiba Bank pays the automation's income (+5 % of your own) for up to the basket's offline hours.
 
 ## UI (MVP)
