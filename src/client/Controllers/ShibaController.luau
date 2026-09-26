@@ -10,7 +10,8 @@
 --   hidden from the release for Shooters.HandStickHideTime, so it looks thrown. Hiding happens here, on the same
 --   server-clock release time as the swing (the server never changes it). A projectile's Grip marker stays hidden.
 -- - Shiny / Mythic outlines: only the ShibaEffects.MaxEditionOutlines nearest to the camera stay enabled (Roblox
---   draws at most 31 Highlights at once).
+--   draws at most 31 Highlights at once). Shiba Variant outlines use the same name, so they share that budget; the
+--   Rainbow / Huge ones (and the Huge platform ring) cycle through the rainbow here.
 -- The server places each model once and never moves it, so every pose is computed from that rest pivot, and parts
 -- that stream in later are fitted into the current pose. Purely visual, nothing is sent back.
 
@@ -63,6 +64,10 @@ local rigs: { [Model]: Rig } = {}
 local editionOutlines: { [Highlight]: boolean } = {}
 -- Seconds between two checks of which edition outlines are nearest.
 local OUTLINE_CHECK_INTERVAL = 0.5
+-- ===== Shiba Variants: Rainbow / Huge outlines and Huge platform rings cycle through the rainbow
+-- (Config/ShibaEffects → Variants, HueCycle; the model's Variant attribute says which).
+local rainbowOutlines: { [Highlight]: boolean } = {}
+local rainbowParts: { [BasePart]: boolean } = {}
 
 local ShibaController = {}
 
@@ -167,6 +172,17 @@ end
 local function onDescendantAdded(descendant: Instance)
 	if descendant:IsA("Highlight") and descendant.Name == ShibaEffects.EditionOutlineName then
 		editionOutlines[descendant] = true
+		-- Shiba Variants: a hue-cycling variant's outline.
+		local owner = descendant.Parent
+		local variant = if owner then owner:GetAttribute(ShibaEffects.VariantAttribute) else nil
+		local look = if typeof(variant) == "string" then ShibaEffects.Variants[variant] else nil
+		if look and look.HueCycle then
+			rainbowOutlines[descendant] = true
+		end
+		return
+	end
+	if descendant:IsA("BasePart") and descendant.Name == ShibaEffects.VariantRingName then
+		rainbowParts[descendant] = true
 		return
 	end
 	if descendant:IsA("Model") then
@@ -325,6 +341,22 @@ local function update(dt: number)
 	end
 	if #parts > 0 then
 		Workspace:BulkMoveTo(parts, frames, Enum.BulkMoveMode.FireCFrameChanged)
+	end
+	-- Shiba Variants: one shared rainbow hue for every cycling outline (only the drawn ones) and platform ring.
+	local color = Color3.fromHSV((now / ShibaEffects.RainbowCycleSeconds) % 1, 0.75, 1)
+	for outline in rainbowOutlines do
+		if not outline.Parent then
+			rainbowOutlines[outline] = nil
+		elseif outline.Enabled then
+			outline.OutlineColor = color
+		end
+	end
+	for part in rainbowParts do
+		if not part.Parent then
+			rainbowParts[part] = nil
+		else
+			part.Color = color
+		end
 	end
 end
 
