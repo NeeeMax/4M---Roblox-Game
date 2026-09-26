@@ -72,7 +72,8 @@ local BONK = {
 }
 
 -- Rebirth (prestige): resets Bonk Dollars and all upgrade levels (Shibas, tiers, projectiles, speed, basket, intern)
--- for a permanent income multiplier. Keeps passes, trophies, Shiba-Index, quests, streaks, boosts, Bonk Rains, settings.
+-- for a permanent income multiplier. Keeps passes, trophies, Shiba-Index, Shiba variants, quests, streaks, boosts,
+-- Bonk Rains, settings.
 local REBIRTH = {
 	-- ShooterTier level needed to rebirth (level 20 = the 21st Shiba).
 	MinShibaTier = 20,

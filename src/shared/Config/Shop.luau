@@ -48,6 +48,9 @@ export type Trophy = {
 	Color: Color3,
 	-- Model: ReplicatedStorage.Assets.Trophy_<Id>; without it a coloured placeholder cup.
 	Rarity: "Common" | "Rare" | "Epic" | "Legendary" | "Exclusive",
+	-- Only obtainable with Robux (a pass, a product or the starter pack). The Shiba-Index still shows it, marked
+	-- "exclusive", but its completion bonus never needs it (Config/Index → CountsForCompletion).
+	RobuxOnly: boolean?,
 }
 
 local passes: { Pass } = {
@@ -283,6 +286,7 @@ local trophies: { Trophy } = {
 		Points = nil,
 		Color = Color3.fromRGB(80, 220, 160),
 		Rarity = "Exclusive",
+		RobuxOnly = true,
 	},
 	{
 		Id = "Streak",
@@ -297,6 +301,7 @@ local trophies: { Trophy } = {
 		Points = nil,
 		Color = Color3.fromRGB(255, 215, 60),
 		Rarity = "Exclusive",
+		RobuxOnly = true,
 	},
 	{
 		Id = "Diamond",
@@ -304,6 +309,7 @@ local trophies: { Trophy } = {
 		Points = nil,
 		Color = Color3.fromRGB(90, 220, 255),
 		Rarity = "Exclusive",
+		RobuxOnly = true,
 	},
 	{
 		Id = "Rainbow",
@@ -311,6 +317,7 @@ local trophies: { Trophy } = {
 		Points = nil,
 		Color = Color3.fromRGB(255, 90, 200),
 		Rarity = "Exclusive",
+		RobuxOnly = true,
 	},
 }
 

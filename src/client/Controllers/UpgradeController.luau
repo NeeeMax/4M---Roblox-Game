@@ -266,7 +266,7 @@ local function buildRebirthCard(list: Instance, order: number)
 
 	local description = Widgets.Label(
 		frame,
-		"Resets Bonk Dollars and all upgrades; keeps passes, trophies and the Shiba-Index.",
+		"Resets Bonk Dollars and all upgrades; keeps passes, trophies, Shiba variants and the Index.",
 		13,
 		Theme.Muted
 	)

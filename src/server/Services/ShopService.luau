@@ -25,6 +25,8 @@ local UpgradeService = require(script.Parent.UpgradeService)
 
 local MAX_RECEIPTS = 50
 local TROPHY_PREFIX = "Trophy_"
+-- Shiba Variants: shown after a Robux Shiba level (those never roll a variant).
+local VARIANT_ROLL_HINT = "Variant rolls come from Bonk Dollar evolutions"
 
 local buyLimiter = RateLimiter.New(3, 1)
 
@@ -93,9 +95,14 @@ function ShopService.Grant(player: Player, product: Shop.Product): boolean
 		BoostService.Give(player, product.Boost :: Types.BoostId, product.Seconds)
 	elseif product.Kind == "TierSkip" then
 		UpgradeService.SetLevel(player, "ShooterTier", UpgradeService.GetLevel(player, "ShooterTier") + 1)
+		-- Shiba Variants: Robux levels never roll (no paid random items, VariantService).
+		NotifyService.Send(player, VARIANT_ROLL_HINT, "Info")
 	elseif product.Kind == "InstantUpgrade" and product.Upgrade and Upgrades.Defs[product.Upgrade] then
 		-- Already maxed (bought twice before the first grant): the level stays; Roblox has charged, so still granted.
 		UpgradeService.SetLevel(player, product.Upgrade, UpgradeService.GetLevel(player, product.Upgrade) + 1)
+		if product.Upgrade == "ShooterTier" or product.Upgrade == "Shooters" then
+			NotifyService.Send(player, VARIANT_ROLL_HINT, "Info")
+		end
 	elseif product.Kind == "DoubleOffline" then
 		-- 2× the pending Shiba Bank earnings (0 if they were claimed in between).
 		local paid = EconomyService.PayOffline(player, 2)

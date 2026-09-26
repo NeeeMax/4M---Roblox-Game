@@ -21,6 +21,7 @@ local EventService = require(script.Parent.EventService)
 local NotifyService = require(script.Parent.NotifyService)
 local QuestService = require(script.Parent.QuestService)
 local RewardService = require(script.Parent.RewardService)
+local VariantService = require(script.Parent.VariantService)
 
 -- The Run Faster game pass (Config/Shop): WalkSpeed ×1.5.
 local RUN_FASTER_MULTIPLIER = 1.5
@@ -144,6 +145,18 @@ function UpgradeService.TryPurchase(player: Player, id: string, count: number): 
 	end
 
 	local newLevel = startLevel + bought
+	-- ===== Shiba Variants: Bonk-Dollar evolutions roll every owned slot (once per level), a new Shiba rolls its slot.
+	-- Robux grants use SetLevel and never roll (VariantService header).
+	if def.Id == "ShooterTier" then
+		VariantService.RollSlots(player, VariantService.OwnedSlots(player), bought)
+	elseif def.Id == "Shooters" then
+		local newSlots: { number } = {}
+		for slot = Upgrades.GetValue("Shooters", startLevel) + 1, Upgrades.GetValue("Shooters", newLevel) do
+			table.insert(newSlots, slot)
+		end
+		VariantService.RollSlots(player, newSlots)
+	end
+	-- ===== end Shiba Variants
 	if def.Id == "Shooters" then
 		-- A newly bought shooter starts active.
 		state.ActiveShooters = Upgrades.GetValue("Shooters", newLevel)
