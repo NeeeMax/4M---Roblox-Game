@@ -343,6 +343,139 @@ PropService.Builders = {
 				false
 		end
 	end :: Builder,
+
+	-- Beach props round the drop zone (Config/FieldDecor → EdgeProps). Few parts each: the field budget is ~80
+	-- parts per island. FieldDecor makes every part visual only (no collisions, queries or touches).
+	Sandcastle = function(model: Model, height: number)
+		local s = height / 3.2
+		local sand = Color3.fromRGB(232, 200, 135)
+		part(
+			model,
+			Enum.PartType.Block,
+			Vector3.new(4.2, 1.1, 3.2) * s,
+			CFrame.new(0, 0.55 * s, 0),
+			sand,
+			Enum.Material.Sand
+		)
+		part(
+			model,
+			Enum.PartType.Block,
+			Vector3.new(2.4, 0.9, 1.9) * s,
+			CFrame.new(0, 1.55 * s, 0.1 * s),
+			Color3.fromRGB(240, 212, 150),
+			Enum.Material.Sand
+		)
+		part(
+			model,
+			Enum.PartType.Cylinder,
+			Vector3.new(2.6, 1.1, 1.1) * s,
+			CFrame.new(-1.55 * s, 1.3 * s, 0.4 * s) * CFrame.Angles(0, 0, math.rad(90)),
+			sand,
+			Enum.Material.Sand
+		)
+		part(
+			model,
+			Enum.PartType.Cylinder,
+			Vector3.new(2.6, 1.1, 1.1) * s,
+			CFrame.new(1.55 * s, 1.3 * s, 0.4 * s) * CFrame.Angles(0, 0, math.rad(90)),
+			sand,
+			Enum.Material.Sand
+		)
+		part(
+			model,
+			Enum.PartType.Block,
+			Vector3.new(0.05, 0.5, 0.7) * s,
+			CFrame.new(-1.55 * s, 2.85 * s, 0.4 * s),
+			Color3.fromRGB(255, 90, 80),
+			Enum.Material.SmoothPlastic
+		)
+	end :: Builder,
+
+	-- A red ball with a white band (the band slightly wider, so it reads as stripes).
+	BeachBall = function(model: Model, height: number)
+		part(
+			model,
+			Enum.PartType.Ball,
+			Vector3.one * height,
+			CFrame.new(0, height / 2, 0),
+			Color3.fromRGB(240, 70, 70),
+			Enum.Material.SmoothPlastic
+		)
+		part(
+			model,
+			Enum.PartType.Cylinder,
+			Vector3.new(height * 0.3, height * 1.02, height * 1.02),
+			CFrame.new(0, height / 2, 0) * CFrame.Angles(0, 0, math.rad(35)),
+			Color3.fromRGB(255, 250, 240),
+			Enum.Material.SmoothPlastic
+		)
+	end :: Builder,
+
+	-- A blue sand bucket with a yellow spade leaning on it.
+	BucketSpade = function(model: Model, height: number)
+		local bucket = height * 0.62
+		part(
+			model,
+			Enum.PartType.Cylinder,
+			Vector3.new(bucket, bucket * 0.95, bucket * 0.95),
+			CFrame.new(0, bucket / 2, 0) * CFrame.Angles(0, 0, math.rad(90)),
+			Color3.fromRGB(60, 140, 235),
+			Enum.Material.SmoothPlastic
+		)
+		part(
+			model,
+			Enum.PartType.Block,
+			Vector3.new(height * 0.09, height * 0.8, height * 0.09),
+			CFrame.new(bucket * 0.62, height * 0.5, 0) * CFrame.Angles(0, 0, math.rad(-18)),
+			Color3.fromRGB(255, 200, 50),
+			Enum.Material.SmoothPlastic
+		)
+		part(
+			model,
+			Enum.PartType.Block,
+			Vector3.new(height * 0.3, height * 0.32, height * 0.05),
+			CFrame.new(bucket * 0.75, height * 0.14, 0) * CFrame.Angles(0, 0, math.rad(-18)),
+			Color3.fromRGB(255, 200, 50),
+			Enum.Material.SmoothPlastic
+		)
+	end :: Builder,
+
+	-- A chew-toy bone lying flat: a shaft with a double knob at each end.
+	BoneToy = function(model: Model, height: number)
+		local length = height * 3.6
+		local cream = Color3.fromRGB(250, 240, 215)
+		part(
+			model,
+			Enum.PartType.Cylinder,
+			Vector3.new(length, height * 0.55, height * 0.55),
+			CFrame.new(0, height * 0.5, 0),
+			cream,
+			Enum.Material.SmoothPlastic
+		)
+		for _, side in { -1, 1 } do
+			part(
+				model,
+				Enum.PartType.Cylinder,
+				Vector3.new(height * 1.3, height, height),
+				CFrame.new(side * length / 2, height * 0.5, 0) * CFrame.Angles(0, math.rad(90), 0),
+				cream,
+				Enum.Material.SmoothPlastic
+			)
+		end
+	end :: Builder,
+
+	-- Two crossed tufts of grass blades (wedges).
+	GrassTuft = function(model: Model, height: number)
+		for index, turn in { 0, 90 } do
+			local blade = Instance.new("WedgePart")
+			blade.Size = Vector3.new(0.12, height, height * 0.9)
+			blade.CFrame = CFrame.Angles(0, math.rad(turn), 0) * CFrame.new(0, height / 2, 0)
+			blade.Color = if index == 1 then Color3.fromRGB(95, 175, 70) else Color3.fromRGB(130, 200, 85)
+			blade.Material = Enum.Material.Grass
+			blade.Anchored = true
+			blade.Parent = model
+		end
+	end :: Builder,
 }
 
 -- A trophy cup placeholder in the trophy's colour (Trophy_<Id> models replace it).
