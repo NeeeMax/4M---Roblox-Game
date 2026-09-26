@@ -48,7 +48,7 @@ Remotes live in `ReplicatedStorage/Remotes`, created by `Net.CreateRemotes()` fr
 Projectiles are invisible, anchored marker parts in `Workspace/Islands/Island_<UserId>/Projectiles`. They carry the
 attribute `ProjectileId` (number) so the client can report hits, plus their planned path (`LaunchTime` on the server
 clock, `Gravity`, `SettleTime`, `EndTime`, `FadeTime`, `Diameter`, `SegmentCount`, `S<n>Time/Position/Velocity`), written and read only by
-`src/shared/Util/ProjectilePath.luau`, and `Paid` (true once it paid out), `Golden` and `Mega` (the MegaStick event's giant stick; its bigger size is already in `Diameter`). Clients draw the model along that path
+`src/shared/Util/ProjectilePath.luau`, and `Paid` (true once it paid out), `Golden`, `Mega` (the MegaStick event's giant stick; its bigger size is already in `Diameter`) and `ValueMultiplier` (number, only when > 1: the stick density cap made it worth that many throws; clients show "×N"). Clients draw the model along that path
 (`docs/decisions/0004`): small settling hops from `SettleTime`, lying still from `EndTime`, fully faded at `EndTime + FadeTime`.
 Shooter models (the imported Shiba inside `Workspace/Islands/Island_<UserId>/…/Shooter`) carry two attributes, both
 server → client only and purely visual (`Controllers/ShibaController`):
