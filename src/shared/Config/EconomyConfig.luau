@@ -252,6 +252,8 @@ local SOCIAL = {
 	InviteReward = { BonkRains = 1, Trophy = "BonkBuddies" },
 	-- Inviter rewards per week (days since 1970 // 7); more wait as pending for next week.
 	MaxInviteRewardsPerWeek = 10,
+	-- DataStore for inviter rewards earned while the inviter was offline (key = inviter UserId, value = count).
+	PendingStoreName = "ReferralsPending",
 }
 
 -- Weekend Bonk Party quest reward (schedule and look: Config/Events → Party).

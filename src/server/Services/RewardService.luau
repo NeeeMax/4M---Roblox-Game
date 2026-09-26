@@ -19,6 +19,7 @@ local BoostService = require(script.Parent.BoostService)
 local DataService = require(script.Parent.DataService)
 local EconomyService = require(script.Parent.EconomyService)
 local EventService = require(script.Parent.EventService)
+local SocialService = require(script.Parent.SocialService)
 
 local TIERS = Gameplay.Shooters.Tiers
 
@@ -51,7 +52,8 @@ function RewardService.GetHitValue(player: Player): number
 end
 
 -- A stick's value before how it was caught (catch quality, head, combo): BaseReward × Shiba tier × rebirth × golden ×
--- 2× boost × passes × server events × ValueMultiplier (stick density cap: how many throws the stick stands for).
+-- 2× boost × passes × server events × Friend Boost × ValueMultiplier (stick density cap: how many throws the stick
+-- stands for).
 -- BonkService multiplies the catch bonuses on top; automation (basket, intern) pays its share of it. `baseReward`,
 -- `golden`, `mega` and `valueMultiplier` come from the projectile's ShotPlan.
 function RewardService.GetStickValue(
@@ -72,6 +74,7 @@ function RewardService.GetStickValue(
 		* passMultiplier
 		* BoostService.GetMultiplier(player, "Points")
 		* EventService.RewardMultiplier(mega) -- server events: DoublePoints, MegaStick
+		* SocialService.GetFriendMultiplier(player) -- Roblox friends in the server (a bonus, not in the pricing)
 		* math.max(valueMultiplier, 1)
 end
 

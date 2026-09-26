@@ -21,10 +21,12 @@ local EconomyService = require(script.Parent.EconomyService)
 local IslandService = require(script.Parent.IslandService)
 local NPCShooterService = require(script.Parent.NPCShooterService)
 local NotifyService = require(script.Parent.NotifyService)
+local PartyService = require(script.Parent.PartyService)
 local QuestService = require(script.Parent.QuestService)
 local RainService = require(script.Parent.RainService)
 local RebirthService = require(script.Parent.RebirthService)
 local ShopService = require(script.Parent.ShopService)
+local SocialService = require(script.Parent.SocialService)
 local StreakService = require(script.Parent.StreakService)
 local UpgradeService = require(script.Parent.UpgradeService)
 
@@ -149,6 +151,30 @@ local HANDLERS: { [string]: Handler } = {
 	RebirthReset = function(player)
 		RebirthService.SetRebirths(player, 0)
 	end,
+	-- ==== Social + Bonk Party (feat/social-party) ====
+	StartParty = function()
+		EventService.StartPartyNow()
+	end,
+	StopParty = function()
+		EventService.StopPartyNow()
+	end,
+	CompletePartyQuest = function(player)
+		PartyService.CompleteQuest(player)
+	end,
+	-- Studio test players are never Roblox friends: pretend friends for the Friend Boost (0 → 4 → 0).
+	FakeFriend = function(player)
+		local count = SocialService.CycleFakeFriends(player)
+		NotifyService.Send(
+			player,
+			`Pretend friends: {count} (Friend Boost +{math.round((SocialService.GetFriendMultiplier(player) - 1) * 100)}%)`,
+			"Info"
+		)
+	end,
+	-- Both sides of an invite reward on yourself.
+	FakeInvite = function(player)
+		SocialService.FakeInvite(player)
+	end,
+	-- ==== end Social + Bonk Party ====
 	AllTrophies = function(player)
 		local state = DataService.GetState(player)
 		if state then
