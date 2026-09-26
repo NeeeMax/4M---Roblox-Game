@@ -323,17 +323,65 @@ A banner at the top of the screen shows the running event and its countdown (a b
 events a small line shows "Next event in mm:ss". Players who join mid-event see it right away. Admins can start one
 right away (`EventService.StartNow(eventId)`, hooked into the admin menu later).
 
+## Weekend Bonk Party
+
+A fixed weekly appointment (research: `docs/research/ROBLOX_PACING.md` §5.3). Every **Saturday 12:00 UTC for 24 h**
+(`Config/Events → Party`: `Weekday` 7, `StartHourUtc` 12, `DurationHours` 24). Every server computes the window from
+the UTC clock (`Events.PartyWindow`, `EventService.IsPartyActive`), so all servers agree without messaging.
+
+- **During the party:** server events come every **7 min** instead of 15 (`PartyInterval`; the next event is pulled in
+  when the party starts; weights unchanged), and **variant luck ×3** (`EventService.VariantLuckMultiplier()` returns
+  `VariantLuck` 3 during the party, 1 otherwise; the Shiba variant system multiplies its chances by it — without
+  variants it does nothing yet).
+- **Party quest:** catch **500 sticks** during the party (`QuestCatches`; sticks you catch yourself, the same catches as
+  the daily "catch sticks" quests) → **150 bonks** + the **Bonk Party** trophy (`EconomyConfig.Party`). Its own row
+  under the daily quests in the QUESTS menu; progress resets with each new party (`state.Party.Id` = the party's
+  Unix start). One trophy that counts up: the island sign reads "Bonk Party ×3" (`state.Party.Count`). A finished
+  quest can still be claimed after the party ended, until the next party starts counting.
+- **Countdown all week:** a line under the event banner ("BONK PARTY in 2d 04h"; while it runs: "BONK PARTY! Luck ×3 ·
+  events every 7 min · 11h 20m left", a splash when it starts), the party row in QUESTS, and a neon sign hanging above
+  the two hub plaza boards (`PartyService`, `Workspace/BonkPartySign`).
+- Planned updates ship on Friday so the party shows the new content.
+- **Admin:** Start party (10 min, `AdminDurationMinutes`), End party (also ends a scheduled party early, until its
+  normal end), Finish party quest.
+
+## Friends and invites
+
+Research: `docs/research/ROBLOX_PACING.md` §5.2 (co-play is a ranking signal; co-play sessions last longer).
+
+- **Friend Boost:** +10 % income per Roblox friend in the same server, at most 4 friends = +40 %
+  (`EconomyConfig.Social`: `PerFriend` 0.1, `MaxFriends` 4). Multiplier `1 + PerFriend × min(friends, MaxFriends)`
+  inside `RewardService.GetStickValue`, so it applies to everything paid per stick (hands, basket, intern, magnet)
+  but **not** to spin, quests, Index or other rewards counted in bonks. It is a bonus on top: the pacing, prices and
+  the simulation never count it. Friendship = `Player:IsFriendsWithAsync`, checked once per pair when someone joins
+  (it yields and is rate limited) and cached until one of the two leaves (`SocialService`). HUD: "FRIENDS +20%" in the
+  boost pill.
+- **INVITE** (menu entry): opens Roblox's invite dialog (`SocialService:PromptGameInvite`, only if
+  `CanSendGameInviteAsync` allows it; otherwise a short message).
+- **Invite reward:** the first time a player joins through a friend's invite (`GetJoinData().ReferredByPlayerId`, the
+  inviter must be a Roblox friend), both get **1 Bonk Rain + the Bonk Buddies trophy** (`InviteReward`). The invited
+  player gets it once per account (`state.Social.ReferralRewarded`). The inviter gets it at most **10 times per week**
+  (`MaxInviteRewardsPerWeek`, week = days since 1970 // 7); more wait until next week
+  (`state.Social.PendingInviteRewards`). If the inviter is offline, the reward waits in the `ReferralsPending`
+  DataStore (key = inviter UserId) and is granted on their next join.
+- **Bonk Buddies** trophy: shown in the Shiba-Index (300 bonks like every Exclusive trophy) but **not needed for the
+  completion bonus** (it needs a friend; `Shop.Trophy.Optional`).
+- **Admin (Studio test players are never Roblox friends):** "Pretend friend +1" cycles 0 → 4 pretend friends for the
+  boost; "Fake invite reward" plays both sides of an invite on yourself.
+- Creator Hub (optional): enable the Friend Referral banner; its reward text must match.
+
 ## Shiba-Index
 
 A collection book (INDEX menu, `Config/Index`) with one entry per Shiba tier (30: the ten originals, then the Shiny
-and Mythic editions), projectile tier (10), the golden stick and each trophy (10): 51 entries today, new tiers and
+and Mythic editions), projectile tier (10), the golden stick and each trophy (12): 53 entries today, new tiers and
 trophies are added automatically. Entry ids are saved: the ten original Shibas keep `Shiba_<Model>`, editions are
 `Shiba_<Edition><Model>` (e.g. `Shiba_ShinyShiba`). An entry is **found** when you first reach it: Shiba / projectile
 tier bought (or skipped past), first golden stick caught, trophy owned; a rebirth never un-finds anything. Unfound
 entries show as a dark "???" silhouette. Each found entry pays a one-time discovery reward you claim on its card (in
 bonks, see Hub features): Shibas 20 + 10 per tier (20 … 310), projectiles 15 + 5 per tier, golden stick 50, trophies
 by rarity (Common 25, Rare 50, Epic 100, Legendary 200, Exclusive 300). Finding all entries unlocks a completion bonus
-of 1,000 bonks. A bar on top shows the progress ("12/51 found").
+of 1,000 bonks. A bar on top shows the progress ("12/52 found"). Optional trophies (Bonk Buddies, it needs a
+friend) show and pay their reward but are not counted for completion.
 ## Obby (jump and run)
 
 A spiral tower of chunky green / yellow / orange platforms in the hub centre (`ObbyService`, layout in `Config/Obby`),
@@ -465,7 +513,8 @@ Automation`, sampling in `Config/Economy → OfflineBank`):
   Shiba needed), +1 rebirth (only the multiplier), reset rebirths, with the current count and multiplier;
   reset daily spin, new quests, finish quests; 2× Dollars / 2× fire rate boost (10 min), clear boosts; teleport to hub / own
   island, all Shibas fire now; toggle each pass, +1 Bonk Rain, start a rain, all trophies, unlock gifts, show the
-  starter offer again; RESET EVERYTHING (second click confirms; keeps the leaderboard total and Robux purchases).
+  starter offer again; Bonk Party: start (10 min) / end / finish the party quest; pretend friends (0-4) and a
+  fake invite reward; RESET EVERYTHING (second click confirms; keeps the leaderboard total and Robux purchases).
 - Admins: everyone in Studio playtests, the experience owner, and the UserIds in `src/shared/Config/Admin.luau`.
 - The server checks admin rights on every request (`AdminCommand`, `AdminService`); the client check only hides the button.
 
@@ -499,7 +548,7 @@ Look and usability follow successful Roblox tycoons: few buttons on screen, big 
 
 - HUD (uncluttered), top centre: square **menu** button (list icon) + green **clipboard** button (MANAGE) + dark bar
   with the Bonk Dollars symbol and counter in big green text, abbreviated (`Format.Abbreviate`: "324.316 quadrillion", counts up).
-  - Menu button opens a small list: SHOP, GIFTS, QUESTS, SPIN, INDEX, SETTINGS (ADMIN for admins). A menu that does
+  - Menu button opens a small list: SHOP, GIFTS, QUESTS, SPIN, INDEX, INVITE, SETTINGS (ADMIN for admins). A menu that does
     not exist yet says "coming soon".
   - MANAGE: with the Manage pass the upgrade menu opens anywhere; without it the shop opens on the POWERS tab to
     buy it (upgrades are normally bought at the stands on the island).
@@ -523,6 +572,8 @@ Per player (DataStore `PlayerData_v1`, key = UserId): the whole `Types.PlayerSta
   Old Bonk Dollar amounts stay as they are (tiny next to the new prices, which is fine: they start the new curve).
 - Big numbers are plain doubles in the save (a DataStore holds them fine); only the leaderboard's OrderedDataStore
   needs the log encoding (see Hub features → Leaderboard).
+- **Save version 3** (additive only): `Social` (invite rewards) and `Party` (Bonk Party quest). Older saves get the
+  defaults; no logic depends on the version number.
 
 ## Scope of the first playable version (MVP)
 
