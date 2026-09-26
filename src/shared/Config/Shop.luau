@@ -48,6 +48,8 @@ export type Trophy = {
 	Color: Color3,
 	-- Model: ReplicatedStorage.Assets.Trophy_<Id>; without it a coloured placeholder cup.
 	Rarity: "Common" | "Rare" | "Epic" | "Legendary" | "Exclusive",
+	-- Shown in the Shiba-Index but not needed for its completion bonus (e.g. it needs a friend). Default false.
+	Optional: boolean?,
 }
 
 local passes: { Pass } = {
@@ -308,6 +310,24 @@ local trophies: { Trophy } = {
 	{
 		Id = "Rainbow",
 		DisplayName = "Rainbow Shiba",
+		Points = nil,
+		Color = Color3.fromRGB(255, 90, 200),
+		Rarity = "Exclusive",
+	},
+	-- Social + Bonk Party (feat/social-party): rewards, never sold.
+	{
+		-- Inviter and invited friend, the first time a friend joins through an invite (EconomyConfig.Social).
+		Id = "BonkBuddies",
+		DisplayName = "Bonk Buddies",
+		Points = nil,
+		Color = Color3.fromRGB(255, 150, 60),
+		Rarity = "Exclusive",
+		Optional = true,
+	},
+	{
+		-- Weekend Bonk Party quest (EconomyConfig.Party); the island sign counts parties ("×3").
+		Id = "Party",
+		DisplayName = "Bonk Party",
 		Points = nil,
 		Color = Color3.fromRGB(255, 90, 200),
 		Rarity = "Exclusive",

@@ -52,7 +52,7 @@ local defs: { [string]: EventDef } = {
 	},
 }
 
-return {
+local Events = {
 	Defs = defs,
 	-- Pick order for the weighted roll (and the admin menu).
 	Order = { "GoldenMinute", "MegaStick", "DoublePoints", "StickStorm" } :: { EventId },
@@ -81,4 +81,45 @@ return {
 		-- keeps the income right).
 		MaxThrowsMultiplier = 1.5,
 	},
+
+	-- ==== Weekend Bonk Party (feat/social-party, docs/GAME_DESIGN.md → Weekend Bonk Party) ====
+	-- Every week from `Weekday` (1 = Sunday … 7 = Saturday, UTC) `StartHourUtc` for `DurationHours`. Every server
+	-- computes it from the UTC clock (Events.PartyWindow), so all servers agree without messaging.
+	Party = {
+		Weekday = 7,
+		StartHourUtc = 12,
+		DurationHours = 24,
+		-- Seconds from one server event's start to the next during the party (instead of `Interval`).
+		PartyInterval = 7 * 60,
+		-- Variant luck multiplier during the party (EventService.VariantLuckMultiplier).
+		VariantLuck = 3,
+		-- Sticks to catch with your hands during one party for the party quest (reward: EconomyConfig.Party).
+		QuestCatches = 500,
+		-- Admin "Start party": runs this long.
+		AdminDurationMinutes = 10,
+		DisplayName = "BONK PARTY",
+		Color = Color3.fromRGB(255, 90, 200),
+	},
+	-- ==== end Weekend Bonk Party ====
 }
+
+local SECONDS_PER_DAY = 24 * 60 * 60
+local SECONDS_PER_WEEK = 7 * SECONDS_PER_DAY
+-- 1970-01-04 00:00 UTC, the first Sunday after the Unix epoch.
+local FIRST_SUNDAY = 3 * SECONDS_PER_DAY
+
+-- The scheduled Bonk Party window at Unix time `now`: the one running now, else the next one.
+-- Returns startsAt, endsAt (Unix seconds); it runs while startsAt <= now < endsAt.
+function Events.PartyWindow(now: number): (number, number)
+	local party = Events.Party
+	local offset = (party.Weekday - 1) * SECONDS_PER_DAY + party.StartHourUtc * 60 * 60
+	local duration = party.DurationHours * 60 * 60
+	local weekStart = FIRST_SUNDAY + (now - FIRST_SUNDAY - offset) // SECONDS_PER_WEEK * SECONDS_PER_WEEK
+	local startsAt = weekStart + offset
+	if now >= startsAt + duration then
+		startsAt += SECONDS_PER_WEEK
+	end
+	return startsAt, startsAt + duration
+end
+
+return Events

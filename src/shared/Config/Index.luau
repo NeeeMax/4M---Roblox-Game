@@ -23,6 +23,8 @@ export type Entry = {
 	Level: number,
 	-- For Trophy: the trophy id. Else "".
 	Trophy: string,
+	-- Needed for the completion bonus (false for Optional trophies such as Bonk Buddies, which needs a friend).
+	Required: boolean,
 }
 
 -- Shiba n pays SHIBA_HITS_BASE + SHIBA_HITS_PER_TIER × (n − 1) bonks (20 … 310 for the 30 Shibas). Bonks are worth
@@ -68,6 +70,7 @@ for index, tier in Gameplay.Shooters.Tiers do
 		RewardHits = SHIBA_HITS_BASE + SHIBA_HITS_PER_TIER * (index - 1),
 		Level = index - 1,
 		Trophy = "",
+		Required = true,
 	})
 end
 for index, id in Projectiles.Tiers do
@@ -80,6 +83,7 @@ for index, id in Projectiles.Tiers do
 		RewardHits = PROJECTILE_HITS_BASE + PROJECTILE_HITS_PER_TIER * (index - 1),
 		Level = index - 1,
 		Trophy = "",
+		Required = true,
 	})
 end
 add({
@@ -90,6 +94,7 @@ add({
 	RewardHits = GOLDEN_HITS,
 	Level = 0,
 	Trophy = "",
+	Required = true,
 })
 for _, trophy in Shop.Trophies do
 	add({
@@ -100,6 +105,7 @@ for _, trophy in Shop.Trophies do
 		RewardHits = TROPHY_HITS[trophy.Rarity] or TROPHY_HITS.Common,
 		Level = 0,
 		Trophy = trophy.Id,
+		Required = not trophy.Optional,
 	})
 end
 

@@ -69,6 +69,17 @@ local Net = {
 	-- S→C (source: AutomationSource, projectileId: number, reward: number) — the basket or the intern caught one of the
 	-- player's sticks and paid `reward` (visual only)
 	AutomationCatch = "AutomationCatch",
+
+	-- ==== Social + Bonk Party (feat/social-party) ====
+	-- S→C (friends: number, multiplier: number) — Roblox friends in this server that count for the player's Friend
+	-- Boost (capped) and the income multiplier it gives
+	FriendBoostChanged = "FriendBoostChanged",
+	-- S→C (startsAt: number, endsAt: number) — the running Weekend Bonk Party (startsAt <= now < endsAt) or the next
+	-- one, Unix time (compare with Workspace:GetServerTimeNow())
+	PartyChanged = "PartyChanged",
+	-- C→S () — claim the Bonk Party quest reward
+	ClaimPartyQuest = "ClaimPartyQuest",
+	-- ==== end Social + Bonk Party ====
 }
 
 local ALL_NAMES = {
@@ -101,6 +112,10 @@ local ALL_NAMES = {
 	Net.ClaimIndex,
 	Net.SaveSettings,
 	Net.AutomationCatch,
+	-- Social + Bonk Party (feat/social-party)
+	Net.FriendBoostChanged,
+	Net.PartyChanged,
+	Net.ClaimPartyQuest,
 }
 
 function Net.CreateRemotes()

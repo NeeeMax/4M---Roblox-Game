@@ -82,6 +82,35 @@ export type SettingsState = {
 	Hints: boolean,
 }
 
+-- ==== Social + Bonk Party (feat/social-party) ====================================================================
+
+-- Friend Boost + invite rewards (EconomyConfig.Social, docs/GAME_DESIGN.md → Friends and invites).
+export type SocialState = {
+	-- This player already got the "joined through a friend's invite" reward (once per account).
+	ReferralRewarded: boolean,
+	-- Week (days since 1970 // 7, UTC) that InviteRewardsThisWeek counts.
+	InviteRewardsWeek: number,
+	-- Inviter rewards granted in InviteRewardsWeek (capped at EconomyConfig.Social.MaxInviteRewardsPerWeek).
+	InviteRewardsThisWeek: number,
+	-- Inviter rewards earned (a friend joined through your invite) but not granted yet: while you were offline, or
+	-- over the weekly cap. Granted on your next join / next week.
+	PendingInviteRewards: number,
+}
+
+-- Weekend Bonk Party quest (Config/Events → Party, docs/GAME_DESIGN.md → Weekend Bonk Party).
+export type PartyState = {
+	-- Unix start time of the party the fields below belong to (a new party resets Catches and Claimed).
+	Id: number,
+	-- Sticks caught with your hands during that party.
+	Catches: number,
+	-- That party's quest reward claimed.
+	Claimed: boolean,
+	-- Party quests completed ever (the Party trophy shows "×Count").
+	Count: number,
+}
+
+-- ==== end Social + Bonk Party ===================================================================================
+
 -- Everything saved per player. Created by DataService and sent to the owning client as a copy (StateChanged).
 export type PlayerState = {
 	BonkPoints: number,
@@ -116,6 +145,9 @@ export type PlayerState = {
 	-- Rebirths done (Config/EconomyConfig → Rebirth): each one raises the income multiplier for good.
 	Rebirths: number,
 	Tutorial: TutorialState,
+	-- Social + Bonk Party (feat/social-party).
+	Social: SocialState,
+	Party: PartyState,
 }
 
 return {}

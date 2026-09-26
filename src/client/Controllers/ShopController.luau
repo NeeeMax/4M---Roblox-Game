@@ -279,7 +279,7 @@ local function build()
 		order += 1
 		local how = if trophy.Points
 			then `{trophy.Rarity} · shows on your island`
-			else `{trophy.Rarity} · from the shop, VIP, streak or starter pack`
+			else `{trophy.Rarity} · a reward: shop, VIP, streak, starter pack, invites, Bonk Party`
 		local button = card(tabs.TROPHIES, order, trophy.DisplayName, how, trophy.Color, "🏆")
 		if trophy.Points then
 			button.Activated:Connect(function()
