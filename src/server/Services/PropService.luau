@@ -545,6 +545,69 @@ function PropService.TrophyBuilder(color: Color3): Builder
 	end
 end
 
+-- Bonk Buddies trophy placeholder (Trophy_BonkBuddies replaces it): two Shiba heads side by side on a plinth,
+-- holding one stick between them, in the trophy's colour.
+function PropService.BuddiesTrophyBuilder(color: Color3): Builder
+	return function(model: Model, height: number)
+		local fur = Color3.fromRGB(235, 150, 70)
+		local cream = Color3.fromRGB(255, 235, 205)
+		part(
+			model,
+			Enum.PartType.Block,
+			Vector3.new(height * 0.8, height * 0.15, height * 0.45),
+			CFrame.new(0, height * 0.075, 0),
+			Color3.fromRGB(60, 50, 40),
+			Enum.Material.Wood
+		)
+		part(
+			model,
+			Enum.PartType.Block,
+			Vector3.new(height * 0.82, height * 0.05, height * 0.47),
+			CFrame.new(0, height * 0.17, 0),
+			color,
+			Enum.Material.Foil
+		)
+		for _, side in { -1, 1 } do
+			local x = side * height * 0.2
+			part(model, Enum.PartType.Ball, Vector3.one * height * 0.34, CFrame.new(x, height * 0.36, 0), fur)
+			part(model, Enum.PartType.Ball, Vector3.one * height * 0.36, CFrame.new(x, height * 0.66, 0), fur)
+			part(
+				model,
+				Enum.PartType.Ball,
+				Vector3.new(height * 0.18, height * 0.13, height * 0.16),
+				CFrame.new(x, height * 0.6, -height * 0.15),
+				cream
+			)
+			for _, ear in { -1, 1 } do
+				part(
+					model,
+					Enum.PartType.Wedge,
+					Vector3.new(height * 0.05, height * 0.14, height * 0.1),
+					CFrame.new(x + ear * height * 0.1, height * 0.86, 0),
+					fur
+				)
+			end
+		end
+		-- The shared stick.
+		part(
+			model,
+			Enum.PartType.Cylinder,
+			Vector3.new(height * 0.7, height * 0.06, height * 0.06),
+			CFrame.new(0, height * 0.5, -height * 0.2),
+			Color3.fromRGB(150, 100, 60),
+			Enum.Material.Wood
+		)
+		part(
+			model,
+			Enum.PartType.Ball,
+			Vector3.one * height * 0.14,
+			CFrame.new(0, height * 0.97, 0),
+			color,
+			Enum.Material.Neon
+		)
+	end
+end
+
 -- The Bonk Basket placeholder (Prop_Basket replaces it): a woven wicker basket, `width` = height × `widthRatio`, its
 -- body `bodyShare` of the height (the rest is the handle arching over the opening), with a rim in `rimColor` (it
 -- shows the basket's level). Config/Automation → Basket.

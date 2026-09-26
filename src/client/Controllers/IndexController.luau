@@ -164,12 +164,19 @@ local function refresh()
 		return
 	end
 	local seen, claimed = state.Index.Seen, state.Index.Claimed
+	-- Counts only entries needed for the completion bonus (Optional trophies still show and pay their reward).
 	local seenCount = 0
+	local total = 0
 	for _, card in cards do
 		local entry = card.Entry
 		local isSeen = seen[entry.Id] == true
+		if entry.Required then
+			total += 1
+			if isSeen then
+				seenCount += 1
+			end
+		end
 		if isSeen then
-			seenCount += 1
 			local h, s, v = entry.Color:ToHSV()
 			card.IconGradient.Color = ColorSequence.new(entry.Color, Color3.fromHSV(h, s, v * 0.7))
 			card.IconText.Text = string.upper(string.sub(entry.DisplayName, 1, 1))
@@ -200,7 +207,6 @@ local function refresh()
 		end
 	end
 
-	local total = #Index.Entries
 	countLabel.Text = `{seenCount}/{total} found`
 	fill.Size = UDim2.fromScale(if total > 0 then seenCount / total else 0, 1)
 	fill.Visible = seenCount > 0

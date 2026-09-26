@@ -40,7 +40,7 @@ end
 
 local function allSeen(state: Types.PlayerState): boolean
 	for _, entry in Index.Entries do
-		if not state.Index.Seen[entry.Id] then
+		if entry.Required and not state.Index.Seen[entry.Id] then
 			return false
 		end
 	end

@@ -157,4 +157,21 @@ function Format.MoneyShort(value: number): string
 	return `{SYMBOL} {Format.Short(value)}`
 end
 
+-- A countdown with the two biggest units: 186000 → "2d 03h", 4500 → "1h 15m", 125 → "2m 05s", 9 → "9s".
+function Format.Countdown(seconds: number): string
+	local total = math.max(0, math.floor(seconds))
+	local days = total // 86400
+	local hours = (total % 86400) // 3600
+	local minutes = (total % 3600) // 60
+	local rest = total % 60
+	if days > 0 then
+		return string.format("%dd %02dh", days, hours)
+	elseif hours > 0 then
+		return string.format("%dh %02dm", hours, minutes)
+	elseif minutes > 0 then
+		return string.format("%dm %02ds", minutes, rest)
+	end
+	return `{rest}s`
+end
+
 return Format

@@ -2,12 +2,16 @@
 -- Server events (Config/Events): a big banner with the event's name and a countdown at the top of the screen while
 -- one runs, a splash in the middle of the screen when it starts, and a small "Next event in mm:ss" line otherwise.
 -- The server sends ServerEvent(eventId, time): time = when the event ends, or (eventId "") when the next one starts.
+-- Weekend Bonk Party (PartyChanged(startsAt, endsAt), Unix time): a line under the event banner counts down to the next
+-- party all week ("BONK PARTY in 2d 04h") and shows the party perks and time left while it runs; a splash when it
+-- starts. QuestController reads the window through GetPartyWindow / PartyChanged.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Events = require(ReplicatedStorage.Shared.Config.Events)
+local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Net = require(ReplicatedStorage.Shared.Net)
 
 local Theme = require(script.Parent.Parent.UI.Theme)
@@ -30,6 +34,11 @@ local timerLabel: TextLabel
 local nextLabel: TextLabel
 local splash: TextLabel
 local splashScale: UIScale
+local partyLabel: TextLabel
+-- The running or next Bonk Party (Unix time); 0 until the server told us.
+local partyStartsAt = 0
+local partyEndsAt = 0
+local partyChanged = Instance.new("BindableEvent")
 
 local EventController = {}
 
@@ -103,11 +112,18 @@ local function build()
 	splash.Visible = false
 	splashScale = Instance.new("UIScale")
 	splashScale.Parent = splash
+
+	partyLabel = outlinedLabel(gui, "", 18, Events.Party.Color)
+	partyLabel.AnchorPoint = Vector2.new(0.5, 0)
+	partyLabel.Position = UDim2.new(0.5, 0, 0, BANNER_TOP + 22)
+	partyLabel.Size = UDim2.fromOffset(620, 22)
+	partyLabel.TextStrokeTransparency = 0.2
+	partyLabel.Visible = false
 end
 
-local function showSplash(def: Events.EventDef)
-	splash.Text = `{def.DisplayName}!`
-	splash.TextColor3 = def.Color
+local function showSplash(text: string, color: Color3)
+	splash.Text = text
+	splash.TextColor3 = color
 	splash.TextTransparency = 0
 	splash.TextStrokeTransparency = 0
 	splash.Visible = true
@@ -148,8 +164,14 @@ local function onServerEvent(eventId: unknown, time: unknown)
 	if isNew then
 		bannerScale.Scale = 0.6
 		TweenService:Create(bannerScale, TweenInfo.new(0.3, Enum.EasingStyle.Back), { Scale = 1 }):Play()
-		showSplash(def)
+		showSplash(`{def.DisplayName}!`, def.Color)
 	end
+end
+
+-- Whether the Bonk Party runs right now.
+local function isPartyActive(): boolean
+	local now = Workspace:GetServerTimeNow()
+	return partyStartsAt <= now and now < partyEndsAt
 end
 
 local function tick()
@@ -161,7 +183,49 @@ local function tick()
 	elseif nextLabel.Visible then
 		nextLabel.Text = if left > 0 then `Next event in {clock(left)}` else "Next event starting…"
 	end
+
+	-- Bonk Party line: under the banner while an event runs, else under "Next event in".
+	partyLabel.Visible = partyEndsAt > 0
+	partyLabel.Position = UDim2.new(0.5, 0, 0, BANNER_TOP + (if banner.Visible then 84 else 22))
+	local now = Workspace:GetServerTimeNow()
+	if isPartyActive() then
+		local party = Events.Party
+		partyLabel.TextSize = 22
+		partyLabel.Text =
+			`BONK PARTY! Luck ×{party.VariantLuck} · events every {party.PartyInterval // 60} min · {Format.Countdown(
+				partyEndsAt - now
+			)} left`
+	else
+		partyLabel.TextSize = 18
+		partyLabel.Text = `BONK PARTY in {Format.Countdown(partyStartsAt - now)}`
+	end
 end
+
+-- ==== Weekend Bonk Party (feat/social-party) ====
+
+-- Fires after the party window changed (start, end, admin override).
+EventController.PartyChanged = partyChanged.Event
+
+-- The running Bonk Party (startsAt <= now < endsAt) or the next one, Unix time (0, 0 until the server sent it).
+function EventController.GetPartyWindow(): (number, number)
+	return partyStartsAt, partyEndsAt
+end
+
+EventController.IsPartyActive = isPartyActive
+
+local function onPartyChanged(startsAt: unknown, endsAt: unknown)
+	if typeof(startsAt) ~= "number" or typeof(endsAt) ~= "number" then
+		return
+	end
+	local wasActive = isPartyActive()
+	partyStartsAt, partyEndsAt = startsAt, endsAt
+	if isPartyActive() and not wasActive then
+		showSplash("BONK PARTY!", Events.Party.Color)
+	end
+	partyChanged:Fire()
+end
+
+-- ==== end Weekend Bonk Party ====
 
 function EventController.Init()
 	build()
@@ -169,6 +233,7 @@ end
 
 function EventController.Start()
 	Net.Get(Net.ServerEvent).OnClientEvent:Connect(onServerEvent)
+	Net.Get(Net.PartyChanged).OnClientEvent:Connect(onPartyChanged)
 	task.spawn(function()
 		while true do
 			tick()

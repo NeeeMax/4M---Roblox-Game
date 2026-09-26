@@ -5,6 +5,8 @@
 -- the top bar stays clean.
 -- Also: the Bonk Rain button, short server messages (Notify), and opening hub menus from their ProximityPrompts.
 -- After the first rebirth a small pill under the menu buttons shows the rebirths and the income multiplier.
+-- Friend Boost (SocialController): "FRIENDS +20%" joins the boost pill while Roblox friends are on the server; the
+-- INVITE menu entry opens Roblox's invite dialog.
 
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
@@ -18,6 +20,7 @@ local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Icons = require(ReplicatedStorage.Shared.Config.Icons)
 local Net = require(ReplicatedStorage.Shared.Net)
 
+local SocialController = require(script.Parent.SocialController)
 local UpgradeController = require(script.Parent.UpgradeController)
 local State = require(script.Parent.Parent.UI.State)
 local Theme = require(script.Parent.Parent.UI.Theme)
@@ -33,6 +36,8 @@ type Entry = {
 	Panel: string,
 	Icon: Icons.IconName,
 	Color: Color3,
+	-- Done instead of opening `Panel`: "Invite" opens Roblox's invite dialog.
+	Action: "Invite"?,
 }
 
 -- The menu list, top to bottom. ADMIN is added for admins.
@@ -42,6 +47,13 @@ local ENTRIES: { Entry } = {
 	{ Text = "QUESTS", Panel = "Quests", Icon = "Quest", Color = Color3.fromRGB(70, 170, 235) },
 	{ Text = "SPIN", Panel = "DailySpin", Icon = "Spin", Color = Color3.fromRGB(255, 190, 40) },
 	{ Text = "INDEX", Panel = "Index", Icon = "Index", Color = Color3.fromRGB(160, 110, 255) },
+	{
+		Text = "INVITE",
+		Panel = "",
+		Icon = "Paw",
+		Color = Color3.fromRGB(255, 150, 60),
+		Action = "Invite",
+	},
 	{ Text = "SETTINGS", Panel = "Settings", Icon = "Settings", Color = Color3.fromRGB(150, 150, 160) },
 }
 
@@ -106,7 +118,14 @@ local function buildMenu(parent: Instance)
 		icon.ZIndex = 12
 		button.Activated:Connect(function()
 			setMenuOpen(false)
-			if Widgets.HasPanel(entry.Panel) then
+			if entry.Action == "Invite" then
+				task.spawn(function()
+					local ok, message = SocialController.PromptInvite()
+					if not ok and message then
+						HudController.Toast(message, "Info")
+					end
+				end)
+			elseif Widgets.HasPanel(entry.Panel) then
 				Widgets.Toggle(entry.Panel)
 			else
 				HudController.Toast(`{entry.Text} is coming soon!`, "Info")
@@ -351,6 +370,10 @@ local function tick()
 	local magnetLeft = (state.Boosts.Magnet or 0) - now
 	if magnetLeft > 0 then
 		table.insert(parts, `MAGNET {Widgets.Duration(magnetLeft)}`)
+	end
+	local _, friendMultiplier = SocialController.GetBoost()
+	if friendMultiplier > 1 then
+		table.insert(parts, `FRIENDS +{math.round((friendMultiplier - 1) * 100)}%`)
 	end
 	boostLabel.Text = table.concat(parts, "   ·   ")
 	boostLabel.Visible = #parts > 0

@@ -19,6 +19,7 @@ local Types = require(ReplicatedStorage.Shared.Types)
 local DataService = require(script.Parent.DataService)
 local EconomyService = require(script.Parent.EconomyService)
 local IndexService = require(script.Parent.IndexService)
+local PartyService = require(script.Parent.PartyService)
 local ProjectileService = require(script.Parent.ProjectileService)
 local QuestService = require(script.Parent.QuestService)
 local RewardService = require(script.Parent.RewardService)
@@ -186,6 +187,8 @@ function BonkService.AwardHit(
 		RewardService.GetStickValue(player, plan.Def.BaseReward, plan.Golden, plan.Mega, plan.ValueMultiplier)
 	local reward =
 		math.max(1, math.floor(stickValue * quality.Multiplier * headMultiplier * comboMultiplier * firstMultiplier))
+	-- Weekend Bonk Party quest (before AddPoints: its StateChanged carries the new count).
+	PartyService.RecordCatch(player)
 	EconomyService.AddPoints(player, reward)
 	if plan.Golden then
 		IndexService.DiscoverGolden(player) -- Shiba-Index: first golden catch

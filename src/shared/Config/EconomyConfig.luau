@@ -240,6 +240,30 @@ local TROPHY_THRESHOLDS = {
 	Galaxy = 1e30,
 }
 
+-- ==== Social + Bonk Party (feat/social-party) ====
+-- Friend Boost + invite rewards (docs/GAME_DESIGN.md → Friends and invites). A bonus on top of the paced income: the
+-- route and the simulation never count it (SocialService, RewardService.GetStickValue).
+local SOCIAL = {
+	-- Income multiplier = 1 + PerFriend × min(Roblox friends in the server, MaxFriends).
+	PerFriend = 0.1,
+	-- Servers hold 5 players, so at most 4 friends: +40 %.
+	MaxFriends = 4,
+	-- What both the inviter and the invited friend get the first time a friend joins through an invite.
+	InviteReward = { BonkRains = 1, Trophy = "BonkBuddies" },
+	-- Inviter rewards per week (days since 1970 // 7); more wait as pending for next week.
+	MaxInviteRewardsPerWeek = 10,
+	-- DataStore for inviter rewards earned while the inviter was offline (key = inviter UserId, value = count).
+	PendingStoreName = "ReferralsPending",
+}
+
+-- Weekend Bonk Party quest reward (schedule and look: Config/Events → Party).
+local PARTY = {
+	-- Normal bonks' worth (RewardService.Hits) for finishing the party quest.
+	RewardHits = 150,
+	Trophy = "Party",
+}
+-- ==== end Social + Bonk Party ====
+
 ------------------------------------------------------------------------------------------------------------------------
 -- Derivation (pure maths, runs once on require).
 
@@ -505,6 +529,9 @@ EconomyConfig.Automation = AUTOMATION
 EconomyConfig.StickDensity = STICK_DENSITY
 EconomyConfig.RouteSpecs = ROUTE_SPECS
 EconomyConfig.TrophyThresholds = TROPHY_THRESHOLDS
+-- Social + Bonk Party (feat/social-party).
+EconomyConfig.Social = SOCIAL
+EconomyConfig.Party = PARTY
 
 -- Derived tables.
 EconomyConfig.Shibas = shibas
