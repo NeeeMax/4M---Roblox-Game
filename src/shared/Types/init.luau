@@ -121,6 +121,8 @@ export type OwnedShiba = {
 	-- Own level, 1 … the current level cap (Config/Tycoon). Levels are NEVER shared between Shibas.
 	Level: number,
 	Variant: VariantId,
+	-- Bought automation: the Shiba swings by itself and pays its lane rate without clicks. nil = false. Reset by Ascension.
+	Automated: boolean?,
 }
 
 -- One hatched Shiba, sent to the client for the reveal animation (visual only).
