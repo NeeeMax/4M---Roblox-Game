@@ -16,6 +16,7 @@ local Assets = require(ReplicatedStorage.Shared.Util.Assets)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local ProjectilePath = require(ReplicatedStorage.Shared.Util.ProjectilePath)
 local Projectiles = require(ReplicatedStorage.Shared.Config.Projectiles)
+local Features = require(ReplicatedStorage.Shared.Config.Features)
 
 local ISLAND = Gameplay.Island
 local CONFIG = Gameplay.Projectiles
@@ -523,6 +524,10 @@ function ProjectileController.Detach(marker: BasePart): Drawn?
 end
 
 function ProjectileController.Init()
+	-- The tycoon (TycoonService) replaces the old loop.
+	if Features.Tycoon then
+		return
+	end
 	visualsFolder = Instance.new("Folder")
 	visualsFolder.Name = "ProjectileVisuals"
 	visualsFolder.Parent = Workspace
@@ -532,6 +537,10 @@ function ProjectileController.Init()
 end
 
 function ProjectileController.Start()
+	-- The tycoon (TycoonService) replaces the old loop.
+	if Features.Tycoon then
+		return
+	end
 	task.spawn(function()
 		local islands = Workspace:WaitForChild(ISLAND.FolderName)
 		islands.ChildAdded:Connect(watchIsland)
