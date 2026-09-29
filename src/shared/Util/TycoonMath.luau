@@ -77,6 +77,23 @@ function TycoonMath.ArchPrice(tier: number, index: number): number
 	return math.floor(TycoonMath.TierIncome(tier) * Config.Arch.PriceSeconds[index])
 end
 
+-- Number of Shibas the player has bought the automation for.
+function TycoonMath.AutomatedCount(tycoon: TycoonState): number
+	local count = 0
+	for _, shiba in tycoon.Shibas do
+		if shiba.Automated == true then
+			count += 1
+		end
+	end
+	return count
+end
+
+-- Price of automating a Shiba of `tier` when `automated` Shibas already are.
+function TycoonMath.AutomationPrice(tier: number, automated: number): number
+	local swing = Config.Swing
+	return math.floor(TycoonMath.TierIncome(tier) * swing.AutomationSeconds * swing.AutomationGrowth ^ automated)
+end
+
 -- Multiplier of all owned Mill rings.
 function TycoonMath.RingsMultiplier(pads: { [string]: boolean }): number
 	local mult = 1

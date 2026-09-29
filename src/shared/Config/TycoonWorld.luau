@@ -26,6 +26,8 @@ return {
 		-- Levels bought by the second (F) level prompt.
 		BigLevelStep = 10,
 		PromptDistance = 11,
+		-- Invisible box around a Shiba that takes the click (the model itself is visual only).
+		SwingBoxSize = Vector3.new(6, 7, 6),
 	},
 
 	-- Conveyor spokes: from BeltFrom (Shiba side) to BeltTo (Mill side). Client: Belt_<n> is a Part whose LookVector

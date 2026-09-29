@@ -20,6 +20,7 @@ local EconomyConfig = require(ReplicatedStorage.Shared.Config.EconomyConfig)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Net = require(ReplicatedStorage.Shared.Net)
+local TycoonConfig = require(ReplicatedStorage.Shared.Config.Tycoon)
 local TycoonMath = require(ReplicatedStorage.Shared.Util.TycoonMath)
 local TycoonWorld = require(ReplicatedStorage.Shared.Config.TycoonWorld)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -46,6 +47,7 @@ local CRATE_MAX = 20
 local CRATE_REACH = 7
 local CRATE_SIZE = 3
 local GOLD = Color3.fromRGB(255, 205, 40)
+local BONK_RED = Color3.fromRGB(255, 90, 70)
 local VARIANT_IDS: { [string]: boolean } = { Normal = true, Shiny = true, Rainbow = true, Huge = true }
 
 type BeltGeometry = { Start: Vector3, Finish: Vector3, Length: number, Mid: Vector3, At: number }
@@ -276,7 +278,7 @@ local function showPopup(slot: number, amount: number, source: string)
 	label.Font = Theme.Font
 	label.Text = `+{Format.Short(amount)}`
 	label.TextSize = 28
-	label.TextColor3 = if source == "Crate" then GOLD else Theme.Money
+	label.TextColor3 = if source == "Crate" then GOLD elseif source == "Bonk" then BONK_RED else Theme.Money
 	label.TextStrokeColor3 = Theme.Stroke
 	label.TextStrokeTransparency = 0
 	label.Parent = gui
@@ -653,6 +655,143 @@ local function isForeignTycoonPrompt(prompt: ProximityPrompt): boolean
 	return island.Name ~= `{Gameplay.Island.ModelPrefix}{player.UserId}`
 end
 
+-- ==== swing (ShibaSwung / PlayerBonked) ==========================================================================
+-- Visual only: a stick swings over the Shiba like the "Bonk" meme (wind-up, strike, recovery) and a faint red box shows the
+-- hit zone. The server decides the hit and the money (docs/GAME_DESIGN.md → Swing, click and Bonk hit).
+
+local SWING = TycoonConfig.Swing
+local STICK_LENGTH = 5
+local STICK_THICKNESS = 0.55
+local STICK_COLOR = Color3.fromRGB(150, 100, 60)
+local REST_ANGLE = math.rad(-20)
+local WINDUP_ANGLE = math.rad(115)
+local STRIKE_ANGLE = math.rad(-35)
+local STRIKE_SECONDS = 0.12
+local RECOVER_SECONDS = 0.3
+local ZONE_COLOR = Color3.fromRGB(255, 70, 60)
+local BONK_STUN_SECONDS = 1.2
+local MAX_LAUNCH_SPEED = 150
+
+local swinging: { [number]: boolean } = {}
+
+local function playSwing(slot: number)
+	if swinging[slot] then
+		return
+	end
+	local folder = findTycoonFolder()
+	local lane = if folder then folder:FindFirstChild(`Lane_{slot}`) else nil
+	local shiba = if lane then lane:FindFirstChild("Shiba") else nil
+	local belt = if folder then folder:FindFirstChild(`Belt_{slot}`) else nil
+	if not shiba or not shiba:IsA("Model") or not belt or not belt:IsA("BasePart") then
+		return
+	end
+	local look = belt.CFrame.LookVector
+	local flatLook = Vector3.new(look.X, 0, look.Z)
+	if flatLook.Magnitude < 0.01 then
+		return
+	end
+	local forward = flatLook.Unit
+	local up = Vector3.yAxis
+	local right = forward:Cross(up)
+	local box, size = shiba:GetBoundingBox()
+	local handle = box.Position + up * (size.Y * 0.1) + right * (size.X * 0.45)
+	local floor = box.Position - up * (size.Y / 2 - 0.2)
+
+	swinging[slot] = true
+	local parent = getWorldFolder()
+	local stick = Instance.new("Part")
+	stick.Name = "BonkStick"
+	stick.Size = Vector3.new(STICK_THICKNESS, STICK_THICKNESS, STICK_LENGTH)
+	stick.Color = STICK_COLOR
+	stick.Material = Enum.Material.Wood
+	stick.Anchored = true
+	stick.CanCollide = false
+	stick.CanQuery = false
+	stick.CanTouch = false
+	stick.CastShadow = false
+	stick.Parent = parent
+	local zone = Instance.new("Part")
+	zone.Name = "BonkZone"
+	zone.Size = Vector3.new(2 * SWING.HitRange * math.sin(math.rad(SWING.HitHalfAngle)), 0.15, SWING.HitRange)
+	zone.CFrame = CFrame.lookAt(floor + forward * (SWING.HitRange / 2), floor + forward * SWING.HitRange)
+	zone.Color = ZONE_COLOR
+	zone.Material = Enum.Material.Neon
+	zone.Anchored = true
+	zone.CanCollide = false
+	zone.CanQuery = false
+	zone.CanTouch = false
+	zone.CastShadow = false
+	zone.Transparency = 1
+	zone.Parent = parent
+
+	task.spawn(function()
+		local start = os.clock()
+		local strikeEnd = SWING.HitDelay + STRIKE_SECONDS
+		local total = strikeEnd + RECOVER_SECONDS
+		while stick.Parent and zone.Parent do
+			local elapsed = os.clock() - start
+			if elapsed >= total then
+				break
+			end
+			local angle: number
+			local zoneTransparency: number
+			if elapsed < SWING.HitDelay then
+				local alpha =
+					TweenService:GetValue(elapsed / SWING.HitDelay, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+				angle = REST_ANGLE + (WINDUP_ANGLE - REST_ANGLE) * alpha
+				zoneTransparency = 0.85
+			elseif elapsed < strikeEnd then
+				local alpha = TweenService:GetValue(
+					(elapsed - SWING.HitDelay) / STRIKE_SECONDS,
+					Enum.EasingStyle.Quad,
+					Enum.EasingDirection.In
+				)
+				angle = WINDUP_ANGLE + (STRIKE_ANGLE - WINDUP_ANGLE) * alpha
+				zoneTransparency = 0.5
+			else
+				local alpha = (elapsed - strikeEnd) / RECOVER_SECONDS
+				angle = STRIKE_ANGLE + (REST_ANGLE - STRIKE_ANGLE) * alpha
+				zoneTransparency = 0.5 + 0.5 * alpha
+			end
+			local direction = forward * math.cos(angle) + up * math.sin(angle)
+			stick.CFrame = CFrame.lookAt(handle + direction * (STICK_LENGTH / 2), handle + direction * STICK_LENGTH)
+			zone.Transparency = zoneTransparency
+			RunService.RenderStepped:Wait()
+		end
+		stick:Destroy()
+		zone:Destroy()
+		swinging[slot] = nil
+	end)
+end
+
+local function onShibaSwung(slot: unknown)
+	if not active or typeof(slot) ~= "number" then
+		return
+	end
+	playSwing(math.floor(slot))
+end
+
+-- The owner stood in a swing's hit zone: fling the own character (the bonus was already paid by the server).
+local function onPlayerBonked(_slot: unknown, launch: unknown)
+	if not active or typeof(launch) ~= "Vector3" then
+		return
+	end
+	local speed = launch.Magnitude
+	local character = player.Character
+	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+	local humanoid = if character then character:FindFirstChildOfClass("Humanoid") else nil
+	if speed ~= speed or speed > MAX_LAUNCH_SPEED or not root or not root:IsA("BasePart") or not humanoid then
+		return
+	end
+	humanoid.PlatformStand = true
+	root.AssemblyLinearVelocity = launch
+	task.delay(BONK_STUN_SECONDS, function()
+		if humanoid.Parent then
+			humanoid.PlatformStand = false
+		end
+	end)
+end
+
 function TycoonController.Init()
 	-- Nothing to set up before Start: everything waits for state.Tycoon.Enabled.
 end
@@ -672,6 +811,8 @@ function TycoonController.Start()
 	end)
 
 	Net.Get(Net.TycoonPayout).OnClientEvent:Connect(onPayout)
+	Net.Get(Net.ShibaSwung).OnClientEvent:Connect(onShibaSwung)
+	Net.Get(Net.PlayerBonked).OnClientEvent:Connect(onPlayerBonked)
 	Net.Get(Net.CrateSpawned).OnClientEvent:Connect(onCrateSpawned)
 	Net.Get(Net.HatchResults).OnClientEvent:Connect(onHatchResults)
 

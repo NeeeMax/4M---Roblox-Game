@@ -114,6 +114,27 @@ return {
 	-- Arches over a lane: each multiplies that lane's income. Price = the lane's level-1 income × seconds.
 	Arch = { Max = 2, Mult = 1.5, PriceSeconds = { 900, 5400 } },
 
+	-- Swing, click start, automation and the Bonk hit (docs/GAME_DESIGN.md → Swing, click and Bonk hit). Starting values.
+	Swing = {
+		-- Seconds between swings of one Shiba; a click pays this many seconds of the lane's income.
+		Cooldown = 1.2,
+		-- Seconds from the start of the swing until the stick lands (payout of a click and the hit check).
+		HitDelay = 0.5,
+		-- Hit zone in front of the Shiba: length in studs, half angle in degrees, height tolerance in studs.
+		HitRange = 8,
+		HitHalfAngle = 45,
+		HitHeight = 8,
+		-- The fling of a bonked owner: speed in studs/s and the upward share of the direction (applied by the client).
+		LaunchSpeed = 60,
+		LaunchLift = 0.5,
+		-- A Bonk hit pays this many seconds of the lane's income; seconds between Bonk hits per player.
+		BonusSeconds = 10,
+		BonusCooldown = 5,
+		-- Automation price = TierIncome * AutomationSeconds * AutomationGrowth ^ (Shibas already automated).
+		AutomationSeconds = 60,
+		AutomationGrowth = 1.5,
+	},
+
 	-- Mill rings (pads "Sorter", "Polisher", "Refinery"): each multiplies ALL lanes.
 	Rings = {
 		{ Id = "Sorter", Mult = 1.25, Price = ZONE_PRICES[3] / 20 },

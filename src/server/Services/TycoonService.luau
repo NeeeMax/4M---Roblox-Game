@@ -47,6 +47,8 @@ export type Actions = {
 	EquipShiba: (player: Player, shibaId: string, slot: number) -> (),
 	UnequipShiba: (player: Player, slot: number) -> (),
 	MergeShibas: (player: Player, targetShibaId: string, sourceShibaId: string) -> (),
+	SwingShiba: (player: Player, slot: number) -> (),
+	BuyAutomation: (player: Player, slot: number) -> (),
 }
 
 type Crate = { Slot: number, EndsAt: number }
@@ -69,6 +71,10 @@ local BOOP_COOLDOWN = 10
 -- A character must be this close to the island centre for crate / boop / vault requests from the client
 -- (Gameplay.Island.Radius + a margin: the belts, mats and the vault are all on the island).
 local REACH = Gameplay.Island.Radius + 20
+-- Swing, click start, automation and the Bonk hit (Config/Tycoon → Swing).
+local SWING = TycoonConfig.Swing
+-- How often the automated Shibas are checked for their next swing (seconds).
+local AUTO_SWING_STEP = 0.2
 
 local EGG_PATTERN = "^Egg(%d+)$"
 local SLOT_PAD_PATTERN = "^Slot(%d+)$"
@@ -96,6 +102,8 @@ local upgradeLaneLimiter = RateLimiter.New(5, 1)
 local collectCrateLimiter = RateLimiter.New(5, 1)
 local boopLimiter = RateLimiter.New(2, 1)
 local vaultLimiter = RateLimiter.New(2, 1)
+local swingLimiter = RateLimiter.New(12, 1)
+local automateLimiter = RateLimiter.New(3, 1)
 local limiters = {
 	buyPadLimiter,
 	hatchLimiter,
@@ -107,6 +115,8 @@ local limiters = {
 	collectCrateLimiter,
 	boopLimiter,
 	vaultLimiter,
+	swingLimiter,
+	automateLimiter,
 }
 
 -- Per-player runtime state (not saved).
@@ -118,6 +128,9 @@ local boopReadyAt: { [Player]: { [number]: number } } = {}
 local carry: { [Player]: number } = {}
 local plotBuilt: { [Player]: boolean } = {}
 local nextCrateId = 1
+-- Swing state: when each slot may swing again, and when the owner may be bonked (and paid) again.
+local swingReadyAt: { [Player]: { [number]: number } } = {}
+local bonkReadyAt: { [Player]: number } = {}
 
 local TycoonService = {}
 TycoonService.Actions = {} :: Actions
@@ -443,6 +456,148 @@ end
 -- Ascension (pad "Ascend", Config/Tycoon → Ascension): resets money (to the first egg's price), Shiba levels, arches,
 -- pads, zone and equip slots; keeps the collection, variants, Index, trophies, quests and streaks. Then equips the
 -- best Shibas again.
+-- ==== swing, click start, automation and the Bonk hit ===============================================================
+-- docs/GAME_DESIGN.md → Swing, click and Bonk hit. A Shiba that is not automated pays only when it is clicked; an automated
+-- one is paid by the income tick like before and swings for show. The Bonk bonus never takes money away.
+
+local function shibaOnSlot(tycoon: TycoonState, slot: number): Types.OwnedShiba?
+	local id = tycoon.Equipped[tostring(slot)]
+	return if id then tycoon.Shibas[id] else nil
+end
+
+local function isAutomated(tycoon: TycoonState, slot: number): boolean
+	local shiba = shibaOnSlot(tycoon, slot)
+	return shiba ~= nil and shiba.Automated == true
+end
+
+-- Pays `amount` (the fraction of a point is carried to the next payment: AddPoints takes whole numbers).
+local function payPoints(player: Player, amount: number): number
+	local total = amount + (carry[player] or 0)
+	local whole = math.floor(total)
+	carry[player] = total - whole
+	if whole >= 1 then
+		EconomyService.AddPoints(player, whole)
+	end
+	return whole
+end
+
+-- The stick has landed: the owner standing in the zone in front of the Shiba is flung and paid the Bonk bonus.
+local function checkBonkHit(player: Player, tycoon: TycoonState, slot: number)
+	local character = player.Character
+	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+	local aim = TycoonPlot.GetLaneAim(player, slot)
+	if not root or not root:IsA("BasePart") or not aim then
+		return
+	end
+	local now = os.clock()
+	if now < (bonkReadyAt[player] or 0) then
+		return
+	end
+	local offset = root.Position - aim.Origin
+	local flat = Vector3.new(offset.X, 0, offset.Z)
+	if math.abs(offset.Y) > SWING.HitHeight or flat.Magnitude > SWING.HitRange then
+		return
+	end
+	if flat.Magnitude > 0.5 and flat.Unit:Dot(aim.Forward) < math.cos(math.rad(SWING.HitHalfAngle)) then
+		return
+	end
+	bonkReadyAt[player] = now + SWING.BonusCooldown
+	local amount = payPoints(player, laneRate(player, tycoon, slot) * SWING.BonusSeconds)
+	if amount >= 1 then
+		Net.Get(Net.TycoonPayout):FireClient(player, slot, amount, "Bonk")
+	end
+	local away = if flat.Magnitude > 0.5 then flat.Unit else aim.Forward
+	local launch = (away + Vector3.new(0, SWING.LaunchLift, 0)).Unit * SWING.LaunchSpeed
+	Net.Get(Net.PlayerBonked):FireClient(player, slot, launch)
+end
+
+-- The stick lands (HitDelay after the swing started): pay a clicked swing, then check the hit zone.
+local function landSwing(player: Player, slot: number, pay: boolean)
+	local _, tycoon = tycoonOf(player)
+	if not tycoon or not shibaOnSlot(tycoon, slot) then
+		return
+	end
+	if pay then
+		local amount = payPoints(player, laneRate(player, tycoon, slot) * SWING.Cooldown)
+		if amount >= 1 then
+			Net.Get(Net.TycoonPayout):FireClient(player, slot, amount, "Swing")
+		end
+	end
+	checkBonkHit(player, tycoon, slot)
+end
+
+local function startSwing(player: Player, tycoon: TycoonState, slot: number, pay: boolean)
+	local ready = swingReadyAt[player]
+	if not ready then
+		return
+	end
+	ready[slot] = os.clock() + SWING.Cooldown
+	Net.Get(Net.ShibaSwung):FireClient(player, slot, Workspace:GetServerTimeNow(), isAutomated(tycoon, slot))
+	task.delay(SWING.HitDelay, landSwing, player, slot, pay)
+end
+
+-- Click / tap / Q on a Shiba. Automated Shibas ignore clicks (they pay the same rate on their own).
+function actions.SwingShiba(player: Player, slot: number)
+	if not RateLimiter.Allow(swingLimiter, player) then
+		return
+	end
+	local _, tycoon = tycoonOf(player)
+	if not tycoon or not isWhole(slot, 1, tycoon.EquipSlots) or not shibaOnSlot(tycoon, slot) then
+		return
+	end
+	local ready = swingReadyAt[player]
+	if isAutomated(tycoon, slot) or not ready or os.clock() < (ready[slot] or 0) or not isNearIsland(player) then
+		return
+	end
+	startSwing(player, tycoon, slot, true)
+end
+
+function actions.BuyAutomation(player: Player, slot: number)
+	if not RateLimiter.Allow(automateLimiter, player) then
+		return
+	end
+	local _, tycoon = tycoonOf(player)
+	if not tycoon or not isWhole(slot, 1, tycoon.EquipSlots) then
+		return
+	end
+	local shiba = shibaOnSlot(tycoon, slot)
+	if not shiba or shiba.Automated == true then
+		return
+	end
+	local price = TycoonMath.AutomationPrice(shiba.Tier, TycoonMath.AutomatedCount(tycoon))
+	if not EconomyService.TrySpend(player, price) then
+		needMoney(player, price)
+		return
+	end
+	shiba.Automated = true
+	DataService.Replicate(player)
+	local def = EconomyConfig.Shibas[shiba.Tier + 1]
+	NotifyService.Send(player, `{if def then def.Name else "Shiba"} works by itself now!`, "Good")
+end
+
+local function autoSwings(now: number)
+	for _, player in Players:GetPlayers() do
+		local _, tycoon = tycoonOf(player)
+		local ready = swingReadyAt[player]
+		if tycoon and ready then
+			for slot = 1, tycoon.EquipSlots do
+				if isAutomated(tycoon, slot) and now >= (ready[slot] or 0) then
+					startSwing(player, tycoon, slot, false)
+				end
+			end
+		end
+	end
+end
+
+local function swingLoop()
+	while true do
+		task.wait(AUTO_SWING_STEP)
+		xpcall(autoSwings, function(message: string)
+			warn(`[TycoonService] automated swings failed: {message}\n{debug.traceback()}`)
+		end, os.clock())
+	end
+end
+
 local function ascend(player: Player, tycoon: TycoonState)
 	tycoon.Ascensions += 1
 	tycoon.Zone = 0
@@ -452,6 +607,8 @@ local function ascend(player: Player, tycoon: TycoonState)
 	tycoon.Equipped = {}
 	for _, shiba in tycoon.Shibas do
 		shiba.Level = 1
+		-- The automation is bought again after an Ascension (docs/GAME_DESIGN.md → Swing, click and Bonk hit).
+		shiba.Automated = nil
 	end
 	fillEmptySlots(tycoon)
 	-- SetPoints replicates the state.
@@ -632,7 +789,7 @@ local function tickPlayer(player: Player, now: number, dt: number)
 	local payouts: { [number]: number } = {}
 	for slot = 1, tycoon.EquipSlots do
 		local base = TycoonMath.LaneIncome(tycoon, slot) * global * mult
-		if base > 0 then
+		if base > 0 and isAutomated(tycoon, slot) then
 			local seconds = dt
 			local boop = active[slot]
 			if boop then
@@ -730,6 +887,7 @@ local function onLoaded(player: Player, state: Types.PlayerState)
 		return
 	end
 	crates[player] = {}
+	swingReadyAt[player] = {}
 	boops[player] = {}
 	boopReadyAt[player] = {}
 	carry[player] = 0
@@ -747,6 +905,8 @@ local function onPlayerRemoving(player: Player)
 		RateLimiter.Remove(limiter, player)
 	end
 	crates[player] = nil
+	swingReadyAt[player] = nil
+	bonkReadyAt[player] = nil
 	nextCrateAt[player] = nil
 	boops[player] = nil
 	boopReadyAt[player] = nil
@@ -843,6 +1003,7 @@ function TycoonService.Start()
 	end)
 	Players.PlayerRemoving:Connect(onPlayerRemoving)
 	task.spawn(incomeLoop)
+	task.spawn(swingLoop)
 end
 
 return TycoonService

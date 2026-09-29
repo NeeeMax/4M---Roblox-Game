@@ -46,6 +46,8 @@ export type Actions = {
 	UpgradeLane: (player: Player, kind: string, slot: number) -> (),
 	CollectVault: (player: Player) -> (),
 	BoopLane: (player: Player, slot: number) -> (),
+	SwingShiba: (player: Player, slot: number) -> (),
+	BuyAutomation: (player: Player, slot: number) -> (),
 }
 
 type ArchRefs = {
@@ -70,6 +72,10 @@ type LaneRefs = {
 	PlateGui: BillboardGui,
 	LevelPrompt: ProximityPrompt,
 	BigLevelPrompt: ProximityPrompt,
+	SwingPart: Part,
+	SwingClick: ClickDetector,
+	SwingPrompt: ProximityPrompt,
+	AutoPrompt: ProximityPrompt,
 	Belt: Part,
 	Dashes: { Part },
 	Arches: { ArchRefs },
@@ -414,6 +420,53 @@ local function buildLane(
 		end
 	)
 
+	-- The Shiba itself: click/tap it (or press Q) to swing its stick. An invisible box around it takes the click, because
+	-- the model is visual only. Automating the Shiba (R on the level plate) makes it swing by itself.
+	local boxSize = LANE.SwingBoxSize
+	local swingPart = newPart(
+		"SwingPart",
+		boxSize,
+		CFrame.new(standPoint + Vector3.new(0, boxSize.Y / 2, 0)),
+		Color3.new(1, 1, 1),
+		folder
+	)
+	swingPart.Transparency = 1
+	swingPart.CanQuery = true
+	local swingClick = Instance.new("ClickDetector")
+	swingClick.MaxActivationDistance = 0
+	swingClick.Parent = swingPart
+	swingClick.MouseClick:Connect(function(clicker: Player)
+		if clicker == player then
+			actions.SwingShiba(player, slot)
+		end
+	end)
+	local swingPrompt = newPrompt(
+		player,
+		swingPart,
+		"Tycoon_Swing",
+		Enum.KeyCode.Q,
+		Enum.KeyCode.ButtonR1,
+		"Shiba",
+		0,
+		LANE.PromptDistance,
+		function()
+			actions.SwingShiba(player, slot)
+		end
+	)
+	local autoPrompt = newPrompt(
+		player,
+		plate,
+		"Tycoon_Automate",
+		Enum.KeyCode.R,
+		Enum.KeyCode.ButtonL1,
+		"Shiba",
+		LANE.LevelHoldSeconds,
+		LANE.PromptDistance,
+		function()
+			actions.BuyAutomation(player, slot)
+		end
+	)
+
 	-- Belt spoke into the Mill: dark strip with a few glowing dashes (the client draws the items on top).
 	local length = BELT.From - BELT.To
 	local middle = island.Center + outward * ((BELT.From + BELT.To) / 2)
@@ -502,6 +555,10 @@ local function buildLane(
 		PlateGui = plateGui,
 		LevelPrompt = levelPrompt,
 		BigLevelPrompt = bigLevelPrompt,
+		SwingPart = swingPart,
+		SwingClick = swingClick,
+		SwingPrompt = swingPrompt,
+		AutoPrompt = autoPrompt,
 		Belt = belt,
 		Dashes = dashes,
 		Arches = arches,
@@ -636,9 +693,13 @@ local function refreshLane(lane: LaneRefs, tycoon: Types.TycoonState, slot: numb
 		if shiba.Variant ~= "Normal" then
 			name = `{shiba.Variant} {name}`
 		end
+		if shiba.Automated == true then
+			name = `{name} [AUTO]`
+		end
 		setText(lane.Title, name)
 		setText(lane.Sub, `Lv {level}  |  {number(income)}/s`)
-		setText(lane.Hint, milestoneHint(level, cap))
+		local hint = milestoneHint(level, cap)
+		setText(lane.Hint, if shiba.Automated == true then hint else `Click me!  {hint}`)
 	elseif unlocked then
 		setText(lane.Title, "Empty")
 		setText(lane.Sub, "Equip a Shiba")
@@ -661,6 +722,17 @@ local function refreshLane(lane: LaneRefs, tycoon: Types.TycoonState, slot: numb
 	else
 		setEnabled(lane.LevelPrompt, false)
 		setEnabled(lane.BigLevelPrompt, false)
+	end
+
+	-- Swing (click / Q) and automation (R). An automated Shiba swings by itself.
+	local manual = shiba ~= nil and active and shiba.Automated ~= true
+	setPrompt(lane.SwingPrompt, manual, if manual then "Bonk!" else nil)
+	lane.SwingClick.MaxActivationDistance = if manual then LANE.PromptDistance + 6 else 0
+	if shiba and manual then
+		local automationPrice = TycoonMath.AutomationPrice(shiba.Tier, TycoonMath.AutomatedCount(tycoon))
+		setPrompt(lane.AutoPrompt, true, `Automate - {number(automationPrice)}`)
+	else
+		setEnabled(lane.AutoPrompt, false)
 	end
 
 	-- Belt.
@@ -1100,6 +1172,16 @@ function TycoonPlot.GetLaneAnchor(player: Player, slot: number): Vector3?
 	local outward = -lane.Inward
 	local point = plot.Center + outward * BELT.From
 	return Vector3.new(point.X, plot.Center.Y + BELT.Top + 0.5, point.Z)
+end
+
+-- Where the Shiba of lane `slot` stands and which way it faces (toward the Mill), for the server's hit check.
+function TycoonPlot.GetLaneAim(player: Player, slot: number): { Origin: Vector3, Forward: Vector3 }?
+	local plot = plots[player]
+	local lane = if plot then plot.Lanes[slot] else nil
+	if not lane then
+		return nil
+	end
+	return { Origin = lane.Ground + Vector3.new(0, LANE.PlatformTop, 0), Forward = lane.Inward }
 end
 
 return TycoonPlot
