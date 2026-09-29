@@ -47,6 +47,27 @@ Every RemoteEvent and RemoteFunction is listed here. A PR that adds or changes a
 | `VariantRolled` | RemoteEvent | S→C | `finderUserId: number, finderName: string, slot: number, variant: VariantId, shibaName: string` — a Shiba slot rolled a better variant; sent to the finder (reveal card) and, for Huge, to everyone in the server (chat line) | — (server → client) | Marco |
 | `ClaimPartyQuest` | RemoteEvent | C→S | — | data loaded, `state.Party.Catches` ≥ `Events.Party.QuestCatches` (counted on the server from validated catches during the party), not claimed yet, ≤ 5/s; reward computed on the server (`RewardService.Hits(EconomyConfig.Party.RewardHits)`) | Marco |
 
+| `BuyTycoonPad` | RemoteEvent | C→S | `padId: string` | string ≤ 40 chars, known id in `Config/Tycoon` Pads, not owned, prerequisites met, enough money (`EconomyService.TrySpend`), ≤ 5/s. **Only handled when the tycoon is enabled** | Marco |
+| `HatchEgg` | RemoteEvent | C→S | `eggId: string, count: number` | known egg id, egg unlocked (zone), count ∈ {1, 3, 10} (10 needs the unlock), enough money, ≤ 3/s; odds rolled on the server only | Marco |
+| `HatchResults` | RemoteEvent | S→C | `eggId: string, results: { HatchResult }` | — (server → client, visual only; the state already contains the Shibas) | Marco |
+| `EquipShiba` | RemoteEvent | C→S | `shibaId: string, slot: number` | id string owned by the player, slot integer 1 … `EquipSlots`, a Shiba can be on one slot only (moves it), ≤ 5/s | Marco |
+| `UnequipShiba` | RemoteEvent | C→S | `slot: number` | integer slot 1 … `EquipSlots`, slot occupied, ≤ 5/s | Marco |
+| `UpgradeShiba` | RemoteEvent | C→S | `slot: number, quantity: number` | integer slot with an equipped Shiba, quantity ∈ {1, 10, 0} (0 = max affordable), below level cap, cost computed on the server, ≤ 10/s | Marco |
+| `MergeShibas` | RemoteEvent | C→S | `targetShibaId: string, sourceShibaId: string` | both owned, different ids, same `Tier`, source not equipped, ≤ 3/s | Marco |
+| `UpgradeLane` | RemoteEvent | C→S | `kind: string, slot: number` | kind = "Arch", integer slot with an equipped Shiba, below max arches, enough money, ≤ 5/s | Marco |
+| `TycoonPayout` | RemoteEvent | S→C | `slot: number, amount: number, source: string` | — (server → client, **visual only**: popups and belt items; the client never awards money). Sent batched (≤ 10/s per player) | Marco |
+| `CrateSpawned` | RemoteEvent | S→C | `crateId: number, slot: number, endsAt: number` | — (server → client, server clock `Workspace:GetServerTimeNow()`) | Marco |
+| `CollectCrate` | RemoteEvent | C→S | `crateId: number` | number, crate exists for this player and has not ended, player's character within reach of the belt, not collected yet, ≤ 5/s; payout on the server | Marco |
+| `BoopLane` | RemoteEvent | C→S | `slot: number` | integer slot with an equipped Shiba, boop cooldown passed (server-side), character on the mat, ≤ 2/s | Marco |
+| `CollectVault` | RemoteEvent | C→S | — | data loaded, `VaultStored` > 0, character within reach of the vault, ≤ 2/s | Marco |
+
+Notes on the tycoon remotes (`Config/Features.Tycoon`, `docs/GAME_DESIGN.md → Tycoon`):
+- Net creates all remotes; with the tycoon off the server ignores the C→S ones and sends none of the S→C ones.
+- Purchase pad ids are `Slot<n>` (equip slot 4 to 10), `Sorter`, `Polisher`, `Refinery` (Mill rings) and `Ascend`; zone and
+  egg pads are defined with the plot config. Prices and limits are in `Config/Tycoon`, never sent by the client.
+- Slots in `EquipShiba`, `UnequipShiba`, `UpgradeShiba`, `UpgradeLane` and `BoopLane` are equip slots 1 to 10 (`EquipSlots`).
+- `TycoonPayout` and the belt items are cosmetic; income is computed by the server from `TycoonMath` and the saved state.
+
 The INVITE button needs no remote: the client opens Roblox's invite dialog itself (`SocialController`), and the server
 reads the invite from the joining player's `GetJoinData().ReferredByPlayerId` (`SocialService`).
 

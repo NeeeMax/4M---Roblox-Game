@@ -54,6 +54,7 @@ Work is split by feature area. The owner reviews changes in their area and decid
 | `shared/Net`, `shared/Types`, `CLAUDE.md`, `docs/CONVENTIONS.md` | both | contract files — changes in separate PRs, both approve |
 | World (hub + islands), NPC shooters, projectiles, hit detection, bonk effects, hub features (daily spin, coin flip + duels, quests, leaderboard, boosts), admin tools | Max | calls EconomyService to award Bonk Points, reads upgrade values from UpgradeService |
 | Economy, upgrades, upgrade menu, HUD, saving, shared UI kit (`client/UI`) | Marco | DataService owns the saved state; Bonk Points change only through EconomyService, levels only through UpgradeService; other services (quests, spin, boosts) change their own fields via DataService.GetState + Replicate |
+| Tycoon "Shiba Workers" (`TycoonService`, `World/TycoonPlot`, `TycoonController`, `Config/Tycoon`, `Config/TycoonWorld`, `Util/TycoonMath`, `Config/Features`) | Marco | economy, HUD, saving and UI are Marco's; Max agreed to the rest (hand-off decisions). Behind `Config/Features.Tycoon` (default false), see `docs/decisions/0006` and `docs/TYCOON_HANDOFF.md` |
 | 3D models and other visual assets (`ReplicatedStorage/Assets` in the place) | Marco | built in Studio, not in git (see *World vs code*); code finds them by stable names |
 
 ## World vs code
@@ -75,4 +76,13 @@ Work is split by feature area. The owner reviews changes in their area and decid
   `ReferralsPending` DataStore); `RewardService.GetStickValue` multiplies by `SocialService.GetFriendMultiplier`.
   `EventService` owns the Bonk Party schedule (`IsPartyActive`, `GetPartyWindow`, `VariantLuckMultiplier`);
   `PartyService` owns the party quest (`state.Party`) and builds `Workspace/BonkPartySign`.
+- Tycoon ("Shiba Workers", behind `Config/Features.Tycoon`, `docs/GAME_DESIGN.md → Tycoon`): `TycoonService` (server, in
+  `Services/`) owns `state.Tycoon` logic (income tick, hatching, equip, levels, merge, pads, Ascension); with the flag off it
+  returns early in `Init`/`Start`. `World/TycoonPlot` (server, in `src/server/World/`) builds `Island_<UserId>/Tycoon` with
+  `Lane_<n>` (n = equip slot 1 to 10), `Belt_<n>`, `Mill`, `Vault` and `Egg_<zone>` (zone 0 to 5); sizes and positions are in
+  `Config/TycoonWorld`. `TycoonController` (client, in `Controllers/`) finds them by these names and draws belt items, popups
+  and the hatch animation (visual only). Shared: `Config/Tycoon` (all tuning, pure data), `Config/TycoonWorld` (names and
+  layout), `Config/Features` (flags), `Util/TycoonMath` (pure formulas, also loaded by `docs/economy/tycoon_sim.luau`).
+  `DataService` saves `state.Tycoon` (save version 4). Status: `Config/Tycoon`, `Config/Features`, `Util/TycoonMath` and the save
+  exist; `TycoonService`, `World/TycoonPlot`, `TycoonController` and `Config/TycoonWorld` come in phases 2 and 3.
 - Code references world objects by stable names/paths. When you rename something in the world that code uses, update the code in the same session and mention it in the PR.
