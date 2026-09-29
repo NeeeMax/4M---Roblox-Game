@@ -6,6 +6,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Features = require(ReplicatedStorage.Shared.Config.Features)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local Net = require(ReplicatedStorage.Shared.Net)
 local RateLimiter = require(ReplicatedStorage.Shared.Util.RateLimiter)
@@ -89,6 +90,10 @@ function RainService.Give(player: Player)
 end
 
 function RainService.Start()
+	-- The tycoon (TycoonService) replaces the throw-and-catch loop.
+	if Features.Tycoon then
+		return
+	end
 	Net.Get(Net.UseBonkRain).OnServerEvent:Connect(function(player)
 		if RateLimiter.Allow(limiter, player) then
 			RainService.TryStart(player)

@@ -20,6 +20,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Automation = require(ReplicatedStorage.Shared.Config.Automation)
 local EconomyConfig = require(ReplicatedStorage.Shared.Config.EconomyConfig)
+local Features = require(ReplicatedStorage.Shared.Config.Features)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local Net = require(ReplicatedStorage.Shared.Net)
 local ProjectilePath = require(ReplicatedStorage.Shared.Util.ProjectilePath)
@@ -565,6 +566,10 @@ local function sync(player: Player)
 end
 
 function AutomationService.Start()
+	-- The tycoon (TycoonService) replaces the throw-and-catch loop.
+	if Features.Tycoon then
+		return
+	end
 	DataService.OnLoaded(function(player)
 		sync(player)
 	end)

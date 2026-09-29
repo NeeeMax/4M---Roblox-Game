@@ -9,6 +9,8 @@ NPCs lob silly objects at your personal floating island — run and jump **into*
 
 ## Core loop
 
+> *Replaced once the tycoon is the default (see **Tycoon: Shiba Workers**). Stays valid while `Features.Tycoon` is false.*
+
 - **Every 5 seconds:** an NPC aims at a random spot on your island and fires. You read the arc, run there and try to take the hit (ideally running and jumping into it for a better hit quality).
 - **Every 1–5 minutes:** spend Bonk Dollars on one of 5 upgrades.
 - **Every session:** push upgrade levels higher; progress is saved.
@@ -62,6 +64,8 @@ Casual Roblox players, roughly 8–14. Understandable in under 10 seconds withou
 
 ## NPC shooters
 
+> *Replaced once the tycoon is the default (see **Tycoon: Shiba Workers**). Stays valid while `Features.Tycoon` is false.*
+
 - **Golden sticks:** 5 % of all projectiles are golden (15 % with the Lucky Sticks pass): gold outline and trail, pay ×5.
 - Shooters **never aim at the player**. Each shot picks a random target point, uniformly distributed in the target area.
 - **Anti-farm rule:** the projectile's whole path (flight, bounces, settling hops and resting point) must stay at least `projectile radius + 6` studs away from the player's position at fire time; otherwise pick again (max 30 tries, then skip the turn). Standing still therefore earns 0 points.
@@ -72,6 +76,8 @@ Casual Roblox players, roughly 8–14. Understandable in under 10 seconds withou
 - A shooter model may contain a part named `Stick` (replaced by the current projectile's model, which is hidden for 0.4 s after each throw; without a projectile model the stick itself is) and an Attachment `Muzzle` (where the throw starts). Throws start from the Shiba's standing height on its platform.
 
 ## Projectiles
+
+> *Replaced once the tycoon is the default (see **Tycoon: Shiba Workers**). Stays valid while `Features.Tycoon` is false.*
 
 Projectile tiers (upgrade `ProjectileTier`): **Stick** (BaseReward 10) → **Newspaper** (13) → **Baguette** (16) → **Rolling Pin** (20) → **Baseball Bat** (25) → **Giant Bone** (32) → **Squeaky Hammer** (40) → **BONK Sign** (50) → **Neon Stick** (63) → **Legendary Stick** (80). They fly the same; look, reward and the impact burst on a catch differ (Feedback). Models `ReplicatedStorage/Assets/Stick`, `Bone`, `GoldenStick`, `DiamondStick`; a missing model uses the next lower tier's model, tiers above Stick draw a trail in their colour, no model at all = coloured sphere. Hits use an invisible sphere of the projectile's diameter; the model is scaled so its longest side equals that diameter and spins in flight.
 
@@ -92,6 +98,8 @@ Projectile tiers (upgrade `ProjectileTier`): **Stick** (BaseReward 10) → **New
 **Value tag:** a stick worth several throws (stick density cap, NPC shooters) carries its multiplier in the marker attribute `ValueMultiplier`; from ×1.05 on every client draws "×N" (one decimal, gold text with a dark outline, in world space so it doesn't spin) above it and an extra trail in the tier colour (gold for golden sticks) that grows from 1.2× to 2.2× the diameter wide and 0.25 → 0.45 s long between ×1 and ×6. Tag and trail fade with the paid look and the landing fade. All projectiles of a player are destroyed when they leave.
 
 ## Hits (server decides)
+
+> *Replaced once the tycoon is the default (see **Tycoon: Shiba Workers**). Stays valid while `Features.Tycoon` is false.*
 
 - The owner's client detects the touch (what the player sees on screen) and reports the projectile id. See `docs/decisions/0003-client-reports-hits-server-validates.md`.
 - The **server alone decides** and awards points. A report counts only if: the projectile belongs to the player, hasn't paid yet, the player is alive and not immune, and the projectile's path so far (flight, bounces, settling hops) passed within `projectile radius + 2 + 6` studs of the character's root on the server, and the report arrives at most 2 s after the projectile stopped being collectable. Max 10 reports/s.
@@ -171,6 +179,8 @@ All tunable in `Config/Gameplay` → `Bonk` (per quality: `Bonk.Qualities`).
 - **Landing ring** for your own projectiles (see Catch quality; `Gameplay.LandingRing`).
 
 ## Upgrades
+
+> *Replaced once the tycoon is the default (see **Tycoon: Shiba Workers**). Stays valid while `Features.Tycoon` is false.*
 
 Prices are **derived** from a target pace in `Config/EconomyConfig` (single source of truth, see **Pacing** and
 `docs/economy/BALANCING.md`); `Config/Upgrades` only has names, effects and colours. Six upgrades (projectile size and
@@ -272,6 +282,8 @@ nearly does, and the instant upgrades skip one level.
   button shows "!" when something unlocked is affordable.
 
 ### Rebirth
+
+> *Replaced once the tycoon is the default (see **Tycoon: Shiba Workers**). Stays valid while `Features.Tycoon` is false.*
 
 Once you own the **Mythic Shiba (Shiba 21)** you can rebirth at the rebirth shrine on your island
 (`RebirthService.TryRebirth`, `EconomyConfig.Rebirth`): Bonk Dollars back to the start amount, all six upgrades back
@@ -623,6 +635,155 @@ Explicitly not in MVP:
 - Cosmetics, additional upgrade trees
 - Pets, trading, PvP, rebirths, quests, large maps
 - Monetisation
+
+## Tycoon: Shiba Workers (in development, behind Config/Features.Tycoon)
+
+The new core loop (`docs/decisions/0006`, hand-off in `docs/TYCOON_HANDOFF.md`). `Config/Features.Tycoon = false` keeps the
+old throw-and-catch loop running unchanged; the sections **Core loop**, **NPC shooters**, **Projectiles**, **Hits**,
+**Upgrades** and **Rebirth** above are *replaced once the tycoon is the default* (they stay until the cleanup phase). All
+numbers below are the starting values in `src/shared/Config/Tycoon.luau` and the formulas in `src/shared/Util/TycoonMath.luau`;
+the calibration to 70-100 hours is in `docs/economy/BALANCING.md → Tycoon`. Where this text and the config differ, the config wins.
+
+### Idea
+
+The player owns a **collection** of Shibas (the 30 types of `EconomyConfig.Shibas`), hatched from eggs. A limited number are
+**equipped** on the ring around the Bonk Mill. Each equipped Shiba is its own worker: own level, own conveyor lane into the
+Mill, own perk. Income is computed on the **server as per-second rates**; items on belts, popups and hatch animations are
+client-side and cosmetic only. Duplicates can be merged. Target: 70-100 hours to max everything.
+
+### Income (TycoonMath)
+
+- `TierIncome(tier) = BaseIncome (1) × TierGrowth (2.7) ^ tier` per second for a level-1 Shiba (tier 0 = first Shiba of the list).
+- `LevelMultiplier(L) = (1 + 0.08 × (L - 1)) × 2 ^ (milestones reached) × 1.5 ^ floor((L - 50) / 25)` (last factor only from
+  level 50 on). Milestones are levels **10, 25, 50**; each doubles the lane. Every 25 levels after 50 multiplies by 1.5.
+- Level cost L → L+1: `floor(TierIncome(tier) × 20 × 1.17 ^ (L - 1))`. Buy x1, x10 or Max (Max = as many as affordable,
+  never above the cap).
+- **Level cap** = 50 + 10 per Ascension (hard ceiling 500 for saved data).
+- **Lane income per second** = `TierIncome × LevelMultiplier × VariantMult × ArchMult × RingsMult × AscensionMult`, then
+  × own-perk factor (Burst / Chance / Rhythm; Synergy uses the rings factor a second time) and × `(1 + neighbour bonus)`.
+- **Total income** = sum of all lanes × `GlobalMultiplier`.
+- Friend Boost (+10 % per friend in the server, max 4), passes, boosts and events multiply on top, as today (`RewardService`
+  chain, `SocialService.GetFriendMultiplier`); the invite reward stays. They are applied on the server to the tycoon income
+  and are not part of `TycoonMath`.
+- Variant multipliers: Normal x1, Shiny x1.5, Rainbow x3, Huge x6 (same as `EconomyConfig.Variants.Multiplier`).
+- **Arches** (per lane, max 2, each x1.5): price = `floor(TierIncome(tier) × seconds)` with 900 s for the first and 5400 s
+  for the second.
+- **Mill rings** (pads `Sorter` 1.8e8, `Polisher` 1.3e10, `Refinery` 1.3e14): each multiplies ALL lanes by x1.25.
+- **Ascension multiplier** = `1 + 0.75 × ascensions`.
+
+### Equip slots
+
+The ring has up to 10 positions (radius 56, `Config/ShibaPlatforms`). The player starts with **3** equip slots; slot n (4 to 10)
+is a purchase pad `Slot<n>` with prices 2.2e5, 1.1e6, 3.7e8, 1.8e9, 2.5e10, 2.6e14, 2e16. Only Shibas of an **unlocked zone** (`tier // 5 <= Zone`) can be equipped; after an Ascension the zones start over, so at first only the first zone's Shibas can work (the server refuses other equips and fills empty slots with the best equippable Shibas when a zone opens). A Shiba can be on one slot only (equipping it
+moves it). Unequipped Shibas keep their level; levels are never shared between Shibas.
+
+### Zones and eggs
+
+Six zones, each with one egg that holds 5 Shiba tiers (zone z gives tiers 5z to 5z+4). Zone 0 is free. A zone (and with it its
+egg) is unlocked by a purchase pad; egg stands are on the plot.
+
+| Zone | Name | Zone price | Egg price | Shibas (tiers) |
+|------|------|-----------:|----------:|----------------|
+| 0 | Meadow | 0 | 50 | Shiba, Shades, Buff, Chef, DJ |
+| 1 | Beach | 2.2e6 | 1.1e4 | Police, Cowboy, Pirate, Ninja, Viking |
+| 2 | Forest | 3.7e9 | 1.8e7 | Knight, Samurai, Robot, Astronaut, Superhero |
+| 3 | Mountain | 2.5e11 | 1.3e9 | Gold, Wizard, Vampire, Pharaoh, Frost |
+| 4 | Space | 2.6e15 | 1.3e13 | Magma, Dragon, Mecha, Galaxy, Angel |
+| 5 | Heaven | 2e17 | 1e15 | Demon, Giant, Cheems God, Eternal, Void |
+
+- Drop table of every egg, common to rare: **60 / 25 / 10 / 4 / 1 %** for its 5 tiers. Odds are shown in the egg UI.
+- Hatch counts 1, 3 or 10 at a time (`HatchCounts`; the x10 unlock is not defined yet); the hatch animation is skippable. The
+  server rolls; the client only plays `HatchResults`.
+- **Variants** roll on hatch: Shiny 1 in 40, Rainbow 1 in 400, Huge 1 in 4000, pity kept (`EconomyConfig.Variants`). The
+  variant belongs to the owned Shiba (it is no longer keyed by ring slot).
+- The **Index** is the collection goal; entry ids are saved and never renamed.
+
+### Perks (one per Shiba tier)
+
+All perks are applied on the server as **expected average values**; the visible effect on the client is flavour only.
+
+| Kind | Effect |
+|------|--------|
+| Global | + Value to ALL lanes (added) per milestone (10 / 25 / 50) its own lane reached |
+| Neighbors | + Value income for the two lanes next to it on the ring (with 2 slots they count once) |
+| Burst | x Mult for Duration s every Period s; average `1 + (Mult - 1) × Duration / Period` |
+| Chance | each item has Chance to pay x Mult; average `1 + Chance × (Mult - 1)` |
+| Rhythm | every Every-th item pays x Mult; average `1 + (Mult - 1) / Every` |
+| Synergy | the Mill rings' multiplier counts squared on its own lane |
+
+| # | Shiba | Perk |
+|---|-------|------|
+| 1 | Shiba | Global +5 % |
+| 2 | Shades Shiba | Burst x3, 4 s every 20 s |
+| 3 | Buff Shiba | Neighbors +25 % |
+| 4 | Chef Shiba | Synergy |
+| 5 | DJ Shiba | Rhythm x5, every 10th item |
+| 6 | Police Shiba | Rhythm x5, every 10th item |
+| 7 | Cowboy Shiba | Burst x4, 2 s every 12 s |
+| 8 | Pirate Shiba | Chance 8 %, x10 |
+| 9 | Ninja Shiba | Neighbors +30 % |
+| 10 | Viking Shiba | Synergy |
+| 11 | Knight Shiba | Global +5.15 % |
+| 12 | Samurai Shiba | Rhythm x6.36, every 8th item |
+| 13 | Robot Shiba | Burst x4.36, 3 s every 12 s |
+| 14 | Astronaut Shiba | Neighbors +33.6 % |
+| 15 | Superhero Shiba | Chance 10 %, x11.5 |
+| 16 | Gold Shiba | Synergy |
+| 17 | Wizard Shiba | Global +6.05 % |
+| 18 | Vampire Shiba | Rhythm x7.44, every 8th item |
+| 19 | Pharaoh Shiba | Burst x5.08, 3 s every 12 s |
+| 20 | Frost Shiba | Neighbors +39 % |
+| 21 | Magma Shiba | Chance 10 %, x13.3 |
+| 22 | Dragon Shiba | Synergy |
+| 23 | Mecha Shiba | Global +6.95 % |
+| 24 | Galaxy Shiba | Rhythm x8.52, every 8th item |
+| 25 | Angel Shiba | Burst x5.8, 3 s every 12 s |
+| 26 | Demon Shiba | Neighbors +44.4 % |
+| 27 | Giant Shiba | Chance 10 %, x15.1 |
+| 28 | Cheems God | Synergy |
+| 29 | Eternal Shiba | Global +7.85 % |
+| 30 | Void Shiba | Rhythm x9.6, every 8th item |
+
+Tiers 11 to 30 cycle through Global, Rhythm, Burst, Neighbors, Chance, Synergy with `strength = 1 + (tier - 10) × 0.03`
+(tier here = 1-based number in the table; see `Config/Tycoon`). Values above are rounded.
+
+### Merging
+
+Two Shibas of the **same tier** (the source must not be equipped): the target gains `floor(source level × 0.5) + 1` levels
+(never above the level cap) and keeps the better variant (Normal < Shiny < Rainbow < Huge); the source is consumed.
+
+### Ascension (the tycoon's rebirth)
+
+Pad `Ascend`, available once the last zone (5) is unlocked. It **resets** money, all Shiba levels (back to 1), arches, Mill
+rings, zones (back to Meadow) and equip slots above the start count (3). It **keeps** the collection (all owned Shibas),
+variants, the Index, trophies, quests and streaks. Each Ascension adds x0.75 to the income multiplier (`1 + 0.75n`) and +10 to
+the level cap.
+
+### Active play (never required)
+
+- **Golden Crates** appear on a belt for a short time (`CrateSpawned`, ends at a server time); the player walks to the belt and
+  collects it (`CollectCrate`); the server pays. Amounts and spawn rate are not defined yet.
+- **Boop mats**: a character standing on a lane's mat can boop that lane (`BoopLane`, server-side cooldown). Bonus and cooldown
+  are not defined yet.
+
+### Vault and offline
+
+The Vault stands in the centre; money in it is `VaultStored` and is collected by walking to it (`CollectVault`, auto-collect
+nearby). **Currently the vault stays empty.** Offline earnings come later: planned 40 % of the online rate, capped at 2 h,
+growing to 8 h with upgrades; the existing Offline Shiba Bank (`Bank.Pending`, "Welcome back" panel) keeps working until then.
+
+### HUD rules
+
+- Money is shown as **plain numbers with the money icon**, never with a "B$" or "$" text symbol (HUD, billboards, popups, shop,
+  admin, notifications): short suffixes (1.2K, 3.42P). The icon is one reusable widget (`Widgets.MoneyIcon(size)`).
+- Money pill at the top; income per second below it in small green ("+3.2K/s"). Level plates show x1/x10/Max and a milestone hint.
+- Left: a 2-column grid of icon buttons (Shibas, Eggs, Upgrades/Crew, Shop, Spin, Quests, Rewards, Friends, Ascension, Settings)
+  with a red dot for news. Mobile safe. Settings > Hints, the tutorial highlight, notifications and the "Welcome back" panel keep working.
+
+### Plot (world)
+
+Per island: 10 ring positions, level plates in front of them, one belt per lane into the Bonk Mill in the centre, the Vault, and
+egg stands per zone. Object names are in `docs/ARCHITECTURE.md → World vs code`.
 
 ## Systems (high level)
 

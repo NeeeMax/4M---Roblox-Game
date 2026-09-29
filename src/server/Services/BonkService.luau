@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local EconomyConfig = require(ReplicatedStorage.Shared.Config.EconomyConfig)
+local Features = require(ReplicatedStorage.Shared.Config.Features)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local Net = require(ReplicatedStorage.Shared.Net)
 local ProjectilePath = require(ReplicatedStorage.Shared.Util.ProjectilePath)
@@ -206,6 +207,10 @@ function BonkService.AwardHit(
 end
 
 function BonkService.Start()
+	-- The tycoon (TycoonService) replaces the throw-and-catch loop.
+	if Features.Tycoon then
+		return
+	end
 	Net.Get(Net.ReportHit).OnServerEvent:Connect(onReportHit)
 	Players.PlayerRemoving:Connect(function(player)
 		immuneUntil[player] = nil

@@ -24,6 +24,7 @@ local Workspace = game:GetService("Workspace")
 
 local Assets = require(ReplicatedStorage.Shared.Util.Assets)
 local EconomyConfig = require(ReplicatedStorage.Shared.Config.EconomyConfig)
+local Features = require(ReplicatedStorage.Shared.Config.Features)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local Projectiles = require(ReplicatedStorage.Shared.Config.Projectiles)
 local ShibaEffects = require(ReplicatedStorage.Shared.Config.ShibaEffects)
@@ -785,6 +786,10 @@ function NPCShooterService.FireNow(player: Player)
 end
 
 function NPCShooterService.Start()
+	-- The tycoon (TycoonService) replaces the throw-and-catch loop.
+	if Features.Tycoon then
+		return
+	end
 	-- Tells whoever playtests which custom models are in place (docs: assets/README.md).
 	local modelNames: { string } = {}
 	for _, tier in CONFIG.Tiers do

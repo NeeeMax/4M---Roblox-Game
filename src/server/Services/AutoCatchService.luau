@@ -7,6 +7,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Features = require(ReplicatedStorage.Shared.Config.Features)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local ProjectilePath = require(ReplicatedStorage.Shared.Util.ProjectilePath)
 local Shop = require(ReplicatedStorage.Shared.Config.Shop)
@@ -54,6 +55,10 @@ local function catchFor(player: Player)
 end
 
 function AutoCatchService.Start()
+	-- The tycoon (TycoonService) replaces the throw-and-catch loop.
+	if Features.Tycoon then
+		return
+	end
 	task.spawn(function()
 		while true do
 			task.wait(Shop.Pass.AutoCatchInterval)
