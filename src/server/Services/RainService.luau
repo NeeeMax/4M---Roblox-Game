@@ -62,6 +62,10 @@ end
 
 -- Starts one of the player's Bonk Rains if they are on their island and none is running. Returns whether it did.
 function RainService.TryStart(player: Player): boolean
+	-- The old loop is off while the tycoon runs: a rain would be spent on sticks nothing processes.
+	if Features.Tycoon then
+		return false
+	end
 	local state = DataService.GetState(player)
 	if not state or state.BonkRains <= 0 then
 		return false
