@@ -79,7 +79,8 @@ Work is split by feature area. The owner reviews changes in their area and decid
 - Tycoon ("Shiba Workers", behind `Config/Features.Tycoon`, `docs/GAME_DESIGN.md → Tycoon`): `TycoonService` (server, in
   `Services/`) owns `state.Tycoon` logic (income tick, hatching, equip, levels, merge, pads, Ascension); with the flag off it
   returns early in `Init`/`Start`. `World/TycoonPlot` (server, in `src/server/World/`) builds `Island_<UserId>/Tycoon` with
-  `Lane_<n>` (n = equip slot 1 to 10), `Belt_<n>`, `Mill`, `Vault` and `Egg_<zone>` (zone 0 to 5); sizes and positions are in
+  `Lane_<n>` (n = equip slot 1 to 10; holds the visual-only `Shiba` model, an invisible `SwingPart` with a ClickDetector and the
+  prompts `Tycoon_Swing` (Q) and `Tycoon_Automate` (R); the swing/automation/Bonk-hit logic is in `TycoonService`), `Belt_<n>`, `Mill`, `Vault` and `Egg_<zone>` (zone 0 to 5); sizes and positions are in
   `Config/TycoonWorld`. `TycoonController` (client, in `Controllers/`) finds them by these names and draws belt items, popups
   and the hatch animation (visual only). Shared: `Config/Tycoon` (all tuning, pure data), `Config/TycoonWorld` (names and
   layout), `Config/Features` (flags), `Util/TycoonMath` (pure formulas, also loaded by `docs/economy/tycoon_sim.luau`).

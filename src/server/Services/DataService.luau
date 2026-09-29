@@ -157,6 +157,7 @@ local function loadTycoon(state: PlayerState, raw: unknown)
 							then math.clamp(math.floor(level), 1, TycoonConfig.Lane.LevelCapHard)
 							else 1,
 						Variant = variant,
+						Automated = if shiba.Automated == true then true else nil,
 					}
 					kept += 1
 				end
