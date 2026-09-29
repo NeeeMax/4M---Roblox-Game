@@ -9,7 +9,7 @@ local EconomyConfig = require(script.Parent.EconomyConfig)
 -- Trophy prices come from EconomyConfig (each about as much as the Shiba bought around then).
 local TROPHY_PRICES = EconomyConfig.TrophyThresholds
 
-export type PassId = "DoublePoints" | "VIP" | "LuckySticks" | "ExtraShibas" | "Manage" | "RunFaster" | "StackUpgrade"
+export type PassId = "DoublePoints" | "VIP" | "Manage"
 
 export type Pass = {
 	Id: PassId,
@@ -30,11 +30,8 @@ export type Product = {
 	Description: string,
 	Robux: number,
 	Color: Color3,
-	-- What buying it gives (ShopService.Grant).
-	-- InstantUpgrade: one level of `Upgrade` (an UpgradeId) right away. DoubleOffline: doubles the pending
-	-- offline earnings.
-	Kind: "BonkRain" | "Boost" | "TierSkip" | "StarterPack" | "Trophy" | "InstantUpgrade" | "DoubleOffline",
-	Upgrade: string?,
+	-- What buying it gives (ShopService.Grant). DoubleOffline: doubles the pending offline earnings.
+	Kind: "Boost" | "StarterPack" | "Trophy" | "DoubleOffline",
 	Boost: string?,
 	Seconds: number?,
 	Trophy: string?,
@@ -73,22 +70,6 @@ local passes: { Pass } = {
 		Color = Color3.fromRGB(255, 215, 60),
 	},
 	{
-		Id = "LuckySticks",
-		GamePassId = 0,
-		DisplayName = "Lucky Sticks",
-		Description = "Golden sticks (5× Bonk Dollars) come 3× as often.",
-		Robux = 149,
-		Color = Color3.fromRGB(120, 230, 120),
-	},
-	{
-		Id = "ExtraShibas",
-		GamePassId = 0,
-		DisplayName = "+2 Shiba Slots",
-		Description = "Up to 10 Shibas around your island instead of 8.",
-		Robux = 249,
-		Color = Color3.fromRGB(255, 140, 60),
-	},
-	{
 		Id = "Manage",
 		GamePassId = 0,
 		DisplayName = "Manage",
@@ -96,34 +77,9 @@ local passes: { Pass } = {
 		Robux = 199,
 		Color = Color3.fromRGB(255, 190, 60),
 	},
-	{
-		Id = "RunFaster",
-		GamePassId = 0,
-		DisplayName = "Run Faster",
-		Description = "Gotta go fast! Walk speed x1.5.",
-		Robux = 99,
-		Color = Color3.fromRGB(240, 240, 250),
-	},
-	{
-		Id = "StackUpgrade",
-		GamePassId = 0,
-		DisplayName = "Stack Upgrade",
-		Description = "Upgrade multiple times at once (hold E / buy x10).",
-		Robux = 149,
-		Color = Color3.fromRGB(255, 220, 60),
-	},
 }
 
 local products: { Product } = {
-	{
-		Id = "BonkRain",
-		ProductId = 0,
-		DisplayName = "Bonk Rain",
-		Description = "30 seconds of sticks raining on your field!",
-		Robux = 49,
-		Color = Color3.fromRGB(90, 180, 255),
-		Kind = "BonkRain",
-	},
 	{
 		Id = "PointsBoost30",
 		ProductId = 0,
@@ -134,37 +90,6 @@ local products: { Product } = {
 		Kind = "Boost",
 		Boost = "Points",
 		Seconds = 1800,
-	},
-	{
-		Id = "Magnet15",
-		ProductId = 0,
-		DisplayName = "Magnet · 15 min",
-		Description = "A magnet catches every stick within 10 studs of you for 15 minutes. No aiming needed!",
-		Robux = 49,
-		Color = Color3.fromRGB(120, 200, 255),
-		Kind = "Boost",
-		Boost = "Magnet",
-		Seconds = 900,
-	},
-	{
-		Id = "FireBoost30",
-		ProductId = 0,
-		DisplayName = "2× Fire Rate · 30 min",
-		Description = "Your Shibas throw twice as fast for 30 minutes.",
-		Robux = 39,
-		Color = Color3.fromRGB(255, 110, 60),
-		Kind = "Boost",
-		Boost = "FireRate",
-		Seconds = 1800,
-	},
-	{
-		Id = "TierSkip",
-		ProductId = 0,
-		DisplayName = "Shiba Tier Skip",
-		Description = "Instantly evolve your Shibas to the next tier.",
-		Robux = 99,
-		Color = Color3.fromRGB(190, 110, 255),
-		Kind = "TierSkip",
 	},
 	{
 		Id = "StarterPack",
@@ -203,46 +128,6 @@ local products: { Product } = {
 		Robux = 39,
 		Color = Color3.fromRGB(80, 220, 120),
 		Kind = "DoubleOffline",
-	},
-	{
-		Id = "InstantShooterTier",
-		ProductId = 0,
-		DisplayName = "Instant Shiba Tier",
-		Description = "Buy the next Shiba tier right now.",
-		Robux = 99,
-		Color = Color3.fromRGB(190, 110, 255),
-		Kind = "InstantUpgrade",
-		Upgrade = "ShooterTier",
-	},
-	{
-		Id = "InstantProjectileTier",
-		ProductId = 0,
-		DisplayName = "Instant Projectile Tier",
-		Description = "Buy the next projectile tier right now.",
-		Robux = 79,
-		Color = Color3.fromRGB(255, 200, 40),
-		Kind = "InstantUpgrade",
-		Upgrade = "ProjectileTier",
-	},
-	{
-		Id = "InstantShooters",
-		ProductId = 0,
-		DisplayName = "Instant Shiba",
-		Description = "Get your next Shiba right now.",
-		Robux = 49,
-		Color = Color3.fromRGB(255, 140, 60),
-		Kind = "InstantUpgrade",
-		Upgrade = "Shooters",
-	},
-	{
-		Id = "InstantMoveSpeed",
-		ProductId = 0,
-		DisplayName = "Instant Speed",
-		Description = "Buy the next Move Speed level right now.",
-		Robux = 25,
-		Color = Color3.fromRGB(80, 200, 255),
-		Kind = "InstantUpgrade",
-		Upgrade = "MoveSpeed",
 	},
 }
 
@@ -366,9 +251,7 @@ local Shop = {
 		DoublePointsMultiplier = 2,
 		VIPMultiplier = 1.25,
 		VIPDailySpins = 2,
-		LuckyGoldenChance = 0.15,
-		ExtraShibas = 2,
-		-- Magnet boost (AutoCatchService, product "Magnet15", timed): every AutoCatchInterval seconds, sticks within
+		-- Magnet boost (AutoCatchService, timed boost "Magnet"): every AutoCatchInterval seconds, sticks within
 		-- AutoCatchRadius studs of the character are collected as a Normal bonk (no head bonus; the combo still counts).
 		AutoCatchRadius = 10,
 		AutoCatchInterval = 0.25,

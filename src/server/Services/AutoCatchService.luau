@@ -1,5 +1,5 @@
 --!strict
--- Magnet boost (timed, Config/Shop → Products "Magnet15", Shop.Pass.AutoCatchRadius / AutoCatchInterval).
+-- Magnet boost (timed, admin/quest boost "Magnet", Shop.Pass.AutoCatchRadius / AutoCatchInterval).
 -- Every AutoCatchInterval seconds, for each owner: their live, unpaid projectiles whose current position on the
 -- planned path is within AutoCatchRadius studs of the character are paid out like a Normal bonk (no head bonus,
 -- combo counts, a new player's first paid hit gets the first-bonk bonus) through BonkService.AwardHit. Only the server's own path and character position are used.

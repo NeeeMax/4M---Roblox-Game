@@ -198,8 +198,7 @@ local function onStandPressed(owner: Player, player: Player, upgradeId: string)
 	if (state.UpgradeLevels.ShooterTier or 0) < (EconomyConfig.UnlockAtShibaTier[upgradeId] or 0) then
 		return
 	end
-	local count = if state.Passes.StackUpgrade then Stations.StackMax else 1
-	UpgradeService.TryPurchase(player, upgradeId, count)
+	UpgradeService.TryPurchase(player, upgradeId, 1)
 end
 
 local function onRebirthTriggered(owner: Player, player: Player)

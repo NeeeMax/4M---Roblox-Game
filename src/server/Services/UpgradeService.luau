@@ -24,7 +24,6 @@ local RewardService = require(script.Parent.RewardService)
 local VariantService = require(script.Parent.VariantService)
 
 -- The Run Faster game pass (Config/Shop): WalkSpeed ×1.5.
-local RUN_FASTER_MULTIPLIER = 1.5
 
 local purchaseLimiter = RateLimiter.New(Economy.MaxRequestsPerSecond, 1)
 local shooterLimiter = RateLimiter.New(Economy.MaxRequestsPerSecond, 1)
@@ -75,9 +74,7 @@ local function applyMovement(player: Player)
 	if not humanoid then
 		return
 	end
-	local state = DataService.GetState(player)
-	local passMultiplier = if state and state.Passes.RunFaster then RUN_FASTER_MULTIPLIER else 1
-	humanoid.WalkSpeed = UpgradeService.GetValue(player, "MoveSpeed") * passMultiplier
+	humanoid.WalkSpeed = UpgradeService.GetValue(player, "MoveSpeed")
 	-- Every character jumps the same (Gameplay.Character.JumpPower).
 	humanoid.UseJumpPower = true
 	humanoid.JumpPower = Gameplay.Character.JumpPower
@@ -228,19 +225,6 @@ function UpgradeService.Start()
 
 	-- Levels are 0 until the data is loaded; apply the real MoveSpeed once it is (and after an admin reset).
 	DataService.OnLoaded(applyMovement)
-	-- Re-apply when the Run Faster pass is bought or toggled (passes change through DataService.Replicate).
-	local hadRunFaster: { [Player]: boolean } = {}
-	DataService.OnReplicated(function(player)
-		local state = DataService.GetState(player)
-		local has = state ~= nil and state.Passes.RunFaster == true
-		if (hadRunFaster[player] or false) ~= has then
-			hadRunFaster[player] = has
-			applyMovement(player)
-		end
-	end)
-	Players.PlayerRemoving:Connect(function(player)
-		hadRunFaster[player] = nil
-	end)
 end
 
 return UpgradeService

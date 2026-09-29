@@ -34,8 +34,7 @@ Everything below type-checks (`luau-lsp analyze`) and passes `stylua --check`. `
 3. Prompts for other players' islands: the world builder forwards only the owner's trigger, but the prompts are visible to
    everyone; hide them client-side like StationController does.
 4. `Tycoon_*` prompt behaviour, belt/dash visuals and lane billboards are placeholders (parts only, no Shiba particles).
-5. Passes/products from the old game (+2 Shiba Slots, Magnet, FireRate, ...) still exist in Shop.luau; remove or repurpose
-   them (no sold passes exist, so this is safe).
+5. Old-loop Robux passes/products (Lucky Sticks, +2 Shiba Slots, Run Faster, Stack Upgrade, Bonk Rain, Magnet, Fire Rate, Tier Skip, Instant*) are removed from Shop.luau.
 6. Phase 6 (flip the flag) and phase 7 (delete the old loop) are not done. CI does not run lune: run
    `lune run docs/economy/tycoon_sim` after price changes.
 7. Missing tools locally? `rokit install`, then `stylua src`, `selene src` and the luau-lsp step from CONTRIBUTING.

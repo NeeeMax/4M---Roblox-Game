@@ -14,19 +14,14 @@ local Net = require(ReplicatedStorage.Shared.Net)
 local RateLimiter = require(ReplicatedStorage.Shared.Util.RateLimiter)
 local Shop = require(ReplicatedStorage.Shared.Config.Shop)
 local Types = require(ReplicatedStorage.Shared.Types)
-local Upgrades = require(ReplicatedStorage.Shared.Config.Upgrades)
 
 local BoostService = require(script.Parent.BoostService)
 local DataService = require(script.Parent.DataService)
 local EconomyService = require(script.Parent.EconomyService)
 local NotifyService = require(script.Parent.NotifyService)
-local RainService = require(script.Parent.RainService)
-local UpgradeService = require(script.Parent.UpgradeService)
 
 local MAX_RECEIPTS = 50
 local TROPHY_PREFIX = "Trophy_"
--- Shiba Variants: shown after a Robux Shiba level (those never roll a variant).
-local VARIANT_ROLL_HINT = "Variant rolls come from Bonk Dollar evolutions"
 
 local buyLimiter = RateLimiter.New(3, 1)
 
@@ -58,20 +53,7 @@ local function blockedReason(player: Player, product: Shop.Product): string?
 	if not state then
 		return "Still loading"
 	end
-	if product.Kind == "TierSkip" then
-		local level = state.UpgradeLevels.ShooterTier or 0
-		if level >= Upgrades.GetMaxLevel("ShooterTier", state.Passes) then
-			return "Your Shibas are already at the top tier"
-		end
-	elseif product.Kind == "InstantUpgrade" then
-		local id = product.Upgrade
-		if not id or not Upgrades.Defs[id] then
-			return "Coming soon!"
-		end
-		if (state.UpgradeLevels[id] or 0) >= Upgrades.GetMaxLevel(id, state.Passes) then
-			return `{Upgrades.Defs[id].DisplayName} is already maxed`
-		end
-	elseif product.Kind == "DoubleOffline" and state.Bank.Pending <= 0 then
+	if product.Kind == "DoubleOffline" and state.Bank.Pending <= 0 then
 		return "No offline earnings to double"
 	elseif product.Kind == "StarterPack" and state.StarterPackBought then
 		return "You already have the Starter Pack"
@@ -87,22 +69,8 @@ function ShopService.Grant(player: Player, product: Shop.Product): boolean
 	if not state then
 		return false
 	end
-	if product.Kind == "BonkRain" then
-		state.BonkRains += 1
-		DataService.Replicate(player)
-		RainService.TryStart(player)
-	elseif product.Kind == "Boost" and product.Boost and product.Seconds then
+	if product.Kind == "Boost" and product.Boost and product.Seconds then
 		BoostService.Give(player, product.Boost :: Types.BoostId, product.Seconds)
-	elseif product.Kind == "TierSkip" then
-		UpgradeService.SetLevel(player, "ShooterTier", UpgradeService.GetLevel(player, "ShooterTier") + 1)
-		-- Shiba Variants: Robux levels never roll (no paid random items, VariantService).
-		NotifyService.Send(player, VARIANT_ROLL_HINT, "Info")
-	elseif product.Kind == "InstantUpgrade" and product.Upgrade and Upgrades.Defs[product.Upgrade] then
-		-- Already maxed (bought twice before the first grant): the level stays; Roblox has charged, so still granted.
-		UpgradeService.SetLevel(player, product.Upgrade, UpgradeService.GetLevel(player, product.Upgrade) + 1)
-		if product.Upgrade == "ShooterTier" or product.Upgrade == "Shooters" then
-			NotifyService.Send(player, VARIANT_ROLL_HINT, "Info")
-		end
 	elseif product.Kind == "DoubleOffline" then
 		-- 2× the pending Shiba Bank earnings (0 if they were claimed in between).
 		local paid = EconomyService.PayOffline(player, 2)

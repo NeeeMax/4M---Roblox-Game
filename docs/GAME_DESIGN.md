@@ -66,7 +66,7 @@ Casual Roblox players, roughly 8–14. Understandable in under 10 seconds withou
 
 > *Replaced once the tycoon is the default (see **Tycoon: Shiba Workers**). Stays valid while `Features.Tycoon` is false.*
 
-- **Golden sticks:** 5 % of all projectiles are golden (15 % with the Lucky Sticks pass): gold outline and trail, pay ×5.
+- **Golden sticks:** 5 % of all projectiles are golden: gold outline and trail, pay ×5.
 - Shooters **never aim at the player**. Each shot picks a random target point, uniformly distributed in the target area.
 - **Anti-farm rule:** the projectile's whole path (flight, bounces, settling hops and resting point) must stay at least `projectile radius + 6` studs away from the player's position at fire time; otherwise pick again (max 30 tries, then skip the turn). Standing still therefore earns 0 points.
 - **Spread:** the random target point is the spread; additionally the launch speed varies ±10 % per shot.
@@ -222,9 +222,7 @@ throws into more valuable sticks instead of more sticks (NPC shooters).
   Above each stand floats a billboard: upgrade name, current value (tier name in its colour / number), level badge
   `xN`, level bar, a big UPGRADE button look (green when affordable, grey when not, gold MAXED at the top) with the
   cost (green / grey) and an **E** key hint. Only the island owner can use their stands and sees the billboards.
-  - **E "Upgrade"** buys one level. With the **Stack Upgrade** pass one press buys as many levels as affordable, up to 10
-    (the button then says `UPGRADE ×N` with the total cost).
-  - **F "Buy with R$"** buys the next level with Robux (products `Instant<UpgradeId>` in `Config/Shop`).
+  - **E "Upgrade"** buys one level.
   - **More Shibas** also has a glowing green **NEW SHIBA** pad with its cost on the Shiba ring, where the next Shiba will
     stand (of the new ring's spots, the one farthest from the Shibas standing now). Stepping on it buys the Shiba
     (2 s cooldown). The pad disappears at the max.
@@ -244,7 +242,6 @@ throws into more valuable sticks instead of more sticks (NPC shooters).
     Onboarding). SHOW ME draws a glowing line from your character to the stand for 8 s (or until you arrive).
   - The big round **yellow arrow button** at the bottom centre does the same as SHOW ME for the cheapest affordable
     upgrade ("Nothing affordable yet" otherwise). Locked stands never count as affordable.
-- **Run Faster** pass: WalkSpeed ×1.5 on top of Move Speed.
 
 ### Pacing
 
@@ -449,15 +446,9 @@ Roblox ids live in `Config/Shop` (0 = not created yet: free test purchase in Stu
 |------|------|-------|--------|
 | Pass | 2× Bonk Dollars | 199 | every bonk ×2 |
 | Pass | VIP | 299 | +25 % points, golden VIP tag, VIP trophy, 2 daily spins |
-| Pass | Lucky Sticks | 149 | golden chance 5 % → 15 % |
-| Pass | +2 Shiba Slots | 249 | More Shibas max 7 → 9 (10 Shibas) |
-| Product | Bonk Rain | 49 | +1 Bonk Rain (starts right away when on your island) |
-| Product | 2× Dollars 30 min / 2× Fire Rate 30 min | 39 each | boost |
-| Product | Magnet 15 min (`Magnet15`) | 49 | timed boost `Magnet` (it used to be the Auto-Catch pass): every 0.25 s, sticks within 10 studs of the character are collected as a Normal bonk (no head bonus, combo counts); a small magnet circles the player while it runs, the HUD shows `MAGNET mm:ss`. Admin: Boosts → Magnet 5m / Clear. AutoCatchService, MagnetController |
-| Product | Shiba Tier Skip | 99 | next Shiba tier now (blocked at the top tier) |
+| Product | 2× Dollars 30 min | 39 | boost |
 | Product | Starter Pack | 49 | once: 2× Dollars 1 h + 3 Bonk Rains + Starter trophy; offered in a popup for 48 h after the first join |
 | Product | Diamond / Rainbow trophy | 99 / 249 | exclusive trophies |
-| Product | Instant Shiba Tier / Projectile Tier / Shiba / Speed | 99 / 79 / 49 / 25 | +1 level of that upgrade now (blocked when it is maxed) |
 | Product | Double Offline Earnings | 39 | only in the "Welcome back" popup: pays 2× the pending Shiba Bank earnings |
 
 **POWERS** (first shop tab, big cards with yellow Robux price pills, "OWNED" once bought; other code opens it with
@@ -466,8 +457,6 @@ Roblox ids live in `Config/Shop` (0 = not created yet: free test purchase in Stu
 | Pass | Robux | Effect | Implemented in |
 |------|-------|--------|----------------|
 | Manage | 199 | manage all income sources from one place: the upgrade menu opens anywhere | HudController |
-| Run Faster | 99 | walk speed x1 → x1.5 | UpgradeService |
-| Stack Upgrade | 149 | buy several upgrade levels at once (x1 → x10) | UpgradeService |
 
 Trophies stand on your island for everyone to see. Bought with Bonk Dollars (`EconomyConfig.TrophyThresholds`, each
 about the price of the Shiba you buy around then): Wooden 1e4, Bronze 1e8, Silver 1e14, Golden 1e22, Galaxy 1e30,
