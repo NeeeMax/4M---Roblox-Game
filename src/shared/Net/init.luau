@@ -86,6 +86,35 @@ local Net = {
 	-- in the server (chat line).
 	VariantRolled = "VariantRolled",
 	-- ===== end Shiba Variants =====
+	-- ==== Tycoon "Shiba Workers" (contract phase 0, docs/decisions/0006) ====
+	-- C→S (padId: string) — buy a purchase pad (egg stand, Mill ring, vault upgrade, equip slot …), see Config/Tycoon
+	BuyTycoonPad = "BuyTycoonPad",
+	-- C→S (eggId: string, count: number) — hatch `count` (1, 3 or 10) eggs of this egg tier
+	HatchEgg = "HatchEgg",
+	-- S→C (eggId: string, results: { HatchResult }) — what the hatch produced (reveal animation, visual only)
+	HatchResults = "HatchResults",
+	-- C→S (shibaId: string, slot: number) — put an owned Shiba on an equip slot (ring position)
+	EquipShiba = "EquipShiba",
+	-- C→S (slot: number) — take the Shiba off an equip slot
+	UnequipShiba = "UnequipShiba",
+	-- C→S (slot: number, quantity: number) — level up the equipped Shiba on `slot`; quantity 1, 10 or 0 = as many as affordable
+	UpgradeShiba = "UpgradeShiba",
+	-- C→S (targetShibaId: string, sourceShibaId: string) — merge a duplicate into another Shiba of the same type
+	MergeShibas = "MergeShibas",
+	-- C→S (kind: string, slot: number) — buy a lane upgrade: kind "Arch" (lane arch on `slot`); Mill rings and the vault use BuyTycoonPad
+	UpgradeLane = "UpgradeLane",
+	-- S→C (slot: number, amount: number, source: string) — income the lane just paid (numbers/items on the belt, visual only;
+	-- clients never award money)
+	TycoonPayout = "TycoonPayout",
+	-- S→C (crateId: number, slot: number, endsAt: number) — a Golden Crate rides the belt of `slot` until `endsAt` (server clock)
+	CrateSpawned = "CrateSpawned",
+	-- C→S (crateId: number) — tap/walk over a Golden Crate before it reaches the Mill
+	CollectCrate = "CollectCrate",
+	-- C→S (slot: number) — step on the boop mat of a lane (short lane boost, cooldown on the server)
+	BoopLane = "BoopLane",
+	-- C→S () — collect the vault (also happens automatically when the player is close)
+	CollectVault = "CollectVault",
+	-- ==== end Tycoon ====
 }
 
 local ALL_NAMES = {
@@ -124,6 +153,20 @@ local ALL_NAMES = {
 	Net.ClaimPartyQuest,
 	-- Shiba Variants
 	Net.VariantRolled,
+	-- Tycoon "Shiba Workers"
+	Net.BuyTycoonPad,
+	Net.HatchEgg,
+	Net.HatchResults,
+	Net.EquipShiba,
+	Net.UnequipShiba,
+	Net.UpgradeShiba,
+	Net.MergeShibas,
+	Net.UpgradeLane,
+	Net.TycoonPayout,
+	Net.CrateSpawned,
+	Net.CollectCrate,
+	Net.BoopLane,
+	Net.CollectVault,
 }
 
 function Net.CreateRemotes()

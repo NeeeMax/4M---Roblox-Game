@@ -111,6 +111,54 @@ export type PartyState = {
 
 -- ==== end Social + Bonk Party ===================================================================================
 
+-- ==== Tycoon "Shiba Workers" (contract phase 0, docs/decisions/0006) ============================================
+
+-- One Shiba the player owns (hatched from an egg). Identified by a string id ("s1", "s2" … from Tycoon.NextShibaId)
+-- because the table crosses the network and the DataStore.
+export type OwnedShiba = {
+	-- Index into EconomyConfig.Shibas (0-based, 0 = first Shiba of the list).
+	Tier: number,
+	-- Own level, 1 … the current level cap (Config/Tycoon). Levels are NEVER shared between Shibas.
+	Level: number,
+	Variant: VariantId,
+}
+
+-- One hatched Shiba, sent to the client for the reveal animation (visual only).
+export type HatchResult = {
+	ShibaId: string,
+	Tier: number,
+	Variant: VariantId,
+	-- The hatch produced a duplicate of a type/variant the player already owns.
+	Duplicate: boolean,
+}
+
+export type TycoonState = {
+	-- Mirrors Config/Features.Tycoon for the client; the server decides. False = the old throw-and-catch loop runs.
+	Enabled: boolean,
+	-- Shiba id → owned Shiba.
+	Shibas: { [string]: OwnedShiba },
+	-- Number for the next Shiba id ("s<n>").
+	NextShibaId: number,
+	-- Equip slot ("1" … "10", ring position) → Shiba id. Missing = empty slot.
+	Equipped: { [string]: string },
+	-- Equip slots the player has bought/unlocked (starts at 3, max 10).
+	EquipSlots: number,
+	-- Lane upgrades: equip slot → number of arches built (0 … 2).
+	Arches: { [string]: number },
+	-- Purchase pad id (Config/Tycoon) → bought (Mill rings, vault upgrades, egg stands …).
+	Pads: { [string]: boolean },
+	-- Unlocked zone (0 = first zone); each zone has its own egg tier.
+	Zone: number,
+	-- Eggs hatched per egg id (pity and stats).
+	EggsHatched: { [string]: number },
+	-- Money waiting in the vault (collected by walking to it; also fills while offline).
+	VaultStored: number,
+	-- Ascensions done (the tycoon's rebirth, replaces state.Rebirths once the tycoon is the default).
+	Ascensions: number,
+}
+
+-- ==== end Tycoon =================================================================================================
+
 -- Everything saved per player. Created by DataService and sent to the owning client as a copy (StateChanged).
 export type PlayerState = {
 	BonkPoints: number,
@@ -151,6 +199,8 @@ export type PlayerState = {
 	-- ===== Shiba Variants (save v3, VariantService) =====
 	Variants: VariantState,
 	-- ===== end Shiba Variants =====
+	-- Tycoon (phase 0: optional so DataService keeps compiling; phase 1 makes it required and fills the default).
+	Tycoon: TycoonState?,
 }
 
 -- ===== Shiba Variants (VariantService, EconomyConfig.Variants, docs/GAME_DESIGN.md → Shiba Variants) =====
