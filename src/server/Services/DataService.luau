@@ -10,7 +10,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local EconomyConfig = require(ReplicatedStorage.Shared.Config.EconomyConfig)
 local Features = require(ReplicatedStorage.Shared.Config.Features)
-local Shop = require(ReplicatedStorage.Shared.Config.Shop)
 local TycoonConfig = require(ReplicatedStorage.Shared.Config.Tycoon)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -380,9 +379,7 @@ local function stateFromSaved(saved: unknown): PlayerState
 		for _, id in Upgrades.Order do
 			local level = data.UpgradeLevels[id]
 			if isNumber(level) then
-				-- Shooters may go past MaxLevel with the +2 Shiba Slots pass.
-				local bonus = if id == "Shooters" then Shop.Pass.ExtraShibas else 0
-				state.UpgradeLevels[id] = math.clamp(math.floor(level), 0, Upgrades.Defs[id].MaxLevel + bonus)
+				state.UpgradeLevels[id] = math.clamp(math.floor(level), 0, Upgrades.Defs[id].MaxLevel)
 			end
 		end
 	end

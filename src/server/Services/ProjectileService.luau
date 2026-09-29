@@ -16,12 +16,10 @@ local Features = require(ReplicatedStorage.Shared.Config.Features)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local ProjectilePath = require(ReplicatedStorage.Shared.Util.ProjectilePath)
 local Projectiles = require(ReplicatedStorage.Shared.Config.Projectiles)
-local Shop = require(ReplicatedStorage.Shared.Config.Shop)
 
 local EventService = require(script.Parent.EventService)
 local IslandService = require(script.Parent.IslandService)
 local NotifyService = require(script.Parent.NotifyService)
-local RewardService = require(script.Parent.RewardService)
 local UpgradeService = require(script.Parent.UpgradeService)
 
 local CONFIG = Gameplay.Projectiles
@@ -109,15 +107,12 @@ function ProjectileService.GetLaunchDirection(from: Vector3, to: Vector3): Vecto
 	return horizontal * math.cos(angle) + Vector3.yAxis * math.sin(angle)
 end
 
--- Rolls whether the next projectile of `owner` is golden (Lucky Sticks pass: more often).
-local function rollGolden(owner: Player): boolean
+-- Rolls whether the next projectile is golden.
+local function rollGolden(): boolean
 	if EventService.IsActive("GoldenMinute") then
 		return true
 	end
-	local chance = if RewardService.HasPass(owner, "LuckySticks")
-		then Shop.Pass.LuckyGoldenChance
-		else CONFIG.GoldenChance
-	return random:NextNumber() < chance
+	return random:NextNumber() < CONFIG.GoldenChance
 end
 
 -- Plans a shot for `owner` from `from` that first lands on `target` (a point at projectile-centre height).
@@ -149,7 +144,7 @@ function ProjectileService.Plan(owner: Player, from: Vector3, target: Vector3): 
 		NominalSpeed = nominalSpeed,
 		Speed = speed,
 		Path = ProjectilePath.Build(island.Center, radius, from, velocity, gravity),
-		Golden = rollGolden(owner),
+		Golden = rollGolden(),
 		Mega = mega,
 		ValueMultiplier = 1,
 		VariantMultiplier = 1,
@@ -177,7 +172,7 @@ function ProjectileService.PlanDrop(owner: Player, target: Vector3, height: numb
 		-- A drop lands at about this speed.
 		Speed = gravity * fallTime,
 		Path = ProjectilePath.Build(island.Center, radius, from, velocity, gravity),
-		Golden = rollGolden(owner),
+		Golden = rollGolden(),
 		Mega = false,
 		-- Bonk Rain sticks are extra sticks on top of the Shibas' (their own fixed Rate): plain value.
 		ValueMultiplier = 1,

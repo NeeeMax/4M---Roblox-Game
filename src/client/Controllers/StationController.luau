@@ -255,7 +255,7 @@ local function purchasable(state: Types.PlayerState, id: string): (number, numbe
 	if lockedUntil(state, id) then
 		return 0, Upgrades.GetCost(id, level), false
 	end
-	local limit = if state.Passes.StackUpgrade then Stations.StackMax else 1
+	local limit = 1
 	local count, total = 0, 0
 	while count < limit and level + count < maxLevel do
 		local cost = Upgrades.GetCost(id, level + count)

@@ -150,8 +150,8 @@ local function buildCard(list: Instance, id: string, order: number)
 	dotLayout.Padding = UDim.new(0, 5)
 	dotLayout.Parent = dotRow
 	local dots: { Frame } = {}
-	-- Dots up to the highest level any player can reach (More Shibas: +2 with the pass; extra dots hide without it).
-	local dotCount = Upgrades.GetMaxLevel(id, { ExtraShibas = true })
+	-- Dots up to the highest level a player can reach.
+	local dotCount = Upgrades.GetMaxLevel(id, {})
 	if dotCount > FIXED_DOTS_UP_TO then
 		dotLayout.Padding = UDim.new(0, 2)
 	end

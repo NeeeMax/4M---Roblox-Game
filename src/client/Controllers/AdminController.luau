@@ -197,18 +197,16 @@ local function build()
 	end)
 
 	local shop = section(list, "Shop · Gifts (Studio tests)", 6)
-	local passButtons =
-		buttonRow(shop, 1, { { "2× Dollars" }, { "VIP" }, { "Lucky" }, { "+2 Shibas" } }, Color3.fromRGB(70, 200, 120))
-	for index, passId in { "DoublePoints", "VIP", "LuckySticks", "ExtraShibas" } do
+	local passButtons = buttonRow(shop, 1, { { "2× Dollars" }, { "VIP" } }, Color3.fromRGB(70, 200, 120))
+	for index, passId in { "DoublePoints", "VIP" } do
 		passButtons[index].Activated:Connect(function()
 			send("TogglePass", passId)
 		end)
 		passButtonsById[passId] = passButtons[index]
 	end
 	-- POWERS passes (the magnet is a timed boost: Boosts → "Magnet 5m", Clear removes it).
-	local powerButtons =
-		buttonRow(shop, 2, { { "Manage" }, { "Run Faster" }, { "Stack" } }, Color3.fromRGB(70, 200, 120))
-	for index, passId in { "Manage", "RunFaster", "StackUpgrade" } do
+	local powerButtons = buttonRow(shop, 2, { { "Manage" } }, Color3.fromRGB(70, 200, 120))
+	for index, passId in { "Manage" } do
 		powerButtons[index].Activated:Connect(function()
 			send("TogglePass", passId)
 		end)
