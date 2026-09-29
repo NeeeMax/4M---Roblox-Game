@@ -114,6 +114,12 @@ local Net = {
 	BoopLane = "BoopLane",
 	-- C→S () — collect the vault (also happens automatically when the player is close)
 	CollectVault = "CollectVault",
+	-- S→C (slot: number, serverTime: number, automated: boolean) — the Shiba on `slot` swings its stick now (animation and hit
+	-- marker only; clicking the Shiba and buying its automation go through the world prompts/ClickDetector, not a remote)
+	ShibaSwung = "ShibaSwung",
+	-- S→C (slot: number, launch: Vector3) — the owner stood in the hit zone of the swinging Shiba on `slot`: the client flings its
+	-- own character with `launch` (visual only; the server already paid the bonus through TycoonPayout with source "Bonk")
+	PlayerBonked = "PlayerBonked",
 	-- ==== end Tycoon ====
 }
 
@@ -167,6 +173,8 @@ local ALL_NAMES = {
 	Net.CollectCrate,
 	Net.BoopLane,
 	Net.CollectVault,
+	Net.ShibaSwung,
+	Net.PlayerBonked,
 }
 
 function Net.CreateRemotes()

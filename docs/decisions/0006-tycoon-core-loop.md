@@ -24,6 +24,14 @@ play, every Shiba type useful, a collection to chase.
   only after the cutover (phase 7 in `docs/TYCOON_HANDOFF.md`).
 - No live players and no sold passes, so no save migration: the save version is bumped and saves may be reset.
 
+## Addendum 2026-09-30: swing, click start, automation, Bonk hit
+
+Marco asked for an active layer: every equipped Shiba swings a stick like the "Bonk" meme; at the start a Shiba only swings
+when clicked, and each Shiba can be bought free of clicking ("automation"). Standing in the hit zone gets the owner flung and
+paid a bonus. Belts, arches and Mill rings stay; Ascension resets the automation. Contract: `ShibaSwung` and `PlayerBonked`
+(both S→C, visual only) and `OwnedShiba.Automated` (optional). Click and buy are world interactions, so no new C→S remote.
+Details and open numbers: `docs/GAME_DESIGN.md → Swing, click and Bonk hit`.
+
 ## Consequences
 
 - New remotes and types are a contract change and were merged on their own (this ADR's PR): see `docs/NETWORK.md`.

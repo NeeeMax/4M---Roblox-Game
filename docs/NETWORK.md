@@ -58,6 +58,8 @@ Every RemoteEvent and RemoteFunction is listed here. A PR that adds or changes a
 | `TycoonPayout` | RemoteEvent | S→C | `slot: number, amount: number, source: string` | — (server → client, **visual only**: popups and belt items; the client never awards money). Sent batched (≤ 10/s per player) | Marco |
 | `CrateSpawned` | RemoteEvent | S→C | `crateId: number, slot: number, endsAt: number` | — (server → client, server clock `Workspace:GetServerTimeNow()`) | Marco |
 | `CollectCrate` | RemoteEvent | C→S | `crateId: number` | number, crate exists for this player and has not ended, player's character within reach of the belt, not collected yet, ≤ 5/s; payout on the server | Marco |
+| `ShibaSwung` | RemoteEvent | S→C | `slot: number, serverTime: number, automated: boolean` | — (server → client, **visual only**: swing animation and hit marker; owner only; at most one per Shiba per swing cooldown) | Marco |
+| `PlayerBonked` | RemoteEvent | S→C | `slot: number, launch: Vector3` | — (server → client, **visual only**: the client flings its own character; the bonus was already paid via `TycoonPayout` with source `"Bonk"`) | Marco |
 | `BoopLane` | RemoteEvent | C→S | `slot: number` | integer slot with an equipped Shiba, boop cooldown passed (server-side), character on the mat, ≤ 2/s | Marco |
 | `CollectVault` | RemoteEvent | C→S | — | data loaded, `VaultStored` > 0, character within reach of the vault, ≤ 2/s | Marco |
 
@@ -66,6 +68,7 @@ Notes on the tycoon remotes (`Config/Features.Tycoon`, `docs/GAME_DESIGN.md → 
 - Purchase pad ids are `Slot<n>` (equip slot 4 to 10), `Sorter`, `Polisher`, `Refinery` (Mill rings) and `Ascend`; zone and
   egg pads are defined with the plot config. Prices and limits are in `Config/Tycoon`, never sent by the client.
 - Slots in `EquipShiba`, `UnequipShiba`, `UpgradeShiba`, `UpgradeLane` and `BoopLane` are equip slots 1 to 10 (`EquipSlots`).
+- Clicking a Shiba (swing) and buying its automation are world interactions (ClickDetector / ProximityPrompt on the plot, owner only), not remotes: the server validates cooldown, ownership and distance. `TycoonPayout` sources: `"Belt"`, `"Swing"` (a click or an automated swing), `"Bonk"` (hit bonus), `"Crate"`. `BoopLane` is unused (boop mats are superseded by the Bonk hit) and is removed in the cleanup contract PR.
 - `TycoonPayout` and the belt items are cosmetic; income is computed by the server from `TycoonMath` and the saved state.
 
 The INVITE button needs no remote: the client opens Roblox's invite dialog itself (`SocialController`), and the server

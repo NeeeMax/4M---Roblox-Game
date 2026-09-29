@@ -754,7 +754,7 @@ the level cap.
   collects it (`CollectCrate`); the server pays. Amounts and spawn rate are not defined yet.
 - **Boop mats**: superseded by the Bonk hit below (the `BoopLane` remote stays unused until the contract cleanup).
 
-### Swing, click and Bonk hit (PROPOSAL, not yet agreed by Marco and Max; numbers marked "open" are not decided)
+### Swing, click and Bonk hit (Marco decided 2026-09-30: belts, arches and rings stay; Ascension resets automation; Max has not seen it yet; numbers marked "open" are starting values)
 
 Requested by Marco on 2026-09-30. It adds an *active layer on top of* the belts (the belts stay) and makes the start of the
 game manual. No projectiles, no catch quality, no head hits, no combos come back: the stick is a prop of the swing animation.
@@ -771,7 +771,7 @@ The server enforces the cooldown per Shiba (`SwingCooldown`, open: 1.2 s) and ig
 for that Shiba (price in money, open: `TierIncome × 60 s × 1.5 ^ (number of automated Shibas)`, so later ones cost more) makes it swing by itself
 forever, paying the same lane rate without clicking. Because click-swinging and automation pay the same rate, the economy
 simulation (`tycoon_sim`, which assumes fully automated lanes) stays valid; the automation buys convenience and being away
-from the keyboard, not extra income. A merged or re-equipped Shiba keeps `Automated`; an Ascension resets it (open: yes/no).
+from the keyboard, not extra income. A merged or re-equipped Shiba keeps `Automated`; an **Ascension resets it** (decided).
 
 **Bonk hit ("get bonked").** Every swing has a hit zone in front of the Shiba (open: 8 studs long, 90° cone, shown by a
 faint marker while the swing winds up). When the swing lands, the server checks the island owner's character position: if it is
@@ -783,13 +783,15 @@ only by the server from positions; there is no client "I was hit" remote.
 
 **Upgrade path.** The player-facing upgrades are reduced to one path: the Shiba's **level** (x1/x10/Max, as built) and the
 **automation** unlock. The old station upgrade stands (`StationService`, `Config/Stations`, "Upgrades" billboards) and their
-upgrades do not exist while the tycoon is on. Open: keep or remove **arches** and **Mill rings** (they are extra multipliers;
-removing them would make "one path" literal but changes the calibration, so the simulation must be re-run either way).
+upgrades do not exist while the tycoon is on. **Arches and Mill rings stay** (decided): they are multipliers bought with the
+same money, level and automation are the two things a player does to a Shiba.
 
-**Contract impact (needs its own PR before the code).** New remotes: `SwingShiba` (client to server, owned Shiba id, rate
-limited), `BuyAutomation` (client to server, owned Shiba id); server to client: `ShibaSwung` (owned Shiba id, server time, so
-the client plays the animation and the hit marker) and `PlayerBonked` (payout and launch info for the effect).
-New types: `OwnedShiba.Automated: boolean`. Save: `Tycoon` field gets `Automated` per owned Shiba (defaults to false; saves may
+**Contract impact (own PR before the code).** Clicking the Shiba (ClickDetector plus an E prompt) and buying the automation
+(prompt on the level plate) are world interactions that call the server directly for the island owner, like the level
+prompts, so there is **no new client-to-server remote**. Server to client: `ShibaSwung` (slot, server time, automated: the
+client plays the swing animation and the hit marker, owner only) and `PlayerBonked` (slot, launch velocity: the client flings
+its own character; purely visual, the bonus is paid by the server through `TycoonPayout` with source "Bonk").
+New type field: `OwnedShiba.Automated: boolean?`. Save: `Tycoon` field gets `Automated` per owned Shiba (defaults to false; saves may
 be reset, there are no live players).
 
 **Assets.** The swing needs an animation on the Shiba rig and a stick prop. Until they exist the code falls back to a CFrame
