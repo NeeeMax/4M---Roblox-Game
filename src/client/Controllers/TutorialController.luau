@@ -19,6 +19,7 @@ local Net = require(ReplicatedStorage.Shared.Net)
 local Stations = require(ReplicatedStorage.Shared.Config.Stations)
 local Tutorial = require(ReplicatedStorage.Shared.Config.Tutorial)
 local Types = require(ReplicatedStorage.Shared.Types)
+local Features = require(ReplicatedStorage.Shared.Config.Features)
 
 local State = require(script.Parent.Parent.UI.State)
 local StationController = require(script.Parent.StationController)
@@ -266,10 +267,18 @@ local function build()
 end
 
 function TutorialController.Init()
+	-- The tycoon (TycoonService) replaces the old loop.
+	if Features.Tycoon then
+		return
+	end
 	build()
 end
 
 function TutorialController.Start()
+	-- The tycoon (TycoonService) replaces the old loop.
+	if Features.Tycoon then
+		return
+	end
 	State.Start()
 	State.Changed:Connect(update)
 	-- Our own listener: the first catch switches the field hint (BonkController plays the bonk itself).

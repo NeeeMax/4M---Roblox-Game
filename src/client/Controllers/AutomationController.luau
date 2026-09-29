@@ -17,6 +17,7 @@ local Automation = require(ReplicatedStorage.Shared.Config.Automation)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local Net = require(ReplicatedStorage.Shared.Net)
+local Features = require(ReplicatedStorage.Shared.Config.Features)
 
 local ProjectileController = require(script.Parent.ProjectileController)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
@@ -409,6 +410,10 @@ local function update(dt: number)
 end
 
 function AutomationController.Start()
+	-- The tycoon (TycoonService) replaces the old loop.
+	if Features.Tycoon then
+		return
+	end
 	Net.Get(Net.AutomationCatch).OnClientEvent:Connect(onAutomationCatch)
 	-- Joint transforms are set before each physics step (no Animator overrides them).
 	RunService.PreSimulation:Connect(update)

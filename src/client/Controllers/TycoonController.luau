@@ -9,6 +9,7 @@
 -- World names it reads (Workspace/Islands/Island_<UserId>/Tycoon): Mill, Lane_<slot>, Belt_<slot>. All optional.
 
 local Players = game:GetService("Players")
+local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -16,9 +17,11 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local EconomyConfig = require(ReplicatedStorage.Shared.Config.EconomyConfig)
+local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Net = require(ReplicatedStorage.Shared.Net)
 local TycoonMath = require(ReplicatedStorage.Shared.Util.TycoonMath)
+local TycoonWorld = require(ReplicatedStorage.Shared.Config.TycoonWorld)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local State = require(script.Parent.Parent.UI.State)
@@ -638,6 +641,18 @@ local function onHatchResults(eggId: unknown, results: unknown)
 	end
 end
 
+-- A prompt of any island's tycoon plot (Islands.Island_<UserId>.Tycoon …) that is not ours: the server only forwards the
+-- owner's trigger, so the others' prompts are hidden on this client.
+local function isForeignTycoonPrompt(prompt: ProximityPrompt): boolean
+	local plot = prompt:FindFirstAncestor(TycoonWorld.FolderName)
+	local island = if plot then plot.Parent else nil
+	local islands = if island then island.Parent else nil
+	if island == nil or islands == nil or islands.Name ~= Gameplay.Island.FolderName then
+		return false
+	end
+	return island.Name ~= `{Gameplay.Island.ModelPrefix}{player.UserId}`
+end
+
 function TycoonController.Init()
 	-- Nothing to set up before Start: everything waits for state.Tycoon.Enabled.
 end
@@ -649,6 +664,12 @@ function TycoonController.Start()
 	started = true
 	State.Start()
 	State.Changed:Connect(onStateChanged)
+
+	ProximityPromptService.PromptShown:Connect(function(prompt: ProximityPrompt)
+		if isForeignTycoonPrompt(prompt) then
+			prompt.Enabled = false
+		end
+	end)
 
 	Net.Get(Net.TycoonPayout).OnClientEvent:Connect(onPayout)
 	Net.Get(Net.CrateSpawned).OnClientEvent:Connect(onCrateSpawned)

@@ -21,6 +21,7 @@ local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Projectiles = require(ReplicatedStorage.Shared.Config.Projectiles)
 local ShibaEffects = require(ReplicatedStorage.Shared.Config.ShibaEffects)
+local Features = require(ReplicatedStorage.Shared.Config.Features)
 
 local ProjectileController = require(script.Parent.ProjectileController)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
@@ -572,6 +573,10 @@ function BonkController.SetVolumeScale(scale: number)
 end
 
 function BonkController.Init()
+	-- The tycoon (TycoonService) replaces the old loop.
+	if Features.Tycoon then
+		return
+	end
 	sound = Instance.new("Sound")
 	sound.Name = "Bonk"
 	sound.SoundId = BONK.SoundId
@@ -594,6 +599,10 @@ function BonkController.WasReported(marker: BasePart): boolean
 end
 
 function BonkController.Start()
+	-- The tycoon (TycoonService) replaces the old loop.
+	if Features.Tycoon then
+		return
+	end
 	Net.Get(Net.BonkHit).OnClientEvent:Connect(onBonkHit)
 
 	task.spawn(function()

@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Tutorial = require(ReplicatedStorage.Shared.Config.Tutorial)
 local Types = require(ReplicatedStorage.Shared.Types)
+local Features = require(ReplicatedStorage.Shared.Config.Features)
 
 local DataService = require(script.Parent.DataService)
 
@@ -43,6 +44,10 @@ local function onReplicated(player: Player)
 end
 
 function TutorialService.Start()
+	-- The tycoon (TycoonService) replaces the old loop.
+	if Features.Tycoon then
+		return
+	end
 	DataService.OnLoaded(function(player, state)
 		lastTotal[player] = totalLevels(state)
 	end)
