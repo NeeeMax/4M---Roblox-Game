@@ -752,8 +752,48 @@ the level cap.
 
 - **Golden Crates** appear on a belt for a short time (`CrateSpawned`, ends at a server time); the player walks to the belt and
   collects it (`CollectCrate`); the server pays. Amounts and spawn rate are not defined yet.
-- **Boop mats**: a character standing on a lane's mat can boop that lane (`BoopLane`, server-side cooldown). Bonus and cooldown
-  are not defined yet.
+- **Boop mats**: superseded by the Bonk hit below (the `BoopLane` remote stays unused until the contract cleanup).
+
+### Swing, click and Bonk hit (PROPOSAL, not yet agreed by Marco and Max; numbers marked "open" are not decided)
+
+Requested by Marco on 2026-09-30. It adds an *active layer on top of* the belts (the belts stay) and makes the start of the
+game manual. No projectiles, no catch quality, no head hits, no combos come back: the stick is a prop of the swing animation.
+
+**Swing.** Every equipped Shiba can *swing*: it hits a stick forward like the "Bonk" meme (wind-up, strike, short recovery).
+The swing is a client-side animation; the server decides everything.
+
+**Manual start.** A Shiba that is not automated does nothing on its own. The player **clicks or taps the Shiba** (or presses E
+next to it: one `ProximityPrompt`/`ClickDetector` per Shiba) and it swings once. One swing pays `SwingSeconds` worth of the
+lane's per-second income (`SwingSeconds` = the swing cooldown, so clicking non-stop pays exactly the lane rate, never more).
+The server enforces the cooldown per Shiba (`SwingCooldown`, open: 1.2 s) and ignores clicks during it.
+
+**Automation (per Shiba).** Each owned Shiba has a flag `Automated` (default false, saved). Buying the automation upgrade
+for that Shiba (price in money, open: `TierIncome × 60 s × 1.5 ^ (number of automated Shibas)`, so later ones cost more) makes it swing by itself
+forever, paying the same lane rate without clicking. Because click-swinging and automation pay the same rate, the economy
+simulation (`tycoon_sim`, which assumes fully automated lanes) stays valid; the automation buys convenience and being away
+from the keyboard, not extra income. A merged or re-equipped Shiba keeps `Automated`; an Ascension resets it (open: yes/no).
+
+**Bonk hit ("get bonked").** Every swing has a hit zone in front of the Shiba (open: 8 studs long, 90° cone, shown by a
+faint marker while the swing winds up). When the swing lands, the server checks the island owner's character position: if it is
+inside the zone, the player is launched (server-applied velocity, open: 60 studs/s away from the Shiba) and gets a **Bonk
+bonus** of `BonkBonusSeconds` (open: 10 s) of that lane's income, on top of the normal payout. Per-player cooldown
+`BonkCooldown` (open: 5 s) so standing in the zone does not farm. The risk is only the launch itself (the player may fly off the
+ring and has to walk back, or respawns on the island): **money is never lost**. Optional and never required. The hit is decided
+only by the server from positions; there is no client "I was hit" remote.
+
+**Upgrade path.** The player-facing upgrades are reduced to one path: the Shiba's **level** (x1/x10/Max, as built) and the
+**automation** unlock. The old station upgrade stands (`StationService`, `Config/Stations`, "Upgrades" billboards) and their
+upgrades do not exist while the tycoon is on. Open: keep or remove **arches** and **Mill rings** (they are extra multipliers;
+removing them would make "one path" literal but changes the calibration, so the simulation must be re-run either way).
+
+**Contract impact (needs its own PR before the code).** New remotes: `SwingShiba` (client to server, owned Shiba id, rate
+limited), `BuyAutomation` (client to server, owned Shiba id); server to client: `ShibaSwung` (owned Shiba id, server time, so
+the client plays the animation and the hit marker) and `PlayerBonked` (payout and launch info for the effect).
+New types: `OwnedShiba.Automated: boolean`. Save: `Tycoon` field gets `Automated` per owned Shiba (defaults to false; saves may
+be reset, there are no live players).
+
+**Assets.** The swing needs an animation on the Shiba rig and a stick prop. Until they exist the code falls back to a CFrame
+tween of a plain part (Marco owns assets).
 
 ### Vault and offline
 
