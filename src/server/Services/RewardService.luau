@@ -78,12 +78,25 @@ function RewardService.GetStickValue(
 		* math.max(valueMultiplier, 1)
 end
 
+-- Tycoon income multiplier (TycoonService): game passes × 2× boost × server events × Friend Boost, the same chain as
+-- GetStickValue without the throw-and-catch parts (tier, rebirth, golden, density cap). The Ascension multiplier is
+-- part of TycoonMath.LaneIncome.
+function RewardService.GetIncomeMultiplier(player: Player): number
+	local passMultiplier = (
+		if RewardService.HasPass(player, "DoublePoints") then Shop.Pass.DoublePointsMultiplier else 1
+	) * (if RewardService.HasPass(player, "VIP") then Shop.Pass.VIPMultiplier else 1)
+	return passMultiplier
+		* BoostService.GetMultiplier(player, "Points")
+		* EventService.RewardMultiplier(false)
+		* SocialService.GetFriendMultiplier(player)
+end
+
 -- `hits` normal bonks' worth, at least 1.
 function RewardService.Hits(player: Player, hits: number): number
 	return math.max(1, math.floor(RewardService.GetHitValue(player) * hits))
 end
 
--- Hands out a reward and returns what the player got, in words ("+B$ 1,200", "Bonk Rain").
+-- Hands out a reward and returns what the player got, in words ("+1,200", "Bonk Rain").
 function RewardService.Give(player: Player, reward: Hub.Reward): string
 	local state = DataService.GetState(player)
 	if not state then

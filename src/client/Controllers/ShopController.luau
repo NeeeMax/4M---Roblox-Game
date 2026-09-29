@@ -7,7 +7,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
-local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Shop = require(ReplicatedStorage.Shared.Config.Shop)
 
@@ -295,7 +294,7 @@ local function build()
 				end
 				if trophy.Points then
 					local canBuy = state ~= nil and state.BonkPoints >= trophy.Points
-					return Format.Money(trophy.Points), if canBuy then Theme.Good else Theme.CardLight
+					return Widgets.MoneyString(trophy.Points), if canBuy then Theme.Good else Theme.CardLight
 				end
 				return "EXCLUSIVE", Theme.CardLight
 			end,
@@ -312,7 +311,7 @@ function ShopController.Refresh()
 	for _, entry in cards do
 		local text, color, textColor = entry.Refresh()
 		entry.Button.TextColor3 = textColor or Theme.Text
-		-- Bonk Dollars prices ("B$ 5,000") show the symbol.
+		-- Bonk Dollars prices show the cash icon (Widgets.MoneyString).
 		Widgets.SetMoneyText(entry.Button, text)
 		Widgets.SetButtonColor(entry.Button, color)
 	end

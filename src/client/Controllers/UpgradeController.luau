@@ -67,7 +67,7 @@ local function describe(id: string, level: number): string
 			Format.Short(tier.RewardMultiplier)
 		)
 	elseif id == "ProjectileTier" then
-		return `{Format.Money(Projectiles.ForTier(level).BaseReward)} per bonk`
+		return `{Widgets.MoneyString(Projectiles.ForTier(level).BaseReward)} per bonk`
 	elseif id == "Shooters" then
 		local count = Upgrades.GetValue(id, level)
 		return `{count} Shiba{if count == 1 then "" else "s"} around your island`
@@ -335,7 +335,7 @@ local function refresh()
 				`<font color="#{currentColor}">{current}</font>  →  <font color="#{nextColor}">{nextText}</font>`
 			Widgets.SetMoneyText(card.Detail, `Next: {describe(id, level + 1)}`)
 			local cost = Upgrades.GetCost(id, level)
-			Widgets.SetMoneyText(card.Button, Format.MoneyShort(cost))
+			Widgets.SetMoneyText(card.Button, Widgets.MoneyString(cost, true))
 			card.CanBuy = state.BonkPoints >= cost
 			Widgets.SetButtonColor(card.Button, if card.CanBuy then Theme.Good else Theme.Disabled)
 		end

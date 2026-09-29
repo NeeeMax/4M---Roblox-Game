@@ -232,7 +232,7 @@ local function spinTo(index: number, text: string)
 	tween.Completed:Wait()
 	local segment = CONFIG.Segments[index]
 	resultLabel.TextColor3 = if segment.Kind == "Nothing" then Theme.Muted else Theme.Accent
-	-- "+B$ 1,234" (from the server) shows the Bonk Dollars symbol.
+	-- "+1,234" comes from the server as plain text.
 	Widgets.SetMoneyText(
 		resultLabel,
 		if segment.Kind == "Nothing" then "Nothing this time… try again tomorrow!" else `You won {text}!`

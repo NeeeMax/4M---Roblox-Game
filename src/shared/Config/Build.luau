@@ -3,5 +3,5 @@
 -- Bump the label with every change that should be visible in a playtest.
 
 return {
-	Label = "2026-09-26 #29: Shiba variants (Shiny/Rainbow/Huge), friend boost + invites, weekend Bonk Party, stick density cap, new drop zone look",
+	Label = "2026-09-29 #30: HUD money as icon + plain numbers, tile menu grid; tycoon code added (flag off)",
 }

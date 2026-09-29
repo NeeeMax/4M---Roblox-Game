@@ -9,7 +9,6 @@ local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
-local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Obby = require(ReplicatedStorage.Shared.Config.Obby)
 local World = require(ReplicatedStorage.Shared.Config.World)
@@ -183,7 +182,7 @@ local function onFinished(time: unknown, reward: unknown, bestTime: unknown, nex
 	nextRewardAt = nextAt
 	timeLabel.Text = string.format("%.1f s", time)
 	if reward > 0 then
-		Widgets.SetMoneyText(rewardLabel, `+{Format.Money(reward)} · 2× dollars {Obby.BoostSeconds // 60} min`)
+		Widgets.SetMoneyText(rewardLabel, `+{Widgets.MoneyString(reward)} · 2× dollars {Obby.BoostSeconds // 60} min`)
 	elseif bestTime >= time then
 		Widgets.SetMoneyText(rewardLabel, "NEW BEST TIME!")
 	else

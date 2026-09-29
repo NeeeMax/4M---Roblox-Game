@@ -229,3 +229,41 @@ then: Wood 1e4 (≈ Shiba 4), Bronze 1e8 (≈ Shiba 7), Silver 1e14 (≈ Shiba 1
 3. Update this file (the tables are copied from the simulation output) and `docs/GAME_DESIGN.md → Pacing`.
 4. After real playtests, correct the model first (`BASELINE`: catch rate, catches/s, ActiveBonus) so the simulation
    matches what players actually earn, then retune the pace.
+
+## Tycoon
+
+The tycoon ("Shiba Workers", `docs/GAME_DESIGN.md → Tycoon`) has its own simulation, `docs/economy/tycoon_sim.luau`. It loads
+the real `Config/Tycoon` and `Util/TycoonMath`, so it always matches the game's numbers, and plays a solo, efficient,
+always-online player (no passes, boosts, events, friends, crates or lucky variants): it always takes the action with the
+shortest wait plus payback (level up, hatch, equip slot, arch, Mill ring, zone). Real players are slower, so read the totals
+as a lower bound (factor about 1.3 to 1.6) against the 70-100 hour target.
+
+```
+lune run docs/economy/tycoon_sim                  # from the repo root
+PRICE_SCALE=10 lune run docs/economy/tycoon_sim   # test knob
+```
+
+`PRICE_SCALE` (environment variable, default 1) multiplies every zone price, egg price, Mill ring price and equip slot price;
+use it to see how much longer or shorter the run gets without editing the config. Real retuning goes into
+`src/shared/Config/Tycoon.luau` (prices, `Lane.LevelCostGrowth`, `Lane.TierGrowth`, `EggWeights` ...); then re-run and copy
+the result here.
+
+CALIBRATION RESULT (`lune run docs/economy/tycoon_sim`, 4 runs = first run + 3 Ascensions; zone prices are in
+`ZONE_PRICES` at the top of `Config/Tycoon.luau`, egg, Mill ring and equip slot prices derive from them):
+
+| Milestone (run 1, solo efficient player) | Time |
+|---|---|
+| Zone 1 Beach | 30 min |
+| Zone 2 Forest | 3.1 h |
+| Zone 3 Mountain | 4.3 h |
+| Zone 4 Space | 59.8 h |
+| Zone 5 Heaven | 63.6 h |
+| Everything maxed (all 30 types, level 50, arches, rings, 10 slots) | 64.1 h |
+| Runs 2-4 after Ascension 1-3 (level cap 60 / 70 / 80) | about 8.5 h / 7.7 h / 8.9 h each |
+
+The simulation is a lower bound (no breaks or mistakes): with the factor 1.3-1.6 a real player needs about 85-100 hours for the
+first run, the target being 70-100 hours. Zones 1-3 open early on purpose (early game is fast); the long wall is zone 4 (price
+divided by the income the player can reach with the zone 0-3 Shibas). To lengthen or shorten the game change the prices of
+zone 4 and 5 only, then re-run. Known simplifications: variants, crates, boops, passes and friends are ignored; a Shiba can
+only be equipped once its zone is unlocked (also in the sim). The greedy policy takes the best egg it can afford within 30
+minutes of income.

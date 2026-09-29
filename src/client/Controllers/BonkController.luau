@@ -115,7 +115,7 @@ local function showPopup(reward: number, quality: Economy.HitQualityDef, juice: 
 	-- "BONK" / "AIR BONK" / "PERFECT BONK"; head hits say HEADBONK.
 	local name = if onHead then (string.gsub(quality.Label, "BONK", "HEADBONK")) else quality.Label
 	local prefix = if golden then "GOLDEN " else ""
-	-- The amount shows the Bonk Dollars symbol.
+	-- The amount is a plain number (billboard text has no room for the icon).
 	Widgets.SetMoneyText(label, `{prefix}{name}{juice.Punctuation} +{Format.Money(reward)}`)
 	-- In PlayerGui so only this player sees it.
 	billboard.Parent = player:WaitForChild("PlayerGui")

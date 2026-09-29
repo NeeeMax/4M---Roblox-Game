@@ -7,7 +7,6 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
-local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Shop = require(ReplicatedStorage.Shared.Config.Shop)
 
@@ -93,16 +92,12 @@ local function show(amount: number, seconds: number)
 	amountBox.Parent = inner
 	Widgets.Corner(amountBox, 46)
 	local amountLabel = Widgets.Label(amountBox, "", 54, MONEY_GREEN)
-	amountLabel.Position = UDim2.fromOffset(0, 4)
-	amountLabel.Size = UDim2.new(1, 0, 0, 58)
+	-- The drawn cash icon marks the currency; no unit text.
+	amountLabel.Position = UDim2.fromOffset(0, 0)
+	amountLabel.Size = UDim2.fromScale(1, 1)
 	amountLabel.TextXAlignment = Enum.TextXAlignment.Center
 	amountLabel.TextStrokeTransparency = 0
-	Widgets.SetMoneyText(amountLabel, Format.Money(amount))
-	local unit = Widgets.Label(amountBox, Format.CurrencyName, 22, MONEY_GREEN)
-	unit.Position = UDim2.fromOffset(0, 60)
-	unit.Size = UDim2.new(1, 0, 0, 26)
-	unit.TextXAlignment = Enum.TextXAlignment.Center
-	unit.TextStrokeTransparency = 0.2
+	Widgets.SetMoneyText(amountLabel, Widgets.MoneyString(amount))
 
 	local okay = Widgets.Button(inner, "OKAY", OKAY_GREY, 30)
 	okay.AnchorPoint = Vector2.new(1, 0)
