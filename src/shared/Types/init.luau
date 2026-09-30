@@ -157,6 +157,12 @@ export type TycoonState = {
 	VaultStored: number,
 	-- Ascensions done (the tycoon's rebirth, replaces state.Rebirths once the tycoon is the default).
 	Ascensions: number,
+	-- Street mode (Config/Features.Street, docs/GAME_DESIGN.md → Street, plots and buttons): mirrors the flag for the client,
+	-- like Enabled. nil = false (the island tycoon).
+	Street: boolean?,
+	-- Street mode: the floor pads (Config/TycoonSteps ids) the player has bought; the walkthrough and the plot's growth are
+	-- derived from it. nil = none.
+	Steps: { [string]: boolean }?,
 }
 
 -- ==== end Tycoon =================================================================================================

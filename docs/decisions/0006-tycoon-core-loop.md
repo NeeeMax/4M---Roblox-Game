@@ -32,6 +32,13 @@ paid a bonus. Belts, arches and Mill rings stay; Ascension resets the automation
 (both S→C, visual only) and `OwnedShiba.Automated` (optional). Click is a world interaction; the Upgrades menu (HUD tile MANAGE, tycoon on) buys levels with the existing `UpgradeShiba` and the automation with `BuyAutomation` (C→S, slot).
 Details and open numbers: `docs/GAME_DESIGN.md → Swing, click and Bonk hit`.
 
+## Addendum 2026-09-30: the street
+
+With `Features.Street` the islands are replaced by a street with 10 plots; pads on the floor buy everything and each
+expansion spawns one Shiba (`docs/GAME_DESIGN.md → Street, plots and buttons`, `One Shiba per expansion`). Contract:
+`TycoonState.Street` (mirrors the flag) and `TycoonState.Steps` (bought pad ids), both optional. Pads are bought by
+standing on them; the server detects the touch, so there is no new remote.
+
 ## Consequences
 
 - New remotes and types are a contract change and were merged on their own (this ADR's PR): see `docs/NETWORK.md`.
