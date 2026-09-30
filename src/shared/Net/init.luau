@@ -120,6 +120,9 @@ local Net = {
 	-- S→C (slot: number, launch: Vector3) — the owner stood in the hit zone of the swinging Shiba on `slot`: the client flings its
 	-- own character with `launch` (visual only; the server already paid the bonus through TycoonPayout with source "Bonk")
 	PlayerBonked = "PlayerBonked",
+	-- C→S (slot: number) — buy the automation of the Shiba equipped on `slot` (the Upgrades menu; the world prompt on the
+	-- level plate does the same without a remote)
+	BuyAutomation = "BuyAutomation",
 	-- ==== end Tycoon ====
 }
 
@@ -175,6 +178,7 @@ local ALL_NAMES = {
 	Net.CollectVault,
 	Net.ShibaSwung,
 	Net.PlayerBonked,
+	Net.BuyAutomation,
 }
 
 function Net.CreateRemotes()

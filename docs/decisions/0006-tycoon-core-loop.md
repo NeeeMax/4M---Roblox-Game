@@ -29,7 +29,7 @@ play, every Shiba type useful, a collection to chase.
 Marco asked for an active layer: every equipped Shiba swings a stick like the "Bonk" meme; at the start a Shiba only swings
 when clicked, and each Shiba can be bought free of clicking ("automation"). Standing in the hit zone gets the owner flung and
 paid a bonus. Belts, arches and Mill rings stay; Ascension resets the automation. Contract: `ShibaSwung` and `PlayerBonked`
-(both S→C, visual only) and `OwnedShiba.Automated` (optional). Click and buy are world interactions, so no new C→S remote.
+(both S→C, visual only) and `OwnedShiba.Automated` (optional). Click is a world interaction; the Upgrades menu (HUD tile MANAGE, tycoon on) buys levels with the existing `UpgradeShiba` and the automation with `BuyAutomation` (C→S, slot).
 Details and open numbers: `docs/GAME_DESIGN.md → Swing, click and Bonk hit`.
 
 ## Consequences
