@@ -196,6 +196,23 @@ function StreetService.GetIsland(player: Player): Island?
 	return islands[player]
 end
 
+-- True while the character is on its own plot or within `margin` studs of it. A plot is long and narrow, so the island
+-- rule "within a radius of the centre" does not fit: this checks the plot's rectangle (along the road axis and across).
+function StreetService.IsNearPlot(player: Player, margin: number): boolean
+	local island = islands[player]
+	local character = player.Character
+	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+	if not island or not root or not root:IsA("BasePart") then
+		return false
+	end
+	local offset = root.Position - island.Center
+	local towardRoad = Vector3.new(math.sin(island.HubAngle), 0, -math.cos(island.HubAngle))
+	local right = towardRoad:Cross(Vector3.yAxis)
+	return math.abs(offset:Dot(towardRoad)) <= Street.PlotDepth / 2 + margin
+		and math.abs(offset:Dot(right)) <= Street.PlotWidth / 2 + margin
+		and math.abs(offset.Y) <= Street.ReachHeight
+end
+
 -- The plot the player owns (spawn and later phases), nil without one.
 local function plotOf(player: Player): Plot?
 	local island = islands[player]
