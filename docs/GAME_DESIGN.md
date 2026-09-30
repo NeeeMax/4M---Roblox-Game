@@ -830,12 +830,10 @@ walkthrough; the old tutorial (TutorialService/TutorialController) is not used i
 
 | # | Pad | Price | Needs | Effect |
 |---|-----|------:|-------|--------|
-| 1 | First Shiba | 0 | - | spawns the first Shiba in slot 1 (no egg needed for the very first one) |
-| 2 | Cash Register (Shiba 1) | open | 1 | automates that Shiba (price formula of *Swing, click and Bonk hit*) |
-| 3 | Slot 2 | open | 1 | unlocks equip slot 2 |
-| 4 | Egg (Meadow) | open | 3 | the first egg stand: hatch more Shibas |
-| 5 | Cash Register (next Shiba) | open | 2, 4 | automates the next Shiba |
-| 6+ | Slot 3, arches, Mill rings, next section (zone), Ascension | as today | | as today |
+| 1 | First Shiba | 0 | - | spawns Shiba 1 (tier 1) in bay 1 |
+| 2 | Cash Register (Shiba n) | `AutomationPrice` | Shiba n spawned | automates Shiba n (it swings by itself) |
+| 3 | Expansion n (Shiba n+1) | open (grows with n) | expansion n-1 | extends the plot by one bay and spawns Shiba n+1 |
+| 4 | Arch, Mill ring, Ascension | as today | as today | as today |
 
 The level buttons are **on the Shiba itself** (like the stand of the reference game: CLICK and UPGRADE on the object), not
 floor pads: click = swing, UPGRADE = level up (x1/x10/Max), as with the level plates today. Automation is a floor pad per Shiba
@@ -849,6 +847,31 @@ the hub world, the old tutorial, the MANAGE upgrade menu (the old one; a tycoon 
 flag off: (1) street world + plot frame + claim/spawn for 10 plots; (2) the pad system with the 3-pad limit and the first Shiba;
 (3) the step table and the walkthrough arrow; (4) sections that grow backward; (5) cutover and cleanup. Contract PRs
 (`Tycoon.Steps`, anything new on the network) come first.
+
+### One Shiba per expansion (decided by Marco 2026-09-30; supersedes eggs, equip slots, merging and zones-with-eggs in street mode)
+
+Every plot expansion adds **one new Shiba**, in a fixed order with no luck: expansion n extends the plot by one bay and spawns
+Shiba n+1 (tier n+1). There are **30 expansions and 30 Shibas** (the 30 tiers of `EconomyConfig.Shibas`), five bays per
+section, six sections (Meadow to Heaven). **Eggs, the hatch animation, the equip / unequip / merge panel, equip slots and the
+collection panel do not exist in street mode.** Every spawned Shiba works; there is no 10-slot limit (30 bays). The Index stays
+as the goal: a Shiba is "found" when its expansion is bought. Variants (Shiny, Rainbow, Huge) are rolled once when a Shiba
+spawns (open: keep them, and the odds), so a collection goal remains.
+
+**Each Shiba has its own pace.** The first Shiba is the default one with the **fastest reward time** (`Swing.Cooldown`, 1.2 s).
+Every higher tier pays **more per click but takes longer**: `Timer(tier) = Swing.Cooldown × Swing.TimerGrowth ^ tier` and
+one click or swing pays `lane income per second × Timer`. Because the payout is rate × timer, the income **per second stays
+as in `TycoonMath`**; only the rhythm changes (few big payouts instead of many small ones). An automated Shiba swings
+every Timer seconds; the Bonk hit and its bonus use the same timer. The growth is **open**: with 1.35 the 30th Shiba would wait
+about two hours per click, so the starting value is gentler (1.12, tier 30 about 30 s); tune it in playtests.
+
+**Economy consequence.** All 30 Shibas now earn at once (before: at most 10 equipped), so income grows much faster than in
+`docs/economy/tycoon_sim.luau` and the prices (zone prices, expansion prices, Cash Register prices) must be calibrated again
+for the 70 to 100 hour target before the numbers are fixed. The sim has to model 30 bays, expansions as purchases and the
+per-Shiba timer. Ascension resets the plot to bay 1 and all automation, keeps the Index and the multiplier.
+
+**Save and contract (own PR first).** `Tycoon.Steps` (bought pads) and the number of bays replace `Equipped`, `EquipSlots`, `Pads`
+for slots and eggs; `OwnedShiba` stays (tier, level, variant, automated) but is created by the expansion, not by a hatch. The
+remotes `HatchEgg`, `HatchResults`, `EquipShiba`, `UnequipShiba`, `MergeShibas` are dead in street mode and removed in the cleanup PR.
 
 ### Vault and offline
 
