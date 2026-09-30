@@ -368,9 +368,16 @@ local function refresh()
 
 	-- Tycoon: the SHIBAS tile and the income line only exist while the tycoon is on.
 	local tycoonOn = state.Tycoon ~= nil and state.Tycoon.Enabled
+	-- Street mode has no collection panel (an expansion spawns its Shiba) and no old upgrade menu: levels and the automation
+	-- are on the Shibas and the floor pads. The old MANAGE menu is for the old loop only.
+	local streetOn = tycoonOn and state.Tycoon ~= nil and state.Tycoon.Street == true
 	local shibasTile = tiles["SHIBAS"]
 	if shibasTile then
-		shibasTile.Visible = tycoonOn
+		shibasTile.Visible = tycoonOn and not streetOn
+	end
+	local manageTile = tiles["MANAGE"]
+	if manageTile then
+		manageTile.Visible = not tycoonOn
 	end
 	HudController.SetIncome(if tycoonOn then TycoonController.GetIncomePerSecond() else nil)
 

@@ -569,7 +569,10 @@ end
 
 -- The Shiba on a platform: its model (scaled, visual only), or a coloured block with the name as a fallback.
 -- Returns the visual and its height in studs.
-local function buildVisual(lane: LaneRefs, shiba: Types.OwnedShiba): (Model, number)
+local function buildVisual(
+	lane: { Ground: Vector3, Inward: Vector3, Folder: Folder },
+	shiba: Types.OwnedShiba
+): (Model, number)
 	local def = EconomyConfig.Shibas[shiba.Tier + 1]
 	local scale = if shiba.Variant == "Huge" then EconomyConfig.Variants.HugeScale else 1
 	local height = (if def then def.Height else 6) * scale
@@ -1183,5 +1186,10 @@ function TycoonPlot.GetLaneAim(player: Player, slot: number): { Origin: Vector3,
 	end
 	return { Origin = lane.Ground + Vector3.new(0, LANE.PlatformTop, 0), Forward = lane.Inward }
 end
+
+-- Used by StreetPlot (the street's plot), so both plots draw prompts, billboards and Shibas the same way.
+TycoonPlot.NewPrompt = newPrompt
+TycoonPlot.NewBillboard = newBillboard
+TycoonPlot.BuildShibaVisual = buildVisual
 
 return TycoonPlot

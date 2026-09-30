@@ -77,6 +77,12 @@ function TycoonMath.ArchPrice(tier: number, index: number): number
 	return math.floor(TycoonMath.TierIncome(tier) * Config.Arch.PriceSeconds[index])
 end
 
+-- Seconds one swing of a Shiba of `tier` takes: short for the first Shiba, longer (and paying more per swing) for higher tiers.
+function TycoonMath.SwingTimer(tier: number): number
+	local swing = Config.Swing
+	return swing.Cooldown * swing.TimerGrowth ^ tier
+end
+
 -- Number of Shibas the player has bought the automation for.
 function TycoonMath.AutomatedCount(tycoon: TycoonState): number
 	local count = 0
@@ -167,14 +173,15 @@ function TycoonMath.LaneIncome(tycoon: TycoonState, slot: number): number
 		* TycoonMath.AscensionMultiplier(tycoon.Ascensions)
 	income *= selfPerk(perks[shiba.Tier + 1], rings)
 
-	-- Neighbours on the ring (equip slots are spaced evenly over the ring).
+	-- Neighbours: on the ring (equip slots are spaced evenly over it) or, in street mode, the bays next to it (no wrap).
 	local slots = tycoon.EquipSlots
 	if slots > 1 then
-		local previous = (slot - 2) % slots + 1
-		local following = slot % slots + 1
+		local street = tycoon.Street == true
+		local previous = if street then slot - 1 else (slot - 2) % slots + 1
+		local following = if street then slot + 1 else slot % slots + 1
 		local bonus = 0
 		for _, other in { previous, following } do
-			local neighbour = shibaAt(tycoon, other)
+			local neighbour = if other >= 1 and other <= slots then shibaAt(tycoon, other) else nil
 			if neighbour then
 				local perk = perks[neighbour.Tier + 1]
 				if perk.Kind == "Neighbors" then
@@ -183,7 +190,7 @@ function TycoonMath.LaneIncome(tycoon: TycoonState, slot: number): number
 			end
 		end
 		-- With 2 slots previous and following are the same lane: count it once.
-		if slots == 2 then
+		if slots == 2 and not street then
 			bonus /= 2
 		end
 		income *= 1 + bonus
