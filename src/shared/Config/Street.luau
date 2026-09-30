@@ -33,6 +33,10 @@ return {
 	-- Character spawn on the road in front of the plot: this far from the road centre (towards the owner's side).
 	SpawnOffset = 7,
 	SpawnHeight = 4,
+	-- Requests from the client (swing, vault, …) are accepted this far outside the plot's rectangle (studs) and up to
+	-- ReachHeight above or below its surface.
+	ReachMargin = 30,
+	ReachHeight = 60,
 	-- Below this height the character is put back on the street.
 	FallOffY = 50,
 	FallCheckInterval = 0.5,
