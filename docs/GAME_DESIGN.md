@@ -848,6 +848,10 @@ flag off: (1) street world + plot frame + claim/spawn for 10 plots; (2) the pad 
 (3) the step table and the walkthrough arrow; (4) sections that grow backward; (5) cutover and cleanup. Contract PRs
 (`Tycoon.Steps`, anything new on the network) come first.
 
+#### Walkthrough guide
+
+Client only, visual only (`TycoonGuideController`, street mode). A bobbing, spinning white arrow floats over the **current pad**: the first visible pad the player can afford, else the first visible one (decor pads get none). It hides while the player is closer than 6 studs. An outlined objective line under the money pill says what to do: "Step on the glowing pad: First Shiba", "Buy the Cash Register: automates <Shiba>", "Expand your plot: <name>", or, while the player cannot pay the next pad and a Shiba is not automated yet, "Click your Shiba to earn money (<price> for <name>)"; with every Shiba automated it reads "Earn <price> for: <name>". Texts come from `TycoonSteps` and the state, nothing is saved.
+
 ### One Shiba per expansion (decided by Marco 2026-09-30; supersedes eggs, equip slots, merging and zones-with-eggs in street mode)
 
 Every plot expansion adds **one new Shiba**, in a fixed order with no luck: expansion n extends the plot by one bay and spawns
