@@ -801,6 +801,55 @@ be reset, there are no live players).
 **Assets.** The swing needs an animation on the Shiba rig and a stick prop. Until they exist the code falls back to a CFrame
 tween of a plain part (Marco owns assets).
 
+### Street, plots and buttons (decided by Marco 2026-09-30; replaces the island once `Config/Features.Street` is on)
+
+The game becomes a classic tycoon (reference: a Roblox tycoon Marco loaded: one button at the start, each bought button reveals
+the next ones, the plot grows). The island, the ring of platforms and the hub world are replaced by a street.
+
+**Street.** One straight road with **10 plots: 5 on the left, 5 on the right**, mirrored, facing the road. A server holds up to
+10 players. A joining player claims a free plot and spawns **on the road in front of it**; leaving frees the plot (it is reset
+visually). Everyone sees everyone's plots and Shibas. The hub features (Daily Spin, Obby, Bonk Party, Friends, Quests, Index,
+Shop) become **HUD tiles**; there is no hub world for now (the old hub code stays until the cleanup).
+
+**Plot = a corridor that grows backward.** A plot is long and narrow: the start (front) is at the street, and every section
+that is opened adds depth at the back. The six sections are the six zones (Meadow to Heaven, `Config/Tycoon → Zones`). Section 0
+is open at the start; the next section is opened by a button at the back of the open part (the zone unlock), and only then
+is it built; until then the rest of the plot is plain empty ground. Shiba slots stand left and right of a central path; the
+belts and the Mill/collector stay at the front next to the entrance, so a new section makes the belts longer (cosmetic). Which
+slot stands in which section is data in `Config/TycoonWorld` (start: slots 1 to 3 in section 0, then two per section).
+
+**Buttons (floor pads).** Everything that is *bought* is a glowing oval pad on the floor: step on it and the price is paid.
+Above it: name, one line of description and the price (plain number). Colours: **grey** = cannot afford yet, **yellow** =
+affordable, cyan = an upgrade button. A bought pad disappears and may reveal the next ones. A white arrow points at the
+current step. **At most 3 pads are visible at any time.**
+
+**Step table.** The pads come from a data table `Config/TycoonSteps` (one row per pad: id, name, description, price, the step ids
+it needs, what it does). A pad is visible when all steps it needs are bought and it is not bought itself; if more than 3 would
+be visible, only the first 3 by table order are shown. Bought steps are saved (`Tycoon.Steps`). The table IS the step-by-step
+walkthrough; the old tutorial (TutorialService/TutorialController) is not used in the street mode.
+
+| # | Pad | Price | Needs | Effect |
+|---|-----|------:|-------|--------|
+| 1 | First Shiba | 0 | - | spawns the first Shiba in slot 1 (no egg needed for the very first one) |
+| 2 | Cash Register (Shiba 1) | open | 1 | automates that Shiba (price formula of *Swing, click and Bonk hit*) |
+| 3 | Slot 2 | open | 1 | unlocks equip slot 2 |
+| 4 | Egg (Meadow) | open | 3 | the first egg stand: hatch more Shibas |
+| 5 | Cash Register (next Shiba) | open | 2, 4 | automates the next Shiba |
+| 6+ | Slot 3, arches, Mill rings, next section (zone), Ascension | as today | | as today |
+
+The level buttons are **on the Shiba itself** (like the stand of the reference game: CLICK and UPGRADE on the object), not
+floor pads: click = swing, UPGRADE = level up (x1/x10/Max), as with the level plates today. Automation is a floor pad per Shiba
+(the "Cash Register"). Amounts in the table are starting values, to be calibrated with the simulation.
+
+**What stays.** Eggs, collection, variants, levels, automation, swing and Bonk hit, arches, Mill rings, Ascension (resets the
+plot to section 0), the economy and its simulation. **What goes (after the cutover):** the island (`IslandService` ring, `Gameplay.Island`),
+the hub world, the old tutorial, the MANAGE upgrade menu (the old one; a tycoon menu is optional).
+
+**Rollout.** `Config/Features.Street = false` keeps the island tycoon running. Phases, each with CI green and playable with the
+flag off: (1) street world + plot frame + claim/spawn for 10 plots; (2) the pad system with the 3-pad limit and the first Shiba;
+(3) the step table and the walkthrough arrow; (4) sections that grow backward; (5) cutover and cleanup. Contract PRs
+(`Tycoon.Steps`, anything new on the network) come first.
+
 ### Vault and offline
 
 The Vault stands in the centre; money in it is `VaultStored` and is collected by walking to it (`CollectVault`, auto-collect
