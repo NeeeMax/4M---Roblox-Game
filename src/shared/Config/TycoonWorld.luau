@@ -30,6 +30,26 @@ return {
 		SwingBoxSize = Vector3.new(6, 7, 6),
 	},
 
+	-- Street plot (StreetPlot): two Shibas per row left and right of a path that leads away from the road.
+	Street = {
+		-- Depth (from the road end of the plot) of the first row and the distance between rows.
+		FirstRowDepth = 30,
+		RowPitch = 24,
+		-- Sideways distance of a Shiba from the path's centre line.
+		ShibaOffset = 14,
+		PlatformDiameter = 10,
+		PathWidth = 12,
+		PathColor = Color3.fromRGB(205, 198, 185),
+		-- Floor pads: oval, with a dark base; the Cash Register stands on the path beside its Shiba.
+		PadDiameter = 7,
+		PadBaseDiameter = 8.6,
+		PadHeight = 0.5,
+		AutoPadOffset = 4,
+		PadBillboardDistance = 140,
+		-- Seconds before the same pad can be triggered again.
+		PadCooldown = 1,
+	},
+
 	-- Conveyor spokes: from BeltFrom (Shiba side) to BeltTo (Mill side). Client: Belt_<n> is a Part whose LookVector
 	-- points toward the Mill, Size.Z = its length and its top face is at Position.Y + Size.Y / 2.
 	Belt = {

@@ -70,6 +70,7 @@ type Crate = {
 local player = Players.LocalPlayer
 
 local active = false
+local streetMode = false
 local started = false
 local heartbeat: RBXScriptConnection? = nil
 local worldFolder: Folder? = nil
@@ -110,7 +111,7 @@ function TycoonController.GetIncomePerSecond(): number
 end
 
 function TycoonController.OpenCollection()
-	if currentTycoon() then
+	if currentTycoon() and not streetMode then
 		TycoonPanels.OpenCollection()
 	end
 end
@@ -533,6 +534,10 @@ local function onHeartbeat(dt: number)
 
 	-- Spawn new ones per lane.
 	for slot, rate in laneRate do
+		if streetMode then
+			-- The street has no belts: the swing and the popups are the feedback.
+			break
+		end
 		local geometry = beltGeometry(slot)
 		if geometry and (not focus or (geometry.Mid - focus).Magnitude < VISIBLE_DISTANCE) then
 			local accumulated = math.min((spawnAccumulator[slot] or 0) + dt * rate, 2)
@@ -587,6 +592,7 @@ local function onStateChanged()
 		return
 	end
 	activate()
+	streetMode = tycoon.Street == true
 	refreshLanes(tycoon)
 	TycoonPanels.RefreshCollection(false)
 end

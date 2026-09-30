@@ -4,7 +4,8 @@
 -- plot, spawns them on the road in front of it, puts fallen characters back and frees the plot when they leave.
 -- IslandService stays untouched and returns early while this is on; its GetIsland/SpawnOnIsland delegate here, so
 -- TycoonService and the others find the player's plot through the same Island record (Center, HubAngle, Model).
--- Phase 1: the plot is an empty lawn with an entrance mat and a name sign; the tycoon content follows in later phases.
+-- The plot itself is an empty lawn with an entrance mat and a name sign; the tycoon content (bays, floor pads) is built
+-- on it by World/StreetPlot.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

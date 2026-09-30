@@ -133,6 +133,20 @@ return {
 		-- Automation price = TierIncome * AutomationSeconds * AutomationGrowth ^ (Shibas already automated).
 		AutomationSeconds = 60,
 		AutomationGrowth = 1.5,
+		-- One swing of a Shiba of tier t takes Cooldown * TimerGrowth ^ t seconds and pays income per second * that time: the
+		-- first Shiba is the fastest, higher ones pay more per click but slower. The income per second does not change.
+		TimerGrowth = 1.12,
+	},
+
+	-- Street mode (docs/GAME_DESIGN.md → Street, plots and buttons, "One Shiba per expansion"). Prices are placeholders
+	-- until the simulation is rebuilt for 30 bays.
+	Street = {
+		-- One bay and one Shiba per expansion (must equal #EconomyConfig.Shibas).
+		Bays = 30,
+		-- Floor pads shown at the same time.
+		MaxPads = 3,
+		-- Expansion n (n >= 2) costs TierIncome(n - 1) * BaySeconds; the first one is free.
+		BaySeconds = 40,
 	},
 
 	-- Mill rings (pads "Sorter", "Polisher", "Refinery"): each multiplies ALL lanes.

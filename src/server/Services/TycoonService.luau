@@ -24,6 +24,7 @@ local Net = require(ReplicatedStorage.Shared.Net)
 local RateLimiter = require(ReplicatedStorage.Shared.Util.RateLimiter)
 local TycoonConfig = require(ReplicatedStorage.Shared.Config.Tycoon)
 local TycoonMath = require(ReplicatedStorage.Shared.Util.TycoonMath)
+local TycoonSteps = require(ReplicatedStorage.Shared.Util.TycoonSteps)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local DataService = require(script.Parent.DataService)
@@ -33,6 +34,7 @@ local StreetService = require(script.Parent.StreetService)
 local NotifyService = require(script.Parent.NotifyService)
 local RewardService = require(script.Parent.RewardService)
 local VariantService = require(script.Parent.VariantService)
+local StreetPlot = require(script.Parent.Parent.World.StreetPlot)
 local TycoonPlot = require(script.Parent.Parent.World.TycoonPlot)
 
 type TycoonState = Types.TycoonState
@@ -50,6 +52,7 @@ export type Actions = {
 	MergeShibas: (player: Player, targetShibaId: string, sourceShibaId: string) -> (),
 	SwingShiba: (player: Player, slot: number) -> (),
 	BuyAutomation: (player: Player, slot: number) -> (),
+	BuyStep: (player: Player, stepId: string) -> (),
 }
 
 type Crate = { Slot: number, EndsAt: number }
@@ -457,6 +460,40 @@ end
 -- Ascension (pad "Ascend", Config/Tycoon → Ascension): resets money (to the first egg's price), Shiba levels, arches,
 -- pads, zone and equip slots; keeps the collection, variants, Index, trophies, quests and streaks. Then equips the
 -- best Shibas again.
+-- The plot of the current mode: the street's (StreetPlot, floor pads and bays) or the island's ring (TycoonPlot).
+local STREET = StreetService.IsEnabled()
+
+local function plotBuild(player: Player, island: IslandService.Island)
+	if STREET then
+		StreetPlot.Build(player, island, actions)
+	else
+		TycoonPlot.Build(player, island, actions)
+	end
+end
+
+local function plotRefresh(player: Player, state: Types.PlayerState)
+	if STREET then
+		StreetPlot.Refresh(player, state)
+	else
+		TycoonPlot.Refresh(player, state)
+	end
+end
+
+local function plotDestroy(player: Player)
+	if STREET then
+		StreetPlot.Destroy(player)
+	else
+		TycoonPlot.Destroy(player)
+	end
+end
+
+local function plotAim(player: Player, slot: number): { Origin: Vector3, Forward: Vector3 }?
+	if STREET then
+		return StreetPlot.GetLaneAim(player, slot)
+	end
+	return TycoonPlot.GetLaneAim(player, slot)
+end
+
 -- ==== swing, click start, automation and the Bonk hit ===============================================================
 -- docs/GAME_DESIGN.md → Swing, click and Bonk hit. A Shiba that is not automated pays only when it is clicked; an automated
 -- one is paid by the income tick like before and swings for show. The Bonk bonus never takes money away.
@@ -486,7 +523,7 @@ end
 local function checkBonkHit(player: Player, tycoon: TycoonState, slot: number)
 	local character = player.Character
 	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
-	local aim = TycoonPlot.GetLaneAim(player, slot)
+	local aim = plotAim(player, slot)
 	if not root or not root:IsA("BasePart") or not aim then
 		return
 	end
@@ -515,11 +552,12 @@ end
 -- The stick lands (HitDelay after the swing started): pay a clicked swing, then check the hit zone.
 local function landSwing(player: Player, slot: number, pay: boolean)
 	local _, tycoon = tycoonOf(player)
-	if not tycoon or not shibaOnSlot(tycoon, slot) then
+	local shiba = if tycoon then shibaOnSlot(tycoon, slot) else nil
+	if not tycoon or not shiba then
 		return
 	end
 	if pay then
-		local amount = payPoints(player, laneRate(player, tycoon, slot) * SWING.Cooldown)
+		local amount = payPoints(player, laneRate(player, tycoon, slot) * TycoonMath.SwingTimer(shiba.Tier))
 		if amount >= 1 then
 			Net.Get(Net.TycoonPayout):FireClient(player, slot, amount, "Swing")
 		end
@@ -532,7 +570,8 @@ local function startSwing(player: Player, tycoon: TycoonState, slot: number, pay
 	if not ready then
 		return
 	end
-	ready[slot] = os.clock() + SWING.Cooldown
+	local shiba = shibaOnSlot(tycoon, slot)
+	ready[slot] = os.clock() + (if shiba then TycoonMath.SwingTimer(shiba.Tier) else SWING.Cooldown)
 	Net.Get(Net.ShibaSwung):FireClient(player, slot, Workspace:GetServerTimeNow(), isAutomated(tycoon, slot))
 	task.delay(SWING.HitDelay, landSwing, player, slot, pay)
 end
@@ -574,6 +613,55 @@ function actions.BuyAutomation(player: Player, slot: number)
 	DataService.Replicate(player)
 	local def = EconomyConfig.Shibas[shiba.Tier + 1]
 	NotifyService.Send(player, `{if def then def.Name else "Shiba"} works by itself now!`, "Good")
+end
+
+-- Street mode: stepping on a floor pad. Only the pads the walkthrough shows right now can be bought (Util/TycoonSteps).
+function actions.BuyStep(player: Player, stepId: string)
+	if not STREET or typeof(stepId) ~= "string" then
+		return
+	end
+	local state, tycoon = tycoonOf(player)
+	local step = TycoonSteps.ById[stepId]
+	if not state or not tycoon or not step then
+		return
+	end
+	local shown = false
+	for _, candidate in TycoonSteps.Visible(tycoon) do
+		if candidate.Id == step.Id then
+			shown = true
+			break
+		end
+	end
+	if not shown then
+		return
+	end
+	local price = TycoonSteps.Price(step, tycoon)
+	if price > 0 and not EconomyService.TrySpend(player, price) then
+		needMoney(player, price)
+		return
+	end
+	local bought: { [string]: boolean } = tycoon.Steps or {}
+	tycoon.Steps = bought
+	bought[step.Id] = true
+	local def = EconomyConfig.Shibas[step.Bay]
+	local name = if def then def.Name else "Shiba"
+	if step.Kind == "Bay" then
+		-- The expansion spawns its Shiba: tier n - 1, no luck (variants come later).
+		local id = `s{tycoon.NextShibaId}`
+		tycoon.NextShibaId += 1
+		tycoon.Shibas[id] = { Tier = step.Bay - 1, Level = 1, Variant = "Normal" }
+		tycoon.Equipped[tostring(step.Bay)] = id
+		tycoon.EquipSlots = math.max(tycoon.EquipSlots, step.Bay)
+		NotifyService.Send(player, `{name} joined your plot!`, "Good")
+	else
+		local id = tycoon.Equipped[tostring(step.Bay)]
+		local shiba = if id then tycoon.Shibas[id] else nil
+		if shiba then
+			shiba.Automated = true
+		end
+		NotifyService.Send(player, `{name} works by itself now!`, "Good")
+	end
+	DataService.Replicate(player)
 end
 
 local function autoSwings(now: number)
@@ -871,18 +959,14 @@ local function buildPlot(player: Player)
 		-- No free island (server full): nothing to build on.
 		return
 	end
-	if StreetService.IsEnabled() then
-		-- Street phase 1: the plot is an empty lawn; the pads and Shibas follow (docs/GAME_DESIGN.md → Street).
-		return
-	end
 	if plotBuilt[player] then
-		TycoonPlot.Destroy(player)
+		plotDestroy(player)
 	end
 	plotBuilt[player] = true
-	TycoonPlot.Build(player, island, actions)
+	plotBuild(player, island)
 	local state = DataService.GetState(player)
 	if state then
-		TycoonPlot.Refresh(player, state)
+		plotRefresh(player, state)
 	end
 end
 
@@ -896,11 +980,13 @@ local function onLoaded(player: Player, state: Types.PlayerState)
 	boops[player] = {}
 	boopReadyAt[player] = {}
 	carry[player] = 0
-	nextCrateAt[player] = os.clock() + CRATE_INTERVAL * random:NextNumber(0.5, 1)
-	-- A player with nothing must be able to hatch the first egg (the old starting money is not tied to the tycoon).
-	local firstEgg = TycoonConfig.Zones[1].EggPrice
-	if next(tycoon.Shibas) == nil and state.BonkPoints < firstEgg then
-		EconomyService.SetPoints(player, firstEgg)
+	if not STREET then
+		nextCrateAt[player] = os.clock() + CRATE_INTERVAL * random:NextNumber(0.5, 1)
+		-- A player with nothing must be able to hatch the first egg (the old starting money is not tied to the tycoon).
+		local firstEgg = TycoonConfig.Zones[1].EggPrice
+		if next(tycoon.Shibas) == nil and state.BonkPoints < firstEgg then
+			EconomyService.SetPoints(player, firstEgg)
+		end
 	end
 	buildPlot(player)
 end
@@ -918,7 +1004,7 @@ local function onPlayerRemoving(player: Player)
 	carry[player] = nil
 	if plotBuilt[player] then
 		plotBuilt[player] = nil
-		TycoonPlot.Destroy(player)
+		plotDestroy(player)
 	end
 end
 
@@ -1003,7 +1089,7 @@ function TycoonService.Start()
 		local state = DataService.GetState(player)
 		local tycoon = if state then state.Tycoon else nil
 		if state and tycoon and tycoon.Enabled and plotBuilt[player] then
-			TycoonPlot.Refresh(player, state)
+			plotRefresh(player, state)
 		end
 	end)
 	Players.PlayerRemoving:Connect(onPlayerRemoving)

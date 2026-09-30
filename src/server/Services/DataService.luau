@@ -11,6 +11,7 @@ local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local EconomyConfig = require(ReplicatedStorage.Shared.Config.EconomyConfig)
 local Features = require(ReplicatedStorage.Shared.Config.Features)
 local TycoonConfig = require(ReplicatedStorage.Shared.Config.Tycoon)
+local TycoonSteps = require(ReplicatedStorage.Shared.Util.TycoonSteps)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Types = require(ReplicatedStorage.Shared.Types)
 local Upgrades = require(ReplicatedStorage.Shared.Config.Upgrades)
@@ -86,10 +87,13 @@ local function defaultState(): PlayerState
 		-- ===== end Shiba Variants =====
 		Tycoon = {
 			Enabled = Features.Tycoon,
+			Street = if Features.Street and Features.Tycoon then true else nil,
+			Steps = {},
 			Shibas = {},
 			NextShibaId = 1,
 			Equipped = {},
-			EquipSlots = TycoonConfig.StartEquipSlots,
+			-- Street mode starts without a bay: the first pad spawns the first Shiba.
+			EquipSlots = if Features.Street and Features.Tycoon then 0 else TycoonConfig.StartEquipSlots,
 			Arches = {},
 			Pads = {},
 			Zone = 0,
@@ -172,11 +176,19 @@ local function loadTycoon(state: PlayerState, raw: unknown)
 	end
 	tycoon.NextShibaId = math.max(1, nextId)
 
-	tycoon.EquipSlots = math.clamp(
-		wholeNumber(data.EquipSlots, TycoonConfig.StartEquipSlots, TycoonConfig.MaxEquipSlots),
-		TycoonConfig.StartEquipSlots,
-		TycoonConfig.MaxEquipSlots
-	)
+	-- Street mode has one bay per Shiba (up to Street.Bays) and starts with none.
+	local street = tycoon.Street == true
+	local minSlots = if street then 0 else TycoonConfig.StartEquipSlots
+	local maxSlots = if street then TycoonConfig.Street.Bays else TycoonConfig.MaxEquipSlots
+	tycoon.EquipSlots = math.clamp(wholeNumber(data.EquipSlots, minSlots, maxSlots), minSlots, maxSlots)
+
+	if typeof(data.Steps) == "table" and tycoon.Steps then
+		for id, bought in data.Steps do
+			if typeof(id) == "string" and bought == true and TycoonSteps.ById[id] then
+				tycoon.Steps[id] = true
+			end
+		end
+	end
 
 	if typeof(data.Equipped) == "table" then
 		local used: { [string]: boolean } = {}
