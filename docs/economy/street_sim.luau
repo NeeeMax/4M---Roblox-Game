@@ -55,8 +55,10 @@ end
 
 local Config = loadModule("src/shared/Config/Tycoon.luau", {})
 local Math = loadModule("src/shared/Util/TycoonMath.luau", { Config, {} })
--- TycoonSteps requires EconomyConfig (names only), Config, Types, TycoonMath.
-local Steps = loadModule("src/shared/Util/TycoonSteps.luau", { { Shibas = {} }, Config, {}, Math })
+-- TycoonSteps requires EconomyConfig (names only), Config, TycoonDecor (decor prices are not simulated yet), Types, TycoonMath.
+-- (stubbed empty: the real file needs Roblox's Color3, and decor is out of scope here).
+local Decor = { Themes = {} }
+local Steps = loadModule("src/shared/Util/TycoonSteps.luau", { { Shibas = {} }, Config, Decor, {}, Math })
 
 -- The constants the experiments change (overridable). CURRENT = what src has now; RECOMMENDED = this file's proposal.
 local KEYS =
