@@ -20,6 +20,7 @@ local EconomyConfig = require(ReplicatedStorage.Shared.Config.EconomyConfig)
 local Features = require(ReplicatedStorage.Shared.Config.Features)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
+local Street = require(ReplicatedStorage.Shared.Config.Street)
 local Net = require(ReplicatedStorage.Shared.Net)
 local RateLimiter = require(ReplicatedStorage.Shared.Util.RateLimiter)
 local TycoonConfig = require(ReplicatedStorage.Shared.Config.Tycoon)
@@ -182,6 +183,9 @@ local function isNearIsland(player: Player): boolean
 	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
 	if not island or not root or not root:IsA("BasePart") then
 		return false
+	end
+	if StreetService.IsEnabled() then
+		return StreetService.IsNearPlot(player, Street.ReachMargin)
 	end
 	local offset = root.Position - island.Center
 	return Vector3.new(offset.X, 0, offset.Z).Magnitude <= REACH
