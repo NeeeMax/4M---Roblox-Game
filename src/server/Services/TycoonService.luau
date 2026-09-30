@@ -627,7 +627,7 @@ function actions.BuyStep(player: Player, stepId: string)
 	end
 	local shown = false
 	-- Decor pads follow their own rule (next part of a themed Shiba, owner near its anchor); the walkthrough is unchanged.
-	local candidates = if step.Kind == "Decor"
+	local candidates: { TycoonSteps.Step } = if step.Kind == "Decor"
 		then TycoonSteps.VisibleDecor(tycoon, StreetPlot.NearDecorBays(player, state))
 		else TycoonSteps.Visible(tycoon)
 	for _, candidate in candidates do

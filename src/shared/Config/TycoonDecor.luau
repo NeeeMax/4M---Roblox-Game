@@ -49,7 +49,7 @@ local GOLD = Color3.fromRGB(255, 205, 60)
 local CANVAS = Color3.fromRGB(245, 240, 225)
 
 local PIRATE: Theme = {
-	Key = "Pirate",
+	Key = "PirateShip",
 	Name = "Pirate Ship",
 	Outward = 11,
 	Depth = 0,
@@ -189,7 +189,7 @@ local PIRATE: Theme = {
 			},
 		},
 		{
-			Id = "Wheel",
+			Id = "ShipsWheel",
 			Name = "Ship's Wheel",
 			Description = "to steer the ship",
 			PriceSeconds = 20,
@@ -211,7 +211,7 @@ local PIRATE: Theme = {
 			},
 		},
 		{
-			Id = "Chest",
+			Id = "TreasureChest",
 			Name = "Treasure Chest",
 			Description = "full of gold",
 			PriceSeconds = 40,
