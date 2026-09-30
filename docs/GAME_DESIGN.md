@@ -873,6 +873,97 @@ per-Shiba timer. Ascension resets the plot to bay 1 and all automation, keeps th
 for slots and eggs; `OwnedShiba` stays (tier, level, variant, automated) but is created by the expansion, not by a hatch. The
 remotes `HatchEgg`, `HatchResults`, `EquipShiba`, `UnequipShiba`, `MergeShibas` are dead in street mode and removed in the cleanup PR.
 
+Every Shiba has its own theme with unlockable decoration: see Shiba themes (design list).
+
+### Shiba themes (design list)
+
+Every Shiba gets its own **theme**: a set of decoration parts that stands beside its bay (on the side away from the path) and is
+unlocked piece by piece. The Pirate Shiba, for example, gets a pirate ship whose Hull, Mast, Sail, Flag, Cannons, Ship's Wheel
+and Treasure Chest are bought one after another. Decoration is **cosmetic and optional**; it never blocks progress. It is built
+from simple primitives (blocks, cylinders, wedges, colours, materials), and Marco can later replace single pieces with models
+named `Decor_<Theme>_<Part>`. The mechanics (steps `Decor<bay>_<partId>`, one decor pad at a time, shown only within about 70
+studs of the theme, not counted in the 3-pad limit) are decided above and in the decor code; this section is only the content.
+
+**Naming and size rules.**
+- Theme name = a short place or object name ("Pirate Ship", "Dojo"); part names are short nouns, unique inside the theme.
+- 3 to 7 parts per theme, ordered from the base to the finishing touch (the first part is the ground or the main body, the last
+  one is the detail that makes the theme recognisable or shiny).
+- Later Shibas have more parts and bigger themes: bays 1 to 7 have 3 to 4 parts (Pirate is the one early exception with 7, because
+  the owner asked for it), bays 9 to 15 have 4 to 5, bays 16 to 24 have 5, bay 25 to 30 have 6. Total: 144 parts.
+- The rarest and last Shibas get the most spectacular themes (lights, glow, floating pieces, bigger than the bay).
+- Part ids in data: a short PascalCase of the part name (`Hull`, `ShipsWheel`); each part is one step in the chain.
+- Prices: `TierIncome(tier) * PriceSeconds` per part, placeholders (see the pirate ship for the shape of the curve).
+
+| Bay | Shiba | Theme | Parts (in unlock order) | Look |
+|----:|-------|-------|-------------------------|------|
+| 1 | Shiba | Doghouse Garden | Doghouse, Picket Fence, Bone Sign | Orange and white wood, green grass patch, warm and simple. |
+| 2 | Shades Shiba | Beach Bar | Bar Counter, Parasol, Sunglasses Rack | Bamboo and sand tones, a striped parasol in cool grey-blue, neon shades icon. |
+| 3 | Buff Shiba | Gym | Floor Mat, Bench Press, Dumbbell Rack, Trophy Shelf | Red and black rubber and metal, chunky dumbbells, gold trophies. |
+| 4 | Chef Shiba | Food Truck | Truck Body, Serving Awning, Grill, Menu Board | White truck with red-white striped awning, steel grill, chalkboard menu. |
+| 5 | DJ Shiba | DJ Stage | Stage Platform, Speaker Stacks, Light Truss, Disco Ball | Black stage, pink and cyan neon lights, mirrored sphere that spins. |
+| 6 | Police Shiba | Police Station | Station Building, Station Sign, Patrol Car, Siren Beacon | Blue and white building, black-and-white car, flashing red/blue beacon (neon). |
+| 7 | Cowboy Shiba | Saloon | Boardwalk, Saloon Building, Swinging Doors, Water Tower | Weathered planks in warm browns, a false front, a barrel-shaped tower on legs. |
+| 8 | Pirate Shiba | Pirate Ship | Hull, Mast, Sail, Flag, Cannons, Ship's Wheel, Treasure Chest | Dark wood ship with cream sail, black flag, black cannons, gold chest (details below). |
+| 9 | Ninja Shiba | Dojo | Dojo Floor, Dojo Walls, Pagoda Roof, Training Dummies | Dark wood and paper screens, red roof trim, straw dummies, night colours. |
+| 10 | Viking Shiba | Longhouse | Longhouse Frame, Turf Roof, Shield Wall, Longship | Dark timber, grass roof, round shields in red/white/yellow, a small ship with a dragon prow. |
+| 11 | Knight Shiba | Castle | Curtain Wall, Gatehouse, Corner Towers, Banners, Keep | Light grey stone with battlements, blue-silver banners, a raised keep in the middle. |
+| 12 | Samurai Shiba | Shrine | Stone Steps, Torii Gate, Shrine Hall, Stone Lanterns | Red torii, dark roof, grey stone steps and lanterns, cherry-pink accents. |
+| 13 | Robot Shiba | Factory | Factory Hall, Conveyor Line, Robot Arm, Smokestack | Steel hall with cyan glow strips, moving belt look, a yellow robot arm, a chimney with sparks. |
+| 14 | Astronaut Shiba | Launch Pad | Launch Pad, Gantry Tower, Rocket Body, Nose Cone and Fins, Mission Control | Concrete pad, orange gantry, white rocket with red nose and fins, glass control bunker. |
+| 15 | Superhero Shiba | Hero HQ | HQ Tower, Hero Emblem, Signal Spotlight, Hero Statue | Blue-red tower, a big emblem on the front, a beam of light into the sky, a heroic statue. |
+| 16 | Gold Shiba | Vault | Vault Room, Vault Door, Gold Bar Stacks, Laser Floor, Diamond Pedestal | Steel walls, a round door, stacks of shiny gold (Metal, gold), red lasers (neon), a cyan diamond. |
+| 17 | Wizard Shiba | Wizard Tower | Tower Base, Tower Shaft, Pointed Roof, Crystal Ball, Magic Circle | Blue-purple stone tower with a star-dotted pointed roof, a glowing ball, a rune circle on the floor. |
+| 18 | Vampire Shiba | Vampire Crypt | Crypt Hall, Gothic Gate, Coffin, Bat Belfry, Blood Fountain | Black and crimson stone, pointed arches, a dark coffin, a belfry with bats, a red fountain. |
+| 19 | Pharaoh Shiba | Pyramid | Pyramid Base, Middle Tier, Golden Capstone, Sphinx, Obelisks | Sandstone steps, a gold capstone (glowing), a sphinx in front, two tall obelisks. |
+| 20 | Frost Shiba | Ice Palace | Ice Floor, Ice Walls, Ice Spires, Snowman Guards, Aurora Light | Translucent light blue Ice and Glass, white snow, spires, a green-purple aurora ribbon above. |
+| 21 | Magma Shiba | Volcano | Volcano Cone, Crater Rim, Lava Flow, Obsidian Spikes, Eruption | Dark rock cone, orange neon lava streams, black spikes, sparks and a glowing plume. |
+| 22 | Dragon Shiba | Dragon Lair | Cave Mouth, Gold Hoard, Dragon Egg Nest, Skull Gate, Fire Brazier | Green-black rock cave, a heap of gold coins, big speckled eggs, bone arch, flames. |
+| 23 | Mecha Shiba | Mecha Hangar | Hangar Hall, Gantry Crane, Launch Rails, Mecha Suit Stand, Holo Display | Grey-blue steel hall with hazard stripes, a yellow crane, a huge empty suit on a stand, a blue hologram. |
+| 24 | Galaxy Shiba | Observatory | Dome Base, Observatory Dome, Telescope, Orbiting Planets, Nebula Beam | Dark blue-violet building, a dome with a slit, a long telescope, small planets that orbit, a pink-violet beam. |
+| 25 | Angel Shiba | Cloud Temple | Cloud Base, Marble Columns, Temple Roof, Golden Harp, Halo Ring, Light Beam | White clouds (Neon, soft), marble columns, gold trim, a floating ring, a beam down from the sky. |
+| 26 | Demon Shiba | Hell Gate | Obsidian Ground, Gate Pillars, Gate Arch, Lava Moat, Demon Throne, Hellfire Portal | Black and red rock, horned pillars, glowing lava around it, a spiked throne, a swirling red portal. |
+| 27 | Giant Shiba | Beanstalk and Stone Circle | Standing Stones, Giant Stool, Giant Club, Beanstalk Stem, Beanstalk Leaves, Golden Goose Nest | Huge grey stones and a giant stool and club (scaled to a 16-stud Shiba), a tall green stalk with leaves, a golden nest at the top. |
+| 28 | Cheems God | Doge Altar | Altar Steps, Altar Table, Doge Throne, Golden Bone Pillars, Halo Arch, Holy Light | White-gold marble steps, a golden throne, pillars shaped like bones, a halo ring, a column of warm light. |
+| 29 | Eternal Shiba | Clock Tower | Clock Base, Tower Shaft, Clock Face, Clock Hands, Gear Ring, Floating Hourglass | Brass and gold gears, a big lit clock face with moving hands, turning gears, an hourglass in the air. |
+| 30 | Void Shiba | Void Portal | Dark Platform, Portal Frame, Portal Swirl, Floating Shards, Black Hole Core, Void Eye | Black stone with purple neon, a ring frame, a swirling portal, shards that float, a dark core, a big eye as the last piece. |
+
+**The pirate ship in detail (Shiba 8, theme "Pirate Ship").** The whole ship fits beside the bay: about **14 studs wide, 30
+studs long, 22 studs high**, the bow pointing away from the street, stern (back) at the bay. Seven parts, each bought from one
+pad next to the ship (the pad is always for the next part). The ship floats about 1 stud above the ground on a low sand base
+(part of the Hull). All sizes are X width, Y height, Z length in studs; all colours are hints.
+
+| # | Part id | Size (studs) and position | Colour and material | PriceSeconds (placeholder) |
+|--:|---------|---------------------------|---------------------|---------------------------:|
+| 1 | `Hull` | Main body 14 x 6 x 24 from the stern, plus a wedge bow 14 x 6 x 6 (30 long in total); deck plank 13 x 0.5 x 29 on top; a 14 x 0.5 x 32 sand base below. Top of the hull at about 7 high. | Dark wood (110, 70, 40), Material Wood; deck lighter wood (160, 110, 60); base sand (225, 205, 150). | 600 |
+| 2 | `Mast` | Cylinder 1.5 across, 15 high, standing on the deck 9 studs from the stern-side of the bow half; top at about 22 high. A short yard (horizontal cylinder 0.8 x 10) 12 high. | Brown wood (95, 60, 35), Wood. | 900 |
+| 3 | `Sail` | Thin block 10 wide x 9 high x 0.4 thick, hanging from the yard (from 12 down to 3 above the deck). | Cream cloth (240, 230, 200), Fabric; red stripe 1 stud high across the middle (170, 40, 40). | 1300 |
+| 4 | `Flag` | Block 3 x 2 x 0.2 on a 0.3 pole at the mast top (the pole reaches 22); a white skull (two small spheres and a bar) on it. | Black (25, 25, 30), Fabric; white skull (240, 240, 240). | 1800 |
+| 5 | `Cannons` | Four cannons, two per side on the deck rim: cylinder 1.3 across x 3.5 long pointing outwards, on a small wood carriage 2 x 1 x 2; slightly above 7 high. | Black Metal (30, 30, 35); carriages dark wood. | 2500 |
+| 6 | `ShipsWheel` | At the stern deck: a disc 3 across x 0.4 thick with 8 short spokes, on a post 2 high (the top at about 10 high). | Dark wood (80, 50, 30), Wood; brass hub (200, 160, 60), Metal. | 3500 |
+| 7 | `TreasureChest` | On the deck in front of the wheel: block 3 x 2 x 2 with a half-cylinder lid; a gold band and a glowing gold neon rim (small sparkle). | Chest wood (120, 75, 40); gold (255, 200, 40), Material Neon for the rim and Metal for the band. | 5000 |
+
+The part ids are suggestions for the decor steps (`Decor8_Hull`, `Decor8_Mast`, ... `Decor8_TreasureChest`). The chain is strictly
+in this order (each part needs the previous one). **All prices are placeholders:** the real value of `PriceSeconds` is data and is
+calibrated with the economy sim; the curve (600 to 5000 seconds of the Shiba's own income, roughly x1.4 per step) is only meant
+as a shape, so that the last piece costs a proper treat and the first one is cheap.
+
+**Milestone idea (OPEN, not decided).** Completing a theme (all parts bought) could give a small cosmetic bonus: an aura or light
+on the theme (for example the ship lights its lanterns, the volcano erupts every few minutes), or a small income bonus of a few
+percent for that Shiba. Whether there is a bonus at all, and whether it is cosmetic or income, is an open decision for the owner;
+until then finishing a theme has no effect beyond looking good.
+
+**Open points for the owner.**
+1. The part counts (144 parts in total) and the growth of part count with the tier: fewer, more, or the same for everyone?
+2. Milestone bonus for a finished theme: none, cosmetic only, or a small income bonus (and how large)?
+3. The Pirate Ship stays the only theme with 7 parts in the early game (as requested) or should other early Shibas get more too?
+4. Price curve: one `PriceSeconds` curve for every theme, or a per-theme list as in the pirate table? Needs the economy sim.
+5. Should themes of Shibas that are not yet bought be visible as an empty outline or hidden completely (current idea: hidden)?
+6. Giant (16 studs), Angel (11), Demon (11), Eternal (16) and Void (18) Shibas are tall: their themes may need to be larger
+   than a normal bay (for example 30 wide). Allow themes to bulge into the neighbouring plot or cap the size?
+7. Names and look are free proposals: which themes should be changed (for example Shades Shiba: Beach Bar vs. Sunglasses Shop)?
+8. After Ascension the plot resets to bay 1: decor resets with it (current idea), or decor is kept as a permanent trophy?
+9. Marco's model names `Decor_<Theme>_<Part>` use the names in this table without spaces or apostrophes (`Decor_PirateShip_ShipsWheel`): confirm.
+
 ### Vault and offline
 
 The Vault stands in the centre; money in it is `VaultStored` and is collected by walking to it (`CollectVault`, auto-collect
