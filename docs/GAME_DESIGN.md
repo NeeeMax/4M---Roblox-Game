@@ -786,9 +786,13 @@ only by the server from positions; there is no client "I was hit" remote.
 upgrades do not exist while the tycoon is on. **Arches and Mill rings stay** (decided): they are multipliers bought with the
 same money, level and automation are the two things a player does to a Shiba.
 
-**Contract impact (own PR before the code).** Clicking the Shiba (ClickDetector plus an E prompt) and buying the automation
-(prompt on the level plate) are world interactions that call the server directly for the island owner, like the level
-prompts, so there is **no new client-to-server remote**. Server to client: `ShibaSwung` (slot, server time, automated: the
+**Upgrades menu.** With the tycoon on, the HUD tile MANAGE opens one menu (the old upgrade menu with Shooter Tier, projectiles
+and so on does not exist then): one row per equip slot with the Shiba, its level and income, the level buttons (x1, x10, Max)
+and the automation button with its price. It is the same thing as the prompts on the level plates, in one place.
+
+**Contract impact (own PR before the code).** Clicking the Shiba (ClickDetector plus a Q prompt) is a world interaction that
+calls the server directly for the island owner, like the level prompts. Buying the automation is a prompt on the level plate
+or the client-to-server remote `BuyAutomation` (slot) from the Upgrades menu; levels use the existing `UpgradeShiba`. Server to client: `ShibaSwung` (slot, server time, automated: the
 client plays the swing animation and the hit marker, owner only) and `PlayerBonked` (slot, launch velocity: the client flings
 its own character; purely visual, the bonus is paid by the server through `TycoonPayout` with source "Bonk").
 New type field: `OwnedShiba.Automated: boolean?`. Save: `Tycoon` field gets `Automated` per owned Shiba (defaults to false; saves may
