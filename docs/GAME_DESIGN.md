@@ -873,6 +873,28 @@ per-Shiba timer. Ascension resets the plot to bay 1 and all automation, keeps th
 for slots and eggs; `OwnedShiba` stays (tier, level, variant, automated) but is created by the expansion, not by a hatch. The
 remotes `HatchEgg`, `HatchResults`, `EquipShiba`, `UnequipShiba`, `MergeShibas` are dead in street mode and removed in the cleanup PR.
 
+#### Shiba themes and decor (implementation)
+
+Defaults chosen by the implementer (street mode, flags off); all numbers and rules below are open until the owner confirms.
+The theme list itself (which Shiba gets which theme) is written elsewhere; this is the system.
+
+- **Every Shiba can have a theme**: decoration the player has to unlock part by part. Data in `Config/TycoonDecor`
+  (`Themes` keyed by bay number, `Parts` in build order, each part a list of primitive `Pieces` or a model
+  `Decor_<Key>_<PartId>` in `ReplicatedStorage.Assets`). Adding a theme is adding one table entry. First theme: the
+  **Pirate Shiba** (bay 8) gets a pirate ship.
+- **Decor steps are normal steps** `Decor<bay>_<partId>` (Kind "Decor", saved in `Tycoon.Steps`). They need the Shiba's own bay
+  step (`Bay<bay>`) and the previous part of the same theme (a chain, in table order).
+- **Limit.** Decor pads do not count towards the walkthrough limit of 3 (Bay / Auto pads are unchanged). Per themed Shiba at
+  most one decor pad is shown (the next part), only while the owner's character is within `Street.DecorShowDistance`
+  (70 studs) of the theme anchor, and at most `Street.DecorMaxPads` (3) decor pads at once. Decor is optional and never blocks
+  the walkthrough.
+- **Look.** A part appears on the plot (built by the server) when its step is bought; parts not bought are not drawn. The theme
+  stands beside its Shiba's bay on the side away from the path, on the same row depth.
+- **Price** per part: `TierIncome(bay - 1) * PriceSeconds` (placeholders, open).
+- **Pirate ship parts** (`PriceSeconds`): Ship's Hull 30, Mast 20, Main Sail 25, Jolly Roger (flag) 10, Cannons 35, Ship's Wheel 20,
+  Treasure Chest 40 (all open).
+- **No income**: decor is purely cosmetic in this first version. Open idea for later: a small bonus when a theme is complete.
+
 ### Vault and offline
 
 The Vault stands in the centre; money in it is `VaultStored` and is collected by walking to it (`CollectVault`, auto-collect
