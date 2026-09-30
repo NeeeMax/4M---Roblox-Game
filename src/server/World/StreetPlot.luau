@@ -14,7 +14,10 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local EconomyConfig = require(ReplicatedStorage.Shared.Config.EconomyConfig)
 local Street = require(ReplicatedStorage.Shared.Config.Street)
+local TycoonConfig = require(ReplicatedStorage.Shared.Config.Tycoon)
+local TycoonDecor = require(ReplicatedStorage.Shared.Config.TycoonDecor)
 local TycoonWorld = require(ReplicatedStorage.Shared.Config.TycoonWorld)
+local Assets = require(ReplicatedStorage.Shared.Util.Assets)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
 local TycoonMath = require(ReplicatedStorage.Shared.Util.TycoonMath)
 local TycoonSteps = require(ReplicatedStorage.Shared.Util.TycoonSteps)
@@ -70,6 +73,9 @@ type Plot = {
 	Bays: { [number]: BayRefs },
 	Paths: { [number]: Part },
 	Pads: { [string]: PadRefs },
+	-- Built decor parts by step id, and the last set of "near" themed bays (see NearDecorBays) as a string.
+	Decor: { [string]: Model },
+	NearKey: string,
 }
 
 local plots: { [Player]: Plot } = {}
@@ -347,8 +353,26 @@ end
 
 -- ==== pads =============================================================================================================
 
+-- Ground point of a theme's anchor: beside the Shiba's bay, away from the path, on the bay's row depth.
+local function decorAnchor(plot: Plot, bay: number): Vector3?
+	local theme = TycoonDecor.Themes[bay]
+	if not theme then
+		return nil
+	end
+	local depth = rowDepth(rowOf(bay)) + theme.Depth
+	return position(plot, depth, sideOf(bay) * (LAYOUT.ShibaOffset + theme.Outward))
+end
+
 local function padPosition(plot: Plot, step: TycoonSteps.Step): Vector3
 	local row = rowOf(step.Bay)
+	if step.Kind == "Decor" then
+		local theme = TycoonDecor.Themes[step.Bay]
+		local anchor = decorAnchor(plot, step.Bay)
+		if theme and anchor then
+			return anchor + plot.Right * (sideOf(step.Bay) * theme.PadOffset.X) + plot.Back * theme.PadOffset.Z
+		end
+		return position(plot, rowDepth(row), 0)
+	end
 	if step.Kind == "Bay" then
 		-- The next expansion: on the path just before the new row.
 		return position(plot, rowDepth(row) - LAYOUT.RowPitch / 2, 0)
@@ -428,7 +452,109 @@ local function refreshPad(pad: PadRefs, step: TycoonSteps.Step, tycoon: Types.Ty
 	pad.Part.Color = if affordable then PAD_AFFORDABLE else PAD_TOO_DEAR
 end
 
+-- ==== decor ============================================================================================================
+
+-- A bought decor part: a cloned Decor_<Key>_<PartId> model if the asset exists, else the part's primitive pieces.
+local function buildDecor(plot: Plot, step: TycoonSteps.Step): Model?
+	local theme = TycoonDecor.Themes[step.Bay]
+	local index = step.PartIndex
+	local part = if theme and index then theme.Parts[index] else nil
+	local anchor = decorAnchor(plot, step.Bay)
+	if not theme or not part or not anchor then
+		return nil
+	end
+	local frame = CFrame.lookAt(anchor, anchor + plot.Back)
+	local assetName = `Decor_{theme.Key}_{part.Id}`
+	local model: Model
+	local cloned = if Assets.Has(assetName) then Assets.CloneModel(assetName) else nil
+	if cloned then
+		model = cloned
+		Assets.MakeVisualOnly(model, true)
+		model:PivotTo(frame)
+	else
+		model = Instance.new("Model")
+		for number, piece in part.Pieces do
+			local rotation = piece.Rotation or Vector3.zero
+			local cframe = frame
+				* CFrame.new(piece.Offset)
+				* CFrame.Angles(math.rad(rotation.X), math.rad(rotation.Y), math.rad(rotation.Z))
+			local instance = newPart(`Piece{number}`, piece.Size, cframe, piece.Color, model)
+			instance.Material = piece.Material or Enum.Material.SmoothPlastic
+			instance.Shape = piece.Shape or Enum.PartType.Block
+		end
+	end
+	model.Name = `Decor_{step.Id}`
+	model.Parent = plot.Folder
+	return model
+end
+
+-- Decor parts of the bought steps exist, all others are removed.
+local function refreshDecor(plot: Plot, tycoon: Types.TycoonState)
+	for _, step in TycoonSteps.DecorList do
+		local built = plot.Decor[step.Id]
+		if TycoonSteps.IsBought(tycoon, step.Id) then
+			if not built then
+				local model = buildDecor(plot, step)
+				if model then
+					plot.Decor[step.Id] = model
+				end
+			end
+		elseif built then
+			built:Destroy()
+			plot.Decor[step.Id] = nil
+		end
+	end
+end
+
+-- The themed bays whose anchor the owner's character is within Street.DecorShowDistance of (only bays already bought).
+local function nearDecorBays(plot: Plot, tycoon: Types.TycoonState): { [number]: boolean }
+	local near: { [number]: boolean } = {}
+	local character = plot.Owner.Character
+	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
+	if not root or not root:IsA("BasePart") then
+		return near
+	end
+	local limit = TycoonConfig.Street.DecorShowDistance
+	for bay in TycoonDecor.Themes do
+		local anchor = decorAnchor(plot, bay)
+		if anchor and TycoonSteps.IsBought(tycoon, `Bay{bay}`) and (root.Position - anchor).Magnitude <= limit then
+			near[bay] = true
+		end
+	end
+	return near
+end
+
+local function nearKey(near: { [number]: boolean }): string
+	local bays: { number } = {}
+	for bay in near do
+		table.insert(bays, bay)
+	end
+	table.sort(bays)
+	return table.concat(bays, ",")
+end
+
 -- ==== public ===========================================================================================================
+
+-- Which themed bays the owner is near right now (the rule that shows decor pads), for TycoonService.BuyStep.
+function StreetPlot.NearDecorBays(player: Player, state: Types.PlayerState): { [number]: boolean }
+	local plot = plots[player]
+	local tycoon = state.Tycoon
+	if not plot or not tycoon then
+		return {}
+	end
+	return nearDecorBays(plot, tycoon)
+end
+
+-- True when the set of near themed bays differs from the one the last Refresh drew (cheap: a few distance checks), so the
+-- caller only calls Refresh when a decor pad has to appear or vanish.
+function StreetPlot.DecorProximityChanged(player: Player, state: Types.PlayerState): boolean
+	local plot = plots[player]
+	local tycoon = state.Tycoon
+	if not plot or not tycoon or plot.Folder.Parent == nil then
+		return false
+	end
+	return nearKey(nearDecorBays(plot, tycoon)) ~= plot.NearKey
+end
 
 function StreetPlot.Destroy(player: Player)
 	local plot = plots[player]
@@ -455,6 +581,8 @@ function StreetPlot.Build(player: Player, island: StreetService.Island, actions:
 		Bays = {},
 		Paths = {},
 		Pads = {},
+		Decor = {},
+		NearKey = "",
 	}
 	folder.Parent = island.Model
 end
@@ -480,7 +608,15 @@ function StreetPlot.Refresh(player: Player, state: Types.PlayerState)
 		refreshBay(bay, tycoon, index)
 	end
 
+	refreshDecor(plot, tycoon)
+	local near = nearDecorBays(plot, tycoon)
+	plot.NearKey = nearKey(near)
+
+	-- Walkthrough pads (max Street.MaxPads) plus the decor pads of the themes the owner is near.
 	local visible = TycoonSteps.Visible(tycoon)
+	for _, step in TycoonSteps.VisibleDecor(tycoon, near) do
+		table.insert(visible, step)
+	end
 	local wanted: { [string]: boolean } = {}
 	for _, step in visible do
 		wanted[step.Id] = true
