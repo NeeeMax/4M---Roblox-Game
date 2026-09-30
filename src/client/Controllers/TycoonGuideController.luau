@@ -9,7 +9,7 @@
 -- (World/StreetPlot: folders `Pad_<stepId>` with the part `Pad` under Workspace/Islands/Island_<UserId>/Tycoon), so the
 -- part is looked up again whenever it is missing, destroyed or the current step changes.
 --
--- Current pad rule: of the pads TycoonSteps.Visible returns (decor pads are not part of it and get no arrow), the first one
+-- Current pad rule: of the pads TycoonSteps.Visible returns (Shibas, automation and the required decor), the first one
 -- the player can afford (state.BonkPoints >= TycoonSteps.Price); when none is affordable, the first visible one.
 
 local Players = game:GetService("Players")
@@ -102,7 +102,9 @@ local function objectiveText(tycoon: TycoonState, step: Step, affordable: boolea
 	local title = TycoonSteps.Title(step)
 	local price = TycoonSteps.Price(step, tycoon)
 	if affordable then
-		if step.Kind == "Automate" then
+		if step.Kind == "Decor" then
+			return `Build {title}: the next Shiba needs a finished {TycoonSteps.ShibaName(step.Bay)} surrounding`
+		elseif step.Kind == "Automate" then
 			return `Buy the {title}: {TycoonSteps.Description(step)}`
 		elseif not hasShiba(tycoon) then
 			return `Step on the glowing pad: {title}`
@@ -278,11 +280,20 @@ local function refresh()
 	end
 	local step, affordable = currentStep(tycoon, state.BonkPoints)
 	if not step then
-		-- Everything visible is bought: no arrow, no objective.
+		-- Nothing to buy: no arrow. Either a Shiba has to level up first (say so) or everything visible is bought.
 		targetId = nil
 		padPart = nil
 		setArrowVisible(false)
-		if objectiveLabel then
+		local waiting = TycoonSteps.Waiting(tycoon)
+		local gate = if waiting then waiting.LevelGate else nil
+		if waiting and gate then
+			local label = ensureLabel()
+			label.Text =
+				`Level up {TycoonSteps.ShibaName(waiting.Bay)} to Lv {gate} (hold E at the Shiba): {TycoonSteps.Title(
+					waiting
+				)} unlocks`
+			label.Visible = true
+		elseif objectiveLabel then
 			objectiveLabel.Visible = false
 		end
 		return

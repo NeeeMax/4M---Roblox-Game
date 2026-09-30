@@ -877,6 +877,23 @@ per-Shiba timer. Ascension resets the plot to bay 1 and all automation, keeps th
 for slots and eggs; `OwnedShiba` stays (tier, level, variant, automated) but is created by the expansion, not by a hatch. The
 remotes `HatchEgg`, `HatchResults`, `EquipShiba`, `UnequipShiba`, `MergeShibas` are dead in street mode and removed in the cleanup PR.
 
+#### Progression chain (decided by Marco 2026-10-01; supersedes the optional decor rule below)
+
+The game is a chain, one link after the other, for every Shiba n:
+
+1. **Unlock Shiba n** (pad `Bay<n>`): the Shiba and its surrounding (bay) appear. At first the player earns **by hand**: click/bonk
+   the Shiba (one click pays income per second x its timer), and get bonked for the bonus.
+2. **Automation** (pad `Auto<n>`, the Cash Register): the Shiba swings by itself from now on.
+3. **Level the automated Shiba** to the level gate (`Street.LevelGateBase/Step/Max`: 10 for bays 1 to 5, +5 for every five bays,
+   at most 50). The decor of the Shiba does not unlock before (the guide says "Level up <Shiba> to Lv N").
+4. **Decor is required**: the parts of the Shiba's theme (trees, a little house, the pirate ship ...) are bought one after the
+   other (`Decor<n>_<part>`); all of them are needed.
+5. **Only then the pad for Shiba n + 1 shows up** (it also needs the automation of Shiba n). Go to 1.
+
+So between two Shibas the player always has to unlock decoration to get further. There is no separate decor limit: decor pads are
+pads of the chain, at most `Street.MaxPads` (3) are visible, in chain order (mostly one at a time). Prices are placeholders until
+`docs/economy/street_sim.luau` is updated for the decor and the level gate.
+
 #### Shiba themes and decor (implementation)
 
 Defaults chosen by the implementer (street mode, flags off); all numbers and rules below are open until the owner confirms.
@@ -886,12 +903,11 @@ The theme list itself (which Shiba gets which theme) is written elsewhere; this 
   (`Themes` keyed by bay number, `Parts` in build order, each part a list of primitive `Pieces` or a model
   `Decor_<Key>_<PartId>` in `ReplicatedStorage.Assets`). Adding a theme is adding one table entry. First theme: the
   **Pirate Shiba** (bay 8) gets a pirate ship.
-- **Decor steps are normal steps** `Decor<bay>_<partId>` (Kind "Decor", saved in `Tycoon.Steps`). They need the Shiba's own bay
-  step (`Bay<bay>`) and the previous part of the same theme (a chain, in table order).
-- **Limit.** Decor pads do not count towards the walkthrough limit of 3 (Bay / Auto pads are unchanged). Per themed Shiba at
-  most one decor pad is shown (the next part), only while the owner's character is within `Street.DecorShowDistance`
-  (70 studs) of the theme anchor, and at most `Street.DecorMaxPads` (3) decor pads at once. Decor is optional and never blocks
-  the walkthrough.
+- **Decor steps are normal steps** `Decor<bay>_<partId>` (Kind "Decor", saved in `Tycoon.Steps`). The first part needs the Shiba's
+  automation (`Auto<bay>`) and its level gate, every other part the previous one; the next Shiba needs the last part
+  (see "Progression chain").
+- **Limit.** Decor pads are part of the chain and count towards the 3 visible pads (see "Progression chain"); decor is required,
+  not optional, and there is no proximity rule.
 - **Look.** A part appears on the plot (built by the server) when its step is bought; parts not bought are not drawn. The theme
   stands beside its Shiba's bay on the side away from the path, on the same row depth.
 - **Price** per part: `TierIncome(bay - 1) * PriceSeconds` (placeholders, open).

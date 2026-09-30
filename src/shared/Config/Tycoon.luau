@@ -147,10 +147,11 @@ return {
 		MaxPads = 3,
 		-- Expansion n (n >= 2) costs TierIncome(n - 1) * BaySeconds; the first one is free.
 		BaySeconds = 40,
-		-- Decor (Config/TycoonDecor): pads shown at once on top of MaxPads, and how close (studs) the owner's character has
-		-- to be to a theme anchor before its next part's pad shows. Defaults, open.
-		DecorMaxPads = 3,
-		DecorShowDistance = 70,
+		-- Level gate (Util/TycoonSteps): the decor of a Shiba unlocks once that Shiba reached a level:
+		-- min(LevelGateMax, LevelGateBase + LevelGateStep * floor((bay - 1) / 5)). Placeholders until the simulation is run.
+		LevelGateBase = 10,
+		LevelGateStep = 5,
+		LevelGateMax = 50,
 	},
 
 	-- Mill rings (pads "Sorter", "Polisher", "Refinery"): each multiplies ALL lanes.
