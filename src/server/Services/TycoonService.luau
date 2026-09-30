@@ -29,6 +29,7 @@ local Types = require(ReplicatedStorage.Shared.Types)
 local DataService = require(script.Parent.DataService)
 local EconomyService = require(script.Parent.EconomyService)
 local IslandService = require(script.Parent.IslandService)
+local StreetService = require(script.Parent.StreetService)
 local NotifyService = require(script.Parent.NotifyService)
 local RewardService = require(script.Parent.RewardService)
 local VariantService = require(script.Parent.VariantService)
@@ -868,6 +869,10 @@ local function buildPlot(player: Player)
 	end
 	if not island or not player.Parent then
 		-- No free island (server full): nothing to build on.
+		return
+	end
+	if StreetService.IsEnabled() then
+		-- Street phase 1: the plot is an empty lawn; the pads and Shibas follow (docs/GAME_DESIGN.md → Street).
 		return
 	end
 	if plotBuilt[player] then

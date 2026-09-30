@@ -68,6 +68,7 @@ Work is split by feature area. The owner reviews changes in their area and decid
   `Prop_Basket` in `ReplicatedStorage/Assets` replaces the placeholder) and `Island_<UserId>/BonkIntern` (part-built
   rig: `Root` with the movers, `Torso`, `Head`, arms and legs joined by the Motor6Ds in `Config/Automation → Intern.Joints`);
   `AutomationController` finds them by these names (`Config/Automation`).
+- Street (`Config/Street`, `Config/Features.Street`, `Services/StreetService`): with the flag (and the tycoon) on, the street with 10 plots replaces the islands: `StreetService` builds `Workspace/Street` (road, `Plot1` … `Plot10`, 5 per side, slot 1 = left), claims a free plot per joining player, spawns them on the road in front of it and frees the plot on leave. `IslandService` then returns early and its `GetIsland` / `SpawnOnIsland` / `TeleportToHub` forward to it, so `TycoonService` and the others still get the same `Island` record (`Center` = plot centre, `HubAngle` = toward the road, `Model` = `Islands/Island_<UserId>`). Phase 1 builds only the lawn, entrance mat and name sign.
 - Onboarding (`Config/Tutorial`): `IslandService` spawns brand-new players in front of the NEW SHIBA pad and stamps
   `Island_<UserId>` with the attribute `IslandCenter`; `TutorialService` counts guided purchases in
   `state.Tutorial.Step` (the only field it changes); `TutorialController` draws the guidance client-side, using

@@ -14,6 +14,7 @@ local Tutorial = require(ReplicatedStorage.Shared.Config.Tutorial)
 local World = require(ReplicatedStorage.Shared.Config.World)
 
 local DataService = require(script.Parent.DataService)
+local StreetService = require(script.Parent.StreetService)
 local PropService = require(script.Parent.PropService)
 local FieldDecor = require(script.Parent.Parent.World.FieldDecor)
 local Signs = require(script.Parent.Parent.World.Signs)
@@ -50,6 +51,9 @@ type Plot = {
 local islandsFolder: Folder
 local plots: { Plot } = {}
 local islands: { [Player]: Island } = {}
+
+-- The street (StreetService) replaces the islands: this service then builds nothing and forwards to it.
+local STREET = StreetService.IsEnabled()
 
 local IslandService = {}
 
@@ -318,6 +322,9 @@ local function hubSpawn(): CFrame
 end
 
 function IslandService.GetIsland(player: Player): Island?
+	if STREET then
+		return StreetService.GetIsland(player)
+	end
 	return islands[player]
 end
 
@@ -337,6 +344,10 @@ end
 
 -- Puts the character on its island (or the hub without one).
 function IslandService.SpawnOnIsland(player: Player)
+	if STREET then
+		StreetService.SpawnOnStreet(player)
+		return
+	end
 	local island = islands[player]
 	local character = player.Character
 	if not character then
@@ -354,6 +365,10 @@ function IslandService.SpawnOnIsland(player: Player)
 end
 
 function IslandService.TeleportToHub(player: Player)
+	if STREET then
+		StreetService.SpawnOnStreet(player)
+		return
+	end
 	local character = player.Character
 	if character then
 		character:PivotTo(hubSpawn())
@@ -424,6 +439,9 @@ local function onPlayerRemoving(player: Player)
 end
 
 function IslandService.Init()
+	if STREET then
+		return
+	end
 	islandsFolder = Instance.new("Folder")
 	islandsFolder.Name = ISLAND.FolderName
 	islandsFolder.Parent = Workspace
@@ -437,6 +455,9 @@ function IslandService.Init()
 end
 
 function IslandService.Start()
+	if STREET then
+		return
+	end
 	Players.PlayerAdded:Connect(onPlayerAdded)
 	Players.PlayerRemoving:Connect(onPlayerRemoving)
 	for _, player in Players:GetPlayers() do
