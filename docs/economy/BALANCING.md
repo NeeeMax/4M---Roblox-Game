@@ -267,3 +267,47 @@ divided by the income the player can reach with the zone 0-3 Shibas). To lengthe
 zone 4 and 5 only, then re-run. Known simplifications: variants, crates, boops, passes and friends are ignored; a Shiba can
 only be equipped once its zone is unlocked (also in the sim). The greedy policy takes the best egg it can afford within 30
 minutes of income.
+
+## Street tycoon (30 bays)
+
+`docs/economy/street_sim.luau` (`lune run docs/economy/street_sim`) simulates the street mode (docs/GAME_DESIGN.md, "Street, plots
+and buttons" and "One Shiba per expansion"). It loads the real `Config/Tycoon`, `Util/TycoonMath` and `Util/TycoonSteps`.
+`SWEEP=1` runs a grid, `CASES="bay:autoSec:autoGrowth:levelCostSec:levelCostGrowth;..."` runs chosen sets, and the
+environment variables `BAY_SECONDS`, `AUTO_SECONDS`, `AUTO_GROWTH`, `LEVEL_COST_SECONDS`, `LEVEL_COST_GROWTH`, `TIER_GROWTH`
+override single constants. Each run takes about 15 s per player type.
+
+**Model.** Bay 1 is free. Expansion n costs `floor(TierIncome(n-1) * Street.BaySeconds)` and spawns Shiba n (tier n-1, level 1).
+Pad `Auto<n>` automates a Shiba for `AutomationPrice(tier, automatedCount)`. All spawned Shibas earn at once
+(`LaneIncome * GlobalMultiplier`, real perks and neighbour bonuses). An automated Shiba pays its lane rate continuously; a click
+pays income per second times `SwingTimer`, so clicking non-stop also pays exactly the lane rate. Player income = automated lanes +
+ClickEff x the lane rates of the ClickTargets best un-automated Shibas. Arches, Mill rings and ascension are not modelled.
+Done = 30 bays spawned + automated + level 50.
+
+**Policy.** Greedy: buy the purchase with the smallest "seconds until affordable + payback" (level up, automate, next expansion;
+the expansion's gain is counted as if the new Shiba were automated). Player types: active clicker (ClickEff 0.6, clicks the 2
+newest un-automated Shibas) and idle player (ClickEff 0.2, 1 Shiba, automation score x0.25 so it automates everything asap).
+
+**Results** (hours; "wait" = longest time without a purchase inside the first 10 h):
+
+| Constants | Player | 1st automation | Shiba 2 | Shiba 10 | Shiba 30 | All automated | Done (all lvl 50) | Longest wait |
+|---|---|---|---|---|---|---|---|---|
+| Current (Bay 40, Auto 60 x 1.5, LevelCost 20 x 1.17) | active | 4.8 min | 3.0 min | 15 min | 44 min | 6.3 h | 6.3 h | 3.9 h |
+| Current | idle | 5.0 min | 6.8 min | 43 min | 2.8 h | 6.4 h | 6.4 h | 1.5 h |
+| Recommended (Bay 80, Auto 60 x 1.25, LevelCost 225 x 1.21) | active | 1.7 min | 5.3 min | 27 min | 1.4 h | 3.9 h | 63.3 h | 36 min |
+| Recommended | idle | 5.0 min | 8.6 min | 45 min | 4.8 h | 12.6 h | 72.4 h | 42 min |
+
+With the current constants the whole game is over in about 6 h: a level costs 20 s of the Shiba's level-1 income, but 30 lanes earn
+at once, so levels are far too cheap, and AutomationGrowth 1.5 makes the last automations cost days of income (x1.5^29). Shiba 2
+also comes before the first automation because it pays back faster.
+
+**Recommended constants** (to apply in `src/shared/Config/Tycoon.luau` in a separate PR): `Street.BaySeconds` 40 -> 80,
+`Swing.AutomationGrowth` 1.5 -> 1.25, `Lane.LevelCostSeconds` 20 -> 225, `Lane.LevelCostGrowth` 1.17 -> 1.21.
+`Swing.AutomationSeconds` (60) and `Lane.TierGrowth` (2.7) stay. The game-length lever is the level cost (steep growth makes
+the levels 40 to 50 the wall); the bay and automation prices shape the first hours: all bays are open after 1.4 h (active) and
+the automations are done after 4 to 13 h, then the levelling carries the rest. The sim is a lower bound: with the usual
+factor 1.3 to 1.6 a real first run takes about 80 to 100+ hours.
+
+**Assumptions and doubts.** No boosts, passes, events, variants, arches or rings; perfect greedy play; ClickEff is a guess
+(0.6 / 0.2); `Steps.Price` for automation uses the automated count regardless of which Shiba is automated. The longest gaps
+(35 to 45 min) are the level walls, not dead phases. Decor and theme unlock prices (designed separately) are NOT part of the
+simulation yet: they add spend and will lengthen the run, so re-run and lower the level cost if the total grows past the target.
