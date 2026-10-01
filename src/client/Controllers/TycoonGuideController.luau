@@ -103,16 +103,16 @@ local function objectiveText(tycoon: TycoonState, step: Step, affordable: boolea
 	local price = TycoonSteps.Price(step, tycoon)
 	if affordable then
 		if step.Kind == "Decor" then
-			return `Build {title}: the next Shiba needs a finished {TycoonSteps.ShibaName(step.Bay)} surrounding`
+			return `Decorate: {title} (all decor unlocks the next Shiba)`
 		elseif step.Kind == "Automate" then
-			return `Buy the {title}: {TycoonSteps.Description(step)}`
+			return `Buy the {title}: {TycoonSteps.Description(step)} (optional)`
 		elseif not hasShiba(tycoon) then
 			return `Step on the glowing pad: {title}`
 		end
-		return `Expand your plot: {title}`
+		return `New Shiba: {title}`
 	end
 	if hasUnautomatedShiba(tycoon) then
-		return `Click your Shiba to earn money ({Format.Short(price)} for {title})`
+		return `Stand in front of your Shiba and click it to get bonked ({Format.Short(price)} for {title})`
 	end
 	return `Earn {Format.Short(price)} for: {title}`
 end
@@ -280,20 +280,11 @@ local function refresh()
 	end
 	local step, affordable = currentStep(tycoon, state.BonkPoints)
 	if not step then
-		-- Nothing to buy: no arrow. Either a Shiba has to level up first (say so) or everything visible is bought.
+		-- Everything visible is bought: no arrow, no objective.
 		targetId = nil
 		padPart = nil
 		setArrowVisible(false)
-		local waiting = TycoonSteps.Waiting(tycoon)
-		local gate = if waiting then waiting.LevelGate else nil
-		if waiting and gate then
-			local label = ensureLabel()
-			label.Text =
-				`Level up {TycoonSteps.ShibaName(waiting.Bay)} to Lv {gate} (hold E at the Shiba): {TycoonSteps.Title(
-					waiting
-				)} unlocks`
-			label.Visible = true
-		elseif objectiveLabel then
+		if objectiveLabel then
 			objectiveLabel.Visible = false
 		end
 		return

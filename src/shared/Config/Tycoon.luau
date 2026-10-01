@@ -117,7 +117,7 @@ return {
 	-- Swing, click start, automation and the Bonk hit (docs/GAME_DESIGN.md → Swing, click and Bonk hit). Starting values.
 	Swing = {
 		-- Seconds between swings of one Shiba; a click pays this many seconds of the lane's income.
-		Cooldown = 1.2,
+		Cooldown = 1,
 		-- Seconds from the start of the swing until the stick lands (payout of a click and the hit check).
 		HitDelay = 0.5,
 		-- Hit zone in front of the Shiba: length in studs, half angle in degrees, height tolerance in studs.
@@ -125,8 +125,8 @@ return {
 		HitHalfAngle = 45,
 		HitHeight = 8,
 		-- The fling of a bonked owner: speed in studs/s and the upward share of the direction (applied by the client).
-		LaunchSpeed = 60,
-		LaunchLift = 0.5,
+		LaunchSpeed = 18,
+		LaunchLift = 0.2,
 		-- A Bonk hit pays this many seconds of the lane's income; seconds between Bonk hits per player.
 		BonusSeconds = 10,
 		BonusCooldown = 5,
@@ -136,6 +136,17 @@ return {
 		-- One swing of a Shiba of tier t takes Cooldown * TimerGrowth ^ t seconds and pays income per second * that time: the
 		-- first Shiba is the fastest, higher ones pay more per click but slower. The income per second does not change.
 		TimerGrowth = 1.12,
+
+		-- Street mode ("Gameplay flow"): one hit pays BonkPayout(tier) = TierIncome(tier) * BaseCooldown(tier) (before
+		-- multipliers). BaseCooldown(tier) = Cooldown + CooldownPerTier * tier seconds (at most MaxBaseCooldown): the first Shiba
+		-- 1 s, higher Shibas wait longer but pay more. Every upgrade level shrinks the cooldown geometrically from there to
+		-- MinCooldown at StreetLevelCap, so a fully upgraded Shiba bonks every few milliseconds.
+		CooldownPerTier = 4,
+		MaxBaseCooldown = 120,
+		MinCooldown = 0.005,
+		StreetLevelCap = 100,
+		-- The stick lands this share of the cooldown after the swing starts, at most HitDelay seconds.
+		HitDelayShare = 0.45,
 	},
 
 	-- Street mode (docs/GAME_DESIGN.md → Street, plots and buttons, "One Shiba per expansion"). Prices are placeholders
@@ -147,11 +158,8 @@ return {
 		MaxPads = 3,
 		-- Expansion n (n >= 2) costs TierIncome(n - 1) * BaySeconds; the first one is free.
 		BaySeconds = 40,
-		-- Level gate (Util/TycoonSteps): the decor of a Shiba unlocks once that Shiba reached a level:
-		-- min(LevelGateMax, LevelGateBase + LevelGateStep * floor((bay - 1) / 5)). Placeholders until the simulation is run.
-		LevelGateBase = 10,
-		LevelGateStep = 5,
-		LevelGateMax = 50,
+		-- Decor is bought in this many parallel chains, so this many decor pads are visible at once (Util/TycoonSteps).
+		DecorChains = 2,
 	},
 
 	-- Mill rings (pads "Sorter", "Polisher", "Refinery"): each multiplies ALL lanes.

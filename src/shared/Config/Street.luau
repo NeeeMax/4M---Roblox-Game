@@ -11,10 +11,10 @@ return {
 	PlotCount = 10,
 	PlotsPerSide = 5,
 	-- Distance between neighbouring plot centres along the road.
-	PlotPitch = 70,
+	PlotPitch = 210,
 	-- A plot is long and narrow: it grows backward (away from the road) as the player progresses.
-	PlotWidth = 60,
-	PlotDepth = 420,
+	PlotWidth = 200,
+	PlotDepth = 2400,
 	PlotThickness = 4,
 
 	Road = {

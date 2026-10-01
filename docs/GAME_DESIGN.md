@@ -877,22 +877,36 @@ per-Shiba timer. Ascension resets the plot to bay 1 and all automation, keeps th
 for slots and eggs; `OwnedShiba` stays (tier, level, variant, automated) but is created by the expansion, not by a hatch. The
 remotes `HatchEgg`, `HatchResults`, `EquipShiba`, `UnequipShiba`, `MergeShibas` are dead in street mode and removed in the cleanup PR.
 
-#### Progression chain (decided by Marco 2026-10-01; supersedes the optional decor rule below)
+#### Gameplay flow (decided by Marco 2026-10-01; this REPLACES the earlier chain, the level gate and the optional decor)
 
-The game is a chain, one link after the other, for every Shiba n:
+Marco gave full permission to change everything built before. The flow of the street mode:
 
-1. **Unlock Shiba n** (pad `Bay<n>`): the Shiba and its surrounding (bay) appear. At first the player earns **by hand**: click/bonk
-   the Shiba (one click pays income per second x its timer), and get bonked for the bonus.
-2. **Automation** (pad `Auto<n>`, the Cash Register): the Shiba swings by itself from now on.
-3. **Level the automated Shiba** to the level gate (`Street.LevelGateBase/Step/Max`: 10 for bays 1 to 5, +5 for every five bays,
-   at most 50). The decor of the Shiba does not unlock before (the guide says "Level up <Shiba> to Lv N").
-4. **Decor is required**: the parts of the Shiba's theme (trees, a little house, the pirate ship ...) are bought one after the
-   other (`Decor<n>_<part>`); all of them are needed.
-5. **Only then the pad for Shiba n + 1 shows up** (it also needs the automation of Shiba n). Go to 1.
+1. **Start:** after loading, the first thing to do is to run onto the pad that spawns the standard Shiba (free).
+2. **Earning:** the player clicks the Shiba and **stands in front of it**: the animation of the Shiba's arm with the stick **bonks the
+   player** and pays. The knockback is small (`Swing.LaunchSpeed` 18). There is no payment without a hit. The Shiba stands beside the
+   path and faces it; the hit zone is in front of it.
+3. **The Shiba's menu** (client, one clean widget, no other upgrade menus; the old plates, prompts and billboards are removed):
+   a **pill-shaped green bar** that fills when the Shiba is clicked, with the **cooldown countdown inside** ("1.0s"); under it a
+   smaller **UPGRADE button with the price written inside** (key **E** does the same). Every upgrade lowers the cooldown
+   geometrically from `BaseCooldown(tier)` to `MinCooldown` (a few milliseconds, 5 ms) at level 100 (`StreetLevelCap`) and makes
+   the next upgrade dearer.
+4. **Money per Shiba:** one hit pays `BonkPayout(tier) = TierIncome(tier) * BaseCooldown(tier)`; `BaseCooldown(tier) = 1 s + 4 s * tier`
+   (at most 120 s). Shiba 1 pays 1 per 1 s at level 1, Shiba 2 about 13.5 per 5 s: higher Shibas wait longer and pay more per hit.
+5. **Decor:** after the Shiba is bought, **at least two decor pads** appear (floor, walls, a "Get Bonked" sign, ...). Decor is bought in
+   two parallel chains, so two pads are visible at once; buying one reveals the next of its chain. All decor pads of a Shiba
+   are required: **10 pads for Shibas 1 to 3, 15 for 4 to 8, 20 for 9 to 14, 25 for 15 to 21, 30 for 22 to 30**, so progress is not
+   linear and needs some grinding. The decor forms a themed surrounding (pirate: a lake, a pirate ship, crew mates, a bonk flag ...)
+   that gets bigger and cooler with the tier (Shiba 1 a garage or little house, the Pirate Shiba a fully scaled ship, the Void Shiba a
+   flying island or a black hole). Models are basic for now: gameplay and flow first.
+6. **Automation (separate from the decor, a fairly priced pad next to the Shiba, optional):** the **Bonk Intern**, an NPC that stands
+   in front of the Shiba and gets bonked automatically, **without knockback**; each bonk he ducks a little and pops back up.
+7. **Next Shiba:** when ALL decor of Shiba n is bought, the last pad that appears is the one for Shiba n + 1. The loop starts again.
+   Prices are placeholders until `docs/economy/street_sim.luau` is updated.
 
-So between two Shibas the player always has to unlock decoration to get further. There is no separate decor limit: decor pads are
-pads of the chain, at most `Street.MaxPads` (3) are visible, in chain order (mostly one at a time). Prices are placeholders until
-`docs/economy/street_sim.luau` is updated for the decor and the level gate.
+**Stage frame (for themes).** Every Shiba has a stage on the plot, one after the other away from the road. A theme is built in the
+stage frame: origin = the middle of the stage on the path's centre line, +X to the right (when facing away from the road), -Z deeper
+into the plot, +Z toward the road, Y up. The Shiba stands at (-16, 0, 0) facing +X (the path), the Intern at (-10, 0, 0), the path
+(|x| < 7) stays free. The stage is `Area.X` wide and `Area.Y` deep (the theme's own size, bigger for higher Shibas), centred on the origin.
 
 #### Shiba themes and decor (implementation)
 
