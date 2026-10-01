@@ -75,6 +75,9 @@ Notes on the tycoon remotes (`Config/Features.Tycoon`, `docs/GAME_DESIGN.md → 
 The INVITE button needs no remote: the client opens Roblox's invite dialog itself (`SocialController`), and the server
 reads the invite from the joining player's `GetJoinData().ReferredByPlayerId` (`SocialService`).
 
+`MilestoneService` (badges, onboarding funnel) and `UpdateBoardService` (update log board) need no remotes: they only read the
+server-side state and write to Roblox services / the world (docs/GAME_DESIGN.md → Milestones, Update log board).
+
 Remotes live in `ReplicatedStorage/Remotes`, created by `Net.CreateRemotes()` from `Main.server.luau`. Get one with `Net.Get(Net.BonkHit)`.
 `StateChanged` is sent after the player's data loads and after every change to points, levels or active shooters.
 Projectiles are invisible, anchored marker parts in `Workspace/Islands/Island_<UserId>/Projectiles`. They carry the

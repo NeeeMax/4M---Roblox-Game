@@ -77,6 +77,11 @@ Work is split by feature area. The owner reviews changes in their area and decid
   `ReferralsPending` DataStore); `RewardService.GetStickValue` multiplies by `SocialService.GetFriendMultiplier`.
   `EventService` owns the Bonk Party schedule (`IsPartyActive`, `GetPartyWindow`, `VariantLuckMultiplier`);
   `PartyService` owns the party quest (`state.Party`) and builds `Workspace/BonkPartySign`.
+- Retention extras (no remotes, no saved fields): `MilestoneService` reads the saved state every few seconds and awards
+  Roblox badges (`Config/Milestones → Badges`, `BadgeId` 0 = inert) and logs the onboarding funnel with `AnalyticsService`
+  (`Config/Milestones → Funnel`, only for saves younger than 72 h). `UpdateBoardService` builds the update log board
+  (`Workspace/UpdateBoard`, west end of the street, or next to the hub plaza with `Features.Street` off) from `Config/Updates`,
+  with a countdown to the weekly update (`Updates.NextUpdateAt`, UTC).
 - Tycoon ("Shiba Workers", behind `Config/Features.Tycoon`, `docs/GAME_DESIGN.md → Tycoon`): `TycoonService` (server, in
   `Services/`) owns `state.Tycoon` logic (income tick, hatching, equip, levels, merge, pads, Ascension); with the flag off it
   returns early in `Init`/`Start`. `World/TycoonPlot` (server, in `src/server/World/`) builds `Island_<UserId>/Tycoon` with

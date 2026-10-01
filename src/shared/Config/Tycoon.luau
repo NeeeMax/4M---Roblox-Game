@@ -184,8 +184,8 @@ return {
 		-- higher Shiba stay in proportion to its (much higher) price.
 		LevelFactorPower = 0.9,
 		StageFactor = {
-			0.8124, -- stage 1
-			2.486, -- stage 2
+			0.5068, -- stage 1 (retention retune: Shiba 2 after about 6.5 min, was 8.9; see docs/economy/BALANCING.md)
+			1.967, -- stage 2 (Shiba 3 about 7.5 min after Shiba 2)
 			3.439, -- stage 3
 			3.12, -- stage 4
 			3.744, -- stage 5
@@ -221,8 +221,9 @@ return {
 		-- The Bonk Intern of a Shiba costs StreetReadyIncome * AutomationSeconds * AutomationGrowth ^ (Shibas already automated).
 		AutomationSeconds = 60,
 		AutomationGrowth = 1.08,
-		-- The Bonk Intern of the first Shiba, bought before any other Intern, costs only this much, so the first automation comes early.
-		AutomationFirstPrice = 300,
+		-- The Bonk Intern of the first Shiba, bought before any other Intern, costs only this much, so the first automation comes early
+		-- (about 5 min into the first session: the "moment of joy" before the median session of 10 min ends).
+		AutomationFirstPrice = 150,
 		-- Decor is bought in this many parallel chains, so this many decor pads are visible at once (Util/TycoonSteps).
 		DecorChains = 2,
 	},
