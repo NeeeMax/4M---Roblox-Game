@@ -218,8 +218,8 @@ return {
 		-- The Bonk Intern of a Shiba costs StreetReadyIncome * AutomationSeconds * AutomationGrowth ^ (Shibas already automated).
 		AutomationSeconds = 60,
 		AutomationGrowth = 1.08,
-		-- The very first Bonk Intern (nothing automated yet) costs only this share of that price, so the first automation comes early.
-		AutomationFirstShare = 0.08,
+		-- The Bonk Intern of the first Shiba, bought before any other Intern, costs only this much, so the first automation comes early.
+		AutomationFirstPrice = 300,
 		-- Decor is bought in this many parallel chains, so this many decor pads are visible at once (Util/TycoonSteps).
 		DecorChains = 2,
 	},

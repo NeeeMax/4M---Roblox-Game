@@ -3,5 +3,5 @@
 -- Bump the label with every change that should be visible in a playtest.
 
 return {
-	Label = "2026-10-01 #49: street: the first Bonk Intern costs about 12x less (flags off)",
+	Label = "2026-10-01 #51: street: the first Bonk Intern costs 300 (flags off)",
 }

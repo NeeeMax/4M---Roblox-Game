@@ -32,8 +32,8 @@ end
 function TycoonMath.StreetAutomationPrice(tier: number, automated: number): number
 	local street = Config.Street
 	local price = TycoonMath.StreetReadyIncome(tier) * street.AutomationSeconds * street.AutomationGrowth ^ automated
-	if automated == 0 then
-		price *= street.AutomationFirstShare
+	if automated == 0 and tier == 0 then
+		return street.AutomationFirstPrice
 	end
 	return math.floor(price)
 end
