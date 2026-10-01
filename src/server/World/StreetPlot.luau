@@ -75,7 +75,7 @@ type Plot = {
 	Starts: { [number]: number },
 	Depths: { [number]: number },
 	Bays: { [number]: BayRefs },
-	Paths: { [number]: Part },
+	Paths: { [number]: Folder },
 	Pads: { [string]: PadRefs },
 	-- Built decor parts by step id (the ones whose step is bought).
 	Decor: { [string]: Model },
@@ -140,6 +140,18 @@ local function stageFrame(plot: Plot, bay: number): CFrame
 	local middle = plot.Starts[bay] + plot.Depths[bay] / 2
 	local at = plot.RoadEnd + plot.Back * middle + Vector3.new(0, plot.Elev[bay], 0)
 	return CFrame.lookAt(at, at + plot.Back)
+end
+
+-- Where the Shiba of a bay stands and which way it faces (Config/DecorTypes → ShibaSpot).
+local function shibaSpot(bay: number): TycoonDecor.ShibaSpot
+	local theme = TycoonDecor.Themes[bay]
+	local spot = if theme then theme.Shiba else nil
+	return spot or { Position = Vector2.new(-LAYOUT.ShibaX, 0), Facing = 0 }
+end
+
+local function facingVector(degrees: number): Vector3
+	local radians = math.rad(degrees)
+	return Vector3.new(math.cos(radians), 0, -math.sin(radians))
 end
 
 -- ==== terraces, stairs and walls =======================================================================================
@@ -241,9 +253,9 @@ local function buildBay(plot: Plot, bay: number): BayRefs
 	local owner = plot.Owner
 	local actions = plot.Actions
 	local frame = stageFrame(plot, bay)
-	local ground = frame:PointToWorldSpace(Vector3.new(-LAYOUT.ShibaX, 0, 0))
-	-- The Shiba faces the path (+X of the stage frame).
-	local inward = frame.RightVector
+	local spot = shibaSpot(bay)
+	local ground = frame:PointToWorldSpace(Vector3.new(spot.Position.X, 0, spot.Position.Y))
+	local inward = frame:VectorToWorldSpace(facingVector(spot.Facing))
 
 	local folder = Instance.new("Folder")
 	folder.Name = `Lane_{bay}`
@@ -364,21 +376,44 @@ local function refreshBay(bay: BayRefs, tycoon: Types.TycoonState, index: number
 	end
 end
 
--- The path through the stage of `bay` (stage 1 also covers the way from the road).
+-- The walkway through the stage of `bay`: a polyline (Theme.Path, else straight) from the stage's front to its back, joined to the
+-- road (stage 1) or to the neighbouring stages by straight pieces over the margins.
 local function ensurePath(plot: Plot, bay: number)
 	if plot.Paths[bay] then
 		return
 	end
+	local folder = Instance.new("Folder")
+	folder.Name = `Path{bay}`
+	local frame = stageFrame(plot, bay)
+	local area = areaOf(bay)
+	local theme = TycoonDecor.Themes[bay]
+	local waypoints: { Vector2 } = if theme and theme.Path
+		then theme.Path
+		else { Vector2.new(0, area.Y / 2), Vector2.new(0, -area.Y / 2) }
+	local lift = Vector3.new(0, 0.05, 0)
 	local from = if bay == 1 then 0 else plot.Starts[bay]
 	local to = plot.Starts[bay] + plot.Depths[bay]
-	local middle = plot.RoadEnd + plot.Back * ((from + to) / 2) + Vector3.new(0, 0.05 + plot.Elev[bay], 0)
-	plot.Paths[bay] = newPart(
-		`Path{bay}`,
-		Vector3.new(LAYOUT.PathWidth, 0.1, to - from),
-		CFrame.lookAt(middle, middle + plot.Back),
-		LAYOUT.PathColor,
-		plot.Folder
-	)
+	local points: { Vector3 } = {}
+	table.insert(points, plot.RoadEnd + plot.Back * from + Vector3.new(0, plot.Elev[bay], 0) + lift)
+	for _, waypoint in waypoints do
+		table.insert(points, frame:PointToWorldSpace(Vector3.new(waypoint.X, 0, waypoint.Y)) + lift)
+	end
+	table.insert(points, plot.RoadEnd + plot.Back * to + Vector3.new(0, plot.Elev[bay], 0) + lift)
+	local width = LAYOUT.PathWidth
+	for index = 1, #points - 1 do
+		local a, b = points[index], points[index + 1]
+		local length = (b - a).Magnitude
+		if length > 0.1 then
+			local middle = (a + b) / 2
+			newPart("Path", Vector3.new(width, 0.1, length), CFrame.lookAt(middle, b), LAYOUT.PathColor, folder)
+		end
+		if index > 1 then
+			-- A square at every joint fills the corner.
+			newPart("PathJoint", Vector3.new(width, 0.1, width), CFrame.new(a), LAYOUT.PathColor, folder)
+		end
+	end
+	folder.Parent = plot.Folder
+	plot.Paths[bay] = folder
 end
 
 -- ==== decor ============================================================================================================
@@ -414,6 +449,11 @@ local function buildDecor(plot: Plot, step: TycoonSteps.Step): Model?
 			local instance = newPart(`Piece{number}`, piece.Size, cframe, piece.Color, model)
 			instance.Material = flat(piece.Material)
 			instance.Shape = piece.Shape or Enum.PartType.Block
+			-- Props the player could walk into are solid (floors, rugs and things high above the head are not).
+			local reach = if piece.Rotation
+				then math.max(piece.Size.X, piece.Size.Y, piece.Size.Z) / 2
+				else piece.Size.Y / 2
+			instance.CanCollide = piece.Offset.Y + reach > 0.6 and piece.Offset.Y - reach < 7
 		end
 	end
 	model.Name = `Decor_{step.Id}`
@@ -446,14 +486,24 @@ end
 local function padPosition(plot: Plot, step: TycoonSteps.Step): Vector3
 	local frame = stageFrame(plot, step.Bay)
 	local area = areaOf(step.Bay)
+	local theme = TycoonDecor.Themes[step.Bay]
 	local front = area.Y / 2 - LAYOUT.PadFrontInset
+	local function at(spot: Vector2): Vector3
+		return frame:PointToWorldSpace(Vector3.new(spot.X, 0, spot.Y))
+	end
 	if step.Kind == "Bay" then
-		return frame:PointToWorldSpace(Vector3.new(0, 0, front))
+		return if theme and theme.BayPad then at(theme.BayPad) else frame:PointToWorldSpace(Vector3.new(0, 0, front))
 	elseif step.Kind == "Automate" then
+		if theme and theme.AutoPad then
+			return at(theme.AutoPad)
+		end
 		return frame:PointToWorldSpace(Vector3.new(0, 0, area.Y / 2 - LAYOUT.AutoPadInset))
 	end
 	local index = step.PartIndex or 1
-	local theme = TycoonDecor.Themes[step.Bay]
+	local own = if theme and step.PartIndex then theme.Parts[step.PartIndex] else nil
+	if own and own.Pad then
+		return at(own.Pad)
+	end
 	local count = if theme then #theme.Parts else index
 	local chain = (index - 1) % 2
 	local row = math.floor((index - 1) / 2)

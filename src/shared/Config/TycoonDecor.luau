@@ -7,14 +7,16 @@
 local DecorThemesA = require(script.Parent.DecorThemesA)
 local DecorThemesB = require(script.Parent.DecorThemesB)
 local DecorThemesC = require(script.Parent.DecorThemesC)
+local DecorThemesD = require(script.Parent.DecorThemesD)
 local DecorTypes = require(script.Parent.DecorTypes)
 
 export type Piece = DecorTypes.Piece
 export type Part = DecorTypes.Part
 export type Theme = DecorTypes.Theme
+export type ShibaSpot = DecorTypes.ShibaSpot
 
 local themes: { [number]: Theme } = {}
-for _, group in { DecorThemesA, DecorThemesB, DecorThemesC } do
+for _, group in { DecorThemesA, DecorThemesB, DecorThemesC, DecorThemesD } do
 	for bay, theme in group do
 		themes[bay] = theme
 	end
