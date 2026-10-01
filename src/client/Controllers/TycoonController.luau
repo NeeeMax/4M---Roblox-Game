@@ -662,8 +662,9 @@ local function isForeignTycoonPrompt(prompt: ProximityPrompt): boolean
 end
 
 -- ==== swing (ShibaSwung / PlayerBonked) ==========================================================================
--- Visual only: a stick swings over the Shiba like the "Bonk" meme (wind-up, strike, recovery) and a faint red box shows the
--- hit zone. The server decides the hit and the money (docs/GAME_DESIGN.md → Swing, click and Bonk hit).
+-- Visual only: a stick swings over the Shiba like the "Bonk" meme (wind-up, strike, recovery), timed to the Shiba's cooldown
+-- (docs/GAME_DESIGN.md → Swing, click and Bonk hit). Manual Shibas also show a faint red hit zone; automated Shibas show
+-- none and their Bonk Intern (Lane_<n>/Intern) ducks when the stick lands. The server decides the hit and the money.
 
 local SWING = TycoonConfig.Swing
 local STICK_LENGTH = 5
@@ -672,15 +673,91 @@ local STICK_COLOR = Color3.fromRGB(150, 100, 60)
 local REST_ANGLE = math.rad(-20)
 local WINDUP_ANGLE = math.rad(115)
 local STRIKE_ANGLE = math.rad(-35)
+-- Timing at a cooldown of a second or more; shorter cooldowns scale wind-up and strike down (never below MIN_TIME_SCALE,
+-- so a Shiba swinging every few milliseconds still shows a quick blurred stroke) and shorten the recovery.
 local STRIKE_SECONDS = 0.12
 local RECOVER_SECONDS = 0.3
+local MIN_RECOVER_SECONDS = 0.03
+local MIN_TIME_SCALE = 0.25
 local ZONE_COLOR = Color3.fromRGB(255, 70, 60)
-local BONK_STUN_SECONDS = 1.2
-local MAX_LAUNCH_SPEED = 150
+local ZONE_WINDUP_TRANSPARENCY = 0.93
+local ZONE_STRIKE_TRANSPARENCY = 0.8
+-- Bonk Intern: dips this deep (studs) in DUCK_DOWN seconds and rises again in DUCK_UP seconds; only when closer than
+-- DUCK_VISIBLE_DISTANCE to the camera.
+local DUCK_DEPTH = 1.2
+local DUCK_DOWN = 0.07
+local DUCK_UP = 0.13
+local DUCK_VISIBLE_DISTANCE = 140
+-- The fling of a bonked owner is small: speed is clamped, the humanoid stays under control (no PlatformStand).
+local MAX_LAUNCH_SPEED = 40
 
 local swinging: { [number]: boolean } = {}
+local ducking: { [Model]: boolean } = {}
+local internHome: { [Model]: CFrame } = {}
 
-local function playSwing(slot: number)
+-- Seconds of one swing of the Shiba in `slot` (its cooldown at the current level), 1 when unknown.
+local function cooldownOf(slot: number): number
+	local tycoon = currentTycoon()
+	local id = if tycoon then tycoon.Equipped[tostring(slot)] else nil
+	local shiba: Types.OwnedShiba? = if tycoon and id then tycoon.Shibas[id] else nil
+	if shiba then
+		return TycoonMath.SwingCooldown(shiba.Tier, shiba.Level)
+	end
+	return SWING.Cooldown
+end
+
+-- The Intern ducks and pops back up like a bonk on the head (local animation of the anchored model).
+local function duckIntern(lane: Instance)
+	local intern = lane:FindFirstChild("Intern")
+	if not intern or not intern:IsA("Model") or ducking[intern] then
+		return
+	end
+	local camera = Workspace.CurrentCamera
+	local ok, pivot = pcall(function()
+		return intern:GetPivot()
+	end)
+	if not ok then
+		return
+	end
+	local home = internHome[intern]
+	if not home then
+		home = pivot :: CFrame
+		internHome[intern] = home
+	end
+	if camera and (camera.CFrame.Position - home.Position).Magnitude > DUCK_VISIBLE_DISTANCE then
+		return
+	end
+	ducking[intern] = true
+	task.spawn(function()
+		local startedAt = os.clock()
+		local total = DUCK_DOWN + DUCK_UP
+		while intern.Parent do
+			local elapsed = os.clock() - startedAt
+			if elapsed >= total then
+				break
+			end
+			local depth: number
+			if elapsed < DUCK_DOWN then
+				depth = TweenService:GetValue(elapsed / DUCK_DOWN, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+			else
+				depth = 1
+					- TweenService:GetValue(
+						(elapsed - DUCK_DOWN) / DUCK_UP,
+						Enum.EasingStyle.Back,
+						Enum.EasingDirection.Out
+					)
+			end
+			intern:PivotTo((home :: CFrame) - Vector3.new(0, DUCK_DEPTH * depth, 0))
+			RunService.RenderStepped:Wait()
+		end
+		if intern.Parent then
+			intern:PivotTo(home :: CFrame)
+		end
+		ducking[intern] = nil
+	end)
+end
+
+local function playSwing(slot: number, automated: boolean)
 	if swinging[slot] then
 		return
 	end
@@ -688,7 +765,7 @@ local function playSwing(slot: number)
 	local lane = if folder then folder:FindFirstChild(`Lane_{slot}`) else nil
 	local shiba = if lane then lane:FindFirstChild("Shiba") else nil
 	local belt = if folder then folder:FindFirstChild(`Belt_{slot}`) else nil
-	if not shiba or not shiba:IsA("Model") or not belt or not belt:IsA("BasePart") then
+	if not lane or not shiba or not shiba:IsA("Model") or not belt or not belt:IsA("BasePart") then
 		return
 	end
 	local look = belt.CFrame.LookVector
@@ -703,6 +780,13 @@ local function playSwing(slot: number)
 	local handle = box.Position + up * (size.Y * 0.1) + right * (size.X * 0.45)
 	local floor = box.Position - up * (size.Y / 2 - 0.2)
 
+	-- Wind-up and strike of the animation, scaled so they end well before the next swing of a fast Shiba.
+	local cooldown = cooldownOf(slot)
+	local scale = math.clamp(cooldown / (SWING.HitDelay + STRIKE_SECONDS + 0.1), MIN_TIME_SCALE, 1)
+	local windup = SWING.HitDelay * scale
+	local strikeSeconds = STRIKE_SECONDS * scale
+	local recover = math.clamp(cooldown - windup - strikeSeconds, MIN_RECOVER_SECONDS, RECOVER_SECONDS)
+
 	swinging[slot] = true
 	local parent = getWorldFolder()
 	local stick = Instance.new("Part")
@@ -716,68 +800,80 @@ local function playSwing(slot: number)
 	stick.CanTouch = false
 	stick.CastShadow = false
 	stick.Parent = parent
-	local zone = Instance.new("Part")
-	zone.Name = "BonkZone"
-	zone.Size = Vector3.new(2 * SWING.HitRange * math.sin(math.rad(SWING.HitHalfAngle)), 0.15, SWING.HitRange)
-	zone.CFrame = CFrame.lookAt(floor + forward * (SWING.HitRange / 2), floor + forward * SWING.HitRange)
-	zone.Color = ZONE_COLOR
-	zone.Material = Enum.Material.Neon
-	zone.Anchored = true
-	zone.CanCollide = false
-	zone.CanQuery = false
-	zone.CanTouch = false
-	zone.CastShadow = false
-	zone.Transparency = 1
-	zone.Parent = parent
+	local zone: Part? = nil
+	if not automated then
+		local created = Instance.new("Part")
+		created.Name = "BonkZone"
+		created.Size = Vector3.new(2 * SWING.HitRange * math.sin(math.rad(SWING.HitHalfAngle)), 0.15, SWING.HitRange)
+		created.CFrame = CFrame.lookAt(floor + forward * (SWING.HitRange / 2), floor + forward * SWING.HitRange)
+		created.Color = ZONE_COLOR
+		created.Material = Enum.Material.Neon
+		created.Anchored = true
+		created.CanCollide = false
+		created.CanQuery = false
+		created.CanTouch = false
+		created.CastShadow = false
+		created.Transparency = 1
+		created.Parent = parent
+		zone = created
+	end
 
 	task.spawn(function()
 		local start = os.clock()
-		local strikeEnd = SWING.HitDelay + STRIKE_SECONDS
-		local total = strikeEnd + RECOVER_SECONDS
-		while stick.Parent and zone.Parent do
+		local strikeEnd = windup + strikeSeconds
+		local total = strikeEnd + recover
+		local landed = false
+		while stick.Parent and (zone == nil or zone.Parent) do
 			local elapsed = os.clock() - start
 			if elapsed >= total then
 				break
 			end
 			local angle: number
 			local zoneTransparency: number
-			if elapsed < SWING.HitDelay then
-				local alpha =
-					TweenService:GetValue(elapsed / SWING.HitDelay, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+			if elapsed < windup then
+				local alpha = TweenService:GetValue(elapsed / windup, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 				angle = REST_ANGLE + (WINDUP_ANGLE - REST_ANGLE) * alpha
-				zoneTransparency = 0.85
+				zoneTransparency = ZONE_WINDUP_TRANSPARENCY
 			elseif elapsed < strikeEnd then
 				local alpha = TweenService:GetValue(
-					(elapsed - SWING.HitDelay) / STRIKE_SECONDS,
+					(elapsed - windup) / strikeSeconds,
 					Enum.EasingStyle.Quad,
 					Enum.EasingDirection.In
 				)
 				angle = WINDUP_ANGLE + (STRIKE_ANGLE - WINDUP_ANGLE) * alpha
-				zoneTransparency = 0.5
+				zoneTransparency = ZONE_STRIKE_TRANSPARENCY
 			else
-				local alpha = (elapsed - strikeEnd) / RECOVER_SECONDS
+				if not landed then
+					landed = true
+					duckIntern(lane)
+				end
+				local alpha = (elapsed - strikeEnd) / recover
 				angle = STRIKE_ANGLE + (REST_ANGLE - STRIKE_ANGLE) * alpha
-				zoneTransparency = 0.5 + 0.5 * alpha
+				zoneTransparency = ZONE_STRIKE_TRANSPARENCY + (1 - ZONE_STRIKE_TRANSPARENCY) * alpha
 			end
 			local direction = forward * math.cos(angle) + up * math.sin(angle)
 			stick.CFrame = CFrame.lookAt(handle + direction * (STICK_LENGTH / 2), handle + direction * STICK_LENGTH)
-			zone.Transparency = zoneTransparency
+			if zone then
+				zone.Transparency = zoneTransparency
+			end
 			RunService.RenderStepped:Wait()
 		end
 		stick:Destroy()
-		zone:Destroy()
+		if zone then
+			zone:Destroy()
+		end
 		swinging[slot] = nil
 	end)
 end
 
-local function onShibaSwung(slot: unknown)
+local function onShibaSwung(slot: unknown, _serverTime: unknown, automated: unknown)
 	if not active or typeof(slot) ~= "number" then
 		return
 	end
-	playSwing(math.floor(slot))
+	playSwing(math.floor(slot), automated == true)
 end
 
--- The owner stood in a swing's hit zone: fling the own character (the bonus was already paid by the server).
+-- The owner stood in a swing's hit zone: a small fling of the own character (the bonus was already paid by the server).
 local function onPlayerBonked(_slot: unknown, launch: unknown)
 	if not active or typeof(launch) ~= "Vector3" then
 		return
@@ -786,16 +882,14 @@ local function onPlayerBonked(_slot: unknown, launch: unknown)
 	local character = player.Character
 	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
 	local humanoid = if character then character:FindFirstChildOfClass("Humanoid") else nil
-	if speed ~= speed or speed > MAX_LAUNCH_SPEED or not root or not root:IsA("BasePart") or not humanoid then
+	if speed ~= speed or speed == math.huge or not root or not root:IsA("BasePart") or not humanoid then
 		return
 	end
-	humanoid.PlatformStand = true
+	if speed > MAX_LAUNCH_SPEED then
+		launch = launch.Unit * MAX_LAUNCH_SPEED
+	end
+	humanoid:ChangeState(Enum.HumanoidStateType.Freefall)
 	root.AssemblyLinearVelocity = launch
-	task.delay(BONK_STUN_SECONDS, function()
-		if humanoid.Parent then
-			humanoid.PlatformStand = false
-		end
-	end)
 end
 
 function TycoonController.Init()
