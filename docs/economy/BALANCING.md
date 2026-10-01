@@ -270,44 +270,42 @@ minutes of income.
 
 ## Street tycoon (30 bays)
 
-`docs/economy/street_sim.luau` (`lune run docs/economy/street_sim`) simulates the street mode (docs/GAME_DESIGN.md, "Street, plots
-and buttons" and "One Shiba per expansion"). It loads the real `Config/Tycoon`, `Util/TycoonMath` and `Util/TycoonSteps`.
-`SWEEP=1` runs a grid, `CASES="bay:autoSec:autoGrowth:levelCostSec:levelCostGrowth;..."` runs chosen sets, and the
-environment variables `BAY_SECONDS`, `AUTO_SECONDS`, `AUTO_GROWTH`, `LEVEL_COST_SECONDS`, `LEVEL_COST_GROWTH`, `TIER_GROWTH`
-override single constants. Each run takes about 15 s per player type.
+`docs/economy/street_sim.luau` (`lune run docs/economy/street_sim`) simulates the street mode (docs/GAME_DESIGN.md, "Gameplay flow"). It
+loads the REAL `Config/Tycoon`, `Util/TycoonMath`, `Util/TycoonSteps` and every decor theme, so prices, cooldowns, perks, neighbour
+bonuses and the decor reward bonuses are exactly the game's. Environment variables override single constants (`TIER_GROWTH`,
+`BAY_SECONDS`, `DECOR_SCALE`, `AUTO_SECONDS`, `AUTO_GROWTH`, `LEVEL_SECONDS`, `LEVEL_GROWTH`, `PAYOUT_PER_LEVEL`,
+`MIN_COOLDOWN_GROWTH`, `FACTORS=f1,f2,...` for the stage factors), `PLAYER=active|idle`, `STOP_BAY=n`, `DEBUG=1`, `TRACE=minutes`,
+`RESULT=1` (machine-readable bay times). A full run takes about 8 s.
 
-**Model.** Bay 1 is free. Expansion n costs `floor(TierIncome(n-1) * Street.BaySeconds)` and spawns Shiba n (tier n-1, level 1).
-Pad `Auto<n>` automates a Shiba for `AutomationPrice(tier, automatedCount)`. All spawned Shibas earn at once
-(`LaneIncome * GlobalMultiplier`, real perks and neighbour bonuses). An automated Shiba pays its lane rate continuously; a click
-pays income per second times `SwingTimer`, so clicking non-stop also pays exactly the lane rate. Player income = automated lanes +
-ClickEff x the lane rates of the ClickTargets best un-automated Shibas. Arches, Mill rings and ascension are not modelled.
-Done = 30 bays spawned + automated + level 50.
+**Why the first street economy was broken (Marco, 2026-10-01: "the first Shiba went to level 100 without effort, then I could unlock
+everything without waiting").** A Shiba's income at level L is payout(L) / cooldown(L): the payout grows with every level and the
+cooldown shrinks from seconds to milliseconds, so a Shiba earns up to about 20 000 times its level-1 income. The old prices were
+counted in seconds of the LEVEL-1 income (`TierIncome`), so after a few minutes of levelling everything cost almost nothing: with the
+old constants the sim finished the whole game (30 bays, all decor, all Interns, all levels 100) in 1.4 h.
 
-**Policy.** Greedy: buy the purchase with the smallest "seconds until affordable + payback" (level up, automate, next expansion;
-the expansion's gain is counted as if the new Shiba were automated). Player types: active clicker (ClickEff 0.6, clicks the 2
-newest un-automated Shibas) and idle player (ClickEff 0.2, 1 Shiba, automation score x0.25 so it automates everything asap).
+**The model now.**
+- Level cost: `LevelCost(tier, level, street)` = `StreetLevelSeconds` (8) x `StreetLevelGrowth`^(level-1) seconds of the Shiba's OWN income at that
+  level (first upgrade of Shiba 1 = $8 = 8 clicks).
+- All other prices are counted in seconds of `StreetReadyIncome(tier)` = the income a Shiba earns at `ReadyLevel` 25 (what the player
+  typically has when the purchase is due): expansion n = `StreetReadyIncome(n-2) x BaySeconds x StageFactor[n-1]`, a decor part =
+  `StreetReadyIncome(bay-1) x PriceSeconds x DecorScale x StageFactor[bay]`, the Bonk Intern = `StreetReadyIncome(tier) x
+  AutomationSeconds x AutomationGrowth^(Interns bought)`. `TierGrowth` (street only) is 4.
+- Stage n = the decor of bay n + the expansion to bay n+1. `StageFactor[n]` (29 numbers in `Config/Tycoon`) was calibrated per stage
+  (secant search on the sim, `node docs/tools/calibrate_street.js`) so that every stage takes: 8 min for stages 1 to 3, then 17%
+  longer than the stage before. The factors are rough where the themes differ (10 to 30 parts, different PriceSeconds).
+- Lowest cooldown per tier (`MinCooldownGrowth` 1.25) and +100% of the level-1 payout per level (`PayoutPerLevel` 1) as in
+  docs/GAME_DESIGN.md. Decor of bays 6 to 30 has no `RewardMult` yet: the sim assumes x6 per theme.
 
-**Results** (hours; "wait" = longest time without a purchase inside the first 10 h):
+**Player.** Heads for the next progress item (a decor part, then the next Shiba); while it is not affordable it buys only what pays for
+itself before that moment (level ups, Interns). ACTIVE clicks (3 clicks/s cap, 50% of the time), IDLE stops clicking after its first Intern.
 
-| Constants | Player | 1st automation | Shiba 2 | Shiba 10 | Shiba 30 | All automated | Done (all lvl 50) | Longest wait |
-|---|---|---|---|---|---|---|---|---|
-| Current (Bay 40, Auto 60 x 1.5, LevelCost 20 x 1.17) | active | 4.8 min | 3.0 min | 15 min | 44 min | 6.3 h | 6.3 h | 3.9 h |
-| Current | idle | 5.0 min | 6.8 min | 43 min | 2.8 h | 6.4 h | 6.4 h | 1.5 h |
-| Recommended (Bay 80, Auto 60 x 1.25, LevelCost 225 x 1.21) | active | 1.7 min | 5.3 min | 27 min | 1.4 h | 3.9 h | 63.3 h | 36 min |
-| Recommended | idle | 5.0 min | 8.6 min | 45 min | 4.8 h | 12.6 h | 72.4 h | 42 min |
+**Result** (hours until the Shiba is bought; active, a lower bound: real players need 1.3 to 1.6 times as long):
+Shiba 2: 0.13 h, 3: 0.26, 5: 0.55, 10: 1.8, 15: 4.6, 20: 10.7, 25: 24, 30: 53.4 h. Stage times: 8 min (stages 1 to 4), 15 min (stage 8),
+28 min (stage 12), 51 min (stage 16), 96 min (stage 20), 3.6 h (stage 25), 7.7 h (stage 29). Shiba 1 is level 21 when Shiba 2 is bought
+(8 min), 46 at 16 min, 70 at 33 min and about 80 after 1.8 h; the idle player is within 1% of the active one because the Intern is cheap.
+After the last Shiba every level is bought within minutes (no ascension yet), so the game ends with the last expansion.
 
-With the current constants the whole game is over in about 6 h: a level costs 20 s of the Shiba's level-1 income, but 30 lanes earn
-at once, so levels are far too cheap, and AutomationGrowth 1.5 makes the last automations cost days of income (x1.5^29). Shiba 2
-also comes before the first automation because it pays back faster.
-
-**Recommended constants** (to apply in `src/shared/Config/Tycoon.luau` in a separate PR): `Street.BaySeconds` 40 -> 80,
-`Swing.AutomationGrowth` 1.5 -> 1.25, `Lane.LevelCostSeconds` 20 -> 225, `Lane.LevelCostGrowth` 1.17 -> 1.21.
-`Swing.AutomationSeconds` (60) and `Lane.TierGrowth` (2.7) stay. The game-length lever is the level cost (steep growth makes
-the levels 40 to 50 the wall); the bay and automation prices shape the first hours: all bays are open after 1.4 h (active) and
-the automations are done after 4 to 13 h, then the levelling carries the rest. The sim is a lower bound: with the usual
-factor 1.3 to 1.6 a real first run takes about 80 to 100+ hours.
-
-**Assumptions and doubts.** No boosts, passes, events, variants, arches or rings; perfect greedy play; ClickEff is a guess
-(0.6 / 0.2); `Steps.Price` for automation uses the automated count regardless of which Shiba is automated. The longest gaps
-(35 to 45 min) are the level walls, not dead phases. Decor and theme unlock prices (designed separately) are NOT part of the
-simulation yet: they add spend and will lengthen the run, so re-run and lower the level cost if the total grows past the target.
+**Re-calibrating.** After changing any constant or a theme (prices, `RewardMult`), run `node docs/tools/calibrate_street.js BAY_SECONDS=300
+DECOR_SCALE=0.1 AUTO_SECONDS=60 AUTO_GROWTH=1.08` (about 3 minutes): for stage n = 1 to 29 it finds `StageFactor[n]` until stage n takes its target
+(8 min, then x1.17 per stage) and prints the new factors for `Config/Tycoon`. The sim prints the stage times (`minutes per stage`); the numbers
+above are what the committed constants give.

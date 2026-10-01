@@ -150,10 +150,11 @@ return {
 		-- Every upgrade level also raises the payout per hit by this share of the level-1 payout (linear: $1, $2, $3 ... per hit
 		-- for the first Shiba, so an upgrade is felt at once).
 		PayoutPerLevel = 1,
-		-- Street mode level costs (TycoonMath.LevelCost): an upgrade costs this many hits of the current payout at level 1, growing
-		-- by StreetClickGrowth per level. The first upgrade of the first Shiba is 8 clicks away.
-		StreetClicksStart = 8,
-		StreetClickGrowth = 1.04,
+		-- Street mode level costs (TycoonMath.LevelCost): an upgrade costs StreetLevelSeconds of the Shiba's OWN income at its current
+		-- level (so the first upgrade of the first Shiba, earning 1 per second, is 8 clicks away), growing by StreetLevelGrowth per
+		-- level: the better a Shiba already is, the longer its next upgrade takes.
+		StreetLevelSeconds = 8,
+		StreetLevelGrowth = 1.05,
 		StreetLevelCap = 100,
 		-- The stick lands this share of the cooldown after the swing starts, at most HitDelay seconds.
 		HitDelayShare = 0.45,
@@ -169,8 +170,54 @@ return {
 		Bays = 30,
 		-- Floor pads shown at the same time.
 		MaxPads = 3,
-		-- Expansion n (n >= 2) costs TierIncome(n - 1) * BaySeconds; the first one is free.
-		BaySeconds = 40,
+		-- Street mode has its own income scale (the island tycoon keeps Lane.BaseIncome / TierGrowth): the base income of Shiba n
+		-- (level 1) is BaseIncome * TierGrowth ^ (n - 1) per second, TycoonMath.StreetTierIncome.
+		BaseIncome = 1,
+		TierGrowth = 4,
+		-- Prices are counted in seconds of the income a Shiba earns at ReadyLevel (TycoonMath.StreetReadyIncome), because levels
+		-- multiply a Shiba's income far more than its tier does: the Shiba of a bay at ReadyLevel is what the player typically has
+		-- when the next purchase is due.
+		ReadyLevel = 25,
+		-- Stage n = the decor of bay n plus the expansion to bay n + 1. StageFactor[n] multiplies the prices of that stage (default 1);
+		-- it is calibrated with docs/economy/street_sim so that every stage takes the intended time (it grows from stage to stage).
+		StageFactor = {
+			0.5208, -- stage 1
+			8.037, -- stage 2
+			35.02, -- stage 3
+			67.66, -- stage 4
+			125, -- stage 5
+			242.9, -- stage 6
+			376.7, -- stage 7
+			604, -- stage 8
+			767, -- stage 9
+			808, -- stage 10
+			864.9, -- stage 11
+			1252, -- stage 12
+			2374, -- stage 13
+			3567, -- stage 14
+			5437, -- stage 15
+			6524, -- stage 16
+			6339, -- stage 17
+			7607, -- stage 18
+			12450, -- stage 19
+			18220, -- stage 20
+			42300, -- stage 21
+			31230, -- stage 22
+			21280, -- stage 23
+			27040, -- stage 24
+			37430, -- stage 25
+			32000, -- stage 26
+			52150, -- stage 27
+			33270, -- stage 28
+			24850, -- stage 29
+		} :: { [number]: number },
+		-- Expansion n (n >= 2) costs StreetReadyIncome(n - 2) * BaySeconds * StageFactor[n - 1] (the Shiba before it); the first one is free.
+		BaySeconds = 300,
+		-- A decor part costs StreetReadyIncome(bay - 1) * its PriceSeconds * DecorScale * StageFactor[bay].
+		DecorScale = 0.1,
+		-- The Bonk Intern of a Shiba costs StreetReadyIncome * AutomationSeconds * AutomationGrowth ^ (Shibas already automated).
+		AutomationSeconds = 60,
+		AutomationGrowth = 1.08,
 		-- Decor is bought in this many parallel chains, so this many decor pads are visible at once (Util/TycoonSteps).
 		DecorChains = 2,
 	},

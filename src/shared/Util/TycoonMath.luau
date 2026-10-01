@@ -17,6 +17,25 @@ function TycoonMath.TierIncome(tier: number): number
 	return LANE.BaseIncome * LANE.TierGrowth ^ tier
 end
 
+-- Street mode: the base income per second (level 1) of the Shiba of `tier`.
+function TycoonMath.StreetTierIncome(tier: number): number
+	return Config.Street.BaseIncome * Config.Street.TierGrowth ^ tier
+end
+
+-- Street mode: the income per second a Shiba of `tier` earns at Street.ReadyLevel (the yardstick of the street prices).
+function TycoonMath.StreetReadyIncome(tier: number): number
+	local level = Config.Street.ReadyLevel
+	return TycoonMath.BonkPayout(tier, level) / TycoonMath.SwingCooldown(tier, level)
+end
+
+-- Street mode: price of the Bonk Intern of a Shiba of `tier` when `automated` Shibas already have one.
+function TycoonMath.StreetAutomationPrice(tier: number, automated: number): number
+	local street = Config.Street
+	return math.floor(
+		TycoonMath.StreetReadyIncome(tier) * street.AutomationSeconds * street.AutomationGrowth ^ automated
+	)
+end
+
 function TycoonMath.LevelCap(ascensions: number): number
 	return math.min(LANE.LevelCapHard, LANE.LevelCapBase + LANE.LevelCapPerAscension * ascensions)
 end
@@ -42,13 +61,13 @@ function TycoonMath.LevelMultiplier(level: number): number
 	return base * milestones * beyond
 end
 
--- Cost of raising a Shiba of `tier` from `level` to `level + 1`. Street mode: about StreetClicksStart hits of the Shiba's current
--- payout at level 1 (so the first upgrade is 5 to 10 clicks away), a few percent more hits with every level.
+-- Cost of raising a Shiba of `tier` from `level` to `level + 1`. Street mode: StreetLevelSeconds * StreetLevelGrowth ^ (level - 1)
+-- seconds of the Shiba's own income at that level.
 function TycoonMath.LevelCost(tier: number, level: number, street: boolean?): number
 	if street == true then
 		local swing = Config.Swing
-		local hits = swing.StreetClicksStart * swing.StreetClickGrowth ^ (level - 1)
-		return math.max(1, math.floor(TycoonMath.BonkPayout(tier, level) * hits))
+		local rate = TycoonMath.BonkPayout(tier, level) / TycoonMath.SwingCooldown(tier, level)
+		return math.max(1, math.floor(rate * swing.StreetLevelSeconds * swing.StreetLevelGrowth ^ (level - 1)))
 	end
 	return math.floor(TycoonMath.TierIncome(tier) * LANE.LevelCostSeconds * LANE.LevelCostGrowth ^ (level - 1))
 end
@@ -115,7 +134,7 @@ end
 -- Street mode: the money one hit pays before multipliers (bigger and rarer for higher Shibas; every level adds a little).
 function TycoonMath.BonkPayout(tier: number, level: number?): number
 	local gain = 1 + Config.Swing.PayoutPerLevel * ((level or 1) - 1)
-	return TycoonMath.TierIncome(tier) * TycoonMath.BaseCooldown(tier) * gain
+	return TycoonMath.StreetTierIncome(tier) * TycoonMath.BaseCooldown(tier) * gain
 end
 
 -- The level cap that applies to this player's Shibas.

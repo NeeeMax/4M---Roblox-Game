@@ -21,3 +21,4 @@ desktop.ini
 # Local Claude Code settings (shared rules live in CLAUDE.md)
 .claude/settings.local.json
 CLAUDE.local.md
+street_factors.json

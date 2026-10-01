@@ -150,15 +150,24 @@ end
 function TycoonSteps.Price(step: Step, tycoon: TycoonState): number
 	if step.Kind == "Decor" then
 		local part = decorPart(step)
-		return if part then math.floor(TycoonMath.TierIncome(step.Bay - 1) * part.PriceSeconds) else 0
+		return if part
+			then math.floor(
+				TycoonMath.StreetReadyIncome(step.Bay - 1)
+					* part.PriceSeconds
+					* STREET.DecorScale
+					* (STREET.StageFactor[step.Bay] or 1)
+			)
+			else 0
 	end
 	if step.Kind == "Bay" then
 		if step.Bay <= 1 then
 			return 0
 		end
-		return math.floor(TycoonMath.TierIncome(step.Bay - 1) * STREET.BaySeconds)
+		return math.floor(
+			TycoonMath.StreetReadyIncome(step.Bay - 2) * STREET.BaySeconds * (STREET.StageFactor[step.Bay - 1] or 1)
+		)
 	end
-	return TycoonMath.AutomationPrice(step.Bay - 1, TycoonMath.AutomatedCount(tycoon))
+	return TycoonMath.StreetAutomationPrice(step.Bay - 1, TycoonMath.AutomatedCount(tycoon))
 end
 
 local function shibaName(bay: number): string
