@@ -20,6 +20,7 @@ local TycoonDecor = require(ReplicatedStorage.Shared.Config.TycoonDecor)
 local TycoonWorld = require(ReplicatedStorage.Shared.Config.TycoonWorld)
 local Assets = require(ReplicatedStorage.Shared.Util.Assets)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
+local StreetLayout = require(ReplicatedStorage.Shared.Util.StreetLayout)
 local TycoonSteps = require(ReplicatedStorage.Shared.Util.TycoonSteps)
 local Types = require(ReplicatedStorage.Shared.Types)
 
@@ -57,6 +58,11 @@ type PadRefs = {
 
 type Plot = {
 	Owner: Player,
+	-- The street slot and how many stages the walled cell covers (StreetService.SetReach).
+	Slot: number,
+	WallReach: number,
+	-- Per bay: half the width of the cell at that stage.
+	HalfWidth: { [number]: number },
 	Folder: Folder,
 	Actions: Actions,
 	-- Where the plot meets the road (on the centre line), the direction away from the road and the owner's right.
@@ -180,6 +186,10 @@ local function buildGroup(plot: Plot, number: number): Folder
 	local stairs = math.floor(LAYOUT.Rise / LAYOUT.StairRise + 0.5)
 	local ramp = stairs * LAYOUT.StairRun
 	local to = plot.Starts[last] + plot.Depths[last]
+	local widest = 0
+	for bay = first, last do
+		widest = math.max(widest, plot.HalfWidth[bay])
+	end
 
 	plotBox(
 		plot,
@@ -187,7 +197,7 @@ local function buildGroup(plot: Plot, number: number): Folder
 		(plot.Starts[first] + to) / 2,
 		0,
 		to - plot.Starts[first],
-		Street.PlotWidth - 2 * LAYOUT.WallThickness,
+		2 * widest,
 		-1,
 		height,
 		LAYOUT.TerraceColor,
@@ -546,34 +556,23 @@ function StreetPlot.Build(player: Player, island: StreetService.Island, actions:
 	local towardRoad = direction(island.HubAngle)
 	local back = -towardRoad
 
-	-- The stages follow each other from the road: stage n is as deep as its theme plus the margin.
-	local starts: { [number]: number } = {}
-	local depths: { [number]: number } = {}
-	-- Every GroupSize-th Shiba stands on the next terrace: a staircase is inserted before its stage.
-	local elev: { [number]: number } = {}
-	local ramp = math.floor(LAYOUT.Rise / LAYOUT.StairRise + 0.5) * LAYOUT.StairRun
-	local depth = LAYOUT.FirstStageDepth
-	for bay = 1, TycoonSteps.Bays do
-		if bay > 1 and (bay - 1) % LAYOUT.GroupSize == 0 then
-			depth += ramp
-		end
-		starts[bay] = depth
-		elev[bay] = math.floor((bay - 1) / LAYOUT.GroupSize) * LAYOUT.Rise
-		depths[bay] = areaOf(bay).Y + LAYOUT.StageMargin
-		depth += depths[bay]
-	end
+	-- The stages follow each other from the road (Util/StreetLayout).
+	local layout = StreetLayout.Compute()
 
 	plots[player] = {
 		Owner = player,
+		Slot = island.Slot,
+		WallReach = 1,
+		HalfWidth = layout.HalfWidth,
 		Folder = folder,
 		Actions = actions,
 		RoadEnd = island.Center + towardRoad * (Street.PlotDepth / 2),
 		Back = back,
 		Right = back:Cross(Vector3.yAxis),
-		Elev = elev,
+		Elev = layout.Elev,
 		Terrain = {},
-		Starts = starts,
-		Depths = depths,
+		Starts = layout.Starts,
+		Depths = layout.Depths,
 		Bays = {},
 		Paths = {},
 		Pads = {},
@@ -615,6 +614,12 @@ function StreetPlot.Refresh(player: Player, state: Types.PlayerState)
 		end
 	end
 	refreshTerrain(plot, reached)
+	-- The cell of rock walls grows with the plot too.
+	reached = math.max(reached, 1)
+	if plot.WallReach ~= reached then
+		plot.WallReach = reached
+		StreetService.SetReach(plot.Slot, reached)
+	end
 
 	for _, step in visible do
 		wanted[step.Id] = true

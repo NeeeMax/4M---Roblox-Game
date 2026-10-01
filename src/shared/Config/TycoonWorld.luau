@@ -44,13 +44,16 @@ return {
 		StairColor = Color3.fromRGB(120, 78, 45),
 		TerraceColor = Color3.fromRGB(150, 95, 52),
 		TerraceMaterial = Enum.Material.Rock,
-		-- Privacy wall all around every one of the 10 plots (StreetService, built from the start): WallHeight, WallThickness, the front
-		-- wall (FrontWallDepth from the road) has an opening of OpeningWidth in the middle.
-		WallHeight = 30,
-		WallThickness = 2,
-		FrontWallDepth = 6,
-		OpeningWidth = 28,
+		-- The cell around a plot's reached stages (World/PlotWalls): brown rock cliffs CliffHeight above the terrace, WallThickness
+		-- thick, WallMargin wider than the stage on each side. It starts at stage 1 and grows with every Shiba that becomes available.
+		CliffHeight = 24,
+		CliffColor = Color3.fromRGB(150, 95, 52),
+		WallThickness = 4,
+		WallMargin = 6,
+		-- The one wall around all 10 plots and the road (StreetService): white.
 		WallColor = Color3.fromRGB(238, 238, 242),
+		OuterWallHeight = 40,
+		OuterWallThickness = 8,
 		-- Depth (from the road end of the plot) where the first stage starts, and the free margin added to every stage's Area.
 		FirstStageDepth = 20,
 		StageMargin = 10,

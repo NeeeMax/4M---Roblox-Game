@@ -18,7 +18,9 @@ local Street = require(ReplicatedStorage.Shared.Config.Street)
 local Tutorial = require(ReplicatedStorage.Shared.Config.Tutorial)
 local TycoonWorld = require(ReplicatedStorage.Shared.Config.TycoonWorld)
 local World = require(ReplicatedStorage.Shared.Config.World)
+local StreetLayout = require(ReplicatedStorage.Shared.Util.StreetLayout)
 
+local PlotWalls = require(script.Parent.Parent.World.PlotWalls)
 local Signs = require(script.Parent.Parent.World.Signs)
 
 local ISLAND = Gameplay.Island
@@ -51,6 +53,11 @@ type Plot = {
 	Color: Color3,
 	NameLabel: TextLabel,
 	Owner: Player?,
+	-- The plot's model, where it meets the road, the walled cell around the reached stages and how many stages it covers.
+	Model: Model,
+	Frame: PlotWalls.Frame,
+	Walls: Folder?,
+	Reached: number,
 }
 
 local ENABLED = Features.Street and Features.Tycoon
@@ -89,6 +96,44 @@ end
 -- Distance from the road centre to where the plots start (road edge plus the sidewalk).
 local function plotEdge(): number
 	return ROAD.Width / 2 + ROAD.SidewalkWidth
+end
+
+-- ONE white wall around all 10 plots and the road (no walls between the plots).
+local function buildOuterWall(parent: Instance)
+	local origin = Street.Origin
+	local walls = TycoonWorld.Street
+	local thick = walls.OuterWallThickness
+	local halfX = Street.PlotsPerSide * Street.PlotPitch / 2 + ROAD.Margin + thick / 2
+	local halfZ = plotEdge() + Street.PlotDepth + thick / 2
+	local height = walls.OuterWallHeight + 1
+	local middleY = origin.Y + (walls.OuterWallHeight - 1) / 2
+	for _, side in { -1, 1 } do
+		newPart(
+			"OuterWall",
+			Vector3.new(2 * halfX + thick, height, thick),
+			CFrame.new(origin.X, middleY, origin.Z + side * halfZ),
+			walls.WallColor,
+			parent,
+			true
+		)
+	end
+	-- The two ends of the road: long, so built from segments.
+	local length = 2 * halfZ + thick
+	for _, side in { -1, 1 } do
+		local from = origin.Z - length / 2
+		while from < origin.Z + length / 2 do
+			local part = math.min(GROUND_SEGMENT, origin.Z + length / 2 - from)
+			newPart(
+				"OuterWall",
+				Vector3.new(thick, height, part),
+				CFrame.new(origin.X + side * halfX, middleY, from + part / 2),
+				walls.WallColor,
+				parent,
+				true
+			)
+			from += part
+		end
+	end
 end
 
 local function buildRoad(parent: Instance)
@@ -159,51 +204,6 @@ local function buildPlot(slot: number, parent: Instance): Plot
 		segment.Material = Enum.Material.Grass
 	end
 
-	-- Privacy wall all around the plot: both sides, the back, and the front with an entrance in the middle. Parts are at
-	-- most GROUND_SEGMENT long.
-	do
-		local walls = TycoonWorld.Street
-		local thick = walls.WallThickness
-		local height = walls.WallHeight + 1
-		local middleY = origin.Y + (walls.WallHeight - 1) / 2
-		local function wall(name: string, size: Vector3, at: Vector3)
-			newPart(name, size, CFrame.new(at), walls.WallColor, model, true)
-		end
-		for _, lateral in { -1, 1 } do
-			for number = 1, segments do
-				local from = (number - 1) * GROUND_SEGMENT
-				local length = math.min(GROUND_SEGMENT, Street.PlotDepth - from)
-				wall(
-					`WallSide{number}`,
-					Vector3.new(thick, height, length),
-					Vector3.new(
-						x + lateral * (Street.PlotWidth / 2 - thick / 2),
-						middleY,
-						origin.Z + side * (edge + from + length / 2)
-					)
-				)
-			end
-		end
-		wall(
-			"WallBack",
-			Vector3.new(Street.PlotWidth, height, thick),
-			Vector3.new(x, middleY, origin.Z + side * (edge + Street.PlotDepth - thick / 2))
-		)
-		local opening = walls.OpeningWidth / 2
-		local wing = Street.PlotWidth / 2 - opening
-		for _, lateral in { -1, 1 } do
-			wall(
-				"WallFront",
-				Vector3.new(wing, height, thick),
-				Vector3.new(
-					x + lateral * (opening + wing / 2),
-					middleY,
-					origin.Z + side * (edge + walls.FrontWallDepth)
-				)
-			)
-		end
-	end
-
 	-- Entrance mat at the road end of the plot, in the plot's own colour.
 	newPart(
 		"EntranceMat",
@@ -238,8 +238,28 @@ local function buildPlot(slot: number, parent: Instance): Plot
 	local label = Signs.Text(board, Enum.NormalId.Front, PLOT.FreeText, color)
 	Signs.Mirror(board, label)
 
+	-- The walled cell: stage 1 until the owner reaches further (StreetService.SetReach).
+	local back = Vector3.new(0, 0, side)
+	local frame: PlotWalls.Frame = {
+		RoadEnd = Vector3.new(x, origin.Y, origin.Z + side * edge),
+		Back = back,
+		Right = back:Cross(Vector3.yAxis),
+	}
+	local walls = PlotWalls.Build(model, frame, StreetLayout.Compute(), 1)
+
 	model.Parent = parent
-	return { Slot = slot, Side = side, X = x, Center = center, Color = color, NameLabel = label }
+	return {
+		Slot = slot,
+		Side = side,
+		X = x,
+		Center = center,
+		Color = color,
+		NameLabel = label,
+		Model = model,
+		Frame = frame,
+		Walls = walls,
+		Reached = 1,
+	}
 end
 
 -- ==== players ==========================================================================================================
@@ -351,8 +371,22 @@ local function onPlayerRemoving(player: Player)
 	islands[player] = nil
 	local plot = plots[island.Slot]
 	plot.Owner = nil
+	StreetService.SetReach(island.Slot, 1)
 	Signs.SetText(plot.NameLabel, PLOT.FreeText)
 	island.Model:Destroy()
+end
+
+-- The walled cell of plot `slot` covers the stages 1 … `reached` (the highest Shiba that is available to its owner).
+function StreetService.SetReach(slot: number, reached: number)
+	local plot = plots[slot]
+	if not plot or plot.Reached == reached then
+		return
+	end
+	plot.Reached = reached
+	if plot.Walls then
+		plot.Walls:Destroy()
+	end
+	plot.Walls = PlotWalls.Build(plot.Model, plot.Frame, StreetLayout.Compute(), reached)
 end
 
 function StreetService.Init()
@@ -366,6 +400,7 @@ function StreetService.Init()
 	local streetFolder = Instance.new("Folder")
 	streetFolder.Name = "Street"
 	buildRoad(streetFolder)
+	buildOuterWall(streetFolder)
 	for slot = 1, Street.PlotCount do
 		table.insert(plots, buildPlot(slot, streetFolder))
 	end
