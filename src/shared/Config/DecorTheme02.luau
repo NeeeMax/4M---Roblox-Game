@@ -167,13 +167,16 @@ local function barHut(): { DecorTypes.Piece }
 	return p
 end
 
-local function signBoard(): { DecorTypes.Piece }
+local function kiosk(): { DecorTypes.Piece }
 	local p: { DecorTypes.Piece } = {}
-	table.insert(p, pole(21, 40, 15, 1.6, DARKWOOD, WOOD))
-	table.insert(p, pole(39, 40, 15, 1.6, DARKWOOD, WOOD))
-	table.insert(p, piece(Vector3.new(24, 7, 1.2), Vector3.new(30, 14, 40), RED, WOOD, BLOCK))
-	table.insert(p, piece(Vector3.new(20, 4, 0.4), Vector3.new(30, 14, 40.8), YELLOW, PLASTIC, BLOCK))
-	table.insert(p, piece(Vector3.new(26, 0.8, 1.6), Vector3.new(30, 18, 40), DARKWOOD, WOOD, BLOCK))
+	table.insert(p, piece(Vector3.new(14, 0.6, 10), Vector3.new(30, 0.3, 40), DECK, PLANK, BLOCK))
+	table.insert(p, piece(Vector3.new(14, 7, 0.8), Vector3.new(30, 4, 44.6), YELLOW, PLANK, BLOCK))
+	table.insert(p, piece(Vector3.new(0.8, 7, 9), Vector3.new(23.4, 4, 40), YELLOW, PLANK, BLOCK))
+	table.insert(p, piece(Vector3.new(0.8, 7, 9), Vector3.new(36.6, 4, 40), YELLOW, PLANK, BLOCK))
+	table.insert(p, piece(Vector3.new(14, 1.4, 1.6), Vector3.new(30, 2.1, 35.4), RED, WOOD, BLOCK))
+	table.insert(p, piece(Vector3.new(16, 0.8, 12), Vector3.new(30, 9.4, 40), RED, FABRIC, BLOCK))
+	table.insert(p, piece(Vector3.new(16, 0.8, 3), Vector3.new(30, 9, 34.2), WHITE, FABRIC, BLOCK))
+	table.insert(p, piece(Vector3.new(3, 2.4, 3), Vector3.new(26, 1.8, 37), TEAL, PLASTIC, BLOCK))
 	return p
 end
 
@@ -310,6 +313,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "BarHut",
+			RewardMult = 2,
 			Name = "Beach Bar Hut",
 			Description = "A teal bar hut with a thatched roof, a counter and three red stools.",
 			Pad = Vector2.new(-42, 10),
@@ -317,12 +321,13 @@ local theme: DecorTypes.Theme = {
 			Pieces = barHut(),
 		},
 		{
-			Id = "BonkedSign",
-			Name = "Get Bonked Sign",
-			Description = "A big wooden sign on two posts that welcomes everyone to the beach.",
+			Id = "Kiosk",
+			Name = "Beach Kiosk",
+			Description = "A sunny yellow kiosk with a red awning that sells ice cream and drinks.",
+			RewardMult = 1.2,
 			Pad = Vector2.new(30, 32),
 			PriceSeconds = 25,
-			Pieces = signBoard(),
+			Pieces = kiosk(),
 		},
 		{
 			Id = "PalmTrees",
@@ -334,6 +339,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Parasols",
+			RewardMult = 1.2,
 			Name = "Parasols and Loungers",
 			Description = "Red and yellow parasols over three sun loungers.",
 			Pad = Vector2.new(44, 14),
@@ -350,6 +356,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Volleyball",
+			RewardMult = 1.1,
 			Name = "Volleyball Court",
 			Description = "A sand court with a high net, white lines and a yellow ball.",
 			Pad = Vector2.new(-12, -28),
@@ -358,6 +365,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Boat",
+			RewardMult = 1.3,
 			Name = "Little Sailboat",
 			Description = "A red and brown sailboat moored at the edge of the sea.",
 			Pad = Vector2.new(67, 32),
@@ -374,6 +382,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Lifeguard",
+			RewardMult = 1.5,
 			Name = "Lifeguard Tower",
 			Description = "A tall red and white lifeguard tower with a ladder, a flag and a rescue buoy.",
 			Pad = Vector2.new(52, -30),
