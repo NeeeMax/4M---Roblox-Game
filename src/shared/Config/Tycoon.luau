@@ -143,7 +143,12 @@ return {
 		-- MinCooldown at StreetLevelCap, so a fully upgraded Shiba bonks every few milliseconds.
 		CooldownPerTier = 4,
 		MaxBaseCooldown = 120,
+		-- The lowest cooldown a Shiba can reach: MinCooldown for the first Shiba, times MinCooldownGrowth for every tier above it
+		-- (5 ms, 0.05 s at Shiba 10, 0.4 s at Shiba 20, 3 s at Shiba 30), so higher Shibas stay slower even fully upgraded.
 		MinCooldown = 0.005,
+		MinCooldownGrowth = 1.25,
+		-- Every upgrade level also raises the payout per hit by this share of the level-1 payout (linear, about x2 at level 100).
+		PayoutPerLevel = 0.01,
 		StreetLevelCap = 100,
 		-- The stick lands this share of the cooldown after the swing starts, at most HitDelay seconds.
 		HitDelayShare = 0.45,
