@@ -16,6 +16,7 @@ local Features = require(ReplicatedStorage.Shared.Config.Features)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local Street = require(ReplicatedStorage.Shared.Config.Street)
 local Tutorial = require(ReplicatedStorage.Shared.Config.Tutorial)
+local TycoonWorld = require(ReplicatedStorage.Shared.Config.TycoonWorld)
 local World = require(ReplicatedStorage.Shared.Config.World)
 
 local Signs = require(script.Parent.Parent.World.Signs)
@@ -156,6 +157,51 @@ local function buildPlot(slot: number, parent: Instance): Plot
 			true
 		)
 		segment.Material = Enum.Material.Grass
+	end
+
+	-- Privacy wall all around the plot: both sides, the back, and the front with an entrance in the middle. Parts are at
+	-- most GROUND_SEGMENT long.
+	do
+		local walls = TycoonWorld.Street
+		local thick = walls.WallThickness
+		local height = walls.WallHeight + 1
+		local middleY = origin.Y + (walls.WallHeight - 1) / 2
+		local function wall(name: string, size: Vector3, at: Vector3)
+			newPart(name, size, CFrame.new(at), walls.WallColor, model, true)
+		end
+		for _, lateral in { -1, 1 } do
+			for number = 1, segments do
+				local from = (number - 1) * GROUND_SEGMENT
+				local length = math.min(GROUND_SEGMENT, Street.PlotDepth - from)
+				wall(
+					`WallSide{number}`,
+					Vector3.new(thick, height, length),
+					Vector3.new(
+						x + lateral * (Street.PlotWidth / 2 - thick / 2),
+						middleY,
+						origin.Z + side * (edge + from + length / 2)
+					)
+				)
+			end
+		end
+		wall(
+			"WallBack",
+			Vector3.new(Street.PlotWidth, height, thick),
+			Vector3.new(x, middleY, origin.Z + side * (edge + Street.PlotDepth - thick / 2))
+		)
+		local opening = walls.OpeningWidth / 2
+		local wing = Street.PlotWidth / 2 - opening
+		for _, lateral in { -1, 1 } do
+			wall(
+				"WallFront",
+				Vector3.new(wing, height, thick),
+				Vector3.new(
+					x + lateral * (opening + wing / 2),
+					middleY,
+					origin.Z + side * (edge + walls.FrontWallDepth)
+				)
+			)
+		end
 	end
 
 	-- Entrance mat at the road end of the plot, in the plot's own colour.

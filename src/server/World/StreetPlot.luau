@@ -65,6 +65,8 @@ type Plot = {
 	Right: Vector3,
 	-- Per bay: the height of its terrace above the plot's ground.
 	Elev: { [number]: number },
+	-- Built terraces by group number (Refresh).
+	Terrain: { [number]: Folder },
 	-- Per bay: how far from RoadEnd its stage starts and how deep it is (the theme's Area plus the margin).
 	Starts: { [number]: number },
 	Depths: { [number]: number },
@@ -163,103 +165,64 @@ local function plotBox(
 	return solid(name, Vector3.new(width, top - bottom, length), CFrame.lookAt(at, at + plot.Back), color, parent)
 end
 
--- The plot rises in terraces (one per group of Shibas) joined by stairs, and a privacy wall surrounds everything. All of it
--- is static, so it is built once with the plot.
-local function buildTerrain(plot: Plot)
+-- The plot rises in terraces (one per group of Shibas) joined by stairs. They grow with the player: group `number` (2 and up)
+-- appears when its first Shiba becomes available, so the pad of that Shiba stands on its terrace (Refresh decides when).
+local function groupCount(): number
+	return math.ceil(TycoonSteps.Bays / LAYOUT.GroupSize)
+end
+
+local function buildGroup(plot: Plot, number: number): Folder
 	local folder = Instance.new("Folder")
-	folder.Name = "Terrain"
-	folder.Parent = plot.Folder
-	local group = LAYOUT.GroupSize
-	local groups = math.ceil(TycoonSteps.Bays / group)
+	folder.Name = `Terrain{number}`
+	local first = (number - 1) * LAYOUT.GroupSize + 1
+	local last = math.min(TycoonSteps.Bays, number * LAYOUT.GroupSize)
+	local height = plot.Elev[first]
 	local stairs = math.floor(LAYOUT.Rise / LAYOUT.StairRise + 0.5)
 	local ramp = stairs * LAYOUT.StairRun
-	local half = Street.PlotWidth / 2
-	local thick = LAYOUT.WallThickness
+	local to = plot.Starts[last] + plot.Depths[last]
 
-	for number = 1, groups do
-		local first = (number - 1) * group + 1
-		local last = math.min(TycoonSteps.Bays, number * group)
-		local height = plot.Elev[first]
-		local from = if number == 1 then 0 else plot.Starts[first] - ramp
-		local to = if number == groups then Street.PlotDepth else plot.Starts[last] + plot.Depths[last]
-
-		if number > 1 then
-			-- The terrace under this group's stages, and the stairs up to it.
-			plotBox(
-				plot,
-				`Terrace{number}`,
-				(plot.Starts[first] + plot.Starts[last] + plot.Depths[last]) / 2,
-				0,
-				plot.Starts[last] + plot.Depths[last] - plot.Starts[first],
-				Street.PlotWidth,
-				-1,
-				height,
-				LAYOUT.TerraceColor,
-				folder
-			)
-			for step = 1, stairs do
-				plotBox(
-					plot,
-					`Stair{number}_{step}`,
-					plot.Starts[first] - ramp + (step - 0.5) * LAYOUT.StairRun,
-					0,
-					LAYOUT.StairRun,
-					LAYOUT.StairWidth,
-					-1,
-					height - LAYOUT.Rise + step * LAYOUT.StairRise,
-					LAYOUT.StairColor,
-					folder
-				)
-			end
-		end
-
-		-- Side walls rise with the terrace.
-		for _, side in { -1, 1 } do
-			plotBox(
-				plot,
-				`Wall{number}_{if side < 0 then "L" else "R"}`,
-				(from + to) / 2,
-				side * (half - thick / 2),
-				to - from,
-				thick,
-				-1,
-				height + LAYOUT.WallHeight,
-				LAYOUT.WallColor,
-				folder
-			)
-		end
-		if number == groups then
-			plotBox(
-				plot,
-				"WallBack",
-				Street.PlotDepth - thick / 2,
-				0,
-				thick,
-				Street.PlotWidth,
-				-1,
-				height + LAYOUT.WallHeight,
-				LAYOUT.WallColor,
-				folder
-			)
-		end
-	end
-
-	-- Front wall with the entrance in the middle.
-	local opening = LAYOUT.OpeningWidth / 2
-	local wing = half - opening
-	for _, side in { -1, 1 } do
+	plotBox(
+		plot,
+		"Terrace",
+		(plot.Starts[first] + to) / 2,
+		0,
+		to - plot.Starts[first],
+		Street.PlotWidth - 2 * LAYOUT.WallThickness,
+		-1,
+		height,
+		LAYOUT.TerraceColor,
+		folder
+	)
+	for step = 1, stairs do
 		plotBox(
 			plot,
-			`WallFront{if side < 0 then "L" else "R"}`,
-			LAYOUT.FrontWallDepth,
-			side * (opening + wing / 2),
-			thick,
-			wing,
+			`Stair{step}`,
+			plot.Starts[first] - ramp + (step - 0.5) * LAYOUT.StairRun,
+			0,
+			LAYOUT.StairRun,
+			LAYOUT.StairWidth,
 			-1,
-			LAYOUT.WallHeight,
-			LAYOUT.WallColor,
+			height - LAYOUT.Rise + step * LAYOUT.StairRise,
+			LAYOUT.StairColor,
 			folder
 		)
+	end
+	folder.Parent = plot.Folder
+	return folder
+end
+
+-- Builds the terrain of every group that is reached (`reached` = the highest Shiba available) and removes the rest.
+local function refreshTerrain(plot: Plot, reached: number)
+	for number = 2, groupCount() do
+		local built = plot.Terrain[number]
+		if reached >= (number - 1) * LAYOUT.GroupSize + 1 then
+			if not built then
+				plot.Terrain[number] = buildGroup(plot, number)
+			end
+		elseif built then
+			built:Destroy()
+			plot.Terrain[number] = nil
+		end
 	end
 end
 
@@ -603,6 +566,7 @@ function StreetPlot.Build(player: Player, island: StreetService.Island, actions:
 		Back = back,
 		Right = back:Cross(Vector3.yAxis),
 		Elev = elev,
+		Terrain = {},
 		Starts = starts,
 		Depths = depths,
 		Bays = {},
@@ -610,7 +574,6 @@ function StreetPlot.Build(player: Player, island: StreetService.Island, actions:
 		Pads = {},
 		Decor = {},
 	}
-	buildTerrain(plots[player])
 	folder.Parent = island.Model
 end
 
@@ -639,7 +602,16 @@ function StreetPlot.Refresh(player: Player, state: Types.PlayerState)
 
 	-- The pads of the flow (Util/TycoonSteps): Shibas, required decor and the optional interns.
 	local wanted: { [string]: boolean } = {}
-	for _, step in TycoonSteps.Visible(tycoon) do
+	local visible = TycoonSteps.Visible(tycoon)
+	local reached = tycoon.EquipSlots
+	for _, step in visible do
+		if step.Kind == "Bay" then
+			reached = math.max(reached, step.Bay)
+		end
+	end
+	refreshTerrain(plot, reached)
+
+	for _, step in visible do
 		wanted[step.Id] = true
 		local pad = plot.Pads[step.Id]
 		if not pad then
