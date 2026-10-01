@@ -13,6 +13,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local EconomyConfig = require(ReplicatedStorage.Shared.Config.EconomyConfig)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
@@ -68,6 +69,8 @@ type PadRefs = {
 
 type Plot = {
 	Owner: Player,
+	-- False until the first Refresh is done: what exists then was there before (a rejoin), only later things pop in.
+	Ready: boolean,
 	-- The street slot and how many stages the walled cell covers (StreetService.SetReach).
 	Slot: number,
 	WallReach: number,
@@ -395,7 +398,7 @@ local function placePlatformModel(asset: Model, top: number, frame: CFrame, pare
 end
 
 -- Gives the bay the platform of its Shiba's tier (nil = no Shiba: no platform) and moves everything that stands on it.
-local function applyPlatform(bay: BayRefs, assetName: string?, shibaHeight: number)
+local function applyPlatform(bay: BayRefs, assetName: string?, shibaHeight: number, animate: boolean)
 	if assetName == bay.PlatformKey then
 		return
 	end
@@ -416,6 +419,9 @@ local function applyPlatform(bay: BayRefs, assetName: string?, shibaHeight: numb
 		bay.PlatformFolder = if model
 			then placePlatformModel(model, top, frame, bay.Folder)
 			else buildPlatformParts(platform, frame, bay.Folder)
+		if animate and bay.PlatformFolder then
+			bay.PlatformFolder:SetAttribute("SpawnedAt", Workspace:GetServerTimeNow())
+		end
 		-- The click part is also the invisible wall around platform and Shiba (so nobody walks through it): the mouse hits
 		-- it first, so the ClickDetector has to sit on this very part. Only characters collide with it.
 		local padding = Gameplay.Shooters.Barrier.Padding
@@ -439,13 +445,14 @@ local function applyPlatform(bay: BayRefs, assetName: string?, shibaHeight: numb
 	bay.Belt.CFrame = CFrame.lookAt(stand, stand + bay.Inward)
 end
 
-local function refreshBay(bay: BayRefs, tycoon: Types.TycoonState, index: number)
+-- `animate`: the plot is already loaded, so what is built now pops in (Controllers/SpawnController).
+local function refreshBay(bay: BayRefs, tycoon: Types.TycoonState, index: number, animate: boolean)
 	local id = tycoon.Equipped[tostring(index)]
 	local shiba = if id then tycoon.Shibas[id] else nil
 	local def = if shiba then EconomyConfig.Shibas[shiba.Tier + 1] else nil
 	local active = shiba ~= nil and id ~= nil and def ~= nil
 
-	applyPlatform(bay, if def then def.AssetName else nil, if def then def.Height else 0)
+	applyPlatform(bay, if def then def.AssetName else nil, if def then def.Height else 0, animate)
 
 	-- Shiba visual: swap only when (id, tier, variant) changed.
 	local key = if shiba and id then `{id}:{shiba.Tier}:{shiba.Variant}` else nil
@@ -464,6 +471,9 @@ local function refreshBay(bay: BayRefs, tycoon: Types.TycoonState, index: number
 			}
 			local visual = TycoonPlot.BuildShibaVisual(lane, shiba)
 			bay.Visual = visual
+			if animate then
+				visual:SetAttribute("SpawnedAt", Workspace:GetServerTimeNow())
+			end
 		end
 	end
 
@@ -473,7 +483,11 @@ local function refreshBay(bay: BayRefs, tycoon: Types.TycoonState, index: number
 	-- The Intern stands there as long as the Shiba is automated.
 	local automated = active and shiba ~= nil and shiba.Automated == true
 	if automated and not bay.Intern then
-		bay.Intern = buildIntern(bay)
+		local intern = buildIntern(bay)
+		bay.Intern = intern
+		if animate then
+			intern:SetAttribute("SpawnedAt", Workspace:GetServerTimeNow())
+		end
 	elseif not automated and bay.Intern then
 		bay.Intern:Destroy()
 		bay.Intern = nil
@@ -522,7 +536,56 @@ end
 
 -- ==== decor ============================================================================================================
 
--- A bought decor part: a cloned Decor_<Key>_<PartId> model if the asset exists, else the part's primitive pieces.
+-- Marks a model that appeared after the plot was loaded: the client (Controllers/SpawnController) lets it pop in.
+local function announce(plot: Plot, model: Instance)
+	if plot.Ready then
+		model:SetAttribute("SpawnedAt", Workspace:GetServerTimeNow())
+	end
+end
+
+-- The union box (centre, size) of a part's pieces in the stage frame.
+local function piecesBox(pieces: { TycoonDecor.Piece }): (Vector3, Vector3)
+	local low = Vector3.new(math.huge, math.huge, math.huge)
+	local high = Vector3.new(-math.huge, -math.huge, -math.huge)
+	for _, piece in pieces do
+		local rotation = piece.Rotation or Vector3.zero
+		local cframe = CFrame.new(piece.Offset)
+			* CFrame.Angles(math.rad(rotation.X), math.rad(rotation.Y), math.rad(rotation.Z))
+		local half = piece.Size / 2
+		for _, x in { -1, 1 } do
+			for _, y in { -1, 1 } do
+				for _, z in { -1, 1 } do
+					local corner = cframe:PointToWorldSpace(Vector3.new(x * half.X, y * half.Y, z * half.Z))
+					low = low:Min(corner)
+					high = high:Max(corner)
+				end
+			end
+		end
+	end
+	return (low + high) / 2, high - low
+end
+
+-- A Decor_<Key>_<PartId> model is made to the size and place of the part's pieces, whatever scale it was imported at.
+local function fitToPieces(model: Model, frame: CFrame, pieces: { TycoonDecor.Piece })
+	local center, size = piecesBox(pieces)
+	model:PivotTo(CFrame.new())
+	local _, modelSize = model:GetBoundingBox()
+	local longest = math.max(modelSize.X, modelSize.Y, modelSize.Z)
+	if longest > 0 then
+		model:ScaleTo(model:GetScale() * math.max(size.X, size.Y, size.Z) / longest)
+	end
+	local box = model:GetBoundingBox()
+	model:PivotTo(frame * CFrame.new(center - box.Position))
+end
+
+-- Props the player could walk into are solid (floors, rugs and things high above the head are not).
+local function isSolid(piece: TycoonDecor.Piece): boolean
+	local reach = if piece.Rotation then math.max(piece.Size.X, piece.Size.Y, piece.Size.Z) / 2 else piece.Size.Y / 2
+	return piece.Offset.Y + reach > 0.6 and piece.Offset.Y - reach < 7
+end
+
+-- A bought decor part: a cloned Decor_<Key>_<PartId> model if the asset exists (the pieces then only serve as invisible
+-- colliders), else the part's primitive pieces.
 local function buildDecor(plot: Plot, step: TycoonSteps.Step): Model?
 	local theme = TycoonDecor.Themes[step.Bay]
 	local index = step.PartIndex
@@ -537,10 +600,22 @@ local function buildDecor(plot: Plot, step: TycoonSteps.Step): Model?
 	if cloned then
 		model = cloned
 		Assets.MakeVisualOnly(model, true)
-		model:PivotTo(frame)
+		fitToPieces(model, frame, part.Pieces)
 		for _, descendant in model:GetDescendants() do
 			if descendant:IsA("BasePart") then
 				descendant.Material = flat(descendant.Material)
+			end
+		end
+		for number, piece in part.Pieces do
+			if isSolid(piece) then
+				local rotation = piece.Rotation or Vector3.zero
+				local cframe = frame
+					* CFrame.new(piece.Offset)
+					* CFrame.Angles(math.rad(rotation.X), math.rad(rotation.Y), math.rad(rotation.Z))
+				local collider = newPart(`Collider{number}`, piece.Size, cframe, Color3.new(1, 1, 1), model)
+				collider.Shape = piece.Shape or Enum.PartType.Block
+				collider.Transparency = 1
+				collider.CanCollide = true
 			end
 		end
 	else
@@ -553,15 +628,12 @@ local function buildDecor(plot: Plot, step: TycoonSteps.Step): Model?
 			local instance = newPart(`Piece{number}`, piece.Size, cframe, piece.Color, model)
 			instance.Material = flat(piece.Material)
 			instance.Shape = piece.Shape or Enum.PartType.Block
-			-- Props the player could walk into are solid (floors, rugs and things high above the head are not).
-			local reach = if piece.Rotation
-				then math.max(piece.Size.X, piece.Size.Y, piece.Size.Z) / 2
-				else piece.Size.Y / 2
-			instance.CanCollide = piece.Offset.Y + reach > 0.6 and piece.Offset.Y - reach < 7
+			instance.CanCollide = isSolid(piece)
 		end
 	end
 	model.Name = `Decor_{step.Id}`
 	model.Parent = plot.Folder
+	announce(plot, model)
 	return model
 end
 
@@ -711,6 +783,7 @@ function StreetPlot.Build(player: Player, island: StreetService.Island, actions:
 		Owner = player,
 		Slot = island.Slot,
 		WallReach = 1,
+		Ready = false,
 		Folder = folder,
 		Actions = actions,
 		RoadEnd = island.Center + towardRoad * (Street.PlotDepth / 2),
@@ -746,7 +819,7 @@ function StreetPlot.Refresh(player: Player, state: Types.PlayerState)
 			plot.Bays[index] = bay
 		end
 		ensurePath(plot, index)
-		refreshBay(bay, tycoon, index)
+		refreshBay(bay, tycoon, index, plot.Ready)
 	end
 
 	refreshDecor(plot, tycoon)
@@ -783,6 +856,7 @@ function StreetPlot.Refresh(player: Player, state: Types.PlayerState)
 			plot.Pads[id] = nil
 		end
 	end
+	plot.Ready = true
 end
 
 -- Where the Shiba of bay `slot` stands and which way it faces (the hit zone is in front of it), for the server's hit check.

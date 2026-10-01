@@ -3,5 +3,5 @@
 -- Bump the label with every change that should be visible in a playtest.
 
 return {
-	Label = "2026-10-01 #58: street: swing animation with fixed times (not scaled by level), stick tilted further forward (flags on)",
+	Label = "2026-10-02 #59: decor and Shibas pop in when they appear; decor models fit to their pieces (flags on)",
 }
