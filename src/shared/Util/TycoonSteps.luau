@@ -184,7 +184,11 @@ end
 function TycoonSteps.Description(step: Step): string
 	if step.Kind == "Decor" then
 		local part = decorPart(step)
-		return if part then part.Description else ""
+		if not part then
+			return ""
+		end
+		local bonus = part.RewardMult
+		return if bonus and bonus > 1 then `{part.Description} (x{bonus} cash)` else part.Description
 	end
 	local name = shibaName(step.Bay)
 	if step.Kind == "Automate" then
