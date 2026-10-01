@@ -70,7 +70,7 @@ function TycoonMath.LevelCost(tier: number, level: number, street: boolean?): nu
 		local swing = Config.Swing
 		local rate = TycoonMath.BonkPayout(tier, level) / TycoonMath.SwingCooldown(tier, level)
 		local prices = Config.Street
-		local tierFactor = (prices.StageFactor[tier + 1] or 1) ^ prices.LevelFactorPower
+		local tierFactor = math.max(1, prices.StageFactor[tier + 1] or 1) ^ prices.LevelFactorPower
 		return math.max(
 			1,
 			math.floor(rate * swing.StreetLevelSeconds * swing.StreetLevelGrowth ^ (level - 1) * tierFactor)

@@ -284,9 +284,9 @@ counted in seconds of the LEVEL-1 income (`TierIncome`), so after a few minutes 
 old constants the sim finished the whole game (30 bays, all decor, all Interns, all levels 100) in 1.4 h.
 
 **The model now.**
-- Level cost: `LevelCost(tier, level, street)` = `StreetLevelSeconds` (8) x `StreetLevelGrowth`^(level-1) seconds of the Shiba's OWN income at that
+- Level cost: `LevelCost(tier, level, street)` = `StreetLevelSeconds` (8) x `StreetLevelGrowth` (1.12)^(level-1) seconds of the Shiba's OWN income at that
   level, times `StageFactor[tier+1]^LevelFactorPower` (0.9): the first upgrade of Shiba 1 is $8 = 8 clicks, and levelling a Shiba from 1 to 30
-  costs about 3 to 6 times its purchase price (`LEVELRATIO=1 lune run docs/economy/street_sim` prints the ratio per Shiba).
+  costs about 15 to 25 times its purchase price (Shiba 1 is around level 35 after two hours, Shiba 2 about 30) (`LEVELRATIO=1 lune run docs/economy/street_sim` prints the ratio per Shiba).
 - All other prices are counted in seconds of `StreetReadyIncome(tier)` = the income a Shiba earns at `ReadyLevel` 25 (what the player
   typically has when the purchase is due): expansion n = `StreetReadyIncome(n-2) x BaySeconds x StageFactor[n-1]`, a decor part =
   `StreetReadyIncome(bay-1) x PriceSeconds x DecorScale x StageFactor[bay]`, the Bonk Intern = `StreetReadyIncome(tier) x

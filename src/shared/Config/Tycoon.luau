@@ -154,7 +154,7 @@ return {
 		-- level (so the first upgrade of the first Shiba, earning 1 per second, is 8 clicks away), growing by StreetLevelGrowth per
 		-- level: the better a Shiba already is, the longer its next upgrade takes.
 		StreetLevelSeconds = 8,
-		StreetLevelGrowth = 1.05,
+		StreetLevelGrowth = 1.12,
 		StreetLevelCap = 100,
 		-- The stick lands this share of the cooldown after the swing starts, at most HitDelay seconds.
 		HitDelayShare = 0.45,
@@ -184,35 +184,35 @@ return {
 		-- higher Shiba stay in proportion to its (much higher) price.
 		LevelFactorPower = 0.9,
 		StageFactor = {
-			1, -- stage 1
-			4.778, -- stage 2
-			7.189, -- stage 3
-			6.355, -- stage 4
-			7.626, -- stage 5
-			10.47, -- stage 6
-			11.06, -- stage 7
-			13.27, -- stage 8
-			13.95, -- stage 9
-			12.51, -- stage 10
-			11.83, -- stage 11
-			16.99, -- stage 12
-			25.46, -- stage 13
-			30.56, -- stage 14
-			36.67, -- stage 15
-			38.66, -- stage 16
-			33.38, -- stage 17
-			43.5, -- stage 18
-			67.2, -- stage 19
-			80.64, -- stage 20
-			168.3, -- stage 21
-			166.1, -- stage 22
-			120.8, -- stage 23
-			133.2, -- stage 24
-			212.4, -- stage 25
-			241.8, -- stage 26
-			346, -- stage 27
-			316.2, -- stage 28
-			241.9, -- stage 29
+			0.8124, -- stage 1
+			2.486, -- stage 2
+			3.439, -- stage 3
+			3.12, -- stage 4
+			3.744, -- stage 5
+			4.987, -- stage 6
+			5.4, -- stage 7
+			6.48, -- stage 8
+			6.407, -- stage 9
+			6.044, -- stage 10
+			5.789, -- stage 11
+			8.226, -- stage 12
+			12.66, -- stage 13
+			13.99, -- stage 14
+			18.77, -- stage 15
+			18.08, -- stage 16
+			15.22, -- stage 17
+			21.7, -- stage 18
+			33.48, -- stage 19
+			40.18, -- stage 20
+			91.58, -- stage 21
+			79.8, -- stage 22
+			55.59, -- stage 23
+			75.01, -- stage 24
+			114.1, -- stage 25
+			125, -- stage 26
+			194.7, -- stage 27
+			165.5, -- stage 28
+			133.5, -- stage 29
 		} :: { [number]: number },
 		-- Expansion n (n >= 2) costs StreetReadyIncome(n - 2) * BaySeconds * StageFactor[n - 1] (the Shiba before it); the first one is free.
 		BaySeconds = 300,
