@@ -662,45 +662,40 @@ local function dragonLair(): Theme
 				mark(-70, 20, 3, 40, flame, M.Neon, -6)
 			)
 		),
+		def("CaveMouth", "Cave Mouth", "A big rocky cave with a wide opening toward the path.", {
+			blk(70, 0, 0, 22, 34, 76, rock, M.Slate),
+			blk(40, 0, -25, 40, 28, 26, rock, M.Slate),
+			blk(40, 0, 25, 40, 28, 26, rock, M.Slate),
+			blk(40, 22, 0, 40, 10, 26, rock, M.Slate),
+			ball(30, 24, -25, 22, moss, M.Grass),
+			ball(50, 24, 25, 24, moss, M.Grass),
+			ball(60, 30, 0, 26, rock, M.Slate),
+			ball(36, 28, 0, 14, rock, M.Slate),
+			ball(20, 0, -40, 10, rock, M.Slate),
+			ball(20, 0, 40, 10, rock, M.Slate),
+		}),
 		def(
-			"CaveMouth",
-			"Cave Mouth",
-			"A big rocky cave with a wide opening toward the path.",
-			{
-				blk(70, 0, 0, 22, 34, 76, rock, M.Slate),
-				blk(40, 0, -25, 40, 28, 26, rock, M.Slate),
-				blk(40, 0, 25, 40, 28, 26, rock, M.Slate),
-				blk(40, 22, 0, 40, 10, 26, rock, M.Slate),
-				ball(30, 24, -25, 22, moss, M.Grass),
-				ball(50, 24, 25, 24, moss, M.Grass),
-				ball(60, 30, 0, 26, rock, M.Slate),
-				ball(36, 28, 0, 14, rock, M.Slate),
-				ball(20, 0, -40, 10, rock, M.Slate),
-				ball(20, 0, 40, 10, rock, M.Slate),
-			}
+			"BonkSign",
+			"Get Bonked Sign",
+			"A rusty board that reads GET BONKED.",
+			bonkSign(11, 64, -1, deep, flame, rock, M.Slate)
 		),
-		def("BonkSign", "Get Bonked Sign", "A rusty board that reads GET BONKED.", bonkSign(11, 64, -1, deep, flame, rock, M.Slate)),
-		def(
-			"GoldHoard",
-			"Gold Hoard",
-			"A mountain of gold coins and a golden goblet inside the cave.",
-			{
-				ball(48, 0, 0, 18, gold, M.Metal),
-				ball(40, 0, 6, 11, gold, M.Metal),
-				ball(41, 0, -7, 12, gold, M.Metal),
-				ball(54, 0, -8, 9, gold, M.Metal),
-				ball(55, 0, 9, 10, gold, M.Metal),
-				coin(34, 2, 0.1),
-				coin(35, -3, 0.1),
-				coin(33, -6, 0.1),
-				coin(36, 8, 0.1),
-				cyl(34, 0, 0, 1.2, 2.4, gold, M.Metal),
-				cyl(34, 2.4, 0, 3, 1.6, gold, M.Metal),
-				ball(46, 8, 0, 3, rgb(230, 60, 80), M.Glass),
-				ball(51, 8.6, 3, 2.4, rgb(70, 140, 255), M.Glass),
-				ball(42, 4.8, -4, 2, rgb(80, 220, 120), M.Glass),
-			}
-		),
+		def("GoldHoard", "Gold Hoard", "A mountain of gold coins and a golden goblet inside the cave.", {
+			ball(48, 0, 0, 18, gold, M.Metal),
+			ball(40, 0, 6, 11, gold, M.Metal),
+			ball(41, 0, -7, 12, gold, M.Metal),
+			ball(54, 0, -8, 9, gold, M.Metal),
+			ball(55, 0, 9, 10, gold, M.Metal),
+			coin(34, 2, 0.1),
+			coin(35, -3, 0.1),
+			coin(33, -6, 0.1),
+			coin(36, 8, 0.1),
+			cyl(34, 0, 0, 1.2, 2.4, gold, M.Metal),
+			cyl(34, 2.4, 0, 3, 1.6, gold, M.Metal),
+			ball(46, 8, 0, 3, rgb(230, 60, 80), M.Glass),
+			ball(51, 8.6, 3, 2.4, rgb(70, 140, 255), M.Glass),
+			ball(42, 4.8, -4, 2, rgb(80, 220, 120), M.Glass),
+		}),
 		def(
 			"EggNest",
 			"Dragon Egg Nest",
@@ -715,37 +710,30 @@ local function dragonLair(): Theme
 				ball(20.6, 4, -54, 1, bone, M.SmoothPlastic)
 			)
 		),
-		def(
-			"SkullGate",
-			"Skull Gate",
-			"An arch of huge bones with skulls guards the cave entrance.",
-			{
-				cyl(17, 0, -15, 3, 16, bone, M.SmoothPlastic),
-				cyl(17, 0, 15, 3, 16, bone, M.SmoothPlastic),
-				lcyl(17, 16, 0, 34, 3, "z", bone, M.SmoothPlastic),
-				ball(17, 18, -15, 6, bone, M.SmoothPlastic),
-				ball(17, 18, 15, 6, bone, M.SmoothPlastic),
-				ball(17, 19, 0, 7, bone, M.SmoothPlastic),
-				ball(14.6, 20.4, -1.4, 1.4, flame, M.Neon),
-				ball(14.6, 20.4, 1.4, 1.4, flame, M.Neon),
-				wedge(17, 24, -3.6, 1.4, 4, 1.4, bone, M.SmoothPlastic),
-				wedge(17, 24, 3.6, 1.4, 4, 1.4, bone, M.SmoothPlastic),
-			}
-		),
+		def("SkullGate", "Skull Gate", "An arch of huge bones with skulls guards the cave entrance.", {
+			cyl(17, 0, -15, 3, 16, bone, M.SmoothPlastic),
+			cyl(17, 0, 15, 3, 16, bone, M.SmoothPlastic),
+			lcyl(17, 16, 0, 34, 3, "z", bone, M.SmoothPlastic),
+			ball(17, 18, -15, 6, bone, M.SmoothPlastic),
+			ball(17, 18, 15, 6, bone, M.SmoothPlastic),
+			ball(17, 19, 0, 7, bone, M.SmoothPlastic),
+			ball(14.6, 20.4, -1.4, 1.4, flame, M.Neon),
+			ball(14.6, 20.4, 1.4, 1.4, flame, M.Neon),
+			wedge(17, 24, -3.6, 1.4, 4, 1.4, bone, M.SmoothPlastic),
+			wedge(17, 24, 3.6, 1.4, 4, 1.4, bone, M.SmoothPlastic),
+		}),
 		def(
 			"FireBraziers",
 			"Fire Braziers",
 			"Two burning braziers beside the entrance.",
-			pcs(
-				line(2, 12, -20, 12, 20, function(px, pz)
-					return {
-						cyl(px, 0, pz, 2, 4, rock, M.Slate),
-						cyl(px, 4, pz, 5, 1.6, deep, M.Metal),
-						ball(px, 5.6, pz, 4, flame, M.Neon),
-						ball(px, 8.6, pz, 2.4, ember, M.Neon),
-					}
-				end)
-			)
+			pcs(line(2, 12, -20, 12, 20, function(px, pz)
+				return {
+					cyl(px, 0, pz, 2, 4, rock, M.Slate),
+					cyl(px, 4, pz, 5, 1.6, deep, M.Metal),
+					ball(px, 5.6, pz, 4, flame, M.Neon),
+					ball(px, 8.6, pz, 2.4, ember, M.Neon),
+				}
+			end))
 		),
 		def(
 			"Stalagmites",
@@ -772,7 +760,16 @@ local function dragonLair(): Theme
 			"A heap of old bones left by hungry dragons.",
 			pcs(
 				line(7, 26, 44, 40, 56, function(px, pz, i)
-					return lcyl(px, (i % 3) * 0.8, pz, 5 + i % 3, 1, if i % 2 == 0 then "x" else "z", bone, M.SmoothPlastic)
+					return lcyl(
+						px,
+						(i % 3) * 0.8,
+						pz,
+						5 + i % 3,
+						1,
+						if i % 2 == 0 then "x" else "z",
+						bone,
+						M.SmoothPlastic
+					)
 				end),
 				ball(33, 0, 50, 5, bone, M.SmoothPlastic),
 				ball(30, 0.4, 52, 1.2, deep, M.SmoothPlastic),
@@ -831,21 +828,16 @@ local function dragonLair(): Theme
 				end)
 			)
 		),
-		def(
-			"DragonSkull",
-			"Dragon Skull",
-			"A giant dragon skull with glowing eyes.",
-			{
-				blk(-46, 0, -58, 12, 4, 8, bone, M.SmoothPlastic),
-				blk(-46, 4, -58, 12, 6, 8, bone, M.SmoothPlastic),
-				blk(-38, 4, -58, 6, 3, 6, bone, M.SmoothPlastic),
-				ball(-40, 6, -61.6, 2.2, flame, M.Neon),
-				ball(-40, 6, -54.4, 2.2, flame, M.Neon),
-				wedge(-50, 10, -61, 2, 7, 2, bone, M.SmoothPlastic),
-				wedge(-50, 10, -55, 2, 7, 2, bone, M.SmoothPlastic),
-				blk(-38, 1, -58, 6, 1, 5, deep, M.Slate),
-			}
-		),
+		def("DragonSkull", "Dragon Skull", "A giant dragon skull with glowing eyes.", {
+			blk(-46, 0, -58, 12, 4, 8, bone, M.SmoothPlastic),
+			blk(-46, 4, -58, 12, 6, 8, bone, M.SmoothPlastic),
+			blk(-38, 4, -58, 6, 3, 6, bone, M.SmoothPlastic),
+			ball(-40, 6, -61.6, 2.2, flame, M.Neon),
+			ball(-40, 6, -54.4, 2.2, flame, M.Neon),
+			wedge(-50, 10, -61, 2, 7, 2, bone, M.SmoothPlastic),
+			wedge(-50, 10, -55, 2, 7, 2, bone, M.SmoothPlastic),
+			blk(-38, 1, -58, 6, 1, 5, deep, M.Slate),
+		}),
 		def(
 			"CoinTowers",
 			"Coin Towers",
@@ -880,23 +872,18 @@ local function dragonLair(): Theme
 				}
 			end)
 		),
-		def(
-			"BabyDragon",
-			"Baby Dragon",
-			"A little green dragon guarding the loot.",
-			{
-				blk(40, 1, 52, 8, 4, 5, scale, M.SmoothPlastic),
-				blk(44, 4, 52, 3, 4, 3, scale, M.SmoothPlastic),
-				ball(46, 6.5, 52, 4, scale, M.SmoothPlastic),
-				blk(33, 1.4, 52, 8, 1.6, 1.6, scale, M.SmoothPlastic),
-				wedge(40, 5, 47, 5, 4, 1, rgb(30, 110, 55), M.SmoothPlastic, 90),
-				wedge(40, 5, 57, 5, 4, 1, rgb(30, 110, 55), M.SmoothPlastic, 270),
-				ball(47.6, 8, 51, 0.8, flame, M.Neon),
-				ball(47.6, 8, 53, 0.8, flame, M.Neon),
-				blk(38, 0, 49.6, 1.4, 1.4, 1.4, scale, M.SmoothPlastic),
-				blk(42, 0, 49.6, 1.4, 1.4, 1.4, scale, M.SmoothPlastic),
-			}
-		),
+		def("BabyDragon", "Baby Dragon", "A little green dragon guarding the loot.", {
+			blk(40, 1, 52, 8, 4, 5, scale, M.SmoothPlastic),
+			blk(44, 4, 52, 3, 4, 3, scale, M.SmoothPlastic),
+			ball(46, 6.5, 52, 4, scale, M.SmoothPlastic),
+			blk(33, 1.4, 52, 8, 1.6, 1.6, scale, M.SmoothPlastic),
+			wedge(40, 5, 47, 5, 4, 1, rgb(30, 110, 55), M.SmoothPlastic, 90),
+			wedge(40, 5, 57, 5, 4, 1, rgb(30, 110, 55), M.SmoothPlastic, 270),
+			ball(47.6, 8, 51, 0.8, flame, M.Neon),
+			ball(47.6, 8, 53, 0.8, flame, M.Neon),
+			blk(38, 0, 49.6, 1.4, 1.4, 1.4, scale, M.SmoothPlastic),
+			blk(42, 0, 49.6, 1.4, 1.4, 1.4, scale, M.SmoothPlastic),
+		}),
 		def(
 			"RuneCircle",
 			"Rune Circle",
@@ -917,19 +904,14 @@ local function dragonLair(): Theme
 				return ball(px, 12 + (i * 6) % 20, awayZ(pz), 3 + i % 3, if i % 2 == 0 then flame else ember, M.Neon)
 			end)
 		),
-		def(
-			"WingArches",
-			"Wing Arches",
-			"Two giant wing-shaped arches rise beside the cave.",
-			{
-				wedge(36, 28, -40, 24, 12, 3, deep, M.Slate, 0),
-				wedge(36, 28, 40, 24, 12, 3, deep, M.Slate, 180),
-				blk(48, 26, -40, 20, 2, 3, rock, M.Slate),
-				blk(48, 26, 40, 20, 2, 3, rock, M.Slate),
-				cyl(30, 0, -40, 3, 30, bone, M.SmoothPlastic),
-				cyl(30, 0, 40, 3, 30, bone, M.SmoothPlastic),
-			}
-		),
+		def("WingArches", "Wing Arches", "Two giant wing-shaped arches rise beside the cave.", {
+			wedge(36, 28, -40, 24, 12, 3, deep, M.Slate, 0),
+			wedge(36, 28, 40, 24, 12, 3, deep, M.Slate, 180),
+			blk(48, 26, -40, 20, 2, 3, rock, M.Slate),
+			blk(48, 26, 40, 20, 2, 3, rock, M.Slate),
+			cyl(30, 0, -40, 3, 30, bone, M.SmoothPlastic),
+			cyl(30, 0, 40, 3, 30, bone, M.SmoothPlastic),
+		}),
 		def(
 			"RockSpires",
 			"Rock Spires",
@@ -941,34 +923,24 @@ local function dragonLair(): Theme
 				}
 			end)
 		),
-		def(
-			"FireMoat",
-			"Fire Moat",
-			"A stream of fire in front of the cave.",
-			{
-				blk(16, 0.1, -40, 3, 0.3, 24, flame, M.Neon),
-				blk(16, 0.1, 40, 3, 0.3, 24, flame, M.Neon),
-				blk(16, 0.1, -58, 3, 0.3, 12, flame, M.Neon),
-				blk(16, 0.1, 58, 3, 0.3, 12, flame, M.Neon),
-				ball(16, 0.3, -28, 2, ember, M.Neon),
-				ball(16, 0.3, 28, 2, ember, M.Neon),
-			}
-		),
-		def(
-			"DragonThrone",
-			"Dragon Throne",
-			"A golden throne of bones inside the cave.",
-			{
-				blk(58, 0, 0, 10, 2, 10, rock, M.Slate),
-				blk(58, 2, 0, 5, 3, 6, gold, M.Metal),
-				blk(61, 2, 0, 1.6, 10, 6, gold, M.Metal),
-				blk(58, 5, -3.2, 5, 1.6, 1, gold, M.Metal),
-				blk(58, 5, 3.2, 5, 1.6, 1, gold, M.Metal),
-				wedge(61, 12, -2.6, 1.6, 3, 1.4, bone, M.SmoothPlastic),
-				wedge(61, 12, 2.6, 1.6, 3, 1.4, bone, M.SmoothPlastic),
-				ball(61, 12.4, 0, 2, rgb(230, 60, 80), M.Glass),
-			}
-		),
+		def("FireMoat", "Fire Moat", "A stream of fire in front of the cave.", {
+			blk(16, 0.1, -40, 3, 0.3, 24, flame, M.Neon),
+			blk(16, 0.1, 40, 3, 0.3, 24, flame, M.Neon),
+			blk(16, 0.1, -58, 3, 0.3, 12, flame, M.Neon),
+			blk(16, 0.1, 58, 3, 0.3, 12, flame, M.Neon),
+			ball(16, 0.3, -28, 2, ember, M.Neon),
+			ball(16, 0.3, 28, 2, ember, M.Neon),
+		}),
+		def("DragonThrone", "Dragon Throne", "A golden throne of bones inside the cave.", {
+			blk(58, 0, 0, 10, 2, 10, rock, M.Slate),
+			blk(58, 2, 0, 5, 3, 6, gold, M.Metal),
+			blk(61, 2, 0, 1.6, 10, 6, gold, M.Metal),
+			blk(58, 5, -3.2, 5, 1.6, 1, gold, M.Metal),
+			blk(58, 5, 3.2, 5, 1.6, 1, gold, M.Metal),
+			wedge(61, 12, -2.6, 1.6, 3, 1.4, bone, M.SmoothPlastic),
+			wedge(61, 12, 2.6, 1.6, 3, 1.4, bone, M.SmoothPlastic),
+			ball(61, 12.4, 0, 2, rgb(230, 60, 80), M.Glass),
+		}),
 		def(
 			"GlowingMushrooms",
 			"Glowing Mushrooms",
@@ -1017,27 +989,22 @@ local function dragonLair(): Theme
 				}
 			end)
 		),
-		def(
-			"GreatDragon",
-			"The Great Dragon",
-			"A giant green dragon perched on top of the cave, breathing fire.",
-			{
-				blk(40, 32, 0, 22, 8, 10, scale, M.SmoothPlastic),
-				blk(32, 36, 0, 8, 7, 6, scale, M.SmoothPlastic),
-				blk(26, 40, 0, 6, 6, 6, scale, M.SmoothPlastic),
-				blk(21, 40, 0, 6, 4, 5, scale, M.SmoothPlastic),
-				ball(25, 46, -2.4, 1.6, flame, M.Neon),
-				ball(25, 46, 2.4, 1.6, flame, M.Neon),
-				wedge(24, 46, -2, 1.6, 5, 1.6, bone, M.SmoothPlastic),
-				wedge(24, 46, 2, 1.6, 5, 1.6, bone, M.SmoothPlastic),
-				wedge(40, 40, -12, 14, 10, 2, rgb(30, 110, 55), M.SmoothPlastic, 0),
-				wedge(40, 40, 12, 14, 10, 2, rgb(30, 110, 55), M.SmoothPlastic, 180),
-				blk(56, 33, 0, 16, 3, 3, scale, M.SmoothPlastic),
-				blk(70, 33, 0, 10, 2, 2, scale, M.SmoothPlastic),
-				blk(14, 40, 0, 6, 3, 3, flame, M.Neon),
-				ball(9, 40, 0, 5, ember, M.Neon),
-			}
-		),
+		def("GreatDragon", "The Great Dragon", "A giant green dragon perched on top of the cave, breathing fire.", {
+			blk(40, 32, 0, 22, 8, 10, scale, M.SmoothPlastic),
+			blk(32, 36, 0, 8, 7, 6, scale, M.SmoothPlastic),
+			blk(26, 40, 0, 6, 6, 6, scale, M.SmoothPlastic),
+			blk(21, 40, 0, 6, 4, 5, scale, M.SmoothPlastic),
+			ball(25, 46, -2.4, 1.6, flame, M.Neon),
+			ball(25, 46, 2.4, 1.6, flame, M.Neon),
+			wedge(24, 46, -2, 1.6, 5, 1.6, bone, M.SmoothPlastic),
+			wedge(24, 46, 2, 1.6, 5, 1.6, bone, M.SmoothPlastic),
+			wedge(40, 40, -12, 14, 10, 2, rgb(30, 110, 55), M.SmoothPlastic, 0),
+			wedge(40, 40, 12, 14, 10, 2, rgb(30, 110, 55), M.SmoothPlastic, 180),
+			blk(56, 33, 0, 16, 3, 3, scale, M.SmoothPlastic),
+			blk(70, 33, 0, 10, 2, 2, scale, M.SmoothPlastic),
+			blk(14, 40, 0, 6, 3, 3, flame, M.Neon),
+			ball(9, 40, 0, 5, ember, M.Neon),
+		}),
 	}
 	return build("DragonLair", "Dragon Lair", 22, 500, defs)
 end
@@ -1064,7 +1031,10 @@ local function mechaHangar(): Theme
 	end
 
 	local function crate(px: number, pz: number, c: Color3, ry: number): { Piece }
-		return { blk(px, 0, pz, 5, 4, 5, c, M.DiamondPlate, ry), blk(px, 4, pz, 5.4, 0.6, 5.4, hazard, M.SmoothPlastic, ry) }
+		return {
+			blk(px, 0, pz, 5, 4, 5, c, M.DiamondPlate, ry),
+			blk(px, 4, pz, 5.4, 0.6, 5.4, hazard, M.SmoothPlastic, ry),
+		}
 	end
 
 	local defs = {
@@ -1082,39 +1052,34 @@ local function mechaHangar(): Theme
 				mark(-60, 0, 20, 1.2, holo, M.Neon)
 			)
 		),
+		def("HangarHall", "Hangar Hall", "A giant hangar with a wide open front.", {
+			blk(80, 0, 0, 3, 30, 80, steel, M.Metal),
+			blk(50, 0, -39, 62, 30, 3, steel, M.Metal),
+			blk(50, 0, 39, 62, 30, 3, steel, M.Metal),
+			blk(50, 30, 0, 64, 2, 82, dark, M.Metal),
+			cyl(20, 0, -37, 3, 30, panel, M.Metal),
+			cyl(20, 0, 37, 3, 30, panel, M.Metal),
+			blk(50, 0, -37.4, 60, 2, 0.6, hazard, M.SmoothPlastic),
+			blk(50, 0, 37.4, 60, 2, 0.6, hazard, M.SmoothPlastic),
+			blk(21, 27, 0, 3, 3, 76, hazard, M.SmoothPlastic),
+		}),
 		def(
-			"HangarHall",
-			"Hangar Hall",
-			"A giant hangar with a wide open front.",
-			{
-				blk(80, 0, 0, 3, 30, 80, steel, M.Metal),
-				blk(50, 0, -39, 62, 30, 3, steel, M.Metal),
-				blk(50, 0, 39, 62, 30, 3, steel, M.Metal),
-				blk(50, 30, 0, 64, 2, 82, dark, M.Metal),
-				cyl(20, 0, -37, 3, 30, panel, M.Metal),
-				cyl(20, 0, 37, 3, 30, panel, M.Metal),
-				blk(50, 0, -37.4, 60, 2, 0.6, hazard, M.SmoothPlastic),
-				blk(50, 0, 37.4, 60, 2, 0.6, hazard, M.SmoothPlastic),
-				blk(21, 27, 0, 3, 3, 76, hazard, M.SmoothPlastic),
-			}
+			"BonkSign",
+			"Get Bonked Sign",
+			"A steel board that reads GET BONKED.",
+			bonkSign(11, -62, -1, dark, hazard, panel, M.Metal)
 		),
-		def("BonkSign", "Get Bonked Sign", "A steel board that reads GET BONKED.", bonkSign(11, -62, -1, dark, hazard, panel, M.Metal)),
-		def(
-			"GantryCrane",
-			"Gantry Crane",
-			"A yellow overhead crane runs along the hangar roof.",
-			{
-				lcyl(36, 27, 0, 76, 2, "z", hazard, M.Metal),
-				blk(36, 25, -37, 4, 4, 4, hazard, M.Metal),
-				blk(36, 25, 37, 4, 4, 4, hazard, M.Metal),
-				blk(36, 25, 10, 5, 2, 5, dark, M.Metal),
-				cyl(36, 15, 10, 0.6, 10, black, M.Metal),
-				blk(36, 13.5, 10, 3, 1.5, 3, hazard, M.Metal),
-				blk(36, 12, 10, 1, 1.5, 2.4, red, M.Metal),
-				cyl(36, 0, -37, 1.4, 25, hazard, M.Metal),
-				cyl(36, 0, 37, 1.4, 25, hazard, M.Metal),
-			}
-		),
+		def("GantryCrane", "Gantry Crane", "A yellow overhead crane runs along the hangar roof.", {
+			lcyl(36, 27, 0, 76, 2, "z", hazard, M.Metal),
+			blk(36, 25, -37, 4, 4, 4, hazard, M.Metal),
+			blk(36, 25, 37, 4, 4, 4, hazard, M.Metal),
+			blk(36, 25, 10, 5, 2, 5, dark, M.Metal),
+			cyl(36, 15, 10, 0.6, 10, black, M.Metal),
+			blk(36, 13.5, 10, 3, 1.5, 3, hazard, M.Metal),
+			blk(36, 12, 10, 1, 1.5, 2.4, red, M.Metal),
+			cyl(36, 0, -37, 1.4, 25, hazard, M.Metal),
+			cyl(36, 0, 37, 1.4, 25, hazard, M.Metal),
+		}),
 		def(
 			"LaunchRails",
 			"Launch Rails",
@@ -1144,69 +1109,54 @@ local function mechaHangar(): Theme
 				blk(mx + 9, 27, 0, 1.4, 1.4, 20, hazard, M.Metal)
 			)
 		),
-		def("MechaLegs", "Mecha Legs", "Two heavy armoured legs.", pcs(leg(-4.4), leg(4.4), blk(mx, 14.6, 0, 5, 1.6, 4, dark, M.Metal))),
 		def(
-			"MechaTorso",
-			"Mecha Torso",
-			"A broad chest with a glowing cockpit and a backpack.",
-			{
-				blk(mx, 15.4, 0, 6, 2, 12, dark, M.Metal),
-				blk(mx, 17.4, 0, 9, 8, 14, steel, M.Metal),
-				blk(mx - 4.6, 20, 0, 0.8, 3.6, 7, holo, M.Neon),
-				blk(mx - 4.6, 17.8, 0, 0.8, 1, 10, hazard, M.SmoothPlastic),
-				ball(mx, 22.4, -8.4, 5, panel, M.Metal),
-				ball(mx, 22.4, 8.4, 5, panel, M.Metal),
-				blk(mx + 5.4, 17.4, 0, 3, 8, 10, dark, M.Metal),
-				cyl(mx + 6, 25.4, -3, 1.6, 2, black, M.Metal),
-				cyl(mx + 6, 25.4, 3, 1.6, 2, black, M.Metal),
-				blk(mx - 4.6, 21.8, -4, 0.8, 0.8, 2, red, M.Neon),
-				blk(mx - 4.6, 21.8, 4, 0.8, 0.8, 2, red, M.Neon),
-			}
+			"MechaLegs",
+			"Mecha Legs",
+			"Two heavy armoured legs.",
+			pcs(leg(-4.4), leg(4.4), blk(mx, 14.6, 0, 5, 1.6, 4, dark, M.Metal))
 		),
-		def(
-			"MechaArms",
-			"Mecha Arms",
-			"Two strong arms, one with a cannon.",
-			{
-				blk(mx, 14, -9.2, 3.2, 8, 3.2, steel, M.Metal),
-				blk(mx, 14, 9.2, 3.2, 8, 3.2, steel, M.Metal),
-				blk(mx, 9, -9.4, 3.6, 5, 3.6, dark, M.Metal),
-				blk(mx, 9, 9.4, 3.6, 5, 3.6, dark, M.Metal),
-				ball(mx, 6.8, -9.4, 3.6, panel, M.Metal),
-				lcyl(mx - 4, 7.2, 9.4, 8, 2.4, "x", black, M.Metal),
-				ball(mx - 8.4, 7.4, 9.4, 1.8, red, M.Neon),
-			}
-		),
-		def(
-			"MechaHead",
-			"Mecha Head",
-			"A helmet with a glowing visor and antennas.",
-			{
-				cyl(mx, 25.4, 0, 2.4, 1.6, dark, M.Metal),
-				blk(mx, 26.6, 0, 5.4, 4, 5.4, steel, M.Metal),
-				blk(mx - 2.8, 27.8, 0, 0.6, 1.2, 4.4, holo, M.Neon),
-				blk(mx, 30.6, 0, 3, 0.8, 5.6, hazard, M.SmoothPlastic),
-				cyl(mx + 1, 30.6, -2.2, 0.3, 4, panel, M.Metal),
-				cyl(mx + 1, 30.6, 2.2, 0.3, 4, panel, M.Metal),
-				ball(mx + 1, 34.6, -2.2, 0.8, red, M.Neon),
-				ball(mx + 1, 34.6, 2.2, 0.8, red, M.Neon),
-			}
-		),
-		def(
-			"HoloDisplay",
-			"Holo Display",
-			"Blue hologram screens next to the stand.",
-			{
-				blk(30, 0, -18, 6, 1, 6, dark, M.Metal),
-				blk(30, 1, -18, 1.4, 10, 12, holo, M.Neon),
-				blk(30, 0, 18, 6, 1, 6, dark, M.Metal),
-				blk(30, 1, 18, 1.4, 10, 12, holo, M.Neon),
-				cyl(36, 0, 0, 5, 2, dark, M.Metal),
-				ball(36, 2.4, 0, 5, holo, M.Neon),
-				blk(31, 6, -18, 0.6, 1, 8, dark, M.Metal),
-				blk(31, 6, 18, 0.6, 1, 8, dark, M.Metal),
-			}
-		),
+		def("MechaTorso", "Mecha Torso", "A broad chest with a glowing cockpit and a backpack.", {
+			blk(mx, 15.4, 0, 6, 2, 12, dark, M.Metal),
+			blk(mx, 17.4, 0, 9, 8, 14, steel, M.Metal),
+			blk(mx - 4.6, 20, 0, 0.8, 3.6, 7, holo, M.Neon),
+			blk(mx - 4.6, 17.8, 0, 0.8, 1, 10, hazard, M.SmoothPlastic),
+			ball(mx, 22.4, -8.4, 5, panel, M.Metal),
+			ball(mx, 22.4, 8.4, 5, panel, M.Metal),
+			blk(mx + 5.4, 17.4, 0, 3, 8, 10, dark, M.Metal),
+			cyl(mx + 6, 25.4, -3, 1.6, 2, black, M.Metal),
+			cyl(mx + 6, 25.4, 3, 1.6, 2, black, M.Metal),
+			blk(mx - 4.6, 21.8, -4, 0.8, 0.8, 2, red, M.Neon),
+			blk(mx - 4.6, 21.8, 4, 0.8, 0.8, 2, red, M.Neon),
+		}),
+		def("MechaArms", "Mecha Arms", "Two strong arms, one with a cannon.", {
+			blk(mx, 14, -9.2, 3.2, 8, 3.2, steel, M.Metal),
+			blk(mx, 14, 9.2, 3.2, 8, 3.2, steel, M.Metal),
+			blk(mx, 9, -9.4, 3.6, 5, 3.6, dark, M.Metal),
+			blk(mx, 9, 9.4, 3.6, 5, 3.6, dark, M.Metal),
+			ball(mx, 6.8, -9.4, 3.6, panel, M.Metal),
+			lcyl(mx - 4, 7.2, 9.4, 8, 2.4, "x", black, M.Metal),
+			ball(mx - 8.4, 7.4, 9.4, 1.8, red, M.Neon),
+		}),
+		def("MechaHead", "Mecha Head", "A helmet with a glowing visor and antennas.", {
+			cyl(mx, 25.4, 0, 2.4, 1.6, dark, M.Metal),
+			blk(mx, 26.6, 0, 5.4, 4, 5.4, steel, M.Metal),
+			blk(mx - 2.8, 27.8, 0, 0.6, 1.2, 4.4, holo, M.Neon),
+			blk(mx, 30.6, 0, 3, 0.8, 5.6, hazard, M.SmoothPlastic),
+			cyl(mx + 1, 30.6, -2.2, 0.3, 4, panel, M.Metal),
+			cyl(mx + 1, 30.6, 2.2, 0.3, 4, panel, M.Metal),
+			ball(mx + 1, 34.6, -2.2, 0.8, red, M.Neon),
+			ball(mx + 1, 34.6, 2.2, 0.8, red, M.Neon),
+		}),
+		def("HoloDisplay", "Holo Display", "Blue hologram screens next to the stand.", {
+			blk(30, 0, -18, 6, 1, 6, dark, M.Metal),
+			blk(30, 1, -18, 1.4, 10, 12, holo, M.Neon),
+			blk(30, 0, 18, 6, 1, 6, dark, M.Metal),
+			blk(30, 1, 18, 1.4, 10, 12, holo, M.Neon),
+			cyl(36, 0, 0, 5, 2, dark, M.Metal),
+			ball(36, 2.4, 0, 5, holo, M.Neon),
+			blk(31, 6, -18, 0.6, 1, 8, dark, M.Metal),
+			blk(31, 6, 18, 0.6, 1, 8, dark, M.Metal),
+		}),
 		def(
 			"HazardBarriers",
 			"Hazard Barriers",
@@ -1232,79 +1182,58 @@ local function mechaHangar(): Theme
 			"FuelTanks",
 			"Fuel Tanks",
 			"Round fuel tanks with pipes.",
-			pcs(
-				line(3, 70, -30, 70, 30, function(px, pz)
-					return {
-						cyl(px, 0, pz, 10, 12, panel, M.Metal),
-						ball(px, 10, pz, 10, panel, M.Metal),
-						cyl(px - 5.2, 0, pz, 1, 8, hazard, M.Metal),
-					}
-				end)
-			)
+			pcs(line(3, 70, -30, 70, 30, function(px, pz)
+				return {
+					cyl(px, 0, pz, 10, 12, panel, M.Metal),
+					ball(px, 10, pz, 10, panel, M.Metal),
+					cyl(px - 5.2, 0, pz, 1, 8, hazard, M.Metal),
+				}
+			end))
 		),
-		def(
-			"ControlTower",
-			"Control Tower",
-			"A tower with a glass cabin to run the hangar.",
-			{
-				blk(24, 0, -56, 12, 24, 12, steel, M.Metal),
-				blk(24, 24, -56, 16, 7, 16, dark, M.Metal),
-				blk(15.8, 24.6, -56, 0.6, 5, 14, holo, M.Glass),
-				blk(24, 31, -56, 18, 1.2, 18, hazard, M.SmoothPlastic),
-				blk(17.8, 8, -56, 0.6, 6, 5, holo, M.Neon),
-				blk(17.8, 0, -56, 0.6, 7, 3, black, M.Metal),
-			}
-		),
-		def(
-			"RadarDish",
-			"Radar Dish",
-			"A radar dish on top of the control tower.",
-			{
-				cyl(24, 32.2, -56, 1.2, 5, panel, M.Metal),
-				cyl(24, 37, -56, 9, 0.8, panel, M.Metal),
-				ball(24, 36, -56, 2, red, M.Neon),
-				cyl(22, 37, -56, 0.6, 5, panel, M.Metal),
-				ball(22, 42, -56, 1.2, hazard, M.Neon),
-			}
-		),
+		def("ControlTower", "Control Tower", "A tower with a glass cabin to run the hangar.", {
+			blk(24, 0, -56, 12, 24, 12, steel, M.Metal),
+			blk(24, 24, -56, 16, 7, 16, dark, M.Metal),
+			blk(15.8, 24.6, -56, 0.6, 5, 14, holo, M.Glass),
+			blk(24, 31, -56, 18, 1.2, 18, hazard, M.SmoothPlastic),
+			blk(17.8, 8, -56, 0.6, 6, 5, holo, M.Neon),
+			blk(17.8, 0, -56, 0.6, 7, 3, black, M.Metal),
+		}),
+		def("RadarDish", "Radar Dish", "A radar dish on top of the control tower.", {
+			cyl(24, 32.2, -56, 1.2, 5, panel, M.Metal),
+			cyl(24, 37, -56, 9, 0.8, panel, M.Metal),
+			ball(24, 36, -56, 2, red, M.Neon),
+			cyl(22, 37, -56, 0.6, 5, panel, M.Metal),
+			ball(22, 42, -56, 1.2, hazard, M.Neon),
+		}),
 		def(
 			"WeldingArms",
 			"Welding Robots",
 			"Two robot arms that weld the mecha suit.",
-			pcs(
-				line(2, 40, -22, 40, 22, function(px, pz)
-					return {
-						cyl(px, 0, pz, 3, 2, dark, M.Metal),
-						blk(px, 2, pz, 1.6, 8, 1.6, hazard, M.Metal),
-						blk(px + 2, 8.6, pz, 5, 1.4, 1.4, hazard, M.Metal, 0),
-						ball(px + 4.6, 8, pz, 1.4, holo, M.Neon),
-					}
-				end)
-			)
+			pcs(line(2, 40, -22, 40, 22, function(px, pz)
+				return {
+					cyl(px, 0, pz, 3, 2, dark, M.Metal),
+					blk(px, 2, pz, 1.6, 8, 1.6, hazard, M.Metal),
+					blk(px + 2, 8.6, pz, 5, 1.4, 1.4, hazard, M.Metal, 0),
+					ball(px + 4.6, 8, pz, 1.4, holo, M.Neon),
+				}
+			end))
 		),
-		def(
-			"ToolWall",
-			"Tool Wall",
-			"A wall rack full of big tools.",
-			{
-				blk(79, 0, -20, 1.2, 12, 24, dark, M.Metal),
-				blk(77.8, 8, -26, 0.6, 3, 1, hazard, M.Metal),
-				blk(77.8, 3, -20, 0.6, 5, 1, red, M.Metal),
-				blk(77.8, 6, -14, 3, 1, 0.8, panel, M.Metal),
-				blk(77.8, 2, -24, 3, 1, 0.8, panel, M.Metal),
-				cyl(77.8, 7, -17, 2, 0.6, hazard, M.Metal),
-				ball(77.6, 4, -16, 2, panel, M.Metal),
-			}
-		),
+		def("ToolWall", "Tool Wall", "A wall rack full of big tools.", {
+			blk(79, 0, -20, 1.2, 12, 24, dark, M.Metal),
+			blk(77.8, 8, -26, 0.6, 3, 1, hazard, M.Metal),
+			blk(77.8, 3, -20, 0.6, 5, 1, red, M.Metal),
+			blk(77.8, 6, -14, 3, 1, 0.8, panel, M.Metal),
+			blk(77.8, 2, -24, 3, 1, 0.8, panel, M.Metal),
+			cyl(77.8, 7, -17, 2, 0.6, hazard, M.Metal),
+			ball(77.6, 4, -16, 2, panel, M.Metal),
+		}),
 		def(
 			"Spotlights",
 			"Spotlights",
 			"Bright spotlights on tall poles.",
-			pcs(
-				line(5, 12, -66, 12, 66, function(px, pz)
-					return lamp(px, pz, dark, holo, 12)
-				end)
-			)
+			pcs(line(5, 12, -66, 12, 66, function(px, pz)
+				return lamp(px, pz, dark, holo, 12)
+			end))
 		),
 		def(
 			"PartsConveyor",
@@ -1332,47 +1261,32 @@ local function mechaHangar(): Theme
 				}
 			end)
 		),
-		def(
-			"CargoStack",
-			"Cargo Containers",
-			"Colourful stacked cargo containers.",
-			{
-				blk(-40, 0, 56, 16, 6, 6, rgb(200, 70, 60), M.CorrodedMetal),
-				blk(-40, 6, 56, 16, 6, 6, rgb(60, 110, 190), M.CorrodedMetal),
-				blk(-58, 0, 56, 16, 6, 6, rgb(230, 190, 50), M.CorrodedMetal),
-				blk(-58, 6, 56, 16, 6, 6, rgb(70, 160, 90), M.CorrodedMetal),
-				blk(-40, 0, 66, 16, 6, 6, rgb(70, 160, 90), M.CorrodedMetal),
-				blk(-58, 0, 66, 16, 6, 6, rgb(200, 70, 60), M.CorrodedMetal),
-			}
-		),
-		def(
-			"Forklift",
-			"Forklift",
-			"A yellow forklift that carries a crate.",
-			{
-				blk(30, 1, 50, 6, 3, 4, hazard, M.Metal),
-				blk(32, 4, 50, 2, 5, 4, hazard, M.Metal),
-				cyl(28.4, 0, 48, 2, 1, black, M.Slate),
-				cyl(31.6, 0, 52, 2, 1, black, M.Slate),
-				blk(26, 0.4, 50, 4, 0.4, 3, panel, M.Metal),
-				blk(25, 0.8, 50, 3, 3, 3, steel, M.DiamondPlate),
-				blk(32.6, 4, 48, 0.5, 6, 0.5, dark, M.Metal),
-				blk(32.6, 4, 52, 0.5, 6, 0.5, dark, M.Metal),
-			}
-		),
-		def(
-			"ScoutWalker",
-			"Scout Walker",
-			"A small two-legged scout mecha.",
-			{
-				blk(26, 0, -40, 2, 4, 2, steel, M.Metal),
-				blk(26, 0, -44, 2, 4, 2, steel, M.Metal),
-				blk(26, 4, -42, 5, 3, 6, panel, M.Metal),
-				blk(24, 7, -42, 3, 2, 4, holo, M.Neon),
-				lcyl(23, 5, -42, 4, 1, "x", black, M.Metal),
-				blk(28.4, 7, -42, 1.2, 2, 3, dark, M.Metal),
-			}
-		),
+		def("CargoStack", "Cargo Containers", "Colourful stacked cargo containers.", {
+			blk(-40, 0, 56, 16, 6, 6, rgb(200, 70, 60), M.CorrodedMetal),
+			blk(-40, 6, 56, 16, 6, 6, rgb(60, 110, 190), M.CorrodedMetal),
+			blk(-58, 0, 56, 16, 6, 6, rgb(230, 190, 50), M.CorrodedMetal),
+			blk(-58, 6, 56, 16, 6, 6, rgb(70, 160, 90), M.CorrodedMetal),
+			blk(-40, 0, 66, 16, 6, 6, rgb(70, 160, 90), M.CorrodedMetal),
+			blk(-58, 0, 66, 16, 6, 6, rgb(200, 70, 60), M.CorrodedMetal),
+		}),
+		def("Forklift", "Forklift", "A yellow forklift that carries a crate.", {
+			blk(30, 1, 50, 6, 3, 4, hazard, M.Metal),
+			blk(32, 4, 50, 2, 5, 4, hazard, M.Metal),
+			cyl(28.4, 0, 48, 2, 1, black, M.Slate),
+			cyl(31.6, 0, 52, 2, 1, black, M.Slate),
+			blk(26, 0.4, 50, 4, 0.4, 3, panel, M.Metal),
+			blk(25, 0.8, 50, 3, 3, 3, steel, M.DiamondPlate),
+			blk(32.6, 4, 48, 0.5, 6, 0.5, dark, M.Metal),
+			blk(32.6, 4, 52, 0.5, 6, 0.5, dark, M.Metal),
+		}),
+		def("ScoutWalker", "Scout Walker", "A small two-legged scout mecha.", {
+			blk(26, 0, -40, 2, 4, 2, steel, M.Metal),
+			blk(26, 0, -44, 2, 4, 2, steel, M.Metal),
+			blk(26, 4, -42, 5, 3, 6, panel, M.Metal),
+			blk(24, 7, -42, 3, 2, 4, holo, M.Neon),
+			lcyl(23, 5, -42, 4, 1, "x", black, M.Metal),
+			blk(28.4, 7, -42, 1.2, 2, 3, dark, M.Metal),
+		}),
 		def(
 			"PowerGenerators",
 			"Power Generators",
@@ -1494,68 +1408,51 @@ local function observatory(): Theme
 				round(-60, 0, 20, violet, M.Slate)
 			)
 		),
+		def("DomeBase", "Observatory Base", "A round stone building under the dome.", {
+			cyl(ox, 0, 0, 38, 2, deep, M.Slate),
+			cyl(ox, 2, 0, 36, 12, night, M.Slate),
+			cyl(ox, 14, 0, 37, 1, violet, M.Metal),
+			blk(ox - 18.2, 2, -6, 0.8, 7, 2.6, cyan, M.Neon),
+			blk(ox - 18.2, 2, 6, 0.8, 7, 2.6, cyan, M.Neon),
+			blk(ox - 18.2, 8, -14, 0.8, 4, 2.6, cyan, M.Neon),
+			blk(ox - 18.2, 8, 14, 0.8, 4, 2.6, cyan, M.Neon),
+		}),
 		def(
-			"DomeBase",
-			"Observatory Base",
-			"A round stone building under the dome.",
-			{
-				cyl(ox, 0, 0, 38, 2, deep, M.Slate),
-				cyl(ox, 2, 0, 36, 12, night, M.Slate),
-				cyl(ox, 14, 0, 37, 1, violet, M.Metal),
-				blk(ox - 18.2, 2, -6, 0.8, 7, 2.6, cyan, M.Neon),
-				blk(ox - 18.2, 2, 6, 0.8, 7, 2.6, cyan, M.Neon),
-				blk(ox - 18.2, 8, -14, 0.8, 4, 2.6, cyan, M.Neon),
-				blk(ox - 18.2, 8, 14, 0.8, 4, 2.6, cyan, M.Neon),
-			}
+			"BonkSign",
+			"Get Bonked Sign",
+			"A starry board that reads GET BONKED.",
+			bonkSign(11, 66, -1, deep, pink, violet, M.Slate)
 		),
-		def("BonkSign", "Get Bonked Sign", "A starry board that reads GET BONKED.", bonkSign(11, 66, -1, deep, pink, violet, M.Slate)),
-		def(
-			"ObservatoryDome",
-			"Observatory Dome",
-			"A big dome with a glowing slit for the telescope.",
-			{
-				ball(ox, 12, 0, 34, violet, M.Metal),
-				blk(ox - 16.4, 22, 0, 1.4, 22, 4, cyan, M.Neon),
-				cyl(ox, 11.6, 0, 35, 0.8, gold, M.Metal),
-				cyl(ox, 44, 0, 1, 4, gold, M.Metal),
-				ball(ox, 48, 0, 2.4, pink, M.Neon),
-			}
-		),
-		def(
-			"EntranceSteps",
-			"Entrance Steps",
-			"Wide steps up to the observatory door.",
-			{
-				blk(31.4, 0, 0, 3, 0.8, 14, deep, M.Slate),
-				blk(33, 0, 0, 3, 1.6, 12, night, M.Slate),
-				blk(34.6, 0, 0, 3, 2.4, 10, deep, M.Slate),
-				blk(32, 0.8, -7.6, 0.8, 1.6, 0.8, gold, M.Metal),
-				blk(32, 0.8, 7.6, 0.8, 1.6, 0.8, gold, M.Metal),
-				ball(32, 2.4, -7.6, 1.2, pink, M.Neon),
-				ball(32, 2.4, 7.6, 1.2, pink, M.Neon),
-			}
-		),
-		def(
-			"MainTelescope",
-			"Giant Telescope",
-			"A long telescope poking out of the dome.",
-			{
-				raw(31, 36, 0, 26, 4, 4, violet, M.Metal, CYLINDER, Vector3.new(0, 0, 130)),
-				raw(24.4, 43.6, 0, 3, 5, 5, gold, M.Metal, CYLINDER, Vector3.new(0, 0, 130)),
-				raw(37.6, 28.4, 0, 3, 2.4, 2.4, deep, M.Metal, CYLINDER, Vector3.new(0, 0, 130)),
-				cyl(ox - 14, 20, 0, 2, 8, deep, M.Metal),
-				ball(23.2, 44.8, 0, 3, cyan, M.Neon),
-			}
-		),
+		def("ObservatoryDome", "Observatory Dome", "A big dome with a glowing slit for the telescope.", {
+			ball(ox, 12, 0, 34, violet, M.Metal),
+			blk(ox - 16.4, 22, 0, 1.4, 22, 4, cyan, M.Neon),
+			cyl(ox, 11.6, 0, 35, 0.8, gold, M.Metal),
+			cyl(ox, 44, 0, 1, 4, gold, M.Metal),
+			ball(ox, 48, 0, 2.4, pink, M.Neon),
+		}),
+		def("EntranceSteps", "Entrance Steps", "Wide steps up to the observatory door.", {
+			blk(31.4, 0, 0, 3, 0.8, 14, deep, M.Slate),
+			blk(33, 0, 0, 3, 1.6, 12, night, M.Slate),
+			blk(34.6, 0, 0, 3, 2.4, 10, deep, M.Slate),
+			blk(32, 0.8, -7.6, 0.8, 1.6, 0.8, gold, M.Metal),
+			blk(32, 0.8, 7.6, 0.8, 1.6, 0.8, gold, M.Metal),
+			ball(32, 2.4, -7.6, 1.2, pink, M.Neon),
+			ball(32, 2.4, 7.6, 1.2, pink, M.Neon),
+		}),
+		def("MainTelescope", "Giant Telescope", "A long telescope poking out of the dome.", {
+			raw(31, 36, 0, 26, 4, 4, violet, M.Metal, CYLINDER, Vector3.new(0, 0, 130)),
+			raw(24.4, 43.6, 0, 3, 5, 5, gold, M.Metal, CYLINDER, Vector3.new(0, 0, 130)),
+			raw(37.6, 28.4, 0, 3, 2.4, 2.4, deep, M.Metal, CYLINDER, Vector3.new(0, 0, 130)),
+			cyl(ox - 14, 20, 0, 2, 8, deep, M.Metal),
+			ball(23.2, 44.8, 0, 3, cyan, M.Neon),
+		}),
 		def(
 			"StarLamps",
 			"Star Lamps",
 			"Purple lamps along the path.",
-			pcs(
-				line(5, 10, -60, 10, 60, function(px, pz)
-					return lamp(px, pz, deep, pink, 8)
-				end)
-			)
+			pcs(line(5, 10, -60, 10, 60, function(px, pz)
+				return lamp(px, pz, deep, pink, 8)
+			end))
 		),
 		def(
 			"ObservationDeck",
@@ -1576,19 +1473,14 @@ local function observatory(): Theme
 				return { cyl(px, 0, pz, 2.4, 9, night, M.Marble), ball(px, 9, pz, 3.4, gold, M.Neon) }
 			end)
 		),
-		def(
-			"StarChartTable",
-			"Star Chart Table",
-			"A table with a glowing map of the night sky.",
-			{
-				cyl(30, 0, 40, 3, 4, deep, M.Metal),
-				cyl(30, 4, 40, 10, 1, violet, M.Metal),
-				cyl(30, 5, 40, 9, 0.3, cyan, M.Neon),
-				ball(30, 6, 40, 2.4, gold, M.Neon),
-				blk(26, 0, 46, 3, 2, 3, night, M.Slate),
-				blk(34, 0, 46, 3, 2, 3, night, M.Slate),
-			}
-		),
+		def("StarChartTable", "Star Chart Table", "A table with a glowing map of the night sky.", {
+			cyl(30, 0, 40, 3, 4, deep, M.Metal),
+			cyl(30, 4, 40, 10, 1, violet, M.Metal),
+			cyl(30, 5, 40, 9, 0.3, cyan, M.Neon),
+			ball(30, 6, 40, 2.4, gold, M.Neon),
+			blk(26, 0, 46, 3, 2, 3, night, M.Slate),
+			blk(34, 0, 46, 3, 2, 3, night, M.Slate),
+		}),
 		def(
 			"StoneBenches",
 			"Stone Benches",
@@ -1597,21 +1489,16 @@ local function observatory(): Theme
 				return { blk(px, 0, pz, 2.4, 1.4, 6, night, M.Slate), blk(px + 1, 1.4, pz, 0.6, 2, 6, violet, M.Slate) }
 			end)
 		),
-		def(
-			"Orrery",
-			"Orrery",
-			"A model of the planets on golden rods.",
-			{
-				cyl(-60, 0, -40, 6, 1.4, deep, M.Metal),
-				cyl(-60, 1.4, -40, 1, 14, gold, M.Metal),
-				ball(-60, 14, -40, 6, gold, M.Neon),
-				blk(-60, 8, -35, 10, 0.4, 0.4, gold, M.Metal),
-				ball(-55, 8.6, -35, 2, rgb(80, 150, 255), M.SmoothPlastic),
-				blk(-60, 10, -45, 12, 0.4, 0.4, gold, M.Metal, 40),
-				ball(-65, 10.6, -45, 2.6, rgb(255, 120, 70), M.SmoothPlastic),
-				ball(-52, 13, -40, 1.6, star, M.SmoothPlastic),
-			}
-		),
+		def("Orrery", "Orrery", "A model of the planets on golden rods.", {
+			cyl(-60, 0, -40, 6, 1.4, deep, M.Metal),
+			cyl(-60, 1.4, -40, 1, 14, gold, M.Metal),
+			ball(-60, 14, -40, 6, gold, M.Neon),
+			blk(-60, 8, -35, 10, 0.4, 0.4, gold, M.Metal),
+			ball(-55, 8.6, -35, 2, rgb(80, 150, 255), M.SmoothPlastic),
+			blk(-60, 10, -45, 12, 0.4, 0.4, gold, M.Metal, 40),
+			ball(-65, 10.6, -45, 2.6, rgb(255, 120, 70), M.SmoothPlastic),
+			ball(-52, 13, -40, 1.6, star, M.SmoothPlastic),
+		}),
 		def(
 			"CrystalPrisms",
 			"Crystal Prisms",
@@ -1620,32 +1507,22 @@ local function observatory(): Theme
 				return blk(px, 0, pz, 3, 6 + i % 3 * 3, 3, if i % 2 == 0 then cyan else pink, M.Neon, 45)
 			end)
 		),
-		def(
-			"SatelliteDish",
-			"Satellite Dish",
-			"A big dish listening to the stars.",
-			{
-				cyl(30, 0, -50, 1.6, 8, deep, M.Metal),
-				raw(30, 9, -50, 10, 1, 10, star, M.Metal, CYLINDER, Vector3.new(0, 0, 35)),
-				cyl(32, 8, -50, 0.5, 5, gold, M.Metal),
-				ball(32.6, 13, -50, 1.4, pink, M.Neon),
-				blk(30, 0, -50, 6, 1, 6, night, M.Slate),
-			}
-		),
-		def(
-			"RocketModel",
-			"Model Rocket",
-			"A white model rocket on a launch stand.",
-			{
-				blk(-62, 0, 40, 9, 1, 9, deep, M.Metal),
-				cyl(-62, 1, 40, 4, 12, star, M.SmoothPlastic),
-				cyl(-62, 13, 40, 2.4, 2, pink, M.SmoothPlastic),
-				ball(-62, 15, 40, 2, pink, M.SmoothPlastic),
-				wedge(-62, 1, 36.6, 0.8, 4, 3, violet, M.SmoothPlastic, 90),
-				wedge(-62, 1, 43.4, 0.8, 4, 3, violet, M.SmoothPlastic, 270),
-				ball(-62, 7, 40, 1.4, cyan, M.Neon),
-			}
-		),
+		def("SatelliteDish", "Satellite Dish", "A big dish listening to the stars.", {
+			cyl(30, 0, -50, 1.6, 8, deep, M.Metal),
+			raw(30, 9, -50, 10, 1, 10, star, M.Metal, CYLINDER, Vector3.new(0, 0, 35)),
+			cyl(32, 8, -50, 0.5, 5, gold, M.Metal),
+			ball(32.6, 13, -50, 1.4, pink, M.Neon),
+			blk(30, 0, -50, 6, 1, 6, night, M.Slate),
+		}),
+		def("RocketModel", "Model Rocket", "A white model rocket on a launch stand.", {
+			blk(-62, 0, 40, 9, 1, 9, deep, M.Metal),
+			cyl(-62, 1, 40, 4, 12, star, M.SmoothPlastic),
+			cyl(-62, 13, 40, 2.4, 2, pink, M.SmoothPlastic),
+			ball(-62, 15, 40, 2, pink, M.SmoothPlastic),
+			wedge(-62, 1, 36.6, 0.8, 4, 3, violet, M.SmoothPlastic, 90),
+			wedge(-62, 1, 43.4, 0.8, 4, 3, violet, M.SmoothPlastic, 270),
+			ball(-62, 7, 40, 1.4, cyan, M.Neon),
+		}),
 		def(
 			"TelescopeRow",
 			"Telescope Row",
@@ -1669,23 +1546,23 @@ local function observatory(): Theme
 			"MoonRocks",
 			"Moon Rocks",
 			"Purple rocks from far away.",
-			pcs(rocks(-40, 40, 1.4, violet), rocks(-70, 56, 1.8, night), rocks(-52, -64, 1.2, violet), rocks(76, -70, 1.4, night))
+			pcs(
+				rocks(-40, 40, 1.4, violet),
+				rocks(-70, 56, 1.8, night),
+				rocks(-52, -64, 1.2, violet),
+				rocks(76, -70, 1.4, night)
+			)
 		),
-		def(
-			"StarGate",
-			"Star Gate",
-			"A glowing arch behind the Shiba.",
-			{
-				cyl(-40, 0, -12, 3, 18, night, M.Marble),
-				cyl(-40, 0, 12, 3, 18, night, M.Marble),
-				blk(-40, 18, 0, 3, 3, 30, violet, M.Metal),
-				blk(-40, 21, 0, 2, 2, 12, gold, M.Metal),
-				blk(-40.6, 2, 0, 0.6, 16, 22, deep, M.Neon),
-				ball(-40, 24, 0, 3, pink, M.Neon),
-				ball(-40, 19, -12, 2.4, cyan, M.Neon),
-				ball(-40, 19, 12, 2.4, cyan, M.Neon),
-			}
-		),
+		def("StarGate", "Star Gate", "A glowing arch behind the Shiba.", {
+			cyl(-40, 0, -12, 3, 18, night, M.Marble),
+			cyl(-40, 0, 12, 3, 18, night, M.Marble),
+			blk(-40, 18, 0, 3, 3, 30, violet, M.Metal),
+			blk(-40, 21, 0, 2, 2, 12, gold, M.Metal),
+			blk(-40.6, 2, 0, 0.6, 16, 22, deep, M.Neon),
+			ball(-40, 24, 0, 3, pink, M.Neon),
+			ball(-40, 19, -12, 2.4, cyan, M.Neon),
+			ball(-40, 19, 12, 2.4, cyan, M.Neon),
+		}),
 		def(
 			"Comet",
 			"Comet",
@@ -1721,26 +1598,28 @@ local function observatory(): Theme
 				return ball(px, 58 + (i * 11) % 22, awayZ(pz + (i * 7) % 25 - 12), 2.4 + i % 3, star, M.Neon)
 			end)
 		),
-		def(
-			"NebulaClouds",
-			"Nebula Clouds",
-			"Pink and violet glowing clouds high in the sky.",
-			{
-				ball(40, 84, -30, 40, rgb(150, 70, 200), M.Neon),
-				ball(0, 90, 40, 34, rgb(230, 90, 200), M.Neon),
-				ball(-40, 86, -34, 38, rgb(110, 70, 220), M.Neon),
-				ball(60, 90, 40, 30, rgb(240, 110, 210), M.Neon),
-				ball(-60, 92, 40, 30, rgb(140, 80, 230), M.Neon),
-				ball(10, 96, -60, 30, rgb(220, 90, 190), M.Neon),
-			}
-		),
+		def("NebulaClouds", "Nebula Clouds", "Pink and violet glowing clouds high in the sky.", {
+			ball(40, 84, -30, 40, rgb(150, 70, 200), M.Neon),
+			ball(0, 90, 40, 34, rgb(230, 90, 200), M.Neon),
+			ball(-40, 86, -34, 38, rgb(110, 70, 220), M.Neon),
+			ball(60, 90, 40, 30, rgb(240, 110, 210), M.Neon),
+			ball(-60, 92, 40, 30, rgb(140, 80, 230), M.Neon),
+			ball(10, 96, -60, 30, rgb(220, 90, 190), M.Neon),
+		}),
 		def(
 			"OrbitingPlanets",
 			"Orbiting Planets",
 			"Small planets circle around the dome.",
 			around(ox, 0, 30, 6, function(px, pz, _deg, i)
 				return {
-					ball(px, 34 + i * 2, pz, 4 + i % 3 * 1.4, ({ rgb(255, 130, 80), cyan, pink, gold, rgb(120, 220, 130), violet })[i], M.SmoothPlastic),
+					ball(
+						px,
+						34 + i * 2,
+						pz,
+						4 + i % 3 * 1.4,
+						({ rgb(255, 130, 80), cyan, pink, gold, rgb(120, 220, 130), violet })[i],
+						M.SmoothPlastic
+					),
 					ball(px + 3, 36 + i * 2, pz, 1.4, star, M.SmoothPlastic),
 				}
 			end)
@@ -1770,7 +1649,14 @@ local function observatory(): Theme
 			around(45, 0, 0, 16, function(_px, _pz, deg, i)
 				local r = 4 + i * 1.6
 				local rad = math.rad(deg)
-				return ball(45 + r * math.cos(rad), 50 + i * 0.4, r * math.sin(rad), 4, if i % 2 == 0 then pink else cyan, M.Neon)
+				return ball(
+					45 + r * math.cos(rad),
+					50 + i * 0.4,
+					r * math.sin(rad),
+					4,
+					if i % 2 == 0 then pink else cyan,
+					M.Neon
+				)
 			end)
 		),
 		def(
@@ -1839,19 +1725,19 @@ local function cloudTemple(): Theme
 				mark(-40, 40, 1.2, 40, gold, M.Neon)
 			)
 		),
+		def("TemplePlatform", "Temple Platform", "Three wide marble tiers carry the temple.", {
+			blk(tx, 0, 0, 58, 1.5, 58, marble, M.Marble),
+			blk(tx, 1.5, 0, 52, 1.5, 52, cloud, M.Marble),
+			blk(tx, 3, 0, 46, 1.5, 46, marble, M.Marble),
+			blk(tx - 23.4, 4.5, 0, 0.6, 0.4, 46, gold, M.Neon),
+			blk(tx, 4.5, 0, 20, 0.2, 20, gold, M.Neon),
+		}),
 		def(
-			"TemplePlatform",
-			"Temple Platform",
-			"Three wide marble tiers carry the temple.",
-			{
-				blk(tx, 0, 0, 58, 1.5, 58, marble, M.Marble),
-				blk(tx, 1.5, 0, 52, 1.5, 52, cloud, M.Marble),
-				blk(tx, 3, 0, 46, 1.5, 46, marble, M.Marble),
-				blk(tx - 23.4, 4.5, 0, 0.6, 0.4, 46, gold, M.Neon),
-				blk(tx, 4.5, 0, 20, 0.2, 20, gold, M.Neon),
-			}
+			"BonkSign",
+			"Get Bonked Sign",
+			"A golden board on white marble posts that reads GET BONKED.",
+			bonkSign(11, 66, -1, marble, gold, white, M.Marble)
 		),
-		def("BonkSign", "Get Bonked Sign", "A golden board on white marble posts that reads GET BONKED.", bonkSign(11, 66, -1, marble, gold, white, M.Marble)),
 		def(
 			"FrontColumns",
 			"Front Columns",
@@ -1868,44 +1754,29 @@ local function cloudTemple(): Theme
 				return { cyl(px, 4.5, pz, 3, 16, marble, M.Marble) }
 			end)
 		),
-		def(
-			"TempleRoof",
-			"Temple Roof",
-			"A golden-trimmed marble roof.",
-			{
-				blk(tx, 20.5, 0, 50, 2, 48, marble, M.Marble),
-				blk(tx, 22.5, 0, 40, 2, 38, gold, M.Neon),
-				blk(tx, 24.5, 0, 28, 2, 28, marble, M.Marble),
-				blk(tx - 24.6, 20.5, 0, 0.6, 2.4, 49, gold, M.Neon),
-				ball(tx, 26.5, 0, 4, gold, M.Neon),
-				ball(tx - 24, 22, -23, 2.4, gold, M.Neon),
-				ball(tx - 24, 22, 23, 2.4, gold, M.Neon),
-			}
-		),
-		def(
-			"CloudSteps",
-			"Cloud Steps",
-			"Soft steps up to the temple.",
-			{
-				blk(19.8, 0, 0, 2.4, 0.8, 18, cloud, M.Neon),
-				blk(21.2, 0, 0, 2.4, 1.6, 16, white, M.Neon),
-				blk(22.6, 0, 0, 2.4, 2.4, 14, cloud, M.Neon),
-				blk(19.8, 0.8, -9.4, 0.8, 2, 0.8, gold, M.Neon),
-				blk(19.8, 0.8, 9.4, 0.8, 2, 0.8, gold, M.Neon),
-			}
-		),
-		def(
-			"GoldenAltar",
-			"Golden Altar",
-			"A glowing golden altar in the middle of the temple.",
-			{
-				blk(tx + 6, 4.5, 0, 8, 1, 8, gold, M.Metal),
-				blk(tx + 6, 5.5, 0, 6, 4, 6, marble, M.Marble),
-				blk(tx + 6, 9.5, 0, 8, 1, 8, gold, M.Metal),
-				cyl(tx + 6, 10.5, 0, 4, 1, gold, M.Metal),
-				ball(tx + 6, 11.5, 0, 3, glow, M.Neon),
-			}
-		),
+		def("TempleRoof", "Temple Roof", "A golden-trimmed marble roof.", {
+			blk(tx, 20.5, 0, 50, 2, 48, marble, M.Marble),
+			blk(tx, 22.5, 0, 40, 2, 38, gold, M.Neon),
+			blk(tx, 24.5, 0, 28, 2, 28, marble, M.Marble),
+			blk(tx - 24.6, 20.5, 0, 0.6, 2.4, 49, gold, M.Neon),
+			ball(tx, 26.5, 0, 4, gold, M.Neon),
+			ball(tx - 24, 22, -23, 2.4, gold, M.Neon),
+			ball(tx - 24, 22, 23, 2.4, gold, M.Neon),
+		}),
+		def("CloudSteps", "Cloud Steps", "Soft steps up to the temple.", {
+			blk(19.8, 0, 0, 2.4, 0.8, 18, cloud, M.Neon),
+			blk(21.2, 0, 0, 2.4, 1.6, 16, white, M.Neon),
+			blk(22.6, 0, 0, 2.4, 2.4, 14, cloud, M.Neon),
+			blk(19.8, 0.8, -9.4, 0.8, 2, 0.8, gold, M.Neon),
+			blk(19.8, 0.8, 9.4, 0.8, 2, 0.8, gold, M.Neon),
+		}),
+		def("GoldenAltar", "Golden Altar", "A glowing golden altar in the middle of the temple.", {
+			blk(tx + 6, 4.5, 0, 8, 1, 8, gold, M.Metal),
+			blk(tx + 6, 5.5, 0, 6, 4, 6, marble, M.Marble),
+			blk(tx + 6, 9.5, 0, 8, 1, 8, gold, M.Metal),
+			cyl(tx + 6, 10.5, 0, 4, 1, gold, M.Metal),
+			ball(tx + 6, 11.5, 0, 3, glow, M.Neon),
+		}),
 		def(
 			"GoldenHarp",
 			"Golden Harp",
@@ -1925,32 +1796,25 @@ local function cloudTemple(): Theme
 			"Two white angel statues with halos guard the steps.",
 			pcs(angel(16, -18, 1.6), angel(16, 18, 1.6))
 		),
-		def(
-			"FeatherGates",
-			"Feather Gates",
-			"Two big feather wings frame the temple entrance.",
-			{
-				wedge(18, 0, -30, 2, 22, 12, white, M.SmoothPlastic),
-				wedge(18, 0, 30, 2, 22, 12, white, M.SmoothPlastic, 180),
-				wedge(18, 0, -40, 2, 16, 10, cloud, M.SmoothPlastic),
-				wedge(18, 0, 40, 2, 16, 10, cloud, M.SmoothPlastic, 180),
-				ball(18, 22, -30, 2.4, gold, M.Neon),
-				ball(18, 22, 30, 2.4, gold, M.Neon),
-			}
-		),
+		def("FeatherGates", "Feather Gates", "Two big feather wings frame the temple entrance.", {
+			wedge(18, 0, -30, 2, 22, 12, white, M.SmoothPlastic),
+			wedge(18, 0, 30, 2, 22, 12, white, M.SmoothPlastic, 180),
+			wedge(18, 0, -40, 2, 16, 10, cloud, M.SmoothPlastic),
+			wedge(18, 0, 40, 2, 16, 10, cloud, M.SmoothPlastic, 180),
+			ball(18, 22, -30, 2.4, gold, M.Neon),
+			ball(18, 22, 30, 2.4, gold, M.Neon),
+		}),
 		def(
 			"HaloLamps",
 			"Halo Lamps",
 			"Golden lamps with glowing halos line the path.",
-			pcs(
-				line(5, 9.5, -62, 9.5, 62, function(px, pz)
-					return {
-						cyl(px, 0, pz, 0.8, 8, gold, M.Metal),
-						cyl(px, 8, pz, 3.4, 0.4, glow, M.Neon),
-						ball(px, 8.6, pz, 1.4, white, M.Neon),
-					}
-				end)
-			)
+			pcs(line(5, 9.5, -62, 9.5, 62, function(px, pz)
+				return {
+					cyl(px, 0, pz, 0.8, 8, gold, M.Metal),
+					cyl(px, 8, pz, 3.4, 0.4, glow, M.Neon),
+					ball(px, 8.6, pz, 1.4, white, M.Neon),
+				}
+			end))
 		),
 		def(
 			"CloudBanks",
@@ -2017,7 +1881,7 @@ local function cloudTemple(): Theme
 			"MarbleBenches",
 			"Marble Benches",
 			"White benches to rest on the clouds.",
-			line(4, 16, -34, 16, 34, function(px, pz, i)
+			line(4, 16, -34, 16, 34, function(px, pz)
 				return { blk(px, 0, pz, 3, 1.4, 7, marble, M.Marble), blk(px + 1.2, 1.4, pz, 0.6, 2, 7, gold, M.Neon) }
 			end)
 		),
@@ -2119,22 +1983,20 @@ local function cloudTemple(): Theme
 			"Light Pillars",
 			"Slender pillars of light around the temple.",
 			line(6, 14, -64, 14, 64, function(px, pz, i)
-				return { cyl(px + 4, 0, pz, 1.4, 20 + i * 3, glow, M.Neon), ball(px + 4, 20 + i * 3, pz, 3, white, M.Neon) }
+				return {
+					cyl(px + 4, 0, pz, 1.4, 20 + i * 3, glow, M.Neon),
+					ball(px + 4, 20 + i * 3, pz, 3, white, M.Neon),
+				}
 			end)
 		),
-		def(
-			"GiantWings",
-			"Giant Wings",
-			"Huge white wings spread behind the temple.",
-			{
-				wedge(84, 0, -20, 4, 44, 26, white, M.SmoothPlastic),
-				wedge(84, 0, 20, 4, 44, 26, white, M.SmoothPlastic, 180),
-				wedge(86, 0, -36, 4, 30, 14, cloud, M.SmoothPlastic),
-				wedge(86, 0, 36, 4, 30, 14, cloud, M.SmoothPlastic, 180),
-				blk(84, 44, -20, 3, 2, 22, gold, M.Neon),
-				blk(84, 44, 20, 3, 2, 22, gold, M.Neon),
-			}
-		),
+		def("GiantWings", "Giant Wings", "Huge white wings spread behind the temple.", {
+			wedge(84, 0, -20, 4, 44, 26, white, M.SmoothPlastic),
+			wedge(84, 0, 20, 4, 44, 26, white, M.SmoothPlastic, 180),
+			wedge(86, 0, -36, 4, 30, 14, cloud, M.SmoothPlastic),
+			wedge(86, 0, 36, 4, 30, 14, cloud, M.SmoothPlastic, 180),
+			blk(84, 44, -20, 3, 2, 22, gold, M.Neon),
+			blk(84, 44, 20, 3, 2, 22, gold, M.Neon),
+		}),
 		def(
 			"AngelSinger",
 			"Singing Angel",
@@ -2205,64 +2067,49 @@ local function hellGate(): Theme
 				round(66, 0, 22, redRock, M.Slate)
 			)
 		),
+		def("GatePillars", "Gate Pillars", "Two giant black pillars with red bases.", {
+			blk(gx, 0, -23, 14, 3, 14, redRock, M.Slate),
+			blk(gx, 0, 23, 14, 3, 14, redRock, M.Slate),
+			blk(gx, 3, -23, 9, 34, 9, obsidian, M.Basalt),
+			blk(gx, 3, 23, 9, 34, 9, obsidian, M.Basalt),
+			blk(gx - 4.6, 6, -23, 0.6, 24, 2, lava, M.Neon),
+			blk(gx - 4.6, 6, 23, 0.6, 24, 2, lava, M.Neon),
+		}),
 		def(
-			"GatePillars",
-			"Gate Pillars",
-			"Two giant black pillars with red bases.",
-			{
-				blk(gx, 0, -23, 14, 3, 14, redRock, M.Slate),
-				blk(gx, 0, 23, 14, 3, 14, redRock, M.Slate),
-				blk(gx, 3, -23, 9, 34, 9, obsidian, M.Basalt),
-				blk(gx, 3, 23, 9, 34, 9, obsidian, M.Basalt),
-				blk(gx - 4.6, 6, -23, 0.6, 24, 2, lava, M.Neon),
-				blk(gx - 4.6, 6, 23, 0.6, 24, 2, lava, M.Neon),
-			}
+			"BonkSign",
+			"Get Bonked Sign",
+			"A charred board that reads GET BONKED.",
+			bonkSign(11, 70, -1, obsidian, lava, redRock, M.Slate)
 		),
-		def("BonkSign", "Get Bonked Sign", "A charred board that reads GET BONKED.", bonkSign(11, 70, -1, obsidian, lava, redRock, M.Slate)),
-		def(
-			"GateArch",
-			"Gate Arch",
-			"A massive arch with spikes joins the pillars.",
-			{
-				blk(gx, 37, 0, 10, 6, 56, obsidian, M.Basalt),
-				blk(gx - 4.6, 38, 0, 0.6, 1.2, 50, lava, M.Neon),
-				blk(gx, 43, 0, 6, 4, 40, redRock, M.Slate),
-				wedge(gx, 47, -12, 4, 8, 4, obsidian, M.Basalt),
-				wedge(gx, 47, 0, 4, 12, 4, obsidian, M.Basalt),
-				wedge(gx, 47, 12, 4, 8, 4, obsidian, M.Basalt),
-				ball(gx - 3, 44, 0, 4, lava, M.Neon),
-			}
-		),
-		def(
-			"LavaMoat",
-			"Lava Moat",
-			"A river of lava runs in front of the gate.",
-			{
-				blk(28, 0.1, 0, 6, 0.3, 120, lava, M.Neon),
-				blk(28, 0, -62, 9, 1, 10, obsidian, M.Slate),
-				blk(28, 0, 62, 9, 1, 10, obsidian, M.Slate),
-				ball(28, 0.4, -30, 2.4, ember, M.Neon),
-				ball(28, 0.4, 36, 2.4, ember, M.Neon),
-				ball(28, 0.4, 10, 2, ember, M.Neon),
-			}
-		),
-		def(
-			"DemonThrone",
-			"Demon Throne",
-			"A spiked throne of black stone behind the gate.",
-			{
-				blk(70, 0, 0, 16, 1.5, 16, redRock, M.Slate),
-				blk(70, 1.5, 0, 12, 1.5, 12, obsidian, M.Basalt),
-				blk(70, 3, 0, 7, 3, 7, obsidian, M.Basalt),
-				blk(74, 6, 0, 2, 16, 7, obsidian, M.Basalt),
-				blk(70, 6, -3.6, 7, 3, 1, obsidian, M.Basalt),
-				blk(70, 6, 3.6, 7, 3, 1, obsidian, M.Basalt),
-				wedge(74, 22, -2.6, 2, 7, 2, horn, M.Basalt),
-				wedge(74, 22, 2.6, 2, 7, 2, horn, M.Basalt),
-				ball(72.6, 17, 0, 3, lava, M.Neon),
-				blk(67.6, 3, 0, 0.6, 3, 5, lava, M.Neon),
-			}
-		),
+		def("GateArch", "Gate Arch", "A massive arch with spikes joins the pillars.", {
+			blk(gx, 37, 0, 10, 6, 56, obsidian, M.Basalt),
+			blk(gx - 4.6, 38, 0, 0.6, 1.2, 50, lava, M.Neon),
+			blk(gx, 43, 0, 6, 4, 40, redRock, M.Slate),
+			wedge(gx, 47, -12, 4, 8, 4, obsidian, M.Basalt),
+			wedge(gx, 47, 0, 4, 12, 4, obsidian, M.Basalt),
+			wedge(gx, 47, 12, 4, 8, 4, obsidian, M.Basalt),
+			ball(gx - 3, 44, 0, 4, lava, M.Neon),
+		}),
+		def("LavaMoat", "Lava Moat", "A river of lava runs in front of the gate.", {
+			blk(28, 0.1, 0, 6, 0.3, 120, lava, M.Neon),
+			blk(28, 0, -62, 9, 1, 10, obsidian, M.Slate),
+			blk(28, 0, 62, 9, 1, 10, obsidian, M.Slate),
+			ball(28, 0.4, -30, 2.4, ember, M.Neon),
+			ball(28, 0.4, 36, 2.4, ember, M.Neon),
+			ball(28, 0.4, 10, 2, ember, M.Neon),
+		}),
+		def("DemonThrone", "Demon Throne", "A spiked throne of black stone behind the gate.", {
+			blk(70, 0, 0, 16, 1.5, 16, redRock, M.Slate),
+			blk(70, 1.5, 0, 12, 1.5, 12, obsidian, M.Basalt),
+			blk(70, 3, 0, 7, 3, 7, obsidian, M.Basalt),
+			blk(74, 6, 0, 2, 16, 7, obsidian, M.Basalt),
+			blk(70, 6, -3.6, 7, 3, 1, obsidian, M.Basalt),
+			blk(70, 6, 3.6, 7, 3, 1, obsidian, M.Basalt),
+			wedge(74, 22, -2.6, 2, 7, 2, horn, M.Basalt),
+			wedge(74, 22, 2.6, 2, 7, 2, horn, M.Basalt),
+			ball(72.6, 17, 0, 3, lava, M.Neon),
+			blk(67.6, 3, 0, 0.6, 3, 5, lava, M.Neon),
+		}),
 		def(
 			"HellfirePortal",
 			"Hellfire Portal",
@@ -2277,19 +2124,14 @@ local function hellGate(): Theme
 				end)
 			)
 		),
-		def(
-			"HornOrnaments",
-			"Horn Ornaments",
-			"Giant curved horns crown the pillars.",
-			{
-				wedge(gx - 2, 37, -27, 3, 14, 3, horn, M.Basalt),
-				wedge(gx - 2, 37, -19, 3, 14, 3, horn, M.Basalt),
-				wedge(gx - 2, 37, 19, 3, 14, 3, horn, M.Basalt),
-				wedge(gx - 2, 37, 27, 3, 14, 3, horn, M.Basalt),
-				ball(gx - 3, 38, -23, 3, lava, M.Neon),
-				ball(gx - 3, 38, 23, 3, lava, M.Neon),
-			}
-		),
+		def("HornOrnaments", "Horn Ornaments", "Giant curved horns crown the pillars.", {
+			wedge(gx - 2, 37, -27, 3, 14, 3, horn, M.Basalt),
+			wedge(gx - 2, 37, -19, 3, 14, 3, horn, M.Basalt),
+			wedge(gx - 2, 37, 19, 3, 14, 3, horn, M.Basalt),
+			wedge(gx - 2, 37, 27, 3, 14, 3, horn, M.Basalt),
+			ball(gx - 3, 38, -23, 3, lava, M.Neon),
+			ball(gx - 3, 38, 23, 3, lava, M.Neon),
+		}),
 		def(
 			"SpikeFence",
 			"Spike Fence",
@@ -2306,19 +2148,14 @@ local function hellGate(): Theme
 				return pcs(cyl(px, 0, pz, 1, 6, horn, M.Wood), skull(px, 6, pz, 1.6), flame(px, 9, pz, 1))
 			end)
 		),
-		def(
-			"LavaFalls",
-			"Lava Falls",
-			"A cliff pouring lava into a pool.",
-			{
-				blk(88, 0, 50, 10, 26, 30, redRock, M.Slate),
-				blk(88, 26, 50, 8, 6, 24, obsidian, M.Basalt),
-				blk(82.6, 3, 50, 0.8, 24, 8, lava, M.Neon),
-				cyl(78, 0.1, 50, 14, 0.4, lava, M.Neon),
-				ball(78, 0.5, 48, 2.6, ember, M.Neon),
-				ball(76, 0.5, 53, 2, ember, M.Neon),
-			}
-		),
+		def("LavaFalls", "Lava Falls", "A cliff pouring lava into a pool.", {
+			blk(88, 0, 50, 10, 26, 30, redRock, M.Slate),
+			blk(88, 26, 50, 8, 6, 24, obsidian, M.Basalt),
+			blk(82.6, 3, 50, 0.8, 24, 8, lava, M.Neon),
+			cyl(78, 0.1, 50, 14, 0.4, lava, M.Neon),
+			ball(78, 0.5, 48, 2.6, ember, M.Neon),
+			ball(76, 0.5, 53, 2, ember, M.Neon),
+		}),
 		def(
 			"BonePiles",
 			"Bone Piles",
@@ -2405,20 +2242,15 @@ local function hellGate(): Theme
 				return ball(px, 6 + (i * 5) % 22, awayZ(pz + (i * 9) % 30 - 15), 2 + i % 3, soul, M.Neon)
 			end)
 		),
-		def(
-			"CrackedBridge",
-			"Cracked Bridge",
-			"A bridge of black stone across the lava moat.",
-			{
-				blk(28, 1, 0, 8, 1, 14, obsidian, M.Basalt),
-				blk(28, 2, -6.6, 8, 1.4, 0.8, redRock, M.Slate),
-				blk(28, 2, 6.6, 8, 1.4, 0.8, redRock, M.Slate),
-				blk(28, 0, -6, 2, 1, 2, obsidian, M.Basalt),
-				blk(28, 0, 6, 2, 1, 2, obsidian, M.Basalt),
-				blk(24, 0, 0, 3, 0.6, 12, redRock, M.Slate),
-				blk(32, 0, 0, 3, 0.6, 12, redRock, M.Slate),
-			}
-		),
+		def("CrackedBridge", "Cracked Bridge", "A bridge of black stone across the lava moat.", {
+			blk(28, 1, 0, 8, 1, 14, obsidian, M.Basalt),
+			blk(28, 2, -6.6, 8, 1.4, 0.8, redRock, M.Slate),
+			blk(28, 2, 6.6, 8, 1.4, 0.8, redRock, M.Slate),
+			blk(28, 0, -6, 2, 1, 2, obsidian, M.Basalt),
+			blk(28, 0, 6, 2, 1, 2, obsidian, M.Basalt),
+			blk(24, 0, 0, 3, 0.6, 12, redRock, M.Slate),
+			blk(32, 0, 0, 3, 0.6, 12, redRock, M.Slate),
+		}),
 		def(
 			"BloodFountain",
 			"Blood Fountain",
@@ -2472,30 +2304,20 @@ local function hellGate(): Theme
 				}
 			end)
 		),
-		def(
-			"RedMoon",
-			"Red Moon",
-			"A huge blood-red moon low in the sky.",
-			{
-				ball(-30, 70, -68, 44, rgb(190, 30, 40), M.Neon),
-				ball(-22, 84, -72, 8, rgb(130, 20, 30), M.SmoothPlastic),
-				ball(-44, 78, -64, 6, rgb(130, 20, 30), M.SmoothPlastic),
-				ball(-34, 64, -60, 10, rgb(130, 20, 30), M.SmoothPlastic),
-			}
-		),
-		def(
-			"EmberClouds",
-			"Ember Clouds",
-			"Dark clouds lit red from below.",
-			{
-				ball(40, 70, 40, 34, rgb(50, 30, 34), M.SmoothPlastic),
-				ball(-20, 76, 40, 30, rgb(60, 34, 38), M.SmoothPlastic),
-				ball(70, 74, -30, 32, rgb(54, 30, 34), M.SmoothPlastic),
-				ball(0, 80, -34, 30, rgb(46, 26, 30), M.SmoothPlastic),
-				ball(-50, 72, 70, 28, rgb(60, 34, 38), M.SmoothPlastic),
-				ball(30, 66, 74, 24, lava, M.Neon),
-			}
-		),
+		def("RedMoon", "Red Moon", "A huge blood-red moon low in the sky.", {
+			ball(-30, 70, -68, 44, rgb(190, 30, 40), M.Neon),
+			ball(-22, 84, -72, 8, rgb(130, 20, 30), M.SmoothPlastic),
+			ball(-44, 78, -64, 6, rgb(130, 20, 30), M.SmoothPlastic),
+			ball(-34, 64, -60, 10, rgb(130, 20, 30), M.SmoothPlastic),
+		}),
+		def("EmberClouds", "Ember Clouds", "Dark clouds lit red from below.", {
+			ball(40, 70, 40, 34, rgb(50, 30, 34), M.SmoothPlastic),
+			ball(-20, 76, 40, 30, rgb(60, 34, 38), M.SmoothPlastic),
+			ball(70, 74, -30, 32, rgb(54, 30, 34), M.SmoothPlastic),
+			ball(0, 80, -34, 30, rgb(46, 26, 30), M.SmoothPlastic),
+			ball(-50, 72, 70, 28, rgb(60, 34, 38), M.SmoothPlastic),
+			ball(30, 66, 74, 24, lava, M.Neon),
+		}),
 		def(
 			"FlyingImps",
 			"Flying Imps",
@@ -2544,26 +2366,21 @@ local function hellGate(): Theme
 				}
 			end)
 		),
-		def(
-			"DemonSkullCrown",
-			"Demon Skull",
-			"A giant horned skull with burning eyes floats above the gate.",
-			{
-				ball(gx, 60, 0, 30, bone, M.SmoothPlastic),
-				blk(gx, 54, 0, 16, 6, 22, bone, M.SmoothPlastic),
-				ball(gx - 12, 70, -7, 7, lava, M.Neon),
-				ball(gx - 12, 70, 7, 7, lava, M.Neon),
-				wedge(gx, 80, -14, 5, 26, 5, horn, M.Basalt),
-				wedge(gx, 80, 14, 5, 26, 5, horn, M.Basalt),
-				blk(gx - 14, 62, 0, 2, 4, 3, obsidian, M.Basalt),
-				blk(gx - 14, 55, -6, 2, 4, 2, bone, M.SmoothPlastic),
-				blk(gx - 14, 55, -2, 2, 4, 2, bone, M.SmoothPlastic),
-				blk(gx - 14, 55, 2, 2, 4, 2, bone, M.SmoothPlastic),
-				blk(gx - 14, 55, 6, 2, 4, 2, bone, M.SmoothPlastic),
-				ball(gx, 90, 0, 12, lava, M.Neon),
-				ball(gx, 98, 0, 8, ember, M.Neon),
-			}
-		),
+		def("DemonSkullCrown", "Demon Skull", "A giant horned skull with burning eyes floats above the gate.", {
+			ball(gx, 60, 0, 30, bone, M.SmoothPlastic),
+			blk(gx, 54, 0, 16, 6, 22, bone, M.SmoothPlastic),
+			ball(gx - 12, 70, -7, 7, lava, M.Neon),
+			ball(gx - 12, 70, 7, 7, lava, M.Neon),
+			wedge(gx, 80, -14, 5, 26, 5, horn, M.Basalt),
+			wedge(gx, 80, 14, 5, 26, 5, horn, M.Basalt),
+			blk(gx - 14, 62, 0, 2, 4, 3, obsidian, M.Basalt),
+			blk(gx - 14, 55, -6, 2, 4, 2, bone, M.SmoothPlastic),
+			blk(gx - 14, 55, -2, 2, 4, 2, bone, M.SmoothPlastic),
+			blk(gx - 14, 55, 2, 2, 4, 2, bone, M.SmoothPlastic),
+			blk(gx - 14, 55, 6, 2, 4, 2, bone, M.SmoothPlastic),
+			ball(gx, 90, 0, 12, lava, M.Neon),
+			ball(gx, 98, 0, 8, ember, M.Neon),
+		}),
 	}
 	return build("HellGate", "Hell Gate", 26, 900, defs)
 end
@@ -2585,7 +2402,10 @@ local function beanstalk(): Theme
 	local function leaves(y0: number, step: number, rad: number): { Piece }
 		return around(sx, sz, rad, 4, function(px, pz, _deg, i)
 			local y = y0 + (i - 1) * step
-			return { cyl(px, y, pz, 16, 1, leaf, M.Grass), cyl((px + sx) / 2, y - 0.4, (pz + sz) / 2, 1.4, 1, stalk, M.Grass) }
+			return {
+				cyl(px, y, pz, 16, 1, leaf, M.Grass),
+				cyl((px + sx) / 2, y - 0.4, (pz + sz) / 2, 1.4, 1, stalk, M.Grass),
+			}
 		end)
 	end
 
@@ -2611,7 +2431,13 @@ local function beanstalk(): Theme
 				round(70, 80, 16, dirt, M.Ground),
 				round(-50, -70, 22, dirt, M.Ground),
 				line(8, -80, -90, 80, 90, function(px, pz, i)
-					return round(px, pz + (i * 7) % 20 - 10, 1.6, if i % 2 == 0 then rgb(255, 230, 90) else rgb(255, 150, 200), M.SmoothPlastic)
+					return round(
+						px,
+						pz + (i * 7) % 20 - 10,
+						1.6,
+						if i % 2 == 0 then rgb(255, 230, 90) else rgb(255, 150, 200),
+						M.SmoothPlastic
+					)
 				end)
 			)
 		),
@@ -2623,7 +2449,12 @@ local function beanstalk(): Theme
 				return blk(px, 0, pz, 7, 16 + (i % 3) * 2, 3.6, stone, M.Slate, -deg)
 			end)
 		),
-		def("BonkSign", "Get Bonked Sign", "A huge wooden board on log posts that reads GET BONKED.", bonkSign(11, 74, -1, wood, gold, rgb(110, 76, 44), M.Wood)),
+		def(
+			"BonkSign",
+			"Get Bonked Sign",
+			"A huge wooden board on log posts that reads GET BONKED.",
+			bonkSign(11, 74, -1, wood, gold, rgb(110, 76, 44), M.Wood)
+		),
 		def(
 			"StoneCaps",
 			"Stone Caps",
@@ -2632,33 +2463,23 @@ local function beanstalk(): Theme
 				return blk(px, 18, pz, 10, 2, 5, stone, M.Slate, -deg)
 			end)
 		),
-		def(
-			"CenterAltar",
-			"Altar Stone",
-			"A mossy flat stone in the middle of the circle.",
-			{
-				blk(cx, 0, cz, 14, 3, 10, stone, M.Slate, 10),
-				blk(cx, 3, cz, 10, 1.4, 7, moss, M.Grass, 10),
-				ball(cx, 4.4, cz, 4, gold, M.Neon),
-				ball(cx + 5, 0, cz + 4, 4, stone, M.Slate),
-				ball(cx - 5, 0, cz - 4, 3, stone, M.Slate),
-			}
-		),
-		def(
-			"GiantStool",
-			"Giant Stool",
-			"A wooden stool as big as a house.",
-			{
-				cyl(-52, 16, 42, 24, 4, wood, M.Wood),
-				cyl(-59, 0, 35, 5, 16, wood, M.Wood),
-				cyl(-45, 0, 35, 5, 16, wood, M.Wood),
-				cyl(-59, 0, 49, 5, 16, wood, M.Wood),
-				cyl(-45, 0, 49, 5, 16, wood, M.Wood),
-				blk(-52, 6, 35, 14, 1.4, 1.4, wood, M.Wood),
-				blk(-52, 6, 49, 14, 1.4, 1.4, wood, M.Wood),
-				cyl(-52, 20, 42, 20, 0.6, rgb(160, 115, 70), M.Wood),
-			}
-		),
+		def("CenterAltar", "Altar Stone", "A mossy flat stone in the middle of the circle.", {
+			blk(cx, 0, cz, 14, 3, 10, stone, M.Slate, 10),
+			blk(cx, 3, cz, 10, 1.4, 7, moss, M.Grass, 10),
+			ball(cx, 4.4, cz, 4, gold, M.Neon),
+			ball(cx + 5, 0, cz + 4, 4, stone, M.Slate),
+			ball(cx - 5, 0, cz - 4, 3, stone, M.Slate),
+		}),
+		def("GiantStool", "Giant Stool", "A wooden stool as big as a house.", {
+			cyl(-52, 16, 42, 24, 4, wood, M.Wood),
+			cyl(-59, 0, 35, 5, 16, wood, M.Wood),
+			cyl(-45, 0, 35, 5, 16, wood, M.Wood),
+			cyl(-59, 0, 49, 5, 16, wood, M.Wood),
+			cyl(-45, 0, 49, 5, 16, wood, M.Wood),
+			blk(-52, 6, 35, 14, 1.4, 1.4, wood, M.Wood),
+			blk(-52, 6, 49, 14, 1.4, 1.4, wood, M.Wood),
+			cyl(-52, 20, 42, 20, 0.6, rgb(160, 115, 70), M.Wood),
+		}),
 		def(
 			"GiantClub",
 			"Giant Club",
@@ -2683,13 +2504,17 @@ local function beanstalk(): Theme
 				ball(sx, 0, sz, 12, dirt, M.Ground)
 			)
 		),
-		def("StalkMiddle", "Beanstalk Middle", "The beanstalk climbs higher.", { cyl(sx, 30, sz, 7, 30, stalk, M.Grass), ball(sx, 29, sz, 8, leaf, M.Grass) }),
 		def(
-			"StalkTop",
-			"Beanstalk Top",
-			"The thin top of the beanstalk, ending in a bud.",
-			{ cyl(sx, 60, sz, 5, 35, stalk, M.Grass), ball(sx, 59, sz, 6, leaf, M.Grass), ball(sx, 93, sz, 7, leaf, M.Grass) }
+			"StalkMiddle",
+			"Beanstalk Middle",
+			"The beanstalk climbs higher.",
+			{ cyl(sx, 30, sz, 7, 30, stalk, M.Grass), ball(sx, 29, sz, 8, leaf, M.Grass) }
 		),
+		def("StalkTop", "Beanstalk Top", "The thin top of the beanstalk, ending in a bud.", {
+			cyl(sx, 60, sz, 5, 35, stalk, M.Grass),
+			ball(sx, 59, sz, 6, leaf, M.Grass),
+			ball(sx, 93, sz, 7, leaf, M.Grass),
+		}),
 		def("LowLeaves", "Low Leaves", "Four big leaves like steps around the lower stalk.", leaves(8, 6, 10)),
 		def("MidLeaves", "Middle Leaves", "Four more leaves around the middle.", leaves(36, 6, 9)),
 		def("HighLeaves", "High Leaves", "Four leaves near the top.", leaves(62, 7, 8)),
@@ -2706,20 +2531,15 @@ local function beanstalk(): Theme
 				ball(sx, 96, sz + 1.8, 3, gold, M.Neon)
 			)
 		),
-		def(
-			"GoldenGoose",
-			"Golden Goose",
-			"The goose that lays the golden eggs sits in the nest.",
-			{
-				ball(sx, 98, sz, 5, gold, M.Metal),
-				blk(sx - 2, 100, sz, 1.4, 3.4, 1.4, gold, M.Metal),
-				ball(sx - 2, 103, sz, 2.2, gold, M.Metal),
-				blk(sx - 3.6, 103, sz, 1.6, 0.6, 1, rgb(255, 130, 40), M.SmoothPlastic),
-				wedge(sx + 2.4, 99, sz, 3, 2.4, 2, gold, M.Metal),
-				ball(sx - 2.8, 104, sz - 0.8, 0.5, rgb(20, 20, 24), M.SmoothPlastic),
-				ball(sx - 2.8, 104, sz + 0.8, 0.5, rgb(20, 20, 24), M.SmoothPlastic),
-			}
-		),
+		def("GoldenGoose", "Golden Goose", "The goose that lays the golden eggs sits in the nest.", {
+			ball(sx, 98, sz, 5, gold, M.Metal),
+			blk(sx - 2, 100, sz, 1.4, 3.4, 1.4, gold, M.Metal),
+			ball(sx - 2, 103, sz, 2.2, gold, M.Metal),
+			blk(sx - 3.6, 103, sz, 1.6, 0.6, 1, rgb(255, 130, 40), M.SmoothPlastic),
+			wedge(sx + 2.4, 99, sz, 3, 2.4, 2, gold, M.Metal),
+			ball(sx - 2.8, 104, sz - 0.8, 0.5, rgb(20, 20, 24), M.SmoothPlastic),
+			ball(sx - 2.8, 104, sz + 0.8, 0.5, rgb(20, 20, 24), M.SmoothPlastic),
+		}),
 		def(
 			"GiantMushrooms",
 			"Giant Mushrooms",
@@ -2745,30 +2565,20 @@ local function beanstalk(): Theme
 			"Mossy boulders scattered around.",
 			pcs(rocks(24, 76, 3.4, stone), rocks(80, 6, 3, stone), rocks(-84, 10, 3.2, stone), rocks(30, -84, 3, stone))
 		),
-		def(
-			"GiantStump",
-			"Tree Stump and Axe",
-			"A giant tree stump with an axe stuck in it.",
-			{
-				cyl(30, 0, 70, 22, 10, wood, M.Wood),
-				cyl(30, 10, 70, 18, 0.4, rgb(190, 150, 100), M.Wood),
-				blk(30, 10, 70, 1.6, 16, 1.6, wood, M.Wood, 30),
-				blk(26, 20, 66, 8, 5, 1.2, rgb(150, 155, 165), M.Metal, 30),
-				blk(26, 24, 66, 4, 0.6, 1.4, rgb(190, 195, 205), M.Metal, 30),
-			}
-		),
-		def(
-			"GiantBone",
-			"Giant Bone",
-			"A giant dog bone left on the meadow.",
-			{
-				lcyl(-60, 1.6, -50, 24, 3.2, "x", white, M.SmoothPlastic),
-				ball(-72, 0, -48.4, 6, white, M.SmoothPlastic),
-				ball(-72, 0, -51.6, 6, white, M.SmoothPlastic),
-				ball(-48, 0, -48.4, 6, white, M.SmoothPlastic),
-				ball(-48, 0, -51.6, 6, white, M.SmoothPlastic),
-			}
-		),
+		def("GiantStump", "Tree Stump and Axe", "A giant tree stump with an axe stuck in it.", {
+			cyl(30, 0, 70, 22, 10, wood, M.Wood),
+			cyl(30, 10, 70, 18, 0.4, rgb(190, 150, 100), M.Wood),
+			blk(30, 10, 70, 1.6, 16, 1.6, wood, M.Wood, 30),
+			blk(26, 20, 66, 8, 5, 1.2, rgb(150, 155, 165), M.Metal, 30),
+			blk(26, 24, 66, 4, 0.6, 1.4, rgb(190, 195, 205), M.Metal, 30),
+		}),
+		def("GiantBone", "Giant Bone", "A giant dog bone left on the meadow.", {
+			lcyl(-60, 1.6, -50, 24, 3.2, "x", white, M.SmoothPlastic),
+			ball(-72, 0, -48.4, 6, white, M.SmoothPlastic),
+			ball(-72, 0, -51.6, 6, white, M.SmoothPlastic),
+			ball(-48, 0, -48.4, 6, white, M.SmoothPlastic),
+			ball(-48, 0, -51.6, 6, white, M.SmoothPlastic),
+		}),
 		def(
 			"GiantBowl",
 			"Giant Food Bowl",
@@ -2781,17 +2591,12 @@ local function beanstalk(): Theme
 				end)
 			)
 		),
-		def(
-			"GiantStick",
-			"Giant Stick",
-			"A very large stick, perfect for fetching.",
-			{
-				lcyl(70, 0, 80, 30, 3, "x", wood, M.Wood),
-				blk(66, 2, 80, 1.2, 1.2, 8, wood, M.Wood, 20),
-				blk(76, 2, 80, 1, 1, 6, wood, M.Wood, -30),
-				ball(55, 0, 80, 3, wood, M.Wood),
-			}
-		),
+		def("GiantStick", "Giant Stick", "A very large stick, perfect for fetching.", {
+			lcyl(70, 0, 80, 30, 3, "x", wood, M.Wood),
+			blk(66, 2, 80, 1.2, 1.2, 8, wood, M.Wood, 20),
+			blk(76, 2, 80, 1, 1, 6, wood, M.Wood, -30),
+			ball(55, 0, 80, 3, wood, M.Wood),
+		}),
 		def(
 			"LogFence",
 			"Log Fence",
@@ -2800,19 +2605,14 @@ local function beanstalk(): Theme
 				return cyl(px, 0, pz, 3, 8 + i % 3, wood, M.Wood)
 			end)
 		),
-		def(
-			"CloudPuffs",
-			"Cloud Puffs",
-			"White clouds drift around the top of the beanstalk.",
-			{
-				ball(sx - 20, 90, sz - 14, 18, white, M.Neon),
-				ball(sx + 18, 96, sz + 10, 22, rgb(240, 245, 255), M.Neon),
-				ball(sx - 6, 88, sz + 20, 16, white, M.Neon),
-				ball(sx + 6, 102, sz - 18, 20, rgb(240, 245, 255), M.Neon),
-				ball(sx - 30, 100, sz + 4, 14, white, M.Neon),
-				ball(sx + 20, 90, sz - 14, 14, white, M.Neon),
-			}
-		),
+		def("CloudPuffs", "Cloud Puffs", "White clouds drift around the top of the beanstalk.", {
+			ball(sx - 20, 90, sz - 14, 18, white, M.Neon),
+			ball(sx + 18, 96, sz + 10, 22, rgb(240, 245, 255), M.Neon),
+			ball(sx - 6, 88, sz + 20, 16, white, M.Neon),
+			ball(sx + 6, 102, sz - 18, 20, rgb(240, 245, 255), M.Neon),
+			ball(sx - 30, 100, sz + 4, 14, white, M.Neon),
+			ball(sx + 20, 90, sz - 14, 14, white, M.Neon),
+		}),
 		def(
 			"HangingVines",
 			"Hanging Vines",
@@ -2826,7 +2626,18 @@ local function beanstalk(): Theme
 			"Magic Beans",
 			"Glowing beans scattered at the foot of the stalk.",
 			line(8, 40, 30, 80, 70, function(px, pz, i)
-				return raw(px, 1.2, pz, 3, 2.4, 2, if i % 2 == 0 then rgb(120, 255, 140) else gold, M.Neon, BALL, Vector3.new(0, i * 40, 0))
+				return raw(
+					px,
+					1.2,
+					pz,
+					3,
+					2.4,
+					2,
+					if i % 2 == 0 then rgb(120, 255, 140) else gold,
+					M.Neon,
+					BALL,
+					Vector3.new(0, i * 40, 0)
+				)
 			end)
 		),
 		def(
@@ -2845,18 +2656,13 @@ local function beanstalk(): Theme
 				return mark(px, pz + (i % 2) * 5 - 2.5, 7, 12, dirt, M.Ground, 15)
 			end)
 		),
-		def(
-			"GiantBirdhouse",
-			"Giant Birdhouse",
-			"A big birdhouse on a tall pole.",
-			{
-				cyl(-84, 0, -20, 3, 22, wood, M.Wood),
-				blk(-84, 22, -20, 12, 10, 12, rgb(220, 90, 70), M.Wood),
-				wedge(-84, 32, -20, 14, 6, 14, rgb(140, 60, 50), M.Wood),
-				cyl(-77.6, 24, -20, 4, 0.6, rgb(30, 24, 20), M.SmoothPlastic),
-				blk(-77.6, 21, -20, 0.6, 1, 6, wood, M.Wood),
-			}
-		),
+		def("GiantBirdhouse", "Giant Birdhouse", "A big birdhouse on a tall pole.", {
+			cyl(-84, 0, -20, 3, 22, wood, M.Wood),
+			blk(-84, 22, -20, 12, 10, 12, rgb(220, 90, 70), M.Wood),
+			wedge(-84, 32, -20, 14, 6, 14, rgb(140, 60, 50), M.Wood),
+			cyl(-77.6, 24, -20, 4, 0.6, rgb(30, 24, 20), M.SmoothPlastic),
+			blk(-77.6, 21, -20, 0.6, 1, 6, wood, M.Wood),
+		}),
 		def(
 			"CloudCastle",
 			"Cloud Castle",
@@ -2927,53 +2733,53 @@ local function dogeAltar(): Theme
 				round(-60, -40, 24, cream, M.Marble)
 			)
 		),
+		def("AltarSteps", "Altar Steps", "Three wide marble steps with golden edges.", {
+			blk(ax, 0, 0, 44, 1.4, 62, marble, M.Marble),
+			blk(ax + 2, 1.4, 0, 36, 1.4, 52, cream, M.Marble),
+			blk(ax + 4, 2.8, 0, 28, 1.4, 42, marble, M.Marble),
+			blk(ax - 22.4, 1.4, 0, 0.6, 0.4, 62, gold, M.Neon),
+			blk(ax - 16.4, 2.8, 0, 0.6, 0.4, 52, gold, M.Neon),
+			blk(ax - 10.4, 4.2, 0, 0.6, 0.4, 42, gold, M.Neon),
+		}),
 		def(
-			"AltarSteps",
-			"Altar Steps",
-			"Three wide marble steps with golden edges.",
-			{
-				blk(ax, 0, 0, 44, 1.4, 62, marble, M.Marble),
-				blk(ax + 2, 1.4, 0, 36, 1.4, 52, cream, M.Marble),
-				blk(ax + 4, 2.8, 0, 28, 1.4, 42, marble, M.Marble),
-				blk(ax - 22.4, 1.4, 0, 0.6, 0.4, 62, gold, M.Neon),
-				blk(ax - 16.4, 2.8, 0, 0.6, 0.4, 52, gold, M.Neon),
-				blk(ax - 10.4, 4.2, 0, 0.6, 0.4, 42, gold, M.Neon),
-			}
+			"BonkSign",
+			"Get Bonked Sign",
+			"A golden board on marble posts that reads GET BONKED.",
+			bonkSign(11, 76, -1, marble, gold, cream, M.Marble)
 		),
-		def("BonkSign", "Get Bonked Sign", "A golden board on marble posts that reads GET BONKED.", bonkSign(11, 76, -1, marble, gold, cream, M.Marble)),
+		def("AltarTable", "Altar Table", "A marble table with a golden cloth and candles.", {
+			blk(ax - 8, top, 0, 6, 3, 16, marble, M.Marble),
+			blk(ax - 8, top + 3, 0, 7, 0.4, 17, gold, M.Metal),
+			cyl(ax - 8, top + 3.4, -6, 0.8, 3, cream, M.SmoothPlastic),
+			cyl(ax - 8, top + 3.4, 6, 0.8, 3, cream, M.SmoothPlastic),
+			ball(ax - 8, top + 6.4, -6, 1.2, light, M.Neon),
+			ball(ax - 8, top + 6.4, 6, 1.2, light, M.Neon),
+			lcyl(ax - 8, top + 3.8, 0, 6, 1, "z", bone, M.Marble),
+			ball(ax - 8, top + 3.4, -3.4, 1.8, bone, M.Marble),
+			ball(ax - 8, top + 3.4, 3.4, 1.8, bone, M.Marble),
+		}),
+		def("DogeThrone", "Doge Throne", "A golden throne with ears on top.", {
+			blk(ax + 8, top, 0, 10, 2, 10, gold, M.Metal),
+			blk(ax + 8, top + 2, 0, 6, 3, 6, red, M.Fabric),
+			blk(ax + 13, top + 2, 0, 2, 20, 10, gold, M.Metal),
+			blk(ax + 8, top + 4, -4.4, 6, 3, 1.2, gold, M.Metal),
+			blk(ax + 8, top + 4, 4.4, 6, 3, 1.2, gold, M.Metal),
+			wedge(ax + 13, top + 22, -3, 2, 6, 3, gold, M.Metal),
+			wedge(ax + 13, top + 22, 3, 2, 6, 3, gold, M.Metal),
+			ball(ax + 11.6, top + 15, 0, 3, light, M.Neon),
+		}),
 		def(
-			"AltarTable",
-			"Altar Table",
-			"A marble table with a golden cloth and candles.",
-			{
-				blk(ax - 8, top, 0, 6, 3, 16, marble, M.Marble),
-				blk(ax - 8, top + 3, 0, 7, 0.4, 17, gold, M.Metal),
-				cyl(ax - 8, top + 3.4, -6, 0.8, 3, cream, M.SmoothPlastic),
-				cyl(ax - 8, top + 3.4, 6, 0.8, 3, cream, M.SmoothPlastic),
-				ball(ax - 8, top + 6.4, -6, 1.2, light, M.Neon),
-				ball(ax - 8, top + 6.4, 6, 1.2, light, M.Neon),
-				lcyl(ax - 8, top + 3.8, 0, 6, 1, "z", bone, M.Marble),
-				ball(ax - 8, top + 3.4, -3.4, 1.8, bone, M.Marble),
-				ball(ax - 8, top + 3.4, 3.4, 1.8, bone, M.Marble),
-			}
+			"BonePillarsA",
+			"Golden Bone Pillars",
+			"Three pillars shaped like giant bones.",
+			pcs(bonePillar(-36), bonePillar(-28), bonePillar(-20))
 		),
 		def(
-			"DogeThrone",
-			"Doge Throne",
-			"A golden throne with ears on top.",
-			{
-				blk(ax + 8, top, 0, 10, 2, 10, gold, M.Metal),
-				blk(ax + 8, top + 2, 0, 6, 3, 6, red, M.Fabric),
-				blk(ax + 13, top + 2, 0, 2, 20, 10, gold, M.Metal),
-				blk(ax + 8, top + 4, -4.4, 6, 3, 1.2, gold, M.Metal),
-				blk(ax + 8, top + 4, 4.4, 6, 3, 1.2, gold, M.Metal),
-				wedge(ax + 13, top + 22, -3, 2, 6, 3, gold, M.Metal),
-				wedge(ax + 13, top + 22, 3, 2, 6, 3, gold, M.Metal),
-				ball(ax + 11.6, top + 15, 0, 3, light, M.Neon),
-			}
+			"BonePillarsB",
+			"More Bone Pillars",
+			"Three more bone pillars on the other side.",
+			pcs(bonePillar(20), bonePillar(28), bonePillar(36))
 		),
-		def("BonePillarsA", "Golden Bone Pillars", "Three pillars shaped like giant bones.", pcs(bonePillar(-36), bonePillar(-28), bonePillar(-20))),
-		def("BonePillarsB", "More Bone Pillars", "Three more bone pillars on the other side.", pcs(bonePillar(20), bonePillar(28), bonePillar(36))),
 		def(
 			"HaloArch",
 			"Halo Arch",
@@ -2982,17 +2788,12 @@ local function dogeAltar(): Theme
 				return ball(px, py, pz, 3.6, gold, M.Neon)
 			end)
 		),
-		def(
-			"RedCarpet",
-			"Red Carpet",
-			"A red carpet runs from the path to the altar.",
-			{
-				mark(23, 0, 30, 9, red, M.Fabric),
-				mark(23, -4.8, 30, 0.8, gold, M.Neon),
-				mark(23, 4.8, 30, 0.8, gold, M.Neon),
-				mark(8.6, 0, 1.2, 9, gold, M.Neon),
-			}
-		),
+		def("RedCarpet", "Red Carpet", "A red carpet runs from the path to the altar.", {
+			mark(23, 0, 30, 9, red, M.Fabric),
+			mark(23, -4.8, 30, 0.8, gold, M.Neon),
+			mark(23, 4.8, 30, 0.8, gold, M.Neon),
+			mark(8.6, 0, 1.2, 9, gold, M.Neon),
+		}),
 		def(
 			"GoldBraziers",
 			"Gold Braziers",
@@ -3005,7 +2806,12 @@ local function dogeAltar(): Theme
 				}
 			end)
 		),
-		def("DogeStatues", "Doge Statues", "Two golden Shiba statues sit in front of the steps.", pcs(dogeStatue(20, -28), dogeStatue(20, 28))),
+		def(
+			"DogeStatues",
+			"Doge Statues",
+			"Two golden Shiba statues sit in front of the steps.",
+			pcs(dogeStatue(20, -28), dogeStatue(20, 28))
+		),
 		def(
 			"OfferingBowls",
 			"Offering Bowls",
@@ -3049,19 +2855,14 @@ local function dogeAltar(): Theme
 				return ball(px, 0.4, pz + (i % 2) * 3, 1, light, M.Neon)
 			end)
 		),
-		def(
-			"HeavenClouds",
-			"Heaven Clouds",
-			"Low white clouds float around the altar.",
-			{
-				ball(30, 0, -80, 14, bone, M.Neon),
-				ball(30, 0, 84, 16, bone, M.Neon),
-				ball(84, 0, -70, 16, cream, M.Neon),
-				ball(84, 0, 76, 14, cream, M.Neon),
-				ball(-70, 0, -90, 16, bone, M.Neon),
-				ball(-80, 0, 80, 16, bone, M.Neon),
-			}
-		),
+		def("HeavenClouds", "Heaven Clouds", "Low white clouds float around the altar.", {
+			ball(30, 0, -80, 14, bone, M.Neon),
+			ball(30, 0, 84, 16, bone, M.Neon),
+			ball(84, 0, -70, 16, cream, M.Neon),
+			ball(84, 0, 76, 14, cream, M.Neon),
+			ball(-70, 0, -90, 16, bone, M.Neon),
+			ball(-80, 0, 80, 16, bone, M.Neon),
+		}),
 		def(
 			"CreamBanners",
 			"Cream Banners",
@@ -3097,44 +2898,32 @@ local function dogeAltar(): Theme
 				ball(-40, 24, 0, 4, light, M.Neon)
 			)
 		),
-		def(
-			"FloatingBone",
-			"Floating Golden Bone",
-			"A giant golden bone hovers above the stage.",
-			{
-				lcyl(0, 40, -50, 30, 4, "z", gold, M.Metal),
-				ball(0, 38, -66, 6, gold, M.Metal),
-				ball(0, 42, -66, 6, gold, M.Metal),
-				ball(0, 38, -34, 6, gold, M.Metal),
-				ball(0, 42, -34, 6, gold, M.Metal),
-				ball(0, 46, -50, 2, light, M.Neon),
-			}
-		),
+		def("FloatingBone", "Floating Golden Bone", "A giant golden bone hovers above the stage.", {
+			lcyl(0, 40, -50, 30, 4, "z", gold, M.Metal),
+			ball(0, 38, -66, 6, gold, M.Metal),
+			ball(0, 42, -66, 6, gold, M.Metal),
+			ball(0, 38, -34, 6, gold, M.Metal),
+			ball(0, 42, -34, 6, gold, M.Metal),
+			ball(0, 46, -50, 2, light, M.Neon),
+		}),
 		def(
 			"TreatPiles",
 			"Treat Piles",
 			"Heaps of golden dog treats.",
-			pcs(
-				line(3, -34, -40, -74, -66, function(px, pz, i)
-					return {
-						ball(px, 0, pz, 8, gold, M.Metal),
-						ball(px + 3, 0, pz + 2, 5, gold, M.Metal),
-						ball(px - 2, 6 + i % 2, pz, 3, rgb(190, 130, 70), M.Slate),
-					}
-				end)
-			)
+			pcs(line(3, -34, -40, -74, -66, function(px, pz, i)
+				return {
+					ball(px, 0, pz, 8, gold, M.Metal),
+					ball(px + 3, 0, pz + 2, 5, gold, M.Metal),
+					ball(px - 2, 6 + i % 2, pz, 3, rgb(190, 130, 70), M.Slate),
+				}
+			end))
 		),
-		def(
-			"DogeCoin",
-			"Giant Doge Coin",
-			"A giant golden coin standing behind the Shiba.",
-			{
-				blk(-70, 0, 20, 6, 3, 14, marble, M.Marble),
-				lcyl(-70, 3, 20, 2, 22, "x", gold, M.Metal),
-				lcyl(-68.9, 6, 20, 0.4, 16, "x", light, M.Neon),
-				ball(-69, 11, 20, 4, gold, M.Neon),
-			}
-		),
+		def("DogeCoin", "Giant Doge Coin", "A giant golden coin standing behind the Shiba.", {
+			blk(-70, 0, 20, 6, 3, 14, marble, M.Marble),
+			lcyl(-70, 3, 20, 2, 22, "x", gold, M.Metal),
+			lcyl(-68.9, 6, 20, 0.4, 16, "x", light, M.Neon),
+			ball(-69, 11, 20, 4, gold, M.Neon),
+		}),
 		def(
 			"Sparkles",
 			"Golden Sparkles",
@@ -3162,17 +2951,12 @@ local function dogeAltar(): Theme
 				ball(34, 1.4, -58, 1.8, light, M.Neon)
 			)
 		),
-		def(
-			"SunDisc",
-			"Sun Disc",
-			"A glowing sun disc stands behind the altar.",
-			{
-				lcyl(90, 6, 0, 2, 40, "x", gold, M.Metal),
-				lcyl(88.8, 10, 0, 0.6, 32, "x", light, M.Neon),
-				blk(90, 0, 0, 6, 6, 10, marble, M.Marble),
-				ball(88, 24, 0, 8, cream, M.Neon),
-			}
-		),
+		def("SunDisc", "Sun Disc", "A glowing sun disc stands behind the altar.", {
+			lcyl(90, 6, 0, 2, 40, "x", gold, M.Metal),
+			lcyl(88.8, 10, 0, 0.6, 32, "x", light, M.Neon),
+			blk(90, 0, 0, 6, 6, 10, marble, M.Marble),
+			ball(88, 24, 0, 8, cream, M.Neon),
+		}),
 		def(
 			"GoldenCrown",
 			"Golden Crown",
@@ -3202,19 +2986,14 @@ local function dogeAltar(): Theme
 				end)
 			)
 		),
-		def(
-			"LightColumns",
-			"Great Light Columns",
-			"Two tall columns of light left and right of the altar.",
-			{
-				cyl(ax, top, -46, 6, 70, light, M.Neon),
-				cyl(ax, top, 46, 6, 70, light, M.Neon),
-				ball(ax, top + 70, -46, 9, gold, M.Neon),
-				ball(ax, top + 70, 46, 9, gold, M.Neon),
-				cyl(ax, top, -46, 10, 1, gold, M.Metal),
-				cyl(ax, top, 46, 10, 1, gold, M.Metal),
-			}
-		),
+		def("LightColumns", "Great Light Columns", "Two tall columns of light left and right of the altar.", {
+			cyl(ax, top, -46, 6, 70, light, M.Neon),
+			cyl(ax, top, 46, 6, 70, light, M.Neon),
+			ball(ax, top + 70, -46, 9, gold, M.Neon),
+			ball(ax, top + 70, 46, 9, gold, M.Neon),
+			cyl(ax, top, -46, 10, 1, gold, M.Metal),
+			cyl(ax, top, 46, 10, 1, gold, M.Metal),
+		}),
 		def(
 			"HolyLight",
 			"Holy Light",
@@ -3233,6 +3012,681 @@ local function dogeAltar(): Theme
 	return build("DogeAltar", "Doge Altar", 28, 1100, defs)
 end
 
+-- ---------------------------------------------------------------------------------------------------------------------
+-- Bay 29: Eternal Shiba, Clock Tower. A tall brass clock tower with a lit face, turning gears and a floating hourglass.
+
+local function clockTower(): Theme
+	local area = areaOf(29)
+	local w, d = area.X / 2, area.Y / 2
+	local brass, bronze, gold = rgb(196, 146, 62), rgb(108, 70, 40), rgb(255, 212, 84)
+	local stone, face, glow = rgb(172, 152, 122), rgb(252, 246, 228), rgb(255, 228, 140)
+	local teal, night = rgb(70, 190, 190), rgb(34, 38, 64)
+	local tx = 62
+
+	-- A flat gear: disc, hub and teeth around it.
+	local function gear(px: number, y: number, pz: number, r: number, teeth: number, c: Color3): { Piece }
+		return pcs(
+			cyl(px, y, pz, 2 * r, 1.4, c, M.Metal),
+			cyl(px, y + 1.4, pz, r * 0.5, 0.6, bronze, M.Metal),
+			around(px, pz, r + 0.8, teeth, function(ax, az, deg)
+				return blk(ax, y, az, 2.4, 1.4, 2.4, c, M.Metal, -deg)
+			end)
+		)
+	end
+
+	local function streetClock(pz: number): { Piece }
+		return {
+			cyl(10, 0, pz, 1, 9, bronze, M.Metal),
+			lcyl(10, 8.5, pz, 1, 6, "x", face, M.SmoothPlastic),
+			blk(9.4, 11, pz, 0.3, 2.4, 0.4, bronze, M.Metal),
+			ball(10, 14.8, pz, 1.2, gold, M.Neon),
+		}
+	end
+
+	local defs = {
+		def(
+			"BrassFloor",
+			"Brass Floor",
+			"Brass plated flooring with engraved gear circles.",
+			pcs(
+				floorSlabs(w, d, brass, M.DiamondPlate),
+				round(-60, 0, 30, bronze, M.Metal),
+				round(-60, 0, 22, brass, M.Metal),
+				round(-60, 0, 8, bronze, M.Metal),
+				round(40, 70, 22, bronze, M.Metal),
+				round(40, -70, 22, bronze, M.Metal),
+				mark(62, 0, 60, 1.2, gold, M.Neon),
+				mark(62, 0, 1.2, 60, gold, M.Neon)
+			)
+		),
+		def("ClockBase", "Clock Tower Base", "A wide stone base with an arched door.", {
+			blk(tx, 0, 0, 38, 3, 38, stone, M.Brick),
+			blk(tx, 3, 0, 34, 3, 34, stone, M.Brick),
+			blk(tx - 17.4, 0, 0, 0.8, 7, 6, bronze, M.Wood),
+			ball(tx - 17.6, 6, 0, 6, bronze, M.Wood),
+			blk(tx - 20, 0, 0, 3, 1, 12, stone, M.Brick),
+			cyl(tx - 16, 6, -16, 4, 4, bronze, M.Metal),
+			cyl(tx - 16, 6, 16, 4, 4, bronze, M.Metal),
+			ball(tx - 16, 10, -16, 3, gold, M.Neon),
+			ball(tx - 16, 10, 16, 3, gold, M.Neon),
+		}),
+		def(
+			"BonkSign",
+			"Get Bonked Sign",
+			"A brass board on bronze posts that reads GET BONKED.",
+			bonkSign(11, -78, -1, bronze, gold, brass, M.Metal)
+		),
+		def(
+			"TowerShaft",
+			"Tower Shaft",
+			"The tall lower shaft with corner pillars and glowing slits.",
+			pcs(
+				blk(tx, 6, 0, 24, 32, 24, stone, M.Brick),
+				around(tx, 0, 12.4, 4, function(_px, _pz, deg)
+					local rad = math.rad(deg + 45)
+					return cyl(tx + 17.5 * math.cos(rad), 6, 17.5 * math.sin(rad), 3, 32, brass, M.Metal)
+				end),
+				line(3, tx - 12.4, -6, tx - 12.4, 6, function(px, pz)
+					return blk(px, 16, pz, 0.6, 10, 1.4, glow, M.Neon)
+				end)
+			)
+		),
+		def("UpperShaft", "Upper Shaft", "A narrower upper section with a balcony.", {
+			blk(tx, 38, 0, 20, 24, 20, stone, M.Brick),
+			blk(tx, 38, 0, 27, 1.2, 27, brass, M.Metal),
+			blk(tx - 13, 39.2, 0, 0.6, 2, 27, gold, M.Metal),
+			blk(tx + 13, 39.2, 0, 0.6, 2, 27, gold, M.Metal),
+			blk(tx, 39.2, -13, 27, 2, 0.6, gold, M.Metal),
+			blk(tx, 39.2, 13, 27, 2, 0.6, gold, M.Metal),
+		}),
+		def(
+			"ClockFace",
+			"Clock Face",
+			"A huge lit clock face with golden numerals facing the path.",
+			pcs(
+				lcyl(tx - 10.8, 40, 0, 1.6, 20, "x", gold, M.Metal),
+				lcyl(tx - 11.6, 41, 0, 0.8, 18, "x", face, M.Neon),
+				aroundV(tx - 12.2, 50, 0, 7.4, 12, "x", function(px, py, pz, _deg, i)
+					return blk(px, py - 0.6, pz, 0.4, if i % 3 == 1 then 2.4 else 1.2, 1.2, bronze, M.Metal)
+				end)
+			)
+		),
+		def("ClockHands", "Clock Hands", "Long golden hands and a golden pin.", {
+			blk(tx - 12.5, 50, -0.3, 0.4, 7, 0.6, bronze, M.Metal),
+			raw(tx - 12.5, 50, 2.4, 0.4, 5, 0.9, bronze, M.Metal, BLOCK, Vector3.new(90, 0, 0)),
+			ball(tx - 12.6, 49, 0, 1.8, gold, M.Metal),
+			blk(tx - 12.5, 46.6, -0.3, 0.3, 2, 0.4, gold, M.Metal),
+		}),
+		def("TowerRoof", "Tower Roof", "A stepped brass roof ending in a spire.", {
+			blk(tx, 62, 0, 26, 2, 26, brass, M.Metal),
+			blk(tx, 64, 0, 20, 3, 20, bronze, M.Metal),
+			blk(tx, 67, 0, 14, 3, 14, brass, M.Metal),
+			blk(tx, 70, 0, 9, 3, 9, bronze, M.Metal),
+			blk(tx, 73, 0, 5, 3, 5, brass, M.Metal),
+			cyl(tx, 76, 0, 1.2, 8, gold, M.Metal),
+			ball(tx, 84, 0, 3, gold, M.Neon),
+		}),
+		def("GreatBell", "Great Bell", "A giant bronze bell in the belfry.", {
+			blk(tx, 44, -6, 1, 14, 1, bronze, M.Wood),
+			blk(tx, 44, 6, 1, 14, 1, bronze, M.Wood),
+			lcyl(tx, 56, 0, 14, 1.4, "z", bronze, M.Wood),
+			cyl(tx, 48, 0, 8, 6, gold, M.Metal),
+			ball(tx, 52, 0, 8, gold, M.Metal),
+			ball(tx, 46.4, 0, 2, bronze, M.Metal),
+		}),
+		def("SideFaces", "Side Clock Faces", "Two more clock faces look to the sides.", {
+			lcyl(tx, 40, -10.8, 1.6, 20, "z", gold, M.Metal),
+			lcyl(tx, 41, -11.6, 0.8, 18, "z", face, M.Neon),
+			lcyl(tx, 40, 10.8, 1.6, 20, "z", gold, M.Metal),
+			lcyl(tx, 41, 11.6, 0.8, 18, "z", face, M.Neon),
+			blk(tx, 50, -12.2, 0.6, 7, 0.4, bronze, M.Metal),
+			blk(tx, 50, 12.2, 0.6, 7, 0.4, bronze, M.Metal),
+			ball(tx, 49, -12.2, 1.8, gold, M.Metal),
+			ball(tx, 49, 12.2, 1.8, gold, M.Metal),
+		}),
+		def("BigGear", "Big Gear", "A giant brass gear lying on the ground.", gear(36, 0, 56, 11, 12, brass)),
+		def(
+			"GearPair",
+			"Meshing Gears",
+			"Two gears that turn each other.",
+			pcs(gear(36, 0, -50, 7, 6, bronze), gear(23, 0, -50, 5, 6, brass))
+		),
+		def("BrassPipes", "Brass Pipes", "Pipes running over the floor.", {
+			lcyl(16, 0, -20, 44, 2, "z", brass, M.Metal),
+			lcyl(18, 0, 36, 28, 2, "z", brass, M.Metal),
+			ball(16, 0, -42, 2.8, gold, M.Metal),
+			ball(16, 0, 2, 2.8, gold, M.Metal),
+			ball(18, 0, 22, 2.8, gold, M.Metal),
+			ball(18, 0, 50, 2.8, gold, M.Metal),
+			cyl(16, 0, -10, 3, 4, bronze, M.Metal),
+		}),
+		def("Pendulum", "Giant Pendulum", "A swinging pendulum on a tall frame.", {
+			cyl(30, 0, -16, 1.4, 26, bronze, M.Metal),
+			cyl(30, 0, 16, 1.4, 26, bronze, M.Metal),
+			lcyl(30, 25.4, 0, 34, 1.4, "z", bronze, M.Metal),
+			cyl(30, 8, 4, 0.5, 18, gold, M.Metal),
+			cyl(30, 4, 4, 7, 1.4, brass, M.Metal),
+			ball(30, 3.4, 4, 2.4, gold, M.Neon),
+		}),
+		def("Sundial", "Sundial", "A round sundial with a golden pointer.", {
+			cyl(-34, 0, 40, 18, 1, stone, M.Marble),
+			cyl(-34, 1, 40, 16, 0.4, face, M.Marble),
+			wedge(-34, 1.4, 40, 1, 6, 8, gold, M.Metal),
+			blk(-34, 1.4, 40, 14, 0.2, 0.4, bronze, M.Metal),
+			blk(-34, 1.4, 40, 0.4, 0.2, 14, bronze, M.Metal),
+		}),
+		def(
+			"StreetClocks",
+			"Street Clocks",
+			"Four small clocks on posts along the path.",
+			line(4, 10, -54, 10, 54, function(_px, pz)
+				return streetClock(pz)
+			end)
+		),
+		def(
+			"CogFence",
+			"Cog Fence",
+			"A fence made of upright cogs.",
+			line(8, 14, -92, 14, -28, function(px, pz)
+				return { cyl(px, 0, pz, 4, 1, brass, M.Metal), lcyl(px, 2, pz, 1, 4, "x", brass, M.Metal) }
+			end)
+		),
+		def(
+			"SpringCoils",
+			"Spring Coils",
+			"Huge brass springs.",
+			line(3, 70, -78, 70, -56, function(px, pz)
+				return line(5, px, pz, px, pz, function(sx, sz, i)
+					return cyl(sx, (i - 1) * 2.4, sz, 6, 1, brass, M.Metal)
+				end)
+			end)
+		),
+		def(
+			"SteamVents",
+			"Steam Vents",
+			"Pipes puffing white steam.",
+			line(4, -34, -80, -80, -30, function(px, pz, i)
+				return {
+					cyl(px, 0, pz, 2.4, 5, bronze, M.Metal),
+					ball(px, 5, pz, 4, rgb(235, 235, 240), M.SmoothPlastic),
+					ball(px + 1, 8.6, pz, 3 + i % 2, rgb(225, 225, 235), M.SmoothPlastic),
+				}
+			end)
+		),
+		def("CuckooHouse", "Cuckoo House", "A little wooden house with a cuckoo door.", {
+			blk(-60, 0, 60, 14, 9, 12, rgb(150, 100, 60), M.Wood),
+			wedge(-60, 9, 60, 14, 6, 12, bronze, M.Wood),
+			blk(-53.2, 3, 60, 0.6, 4, 4, night, M.Wood),
+			lcyl(-53.2, 9, 60, 0.6, 4, "x", face, M.SmoothPlastic),
+			ball(-53.4, 10, 60, 1.6, gold, M.Neon),
+			blk(-60, 0, 66.2, 6, 4, 0.4, glow, M.Neon),
+		}),
+		def(
+			"PocketWatches",
+			"Pocket Watches",
+			"Two giant pocket watches standing on the ground.",
+			pcs(line(2, -34, -60, -66, -80, function(px, pz)
+				return {
+					lcyl(px, 0, pz, 2, 14, "x", gold, M.Metal),
+					lcyl(px + 1, 0.6, pz, 0.6, 12.8, "x", face, M.SmoothPlastic),
+					blk(px + 1.4, 7, pz, 0.3, 4.6, 0.5, bronze, M.Metal),
+					cyl(px, 14, pz, 2, 2, gold, M.Metal),
+				}
+			end))
+		),
+		def(
+			"BrassLamps",
+			"Brass Lamps",
+			"Brass lamps with warm glowing bulbs.",
+			line(5, 9.5, -64, 9.5, 74, function(px, pz)
+				return lamp(px, pz, bronze, glow, 8)
+			end)
+		),
+		def(
+			"Armillary",
+			"Armillary Sphere",
+			"A sphere of golden rings that turns slowly.",
+			pcs(
+				ball(-60, 12, -50, 5, teal, M.Neon),
+				aroundV(-60, 14.5, -50, 8, 5, "x", function(px, py, pz)
+					return ball(px, py, pz, 1.6, gold, M.Metal)
+				end),
+				aroundV(-60, 14.5, -50, 8, 5, "z", function(px, py, pz)
+					return ball(px, py, pz, 1.6, gold, M.Metal)
+				end),
+				around(-60, -50, 8, 4, function(px, pz)
+					return ball(px, 13.7, pz, 1.6, gold, M.Metal)
+				end),
+				cyl(-60, 0, -50, 2, 8, bronze, M.Metal)
+			)
+		),
+		def(
+			"HourStones",
+			"Hour Stones",
+			"Twelve stones in a circle, one for each hour.",
+			around(-62, -50, 18, 12, function(px, pz, deg, i)
+				return blk(px, 0, pz, 2.4, 4 + (i % 3 == 1 and 3 or 0), 1.2, stone, M.Slate, -deg)
+			end)
+		),
+		def(
+			"FloatingCogs",
+			"Floating Cogs",
+			"Two cogs spin in the air.",
+			pcs(gear(30, 30, -40, 5, 6, brass), gear(44, 40, 40, 5, 6, gold))
+		),
+		def(
+			"TimeRing",
+			"Time Ring",
+			"A golden ring hangs high over the path.",
+			aroundV(0, 36, -20, 18, 16, "x", function(px, py, pz, _deg, i)
+				return blk(px, py, pz, 2.4, 2.4, 2.4, if i % 4 == 1 then teal else gold, M.Neon)
+			end)
+		),
+		def(
+			"NumeralRing",
+			"Floating Numerals",
+			"Glowing numerals circle around the tower.",
+			around(tx, 0, 26, 12, function(px, pz, deg, i)
+				return blk(px, 88 + (i % 2) * 3, pz, 1.4, 5, 3, if i % 3 == 0 then teal else glow, M.Neon, -deg)
+			end)
+		),
+		def(
+			"HangingWeights",
+			"Hanging Weights",
+			"Heavy weights hang from long chains.",
+			line(3, tx - 14, -12, tx - 14, 12, function(px, pz, i)
+				return {
+					cyl(px, 24 + i * 4, pz, 0.5, 14, bronze, M.Metal),
+					cyl(px, 18 + i * 4, pz, 4, 6, brass, M.Metal),
+					ball(px, 17 + i * 4, pz, 3, gold, M.Metal),
+				}
+			end)
+		),
+		def(
+			"FaceHalo",
+			"Face Halo",
+			"A ring of light around the great clock face.",
+			aroundV(tx - 13.4, 50, 0, 11, 16, "x", function(px, py, pz, _deg, i)
+				return ball(px, py, pz, 1.8, if i % 2 == 0 then glow else gold, M.Neon)
+			end)
+		),
+		def(
+			"FloatingHourglass",
+			"Floating Hourglass",
+			"A giant hourglass floating above the tower, its sand falling forever.",
+			{
+				cyl(tx, 96, 0, 18, 2, gold, M.Metal),
+				cyl(tx, 132, 0, 18, 2, gold, M.Metal),
+				cyl(tx - 7, 98, -7, 1.4, 34, bronze, M.Metal),
+				cyl(tx + 7, 98, 7, 1.4, 34, bronze, M.Metal),
+				cyl(tx - 7, 98, 7, 1.4, 34, bronze, M.Metal),
+				cyl(tx + 7, 98, -7, 1.4, 34, bronze, M.Metal),
+				cyl(tx, 122, 0, 14, 10, glow, M.Neon),
+				cyl(tx, 114, 0, 9, 8, glow, M.Neon),
+				cyl(tx, 108, 0, 2.4, 6, gold, M.Neon),
+				cyl(tx, 100, 0, 9, 8, glow, M.Neon),
+				cyl(tx, 98, 0, 14, 2, glow, M.Neon),
+				ball(tx, 98, 0, 8, gold, M.Neon),
+			}
+		),
+	}
+	return build("ClockTower", "Clock Tower", 29, 1150, defs)
+end
+
+-- ---------------------------------------------------------------------------------------------------------------------
+-- Bay 30: Void Shiba, Void Portal. The biggest stage: a black stone platform with a purple portal, a huge flying island,
+-- floating islands and shards, a black hole made of rings and balls, and a giant eye above everything.
+
+local function voidPortal(): Theme
+	local area = areaOf(30)
+	local w, d = area.X / 2, area.Y / 2
+	local void, dark, deep = rgb(10, 6, 20), rgb(30, 24, 46), rgb(52, 22, 96)
+	local purple, magenta, cyan = rgb(170, 72, 255), rgb(255, 72, 220), rgb(90, 220, 255)
+	local white = rgb(240, 236, 255)
+	local px0 = 56
+	local top = 4.8
+	local bx, by = 50, 60
+
+	local function ringOf(r: number, c: Color3, n: number, size: number): { Piece }
+		return around(bx, 0, r, n, function(ax, az)
+			return ball(ax, by, az, size, c, M.Neon)
+		end)
+	end
+
+	local function crystal(cx: number, y: number, cz: number, h: number, c: Color3, ry: number): Piece
+		return blk(cx, y, cz, 2.6, h, 2.6, c, M.Neon, ry)
+	end
+
+	local defs = {
+		def(
+			"VoidFloor",
+			"Void Floor",
+			"Black stone flooring with glowing purple cracks.",
+			pcs(
+				floorSlabs(w, d, void, M.Slate),
+				mark(30, -50, 1.2, 60, purple, M.Neon, 10),
+				mark(80, 40, 1.2, 70, purple, M.Neon, -14),
+				mark(-40, 70, 1.2, 50, purple, M.Neon, 20),
+				mark(-70, -30, 1.2, 70, purple, M.Neon, -8),
+				mark(-30, -90, 50, 1.2, magenta, M.Neon, 12),
+				mark(40, 100, 50, 1.2, magenta, M.Neon, -10),
+				round(-60, 70, 24, deep, M.Slate)
+			)
+		),
+		def(
+			"DarkPlatform",
+			"Dark Platform",
+			"A round black platform in three tiers with a glowing edge.",
+			pcs(
+				cyl(px0, 0, 0, 62, 1.6, dark, M.Slate),
+				cyl(px0, 1.6, 0, 52, 1.6, void, M.Slate),
+				cyl(px0, 3.2, 0, 42, 1.6, dark, M.Slate),
+				around(px0, 0, 30, 12, function(ax, az)
+					return ball(ax, 1.6, az, 1.6, purple, M.Neon)
+				end)
+			)
+		),
+		def(
+			"BonkSign",
+			"Get Bonked Sign",
+			"A black board with purple glow that reads GET BONKED.",
+			bonkSign(11, 80, -1, void, purple, deep, M.Slate)
+		),
+		def("PortalFrame", "Portal Frame", "A tall black frame for the void portal.", {
+			blk(px0, top, -16, 6, 36, 6, dark, M.Basalt),
+			blk(px0, top, 16, 6, 36, 6, dark, M.Basalt),
+			blk(px0, top + 36, 0, 6, 6, 38, dark, M.Basalt),
+			blk(px0 - 3.2, top + 2, -16, 0.6, 32, 1.4, purple, M.Neon),
+			blk(px0 - 3.2, top + 2, 16, 0.6, 32, 1.4, purple, M.Neon),
+			blk(px0 - 3.2, top + 38, 0, 0.6, 1.4, 34, purple, M.Neon),
+			blk(px0, top, 0, 6, 1, 26, deep, M.Slate),
+			ball(px0, top + 43, 0, 4, magenta, M.Neon),
+		}),
+		def(
+			"PortalSwirl",
+			"Portal Swirl",
+			"A swirling purple vortex fills the frame.",
+			pcs(
+				aroundV(px0, top + 18, 0, 13, 8, "x", function(ax, ay, az)
+					return ball(ax, ay, az, 5, purple, M.Neon)
+				end),
+				aroundV(px0, top + 18, 0, 8, 6, "x", function(ax, ay, az)
+					return ball(ax, ay, az, 4, magenta, M.Neon)
+				end),
+				ball(px0, top + 15, 0, 6, white, M.Neon)
+			)
+		),
+		def(
+			"RuneRing",
+			"Rune Ring",
+			"Glowing runes circle the platform.",
+			around(px0, 0, 34, 16, function(ax, az, deg, i)
+				return mark(ax, az, 4, 1.4, if i % 2 == 0 then purple else cyan, M.Neon, -deg)
+			end)
+		),
+		def(
+			"IslandA",
+			"Floating Island",
+			"A small dark island hovers in the air.",
+			pcs(
+				island(-64, 28, -62, 14, deep, dark, M.Slate),
+				crystal(-64, 29.2, -62, 8, purple, 20),
+				crystal(-60, 29.2, -64, 5, magenta, 50),
+				crystal(-68, 29.2, -58, 6, cyan, 10)
+			)
+		),
+		def(
+			"IslandB",
+			"Floating Island 2",
+			"A second island with glowing crystals.",
+			pcs(
+				island(-72, 40, 52, 16, deep, dark, M.Slate),
+				crystal(-72, 41.2, 52, 10, magenta, 30),
+				crystal(-67, 41.2, 55, 6, purple, 60),
+				crystal(-76, 41.2, 48, 7, cyan, 15),
+				rocks(-70, 41.2, 1, dark)
+			)
+		),
+		def(
+			"IslandC",
+			"Floating Island 3",
+			"An island with a tiny ruined tower.",
+			pcs(
+				island(34, 34, -84, 14, deep, dark, M.Slate),
+				blk(34, 35.2, -84, 6, 10, 6, dark, M.Basalt),
+				blk(34, 45.2, -84, 8, 1.4, 8, deep, M.Slate),
+				ball(34, 46.6, -84, 3, purple, M.Neon)
+			)
+		),
+		def(
+			"IslandD",
+			"Floating Island 4",
+			"An island with a glowing void tree.",
+			pcs(
+				island(28, 30, 86, 14, deep, dark, M.Slate),
+				cyl(28, 31.2, 86, 1.6, 10, dark, M.Wood),
+				ball(28, 38, 86, 9, purple, M.Neon),
+				ball(31, 42, 88, 5, magenta, M.Neon)
+			)
+		),
+		def(
+			"MainIsland",
+			"Great Flying Island",
+			"A huge island of black rock floats over the left side of the stage.",
+			pcs(
+				cyl(-62, 42, 0, 54, 1.4, deep, M.Slate),
+				cyl(-62, 36, 0, 46, 6, dark, M.Slate),
+				cyl(-62, 30, 0, 34, 6, void, M.Slate),
+				cyl(-62, 24, 0, 22, 6, dark, M.Slate),
+				ball(-62, 6, 0, 22, void, M.Slate),
+				ball(-62, 20, 0, 10, dark, M.Slate),
+				around(-62, 0, 24, 8, function(ax, az)
+					return ball(ax, 43.2, az, 3, purple, M.Neon)
+				end)
+			)
+		),
+		def(
+			"IslandObelisks",
+			"Island Obelisks",
+			"Tall black obelisks with glowing tips on the great island.",
+			around(-62, 0, 16, 6, function(ax, az, deg)
+				return {
+					blk(ax, 43.4, az, 3, 14, 3, void, M.Basalt, deg),
+					blk(ax, 57.4, az, 1.6, 4, 1.6, purple, M.Neon, deg),
+				}
+			end)
+		),
+		def(
+			"IslandCrystals",
+			"Island Crystals",
+			"A forest of huge crystals in the middle of the island.",
+			line(8, -70, -10, -54, 10, function(ax, az, i)
+				return crystal(
+					ax,
+					43.4,
+					az + (i % 3) * 3 - 3,
+					8 + (i * 5) % 12,
+					if i % 3 == 0 then purple elseif i % 3 == 1 then magenta else cyan,
+					i * 30
+				)
+			end)
+		),
+		def("IslandTree", "Island Void Tree", "A giant twisted tree with glowing purple leaves.", {
+			cyl(-62, 43.4, 0, 4, 18, void, M.Wood),
+			blk(-62, 52, -4, 1.4, 1.4, 10, void, M.Wood, 30),
+			blk(-62, 56, 4, 1.4, 1.4, 10, void, M.Wood, -30),
+			ball(-62, 58, 0, 16, purple, M.Neon),
+			ball(-68, 54, 6, 9, magenta, M.Neon),
+			ball(-56, 66, -4, 8, purple, M.Neon),
+		}),
+		def("IslandArch", "Island Arch", "An ancient arch with a glowing gem.", {
+			cyl(-48, 43.4, -6, 3, 14, dark, M.Basalt),
+			cyl(-48, 43.4, 6, 3, 14, dark, M.Basalt),
+			blk(-48, 57.4, 0, 3, 2.4, 16, dark, M.Basalt),
+			ball(-48, 59.8, 0, 3, cyan, M.Neon),
+			blk(-48.8, 43.4, 0, 0.4, 14, 9, deep, M.Neon),
+		}),
+		def(
+			"FloatingShards",
+			"Floating Shards",
+			"Sharp black shards with glowing edges drift in the air.",
+			line(16, -80, -100, 80, 100, function(ax, az, i)
+				return raw(
+					ax,
+					16 + (i * 11) % 50,
+					awayZ(az + (i * 7) % 20 - 10),
+					2,
+					7 + i % 3 * 2,
+					2,
+					if i % 2 == 0 then purple else dark,
+					M.Neon,
+					BLOCK,
+					Vector3.new(0, i * 37, 25)
+				)
+			end)
+		),
+		def(
+			"VoidLamps",
+			"Void Lamps",
+			"Lamps with purple flames line the path.",
+			line(5, 9.5, -90, 9.5, 90, function(ax, az)
+				return lamp(ax, az, dark, purple, 9)
+			end)
+		),
+		def(
+			"ObsidianSpires",
+			"Obsidian Spires",
+			"Spikes of black glass rise from the ground.",
+			line(5, 24, -100, 84, -60, function(ax, az, i)
+				return {
+					cyl(ax, 0, az, 5, 12 + i % 3 * 6, void, M.Basalt),
+					cyl(ax, 12 + i % 3 * 6, az, 2.6, 6, void, M.Basalt),
+					blk(ax - 2.6, 0, az, 0.4, 12 + i % 3 * 6, 0.8, purple, M.Neon),
+				}
+			end)
+		),
+		def(
+			"VoidCrystals",
+			"Ground Crystals",
+			"Glowing crystal clusters growing from the ground.",
+			pcs(
+				line(6, 24, 60, 84, 100, function(ax, az, i)
+					return crystal(ax, 0, az, 6 + (i * 4) % 10, if i % 2 == 0 then purple else magenta, i * 25)
+				end),
+				ball(54, 0, 80, 5, purple, M.Neon)
+			)
+		),
+		def(
+			"GravityRings",
+			"Gravity Rings",
+			"Small rings that spin above the ground.",
+			pcs(
+				around(36, -30, 7, 8, function(ax, az)
+					return ball(ax, 12, az, 1.6, cyan, M.Neon)
+				end),
+				around(76, 30, 7, 8, function(ax, az)
+					return ball(ax, 14, az, 1.6, magenta, M.Neon)
+				end)
+			)
+		),
+		def(
+			"VoidFountain",
+			"Void Fountain",
+			"A fountain that flows upward in a column of dark light.",
+			pcs(
+				cyl(-34, 0, 70, 16, 1.5, dark, M.Slate),
+				cyl(-34, 1.5, 70, 13, 0.4, deep, M.Neon),
+				cyl(-34, 1.5, 70, 3, 24, purple, M.Neon),
+				ball(-34, 25, 70, 5, magenta, M.Neon),
+				around(-34, 70, 5, 6, function(ax, az)
+					return ball(ax, 10, az, 1.8, cyan, M.Neon)
+				end)
+			)
+		),
+		def(
+			"StarSpecks",
+			"Star Specks",
+			"Tiny white stars shine in the void.",
+			line(16, -85, -100, 85, 100, function(ax, az, i)
+				return ball(ax, 10 + (i * 13) % 80, awayZ(az + (i * 5) % 16 - 8), 1.2 + i % 3 * 0.5, white, M.Neon)
+			end)
+		),
+		def(
+			"LightBridge",
+			"Bridge of Light",
+			"Glowing steps climb from the ground to the great island.",
+			line(12, -34, -30, -46, -4, function(ax, az, i)
+				return blk(ax, 1 + i * 3.4, az, 6, 0.8, 4, if i % 2 == 0 then cyan else purple, M.Neon)
+			end)
+		),
+		def("BlackHoleCore", "Black Hole Core", "A perfectly black sphere floats above the platform.", {
+			ball(bx, by - 11, 0, 22, void, M.SmoothPlastic),
+			ball(bx, by - 13, 0, 26, deep, M.ForceField),
+			ball(bx - 12, by - 1, 0, 3, white, M.Neon),
+			ball(bx + 12, by - 1, 0, 3, white, M.Neon),
+		}),
+		def(
+			"AccretionInner",
+			"Inner Accretion Ring",
+			"A fast purple ring spins around the black hole.",
+			ringOf(15, purple, 16, 4)
+		),
+		def(
+			"AccretionMiddle",
+			"Middle Accretion Ring",
+			"A magenta ring of burning matter.",
+			ringOf(23, magenta, 16, 4.4)
+		),
+		def(
+			"AccretionOuter",
+			"Outer Accretion Ring",
+			"A wide cyan ring at the edge of the black hole.",
+			ringOf(31, cyan, 16, 4.8)
+		),
+		def(
+			"BlackHoleJets",
+			"Black Hole Jets",
+			"Two jets of light shoot out of the black hole.",
+			pcs(
+				cyl(bx, by + 14, 0, 4, 30, purple, M.Neon),
+				cyl(bx, by + 44, 0, 7, 16, magenta, M.Neon),
+				ball(bx, by + 60, 0, 10, white, M.Neon),
+				cyl(bx, 14, 0, 4, 34, purple, M.Neon),
+				ball(bx, 8, 0, 8, magenta, M.Neon),
+				aroundV(bx, by + 30, 0, 6, 6, "x", function(ax, ay, az)
+					return ball(ax, ay, az, 2.4, cyan, M.Neon)
+				end)
+			)
+		),
+		def(
+			"VoidTendrils",
+			"Void Tendrils",
+			"Dark tendrils reach from the black hole toward the ground.",
+			line(8, bx - 24, -30, bx + 24, 30, function(ax, az, i)
+				return {
+					cyl(ax, 20, az, 2.2, 30 + (i % 3) * 8, deep, M.Neon),
+					ball(ax, 18, az, 3.4, purple, M.Neon),
+				}
+			end)
+		),
+		def("VoidEye", "Void Eye", "A giant eye opens above the black hole and watches the path.", {
+			ball(bx, 100, 0, 40, white, M.Neon),
+			ball(bx - 13, 110, 0, 24, purple, M.Neon),
+			ball(bx - 21, 114, 0, 12, void, M.SmoothPlastic),
+			ball(bx - 22, 119, 4, 4, white, M.Neon),
+			blk(bx - 8, 124, 0, 30, 3, 44, void, M.Slate),
+			blk(bx - 8, 98, 0, 30, 3, 44, void, M.Slate),
+			cyl(bx, 82, 0, 3, 18, purple, M.Neon),
+			ball(bx - 6, 130, -16, 5, magenta, M.Neon),
+			ball(bx - 6, 130, 16, 5, magenta, M.Neon),
+			ball(bx - 6, 130, 0, 6, magenta, M.Neon),
+			ball(bx - 10, 94, -14, 4, magenta, M.Neon),
+			ball(bx - 10, 94, 14, 4, magenta, M.Neon),
+		}),
+	}
+	return build("VoidPortal", "Void Portal", 30, 1200, defs)
+end
+
 -- @@THEMES@@
 
 return {
@@ -3244,4 +3698,6 @@ return {
 	[26] = hellGate(),
 	[27] = beanstalk(),
 	[28] = dogeAltar(),
+	[29] = clockTower(),
+	[30] = voidPortal(),
 } :: { [number]: DecorTypes.Theme }
