@@ -5,6 +5,10 @@
 -- "DoubleOffline" Robux purchase (ClaimOffline true). The popup closes once the server has paid (Bank.Pending = 0).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Features = require(ReplicatedStorage.Shared.Config.Features)
+-- The street tycoon replaces this part of the old game (docs/GAME_DESIGN.md → Street, plots and buttons).
+local STREET_MODE = Features.Tycoon and Features.Street
 local TweenService = game:GetService("TweenService")
 
 local Net = require(ReplicatedStorage.Shared.Net)
@@ -166,6 +170,9 @@ local function onStateChanged()
 end
 
 function WelcomeBackController.Start()
+	if STREET_MODE then
+		return
+	end
 	State.Start()
 	Net.Get(Net.OfflineEarnings).OnClientEvent:Connect(function(amount: unknown, seconds: unknown)
 		if typeof(amount) == "number" and typeof(seconds) == "number" then
