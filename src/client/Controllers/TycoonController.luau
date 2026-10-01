@@ -676,12 +676,15 @@ local STICK_COLOR = Color3.fromRGB(150, 100, 60)
 local REST_ANGLE = math.rad(-20)
 local WINDUP_ANGLE = math.rad(115)
 local STRIKE_ANGLE = math.rad(-35)
--- Timing at a cooldown of a second or more; shorter cooldowns scale wind-up and strike down (never below MIN_TIME_SCALE,
--- so a Shiba swinging every few milliseconds still shows a quick blurred stroke) and shorten the recovery.
-local STRIKE_SECONDS = 0.12
-local RECOVER_SECONDS = 0.3
-local MIN_RECOVER_SECONDS = 0.03
-local MIN_TIME_SCALE = 0.25
+-- The swing always takes the same time, however short the Shiba's cooldown is: a Shiba that is ready again while the arm is
+-- still moving starts its next swing when the arm is back (the money does not wait for the animation). Wind-up plus strike
+-- add up to about Swing.HitDelay, the moment the server checks the hit.
+local WINDUP_SECONDS = 0.3
+local STRIKE_SECONDS = 0.2
+local RECOVER_SECONDS = 0.45
+-- The stick in the paw is tilted this far further forward while the arm is raised and chopping (the arm's own pose leaves it
+-- pointing up and back); it eases in during the wind-up and out in the recovery.
+local STICK_TILT = math.rad(40)
 local ZONE_COLOR = Color3.fromRGB(255, 70, 60)
 local ZONE_WINDUP_TRANSPARENCY = 0.93
 local ZONE_STRIKE_TRANSPARENCY = 0.8
@@ -697,17 +700,6 @@ local MAX_LAUNCH_SPEED = 40
 local swinging: { [number]: boolean } = {}
 local ducking: { [Model]: boolean } = {}
 local internHome: { [Model]: CFrame } = {}
-
--- Seconds of one swing of the Shiba in `slot` (its cooldown at the current level), 1 when unknown.
-local function cooldownOf(slot: number): number
-	local tycoon = currentTycoon()
-	local id = if tycoon then tycoon.Equipped[tostring(slot)] else nil
-	local shiba: Types.OwnedShiba? = if tycoon and id then tycoon.Shibas[id] else nil
-	if shiba then
-		return TycoonMath.SwingCooldown(shiba.Tier, shiba.Level)
-	end
-	return SWING.Cooldown
-end
 
 -- The Intern ducks and pops back up like a bonk on the head (local animation of the anchored model).
 local function duckIntern(lane: Instance)
@@ -762,12 +754,15 @@ end
 
 -- ThrowArm and what is in the paw (the model's Stick) turn around the Shoulder marker like in Controllers/ShibaController
 -- (positive angles raise the paw forward and up, 180 = straight overhead). Nil if the model has no arm or no Shoulder.
-type ArmRig = { Shoulder: Vector3, Parts: { [BasePart]: CFrame } }
+type ArmRig = { Shoulder: Vector3, Parts: { [BasePart]: CFrame }, Paw: { [BasePart]: boolean }, Grip: Vector3? }
 
 local function armRig(model: Model): ArmRig?
 	local shoulder: BasePart? = nil
 	local hasArm = false
 	local parts: { [BasePart]: CFrame } = {}
+	local paw: { [BasePart]: boolean } = {}
+	local lowest: number? = nil
+	local sumX, sumZ, count = 0, 0, 0
 	for _, descendant in model:GetDescendants() do
 		if descendant:IsA("BasePart") then
 			local name = descendant.Name
@@ -780,6 +775,18 @@ local function armRig(model: Model): ArmRig?
 				local stick = descendant:FindFirstAncestor(SHOOTERS.HandStickName)
 				if name == SHOOTERS.HandStickName or (stick ~= nil and stick:IsDescendantOf(model)) then
 					parts[descendant] = descendant.CFrame
+					paw[descendant] = true
+					-- The stick turns around its lower end (where it is held): lowest point and the middle of its parts.
+					local half = descendant.Size / 2
+					local frame = descendant.CFrame
+					local reach = math.abs(frame.UpVector.Y) * half.Y
+						+ math.abs(frame.RightVector.Y) * half.X
+						+ math.abs(frame.LookVector.Y) * half.Z
+					local bottom = descendant.Position.Y - reach
+					lowest = if lowest then math.min(lowest, bottom) else bottom
+					sumX += descendant.Position.X
+					sumZ += descendant.Position.Z
+					count += 1
 				end
 			end
 		end
@@ -787,14 +794,20 @@ local function armRig(model: Model): ArmRig?
 	if not shoulder or not hasArm then
 		return nil
 	end
-	return { Shoulder = shoulder.Position, Parts = parts }
+	local grip = if lowest and count > 0 then Vector3.new(sumX / count, lowest, sumZ / count) else nil
+	return { Shoulder = shoulder.Position, Parts = parts, Paw = paw, Grip = grip }
 end
 
-local function poseArm(rig: ArmRig, axis: Vector3, angle: number)
+-- `tilt` (radians, 0 = none) turns the stick forward around its lower end first, then the arm swings everything.
+local function poseArm(rig: ArmRig, axis: Vector3, angle: number, tilt: number)
 	local turn = CFrame.new(rig.Shoulder) * CFrame.fromAxisAngle(axis, angle) * CFrame.new(-rig.Shoulder)
+	local grip = rig.Grip
+	local tiltTurn = if grip and tilt ~= 0
+		then CFrame.new(grip) * CFrame.fromAxisAngle(axis, -tilt) * CFrame.new(-grip)
+		else CFrame.identity
 	for part, rest in rig.Parts do
 		if part.Parent then
-			part.CFrame = turn * rest
+			part.CFrame = turn * (if rig.Paw[part] then tiltTurn * rest else rest)
 		end
 	end
 end
@@ -830,12 +843,9 @@ local function playSwing(slot: number, automated: boolean)
 	local handle = box.Position + up * (size.Y * 0.1) + right * (size.X * 0.45)
 	local floor = box.Position - up * (size.Y / 2 - 0.2)
 
-	-- Wind-up and strike of the animation, scaled so they end well before the next swing of a fast Shiba.
-	local cooldown = cooldownOf(slot)
-	local scale = math.clamp(cooldown / (SWING.HitDelay + STRIKE_SECONDS + 0.1), MIN_TIME_SCALE, 1)
-	local windup = SWING.HitDelay * scale
-	local strikeSeconds = STRIKE_SECONDS * scale
-	local recover = math.clamp(cooldown - windup - strikeSeconds, MIN_RECOVER_SECONDS, RECOVER_SECONDS)
+	local windup = WINDUP_SECONDS
+	local strikeSeconds = STRIKE_SECONDS
+	local recover = RECOVER_SECONDS
 
 	swinging[slot] = true
 	local parent = getWorldFolder()
@@ -888,9 +898,11 @@ local function playSwing(slot: number, automated: boolean)
 			end
 			local angle: number
 			local zoneTransparency: number
+			local tiltFactor = 1
 			if elapsed < windup then
 				local alpha = TweenService:GetValue(elapsed / windup, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 				angle = restAngle + (windupAngle - restAngle) * alpha
+				tiltFactor = alpha
 				zoneTransparency = ZONE_WINDUP_TRANSPARENCY
 			elseif elapsed < strikeEnd then
 				local alpha = TweenService:GetValue(
@@ -907,13 +919,14 @@ local function playSwing(slot: number, automated: boolean)
 				end
 				local alpha = (elapsed - strikeEnd) / recover
 				angle = strikeAngle + (restAngle - strikeAngle) * alpha
+				tiltFactor = 1 - alpha
 				zoneTransparency = ZONE_STRIKE_TRANSPARENCY + (1 - ZONE_STRIKE_TRANSPARENCY) * alpha
 			end
 			if stick then
 				local direction = forward * math.cos(angle) + up * math.sin(angle)
 				stick.CFrame = CFrame.lookAt(handle + direction * (STICK_LENGTH / 2), handle + direction * STICK_LENGTH)
 			elseif rig then
-				poseArm(rig, right, angle)
+				poseArm(rig, right, angle, STICK_TILT * tiltFactor)
 			end
 			if zone then
 				zone.Transparency = zoneTransparency
