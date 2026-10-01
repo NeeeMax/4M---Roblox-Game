@@ -3,5 +3,5 @@
 -- Bump the label with every change that should be visible in a playtest.
 
 return {
-	Label = "2026-10-01 #51: street: the first Bonk Intern costs 300 (flags off)",
+	Label = "2026-10-01 #52: street: longer cooldowns per Shiba and a higher minimum cooldown, prices recalibrated (flags off)",
 }
