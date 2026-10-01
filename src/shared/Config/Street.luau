@@ -14,7 +14,7 @@ return {
 	PlotPitch = 210,
 	-- A plot is long and narrow: it grows backward (away from the road) as the player progresses.
 	PlotWidth = 200,
-	PlotDepth = 4400,
+	PlotDepth = 4700,
 	PlotThickness = 4,
 
 	Road = {
@@ -36,7 +36,7 @@ return {
 	-- Requests from the client (swing, vault, …) are accepted this far outside the plot's rectangle (studs) and up to
 	-- ReachHeight above or below its surface.
 	ReachMargin = 30,
-	ReachHeight = 60,
+	ReachHeight = 200,
 	-- Below this height the character is put back on the street.
 	FallOffY = 50,
 	FallCheckInterval = 0.5,

@@ -63,6 +63,8 @@ type Plot = {
 	RoadEnd: Vector3,
 	Back: Vector3,
 	Right: Vector3,
+	-- Per bay: the height of its terrace above the plot's ground.
+	Elev: { [number]: number },
 	-- Per bay: how far from RoadEnd its stage starts and how deep it is (the theme's Area plus the margin).
 	Starts: { [number]: number },
 	Depths: { [number]: number },
@@ -130,8 +132,135 @@ end
 -- right, -Z = deeper into the plot, +Y = up.
 local function stageFrame(plot: Plot, bay: number): CFrame
 	local middle = plot.Starts[bay] + plot.Depths[bay] / 2
-	local at = plot.RoadEnd + plot.Back * middle
+	local at = plot.RoadEnd + plot.Back * middle + Vector3.new(0, plot.Elev[bay], 0)
 	return CFrame.lookAt(at, at + plot.Back)
+end
+
+-- ==== terraces, stairs and walls =======================================================================================
+
+local function solid(name: string, size: Vector3, cframe: CFrame, color: Color3, parent: Instance): Part
+	local part = newPart(name, size, cframe, color, parent)
+	part.CanCollide = true
+	part.CanQuery = true
+	return part
+end
+
+-- A box on the plot: `depth` away from the road, `lateral` to the right of the path, its bottom at `bottom` and top at `top`
+-- (heights above the plot's ground), `length` along the plot and `width` across.
+local function plotBox(
+	plot: Plot,
+	name: string,
+	depth: number,
+	lateral: number,
+	length: number,
+	width: number,
+	bottom: number,
+	top: number,
+	color: Color3,
+	parent: Instance
+): Part
+	local at = plot.RoadEnd + plot.Back * depth + plot.Right * lateral + Vector3.new(0, (bottom + top) / 2, 0)
+	return solid(name, Vector3.new(width, top - bottom, length), CFrame.lookAt(at, at + plot.Back), color, parent)
+end
+
+-- The plot rises in terraces (one per group of Shibas) joined by stairs, and a privacy wall surrounds everything. All of it
+-- is static, so it is built once with the plot.
+local function buildTerrain(plot: Plot)
+	local folder = Instance.new("Folder")
+	folder.Name = "Terrain"
+	folder.Parent = plot.Folder
+	local group = LAYOUT.GroupSize
+	local groups = math.ceil(TycoonSteps.Bays / group)
+	local stairs = math.floor(LAYOUT.Rise / LAYOUT.StairRise + 0.5)
+	local ramp = stairs * LAYOUT.StairRun
+	local half = Street.PlotWidth / 2
+	local thick = LAYOUT.WallThickness
+
+	for number = 1, groups do
+		local first = (number - 1) * group + 1
+		local last = math.min(TycoonSteps.Bays, number * group)
+		local height = plot.Elev[first]
+		local from = if number == 1 then 0 else plot.Starts[first] - ramp
+		local to = if number == groups then Street.PlotDepth else plot.Starts[last] + plot.Depths[last]
+
+		if number > 1 then
+			-- The terrace under this group's stages, and the stairs up to it.
+			plotBox(
+				plot,
+				`Terrace{number}`,
+				(plot.Starts[first] + plot.Starts[last] + plot.Depths[last]) / 2,
+				0,
+				plot.Starts[last] + plot.Depths[last] - plot.Starts[first],
+				Street.PlotWidth,
+				-1,
+				height,
+				LAYOUT.TerraceColor,
+				folder
+			)
+			for step = 1, stairs do
+				plotBox(
+					plot,
+					`Stair{number}_{step}`,
+					plot.Starts[first] - ramp + (step - 0.5) * LAYOUT.StairRun,
+					0,
+					LAYOUT.StairRun,
+					LAYOUT.StairWidth,
+					-1,
+					height - LAYOUT.Rise + step * LAYOUT.StairRise,
+					LAYOUT.StairColor,
+					folder
+				)
+			end
+		end
+
+		-- Side walls rise with the terrace.
+		for _, side in { -1, 1 } do
+			plotBox(
+				plot,
+				`Wall{number}_{if side < 0 then "L" else "R"}`,
+				(from + to) / 2,
+				side * (half - thick / 2),
+				to - from,
+				thick,
+				-1,
+				height + LAYOUT.WallHeight,
+				LAYOUT.WallColor,
+				folder
+			)
+		end
+		if number == groups then
+			plotBox(
+				plot,
+				"WallBack",
+				Street.PlotDepth - thick / 2,
+				0,
+				thick,
+				Street.PlotWidth,
+				-1,
+				height + LAYOUT.WallHeight,
+				LAYOUT.WallColor,
+				folder
+			)
+		end
+	end
+
+	-- Front wall with the entrance in the middle.
+	local opening = LAYOUT.OpeningWidth / 2
+	local wing = half - opening
+	for _, side in { -1, 1 } do
+		plotBox(
+			plot,
+			`WallFront{if side < 0 then "L" else "R"}`,
+			LAYOUT.FrontWallDepth,
+			side * (opening + wing / 2),
+			thick,
+			wing,
+			-1,
+			LAYOUT.WallHeight,
+			LAYOUT.WallColor,
+			folder
+		)
+	end
 end
 
 -- ==== bays =============================================================================================================
@@ -270,7 +399,7 @@ local function ensurePath(plot: Plot, bay: number)
 	end
 	local from = if bay == 1 then 0 else plot.Starts[bay]
 	local to = plot.Starts[bay] + plot.Depths[bay]
-	local middle = plot.RoadEnd + plot.Back * ((from + to) / 2) + Vector3.new(0, 0.05, 0)
+	local middle = plot.RoadEnd + plot.Back * ((from + to) / 2) + Vector3.new(0, 0.05 + plot.Elev[bay], 0)
 	plot.Paths[bay] = newPart(
 		`Path{bay}`,
 		Vector3.new(LAYOUT.PathWidth, 0.1, to - from),
@@ -452,9 +581,16 @@ function StreetPlot.Build(player: Player, island: StreetService.Island, actions:
 	-- The stages follow each other from the road: stage n is as deep as its theme plus the margin.
 	local starts: { [number]: number } = {}
 	local depths: { [number]: number } = {}
+	-- Every GroupSize-th Shiba stands on the next terrace: a staircase is inserted before its stage.
+	local elev: { [number]: number } = {}
+	local ramp = math.floor(LAYOUT.Rise / LAYOUT.StairRise + 0.5) * LAYOUT.StairRun
 	local depth = LAYOUT.FirstStageDepth
 	for bay = 1, TycoonSteps.Bays do
+		if bay > 1 and (bay - 1) % LAYOUT.GroupSize == 0 then
+			depth += ramp
+		end
 		starts[bay] = depth
+		elev[bay] = math.floor((bay - 1) / LAYOUT.GroupSize) * LAYOUT.Rise
 		depths[bay] = areaOf(bay).Y + LAYOUT.StageMargin
 		depth += depths[bay]
 	end
@@ -466,6 +602,7 @@ function StreetPlot.Build(player: Player, island: StreetService.Island, actions:
 		RoadEnd = island.Center + towardRoad * (Street.PlotDepth / 2),
 		Back = back,
 		Right = back:Cross(Vector3.yAxis),
+		Elev = elev,
 		Starts = starts,
 		Depths = depths,
 		Bays = {},
@@ -473,6 +610,7 @@ function StreetPlot.Build(player: Player, island: StreetService.Island, actions:
 		Pads = {},
 		Decor = {},
 	}
+	buildTerrain(plots[player])
 	folder.Parent = island.Model
 end
 
