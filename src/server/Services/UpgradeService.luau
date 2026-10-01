@@ -8,7 +8,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local EconomyConfig = require(ReplicatedStorage.Shared.Config.EconomyConfig)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
+local Features = require(ReplicatedStorage.Shared.Config.Features)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
+
+-- The street tycoon walks at a fixed speed (Gameplay.Character.StreetWalkSpeed).
+local STREET_MODE = Features.Tycoon and Features.Street
 local Net = require(ReplicatedStorage.Shared.Net)
 local RateLimiter = require(ReplicatedStorage.Shared.Util.RateLimiter)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -74,7 +78,9 @@ local function applyMovement(player: Player)
 	if not humanoid then
 		return
 	end
-	humanoid.WalkSpeed = UpgradeService.GetValue(player, "MoveSpeed")
+	humanoid.WalkSpeed = if STREET_MODE
+		then Gameplay.Character.StreetWalkSpeed
+		else UpgradeService.GetValue(player, "MoveSpeed")
 	-- Every character jumps the same (Gameplay.Character.JumpPower).
 	humanoid.UseJumpPower = true
 	humanoid.JumpPower = Gameplay.Character.JumpPower

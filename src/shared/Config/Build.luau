@@ -3,5 +3,5 @@
 -- Bump the label with every change that should be visible in a playtest.
 
 return {
-	Label = "2026-10-01 #47: street: economy rebalanced (stage prices, level costs), 53 h to the last Shiba (flags off)",
+	Label = "2026-10-01 #48: street: faster walking (22) and Shift sprint (36) (flags off)",
 }
