@@ -5,6 +5,10 @@
 -- the item. Other code opens a tab with ShopController.OpenTab("POWERS").
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Features = require(ReplicatedStorage.Shared.Config.Features)
+-- The street tycoon replaces this part of the old game (docs/GAME_DESIGN.md → Street, plots and buttons).
+local STREET_MODE = Features.Tycoon and Features.Street
 local Workspace = game:GetService("Workspace")
 
 local Net = require(ReplicatedStorage.Shared.Net)
@@ -325,6 +329,9 @@ end
 
 -- Starter pack popup: once per session for players who joined within OfferHours and haven't bought it.
 local function showOffer()
+	if STREET_MODE then
+		return
+	end
 	local state = State.Get()
 	if offerShown or not state or state.StarterPackBought then
 		return

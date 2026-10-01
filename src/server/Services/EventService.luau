@@ -18,6 +18,10 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Features = require(ReplicatedStorage.Shared.Config.Features)
+-- The street tycoon replaces this part of the old game (docs/GAME_DESIGN.md → Street, plots and buttons).
+local STREET_MODE = Features.Tycoon and Features.Street
 local Workspace = game:GetService("Workspace")
 
 local Events = require(ReplicatedStorage.Shared.Config.Events)
@@ -239,6 +243,9 @@ function EventService.StopNow()
 end
 
 function EventService.Start()
+	if STREET_MODE then
+		return
+	end
 	nextAt = now() + Events.FirstDelay
 
 	local function onPlayerAdded(player: Player)

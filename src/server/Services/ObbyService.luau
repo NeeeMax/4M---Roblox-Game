@@ -10,6 +10,10 @@
 local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Features = require(ReplicatedStorage.Shared.Config.Features)
+-- The street tycoon replaces this part of the old game (docs/GAME_DESIGN.md → Street, plots and buttons).
+local STREET_MODE = Features.Tycoon and Features.Street
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
@@ -619,6 +623,9 @@ local function refreshBoard()
 end
 
 function ObbyService.Init()
+	if STREET_MODE then
+		return
+	end
 	build()
 	local ok, result = pcall(function()
 		return DataStoreService:GetOrderedDataStore(BOARD.StoreName)
@@ -629,6 +636,9 @@ function ObbyService.Init()
 end
 
 function ObbyService.Start()
+	if STREET_MODE then
+		return
+	end
 	-- Best times saved before (or whose board write failed) go to the board on the next refresh.
 	DataService.OnLoaded(function(player, state)
 		if state.Obby.BestTime > 0 then

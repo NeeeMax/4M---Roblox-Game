@@ -5,6 +5,10 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Features = require(ReplicatedStorage.Shared.Config.Features)
+-- The street tycoon replaces this part of the old game (docs/GAME_DESIGN.md → Street, plots and buttons).
+local STREET_MODE = Features.Tycoon and Features.Street
 local TweenService = game:GetService("TweenService")
 
 local Hub = require(ReplicatedStorage.Shared.Config.Hub)
@@ -249,10 +253,16 @@ local function showInvite(duelId: number, challenger: string, amount: number)
 end
 
 function CoinFlipController.Init()
+	if STREET_MODE then
+		return
+	end
 	build()
 end
 
 function CoinFlipController.Start()
+	if STREET_MODE then
+		return
+	end
 	State.Changed:Connect(refreshChoices)
 	Players.PlayerAdded:Connect(refreshPlayers)
 	Players.PlayerRemoving:Connect(function()

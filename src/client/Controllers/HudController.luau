@@ -18,6 +18,7 @@ local Workspace = game:GetService("Workspace")
 
 local Admin = require(ReplicatedStorage.Shared.Config.Admin)
 local EconomyConfig = require(ReplicatedStorage.Shared.Config.EconomyConfig)
+local Features = require(ReplicatedStorage.Shared.Config.Features)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Icons = require(ReplicatedStorage.Shared.Config.Icons)
 local Net = require(ReplicatedStorage.Shared.Net)
@@ -69,6 +70,10 @@ local ENTRIES: { Entry } = {
 }
 
 local player = Players.LocalPlayer
+
+-- The street tycoon replaces the old loop: these tiles (and MANAGE) belong to the old game and are not built.
+local STREET_MODE = Features.Tycoon and Features.Street
+local OLD_GAME_TILES: { [string]: boolean } = { SHIBAS = true, GIFTS = true, QUESTS = true, SPIN = true, INDEX = true }
 
 local pointsLabel: TextLabel
 local moneyIcon: Frame
@@ -137,16 +142,21 @@ local function buildTiles(gui: ScreenGui)
 		setMenuOpen(not tilesOpen)
 	end)
 
-	local manageTile = addTile("MANAGE", "Clipboard", Theme.ManageButton, false)
-	manageTile.Activated:Connect(function()
-		if Widgets.IsOpen("Upgrades") then
-			Widgets.CloseAll()
-		else
-			UpgradeController.OpenManage()
-		end
-	end)
+	if not STREET_MODE then
+		local manageTile = addTile("MANAGE", "Clipboard", Theme.ManageButton, false)
+		manageTile.Activated:Connect(function()
+			if Widgets.IsOpen("Upgrades") then
+				Widgets.CloseAll()
+			else
+				UpgradeController.OpenManage()
+			end
+		end)
+	end
 
 	for _, entry in entries do
+		if STREET_MODE and OLD_GAME_TILES[entry.Text] then
+			continue
+		end
 		local tile = addTile(entry.Text, entry.Icon, entry.Color, true)
 		if entry.Limited then
 			Widgets.LimitedTag(tile)

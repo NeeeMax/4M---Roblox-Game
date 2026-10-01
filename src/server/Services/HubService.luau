@@ -7,6 +7,10 @@
 -- big Neon surfaces made the hub centre glare under the bloom (DecorService).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Features = require(ReplicatedStorage.Shared.Config.Features)
+-- The street tycoon replaces this part of the old game (docs/GAME_DESIGN.md → Street, plots and buttons).
+local STREET_MODE = Features.Tycoon and Features.Street
 local Workspace = game:GetService("Workspace")
 
 local World = require(ReplicatedStorage.Shared.Config.World)
@@ -289,6 +293,9 @@ function HubService.GetStationPart(id: string): BasePart?
 end
 
 function HubService.Init()
+	if STREET_MODE then
+		return
+	end
 	local folder = Instance.new("Folder")
 	folder.Name = HUB.Name
 

@@ -5,6 +5,10 @@
 -- EconomyConfig.Party.RewardHits bonks and the Party trophy (ClaimPartyQuest).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Features = require(ReplicatedStorage.Shared.Config.Features)
+-- The street tycoon replaces this part of the old game (docs/GAME_DESIGN.md → Street, plots and buttons).
+local STREET_MODE = Features.Tycoon and Features.Street
 local Workspace = game:GetService("Workspace")
 
 local EconomyConfig = require(ReplicatedStorage.Shared.Config.EconomyConfig)
@@ -183,10 +187,16 @@ local function tick()
 end
 
 function QuestController.Init()
+	if STREET_MODE then
+		return
+	end
 	build()
 end
 
 function QuestController.Start()
+	if STREET_MODE then
+		return
+	end
 	State.Changed:Connect(refresh)
 	refresh()
 	EventController.PartyChanged:Connect(refreshParty)
