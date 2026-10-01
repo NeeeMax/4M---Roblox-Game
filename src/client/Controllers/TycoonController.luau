@@ -667,6 +667,9 @@ end
 -- none and their Bonk Intern (Lane_<n>/Intern) ducks when the stick lands. The server decides the hit and the money.
 
 local SWING = TycoonConfig.Swing
+-- The Shiba's own arm does the swing (the stick is the one in its paw); only a model without an arm gets the extra stick below.
+local SHOOTERS = Gameplay.Shooters
+local THROW = SHOOTERS.Throw
 local STICK_LENGTH = 5
 local STICK_THICKNESS = 0.55
 local STICK_COLOR = Color3.fromRGB(150, 100, 60)
@@ -757,6 +760,53 @@ local function duckIntern(lane: Instance)
 	end)
 end
 
+-- ThrowArm and what is in the paw (the model's Stick) turn around the Shoulder marker like in Controllers/ShibaController
+-- (positive angles raise the paw forward and up, 180 = straight overhead). Nil if the model has no arm or no Shoulder.
+type ArmRig = { Shoulder: Vector3, Parts: { [BasePart]: CFrame } }
+
+local function armRig(model: Model): ArmRig?
+	local shoulder: BasePart? = nil
+	local hasArm = false
+	local parts: { [BasePart]: CFrame } = {}
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			local name = descendant.Name
+			if name == THROW.ShoulderName then
+				shoulder = descendant
+			elseif name == THROW.ThrowArmName then
+				hasArm = true
+				parts[descendant] = descendant.CFrame
+			else
+				local stick = descendant:FindFirstAncestor(SHOOTERS.HandStickName)
+				if name == SHOOTERS.HandStickName or (stick ~= nil and stick:IsDescendantOf(model)) then
+					parts[descendant] = descendant.CFrame
+				end
+			end
+		end
+	end
+	if not shoulder or not hasArm then
+		return nil
+	end
+	return { Shoulder = shoulder.Position, Parts = parts }
+end
+
+local function poseArm(rig: ArmRig, axis: Vector3, angle: number)
+	local turn = CFrame.new(rig.Shoulder) * CFrame.fromAxisAngle(axis, angle) * CFrame.new(-rig.Shoulder)
+	for part, rest in rig.Parts do
+		if part.Parent then
+			part.CFrame = turn * rest
+		end
+	end
+end
+
+local function restoreArm(rig: ArmRig)
+	for part, rest in rig.Parts do
+		if part.Parent then
+			part.CFrame = rest
+		end
+	end
+end
+
 local function playSwing(slot: number, automated: boolean)
 	if swinging[slot] then
 		return
@@ -789,17 +839,25 @@ local function playSwing(slot: number, automated: boolean)
 
 	swinging[slot] = true
 	local parent = getWorldFolder()
-	local stick = Instance.new("Part")
-	stick.Name = "BonkStick"
-	stick.Size = Vector3.new(STICK_THICKNESS, STICK_THICKNESS, STICK_LENGTH)
-	stick.Color = STICK_COLOR
-	stick.Material = Enum.Material.Wood
-	stick.Anchored = true
-	stick.CanCollide = false
-	stick.CanQuery = false
-	stick.CanTouch = false
-	stick.CastShadow = false
-	stick.Parent = parent
+	local rig = armRig(shiba)
+	local restAngle, windupAngle, strikeAngle = REST_ANGLE, WINDUP_ANGLE, STRIKE_ANGLE
+	local stick: Part? = nil
+	if rig then
+		restAngle, windupAngle, strikeAngle = 0, math.rad(THROW.WindupDegrees), math.rad(THROW.ReleaseDegrees)
+	else
+		local created = Instance.new("Part")
+		created.Name = "BonkStick"
+		created.Size = Vector3.new(STICK_THICKNESS, STICK_THICKNESS, STICK_LENGTH)
+		created.Color = STICK_COLOR
+		created.Material = Enum.Material.Wood
+		created.Anchored = true
+		created.CanCollide = false
+		created.CanQuery = false
+		created.CanTouch = false
+		created.CastShadow = false
+		created.Parent = parent
+		stick = created
+	end
 	local zone: Part? = nil
 	if not automated then
 		local created = Instance.new("Part")
@@ -823,7 +881,7 @@ local function playSwing(slot: number, automated: boolean)
 		local strikeEnd = windup + strikeSeconds
 		local total = strikeEnd + recover
 		local landed = false
-		while stick.Parent and (zone == nil or zone.Parent) do
+		while (stick == nil or stick.Parent) and (rig == nil or shiba.Parent ~= nil) and (zone == nil or zone.Parent) do
 			local elapsed = os.clock() - start
 			if elapsed >= total then
 				break
@@ -832,7 +890,7 @@ local function playSwing(slot: number, automated: boolean)
 			local zoneTransparency: number
 			if elapsed < windup then
 				local alpha = TweenService:GetValue(elapsed / windup, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-				angle = REST_ANGLE + (WINDUP_ANGLE - REST_ANGLE) * alpha
+				angle = restAngle + (windupAngle - restAngle) * alpha
 				zoneTransparency = ZONE_WINDUP_TRANSPARENCY
 			elseif elapsed < strikeEnd then
 				local alpha = TweenService:GetValue(
@@ -840,7 +898,7 @@ local function playSwing(slot: number, automated: boolean)
 					Enum.EasingStyle.Quad,
 					Enum.EasingDirection.In
 				)
-				angle = WINDUP_ANGLE + (STRIKE_ANGLE - WINDUP_ANGLE) * alpha
+				angle = windupAngle + (strikeAngle - windupAngle) * alpha
 				zoneTransparency = ZONE_STRIKE_TRANSPARENCY
 			else
 				if not landed then
@@ -848,17 +906,26 @@ local function playSwing(slot: number, automated: boolean)
 					duckIntern(lane)
 				end
 				local alpha = (elapsed - strikeEnd) / recover
-				angle = STRIKE_ANGLE + (REST_ANGLE - STRIKE_ANGLE) * alpha
+				angle = strikeAngle + (restAngle - strikeAngle) * alpha
 				zoneTransparency = ZONE_STRIKE_TRANSPARENCY + (1 - ZONE_STRIKE_TRANSPARENCY) * alpha
 			end
-			local direction = forward * math.cos(angle) + up * math.sin(angle)
-			stick.CFrame = CFrame.lookAt(handle + direction * (STICK_LENGTH / 2), handle + direction * STICK_LENGTH)
+			if stick then
+				local direction = forward * math.cos(angle) + up * math.sin(angle)
+				stick.CFrame = CFrame.lookAt(handle + direction * (STICK_LENGTH / 2), handle + direction * STICK_LENGTH)
+			elseif rig then
+				poseArm(rig, right, angle)
+			end
 			if zone then
 				zone.Transparency = zoneTransparency
 			end
 			RunService.RenderStepped:Wait()
 		end
-		stick:Destroy()
+		if stick then
+			stick:Destroy()
+		end
+		if rig then
+			restoreArm(rig)
+		end
 		if zone then
 			zone:Destroy()
 		end
