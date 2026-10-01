@@ -908,6 +908,21 @@ stage frame: origin = the middle of the stage on the path's centre line, +X to t
 into the plot, +Z toward the road, Y up. The Shiba stands at (-16, 0, 0) facing +X (the path), the Intern at (-10, 0, 0), the path
 (|x| < 7) stays free. The stage is `Area.X` wide and `Area.Y` deep (the theme's own size, bigger for higher Shibas), centred on the origin.
 
+##### Shiba menu (client)
+
+`ShibaPanelController` draws one `BillboardGui` (about 220x80 px, `MaxDistance` 60) on `Lane_<n>/Anchor` for each own Shiba the
+character is within 45 studs of (removed beyond 55); it exists only in street mode.
+- **Name line** "Name  Lv N", then the **pill-shaped green bar**. It is empty while idle (the text shows the full cooldown of the
+  current level: "1.00s", "42ms") and **fills from left to right** during the cooldown that starts at the click (`ClickDetector.MouseClick` for
+  instant feedback, re-synced by `ShibaSwung`), the countdown inside ("0.83s" down to "0.00s"). An automated Shiba's bar cycles
+  continuously while swings arrive; at a cooldown of 0.25 s or less it shows full with the number.
+- **UPGRADE button** under it, smaller, "UPGRADE  $1.2K" (`TycoonMath.LevelCost`, `Format.Short`); grey when too dear, "MAX" at
+  `TycoonMath.CapFor`. A tap or key **E** (nearest own Shiba within 14 studs, ignored while typing) fires `UpgradeShiba(slot, 1)`.
+- The server's old E/F level prompts are hidden on the client so nothing else competes for E.
+- **Swing animation** (`TycoonController`): wind-up and strike are scaled to `SwingCooldown` (never queued, a short blurred stroke for
+  tiny cooldowns); the red hit zone is drawn only for manual Shibas and is faint. The **Bonk Intern** (`Lane_<n>/Intern`) ducks
+  1.2 studs and pops back within 0.2 s when the stick lands. `PlayerBonked` is a small fling (speed at most 40, no PlatformStand).
+
 #### Shiba themes and decor (implementation)
 
 Defaults chosen by the implementer (street mode, flags off); all numbers and rules below are open until the owner confirms.
