@@ -207,6 +207,11 @@ local function buildGroup(plot: Plot, number: number): Folder
 			folder
 		)
 	end
+	for _, part in folder:GetChildren() do
+		if part:IsA("BasePart") then
+			part.Material = LAYOUT.TerraceMaterial
+		end
+	end
 	folder.Parent = plot.Folder
 	return folder
 end
