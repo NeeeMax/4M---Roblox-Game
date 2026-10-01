@@ -807,7 +807,7 @@ local function playSwing(slot: number, automated: boolean)
 		created.Size = Vector3.new(2 * SWING.HitRange * math.sin(math.rad(SWING.HitHalfAngle)), 0.15, SWING.HitRange)
 		created.CFrame = CFrame.lookAt(floor + forward * (SWING.HitRange / 2), floor + forward * SWING.HitRange)
 		created.Color = ZONE_COLOR
-		created.Material = Enum.Material.Neon
+		created.Material = Enum.Material.SmoothPlastic
 		created.Anchored = true
 		created.CanCollide = false
 		created.CanQuery = false
