@@ -290,7 +290,7 @@ old constants the sim finished the whole game (30 bays, all decor, all Interns, 
 - All other prices are counted in seconds of `StreetReadyIncome(tier)` = the income a Shiba earns at `ReadyLevel` 25 (what the player
   typically has when the purchase is due): expansion n = `StreetReadyIncome(n-2) x BaySeconds x StageFactor[n-1]`, a decor part =
   `StreetReadyIncome(bay-1) x PriceSeconds x DecorScale x StageFactor[bay]`, the Bonk Intern = `StreetReadyIncome(tier) x
-  AutomationSeconds x AutomationGrowth^(Interns bought)`. The Intern of Shiba 1, bought before any other Intern, costs a fixed `AutomationFirstPrice` of 300. `TierGrowth` (street only) is 4.
+  AutomationSeconds x AutomationGrowth^(Interns bought)`. The Intern of Shiba 1, bought before any other Intern, costs a fixed `AutomationFirstPrice` of 150 (300 before the retention retune below). `TierGrowth` (street only) is 4.
 - Stage n = the decor of bay n + the expansion to bay n+1. `StageFactor[n]` (29 numbers in `Config/Tycoon`) was calibrated per stage
   (secant search on the sim, `node docs/tools/calibrate_street.js`) so that every stage takes: 8 min for stages 1 to 3, then 17%
   longer than the stage before. The factors are rough where the themes differ (10 to 30 parts, different PriceSeconds).
@@ -300,7 +300,7 @@ old constants the sim finished the whole game (30 bays, all decor, all Interns, 
 **Player.** Heads for the next progress item (a decor part, then the next Shiba); while it is not affordable it buys only what pays for
 itself before that moment (level ups, Interns). ACTIVE clicks (3 clicks/s cap, 50% of the time), IDLE stops clicking after its first Intern.
 
-**Result** (hours until the Shiba is bought; active, a lower bound: real players need 1.3 to 1.6 times as long):
+**Result** (before the retention retune at the end of this file, which moved Shiba 2 to about 6.5 min and Shiba 3 to 14 min; hours until the Shiba is bought; active, a lower bound: real players need 1.3 to 1.6 times as long):
 Shiba 2: 0.13 h, 3: 0.26, 5: 0.55, 10: 1.8, 15: 4.6, 20: 10.7, 25: 24, 30: 53.4 h. Stage times: 8 min (stages 1 to 4), 15 min (stage 8),
 28 min (stage 12), 51 min (stage 16), 96 min (stage 20), 3.6 h (stage 25), 7.7 h (stage 29). Shiba 1 is level 21 when Shiba 2 is bought
 (8 min), 46 at 16 min, 70 at 33 min and about 80 after 1.8 h; the idle player is within 1% of the active one because the Intern is cheap.
@@ -310,3 +310,107 @@ After the last Shiba every level is bought within minutes (no ascension yet), so
 DECOR_SCALE=0.1 AUTO_SECONDS=60 AUTO_GROWTH=1.08` (about 3 minutes): for stage n = 1 to 29 it finds `StageFactor[n]` until stage n takes its target
 (8 min, then x1.17 per stage) and prints the new factors for `Config/Tycoon`. The sim prints the stage times (`minutes per stage`); the numbers
 above are what the committed constants give.
+
+## Retention retune (street mode, 2026-10-01)
+
+Goal: check the live loop (Tycoon + Street, `Features`) against the retention targets of `docs/research/ROBLOX_PACING.md` (first-play bounce
+< 60 s / 180 s, play days beat long sessions, median session 9.8 min, D1 median 10 %, a visible reward every minute early on) and fix what
+the simulation shows. `lune` was not available when this was done: the measurements come from `node docs/tools/street_retention.js`, a
+node port of the policy of `street_sim.luau` that reads the real `Config/Tycoon` constants and the decor prices of bays 1 to 5. It is
+close to, but not identical with, the Lua sim: for the committed constants it gives stage 1 = 8.9 min (the Lua sim reports 7.8 to 8 min),
+stages 4 to 8 within 5% (9.1, 11.4, 13.0, 14.8, 17.7 min against the targets 9.4, 10.9, 12.8, 15.0, 17.5). **Marco: please re-run
+`lune run docs/economy/street_sim` and, if the stage times drift, `node docs/tools/calibrate_street.js` for stages 1 and 2 before merging.**
+"Active" = the sim's efficient player (hits the Shiba half of the time); "real" = a slower player (`EFF=0.35`, about 1.4 times slower at the
+start, like the 1.3 to 1.6 the notes above ask for).
+
+### What was measured (before the change)
+
+| Target (research) | Result before | Verdict |
+|---|---|---|
+| First purchase < 30 s of play | 16 s (Shiba 1 level 2, $8); real 23 s | ok |
+| A visible reward at least every 60 s in the first 3 min | 6 purchases, longest wait 50 s; real player: 71 s (the first decor $52 only at 1.6 min) | marginal |
+| First 10 min: 6+ purchases and one moment of joy | 35 purchases (17 that are not level-ups); the house (x2 cash) at 2.2 min, the first Intern with a burst of 10 level-ups at 7.1 min | ok, but late |
+| End of session 1 (10 to 15 min) has a clear next goal | Shiba 2 at 8.9 min (real 11.5 min, i.e. AFTER the median session of 9.8 min), then Shiba 3 after 17.4 min | miss for the median player |
+| No wait > 5 min before the first return | longest wait between two purchases in the first hour: 3.4 min (at 55 min); first 10 min 61 s | ok |
+| Payback of a purchase <= 15 min early | levels: median 1.7 min, longest 9.3 min in the first hour, none above 15 min; Interns 0.6 to 0.9 min; decor and Shibas are progress, not payback items (a new Shiba earns 4 per s at level 1 and is meant to be levelled) | ok |
+| Offline gains that make the 2nd-day return worthwhile, capped (1 to 2 h) | **none**: `Bank.Pending` is filled by `OfflineService`, but the street mode has no WelcomeBack popup (`WelcomeBackController` returns early) and the vault stays empty, so nothing ever pays it | miss, needs code (proposal below) |
+| Prestige / Ascension feels like a new layer | **not in the street mode**: there is no Ascend pad in `TycoonSteps`; the game ends after Shiba 30 (53 h) | miss, needs code and a design decision (proposal below) |
+| Active clicking matters (idle 1.5 to 3 times slower) | active 2.1 times the idle income at 15 min, equal from about 25 min (Interns are cheap: Shiba 10 at 1.86 h active, 1.82 h idle) | by design (see "idle within 1%" above); left alone |
+
+### What changed (`src/shared/Config/Tycoon.luau`, numbers only)
+
+| Constant | Before | After | Why |
+|---|---|---|---|
+| `Street.StageFactor[1]` (decor of Shiba 1 and price of Shiba 2) | 0.8124 | 0.5068 | Shiba 2 (the first new Shiba, a whole new themed stage) must arrive inside the first session: active 8.9 -> 6.5 min, real 11.5 -> 8.2 min. The first decor costs 33 instead of 52 (at 47 s instead of 66 s, real 67 s instead of 96 s), the house (x2) at 1.6 min instead of 2.2 |
+| `Street.StageFactor[2]` (decor of Shiba 2 and price of Shiba 3) | 2.486 | 1.967 | stage 2 would grow from 8.4 to 9 min because Shiba 1 has fewer levels when Shiba 2 arrives; re-calibrated to 7.4 min (target 7.5) |
+| `Street.AutomationFirstPrice` (first Intern) | 300 | 150 | the moment of joy (Intern + burst of level-ups): active 7.1 -> 4.8 min, real 9.2 -> 6.3 min, so it also happens before the median session ends |
+
+Stages 3 and later are untouched (the later stage factors were calibrated against the old Shiba 1/2 timeline and still give 8.2, 8.9, 11.2,
+13.0, 14.8, 17.7 min for stages 3 to 8; the whole game is about 3 min shorter, Shiba 20 at 10.82 h instead of 10.89 h).
+
+### Result (active player, node sim; real = EFF 0.35)
+
+| Metric | Before | After |
+|---|---|---|
+| First purchase | 16 s (real 23 s) | 16 s (real 23 s) |
+| First decor | 66 s (real 96 s) | 47 s (real 67 s) |
+| House x2 (first big income jump) | 2.2 min (real 3.1) | 1.6 min (real 2.2) |
+| Longest wait in the first 3 min | 50 s (real 71 s) | 47 s (real 67 s) |
+| Purchases in the first 3 / 10 min | 6 / 35 | 7 / 41 |
+| First Bonk Intern | 7.1 min (real 9.2) | 4.8 min (real 6.3) |
+| Shiba 2 / 3 / 4 / 5 / 6 | 8.9 / 17.4 / 25.6 / 34.7 / 46.1 min | 6.5 / 14.0 / 22.2 / 31.0 / 42.3 min |
+| Shiba 8 / 10 / 15 / 20 | 1.23 / 1.86 / 4.66 / 10.89 h | 1.17 / 1.80 / 4.59 / 10.82 h |
+| Real player: Shiba 2 / 3 | 11.5 / 20.6 min | 8.2 / 16.4 min |
+
+How far a returning player gets (active, no offline credit because there is none today; Interns bought in brackets):
+
+| Plan | Before | After |
+|---|---|---|
+| Session 1 (10 min) | Shiba 2, 5/10 decor of it (1 Intern) | Shiba 2, 9/10 decor of it (1 Intern): next goal Shiba 3 about 4 min into session 2 |
+| D1 10 + D2 15 + D3 25 min | Shiba 2 > 3 > 6 (5 Interns) | Shiba 2 > 4 > 6 (5 Interns) |
+| 10 min, then 22 min a day (D7 = 7 sessions, 2.4 h in total) | Shiba 2 > 4 > 6 > 8 > 9 > 10 > 11 | Shiba 2 > 5 > 6 > 8 > 9 > 10 > 11 |
+
+Each of the first sessions ends one or two Shibas further along and with the next one still a few minutes away, which is the "come back
+for the next one" shape. From stage 8 on a stage takes one session, from stage 12 more than one (28 min and up), so after about a week of 22
+minutes a day the player waits for one Shiba per day; that is the intended slow curve and was left alone.
+
+### Open points 1 and 2: implemented (street offline payout and Ascension)
+
+**1. Offline payout in the street mode (done).** `OfflineService.onLoaded` calls `payAwayStreet` when `Features.Tycoon and Features.Street`: away time =
+`clamp(now - Bank.LastSeenAt, 0, StreetOfflineSeconds = 3600)`, paid only if at least 60 s (`OfflineBank.MinSeconds`), amount =
+`floor(StreetOfflineShare 0.4 x min(Bank.IncomePerMinute, 1.5 x current Shiba income per minute) x away / 60)`, through `EconomyService.PayOffline`
+(counts for the leaderboard, not for the income rate) and a `Notify` toast "Welcome back! +X while you were away". The proposal said to raise `BaseOfflineShare`
+0.05 to 0.4; that was NOT done: the old basket path keeps its numbers and the street has its own fields (`StreetOfflineShare`, `StreetOfflineSeconds`,
+`StreetSampleCap` in `EconomyConfig.Automation`). Also needed: the old rate cap (`maxPerMinute`, from the old throw economy) would have clamped every street
+sample to a few points per minute, so in the street mode the sample cap is the Shiba income (`TycoonMath.TotalIncome` x income multiplier x 60 x 1.5).
+A full credit is 24 min of active income (0.4 x 60 min), which in the earlier node sim (credit with a 1 h cap) put a D1 + D2 + D3 player at 7 instead of 6 Shibas on D3.
+
+**2. Ascension in the street mode (done).** Floor pad `Ascend` beside the plot entrance (hold 2 s), available when the best Shiba of the run reaches
+`StreetFirstShiba 10 + StreetShibaStep 2 x n` (max 30), resets steps, Shibas and money, keeps `Ascensions` (income x(1 + 0.75 n)). Simulation
+(`node docs/tools/street_ascension.js`, a fresh run per row with the multiplier, active player; `EFF=0.35 node ...` for the slower player):
+
+| Run | Ascensions done | Income multiplier | Shiba needed to ascend | Time of the run | vs run 1 | Time of Shiba 2 (this run) |
+|---|---|---|---|---|---|---|
+| 1 | 0 | x1.00 | 10 | 1.80 h | 1.00 | 7 min |
+| 2 | 1 | x1.75 | 12 | 1.51 h | 0.84 | 4 min |
+| 3 | 2 | x2.50 | 14 | 1.54 h | 0.86 | 3 min |
+| 4 | 3 | x3.25 | 16 | 1.69 h | 0.94 | 2 min |
+| 5 | 4 | x4.00 | 18 | 1.92 h | 1.07 | 2 min |
+| 6 | 5 | x4.75 | 20 | 2.28 h | 1.27 | 1 min |
+| 7 | 6 | x5.50 | 22 | 2.75 h | 1.53 | 1 min |
+| 8 | 7 | x6.25 | 24 | 3.32 h | 1.85 | 1 min |
+
+Real player (EFF 0.35): run times 1.88 h / 1.59 h / 1.60 h / 1.74 h / 1.99 h / 2.34 h / 2.81 h / 3.38 h. Runs 1 to 6 take 1.5 to 2.3 h (the target), each reaches 2 Shibas further than the one before; from run 7 on they
+grow (2.75 h, 3.3 h) because prices grow x4 per Shiba while the multiplier is linear. That is the intended soft cap; if long sessions beyond
+Ascension 6 are not wanted, raise `PerAscension` or lower `StreetShibaStep` and re-run the tool. The sim assumes a decor reset (open question 8 in GAME_DESIGN):
+keeping the decor multipliers would shorten every run after the first.
+
+3. **Active versus idle** (still open) is 1.0 from about 25 min on (Interns cost 1/5 of the next Shiba). If clicking should stay worth something after the
+   first 20 minutes, raise `AutomationSeconds` / `AutomationGrowth` (60 / 1.08) and re-run; not done because it makes the early game slower.
+
+### Not verified
+
+Nothing was run in Roblox Studio and `lune` / `luau-analyze` / `stylua` / `selene` are not installed; the diff is three numbers and comments
+in `Config/Tycoon.luau`. The simulation is a model (no walking time, no mistakes, no passes or boosts); the "real" column is a slower click
+efficiency, not measured play. Marco owns the economy and tycoon (`docs/ARCHITECTURE.md`): please review the three numbers and re-calibrate
+with `street_sim` before merging.

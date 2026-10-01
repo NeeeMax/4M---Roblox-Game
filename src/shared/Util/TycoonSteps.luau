@@ -6,6 +6,8 @@
 --              are bought in TWO parallel chains (odd and even pieces), so two decor pads are visible at once; buying one
 --              reveals the next of its chain. All of them are needed.
 --   Auto n     separate from the decor, next to the Shiba: the Bonk Intern that gets bonked automatically. Optional.
+--   Ascend     one repeatable pad (not in List / ById: it is never "bought"): shown once the best Shiba of the run reaches
+--              AscendRequirement(ascensions) (Config/Tycoon → Ascension). The server resets the plot (TycoonService).
 -- Only when ALL decor of Shiba n is bought, the pad of Shiba n + 1 shows up. Pure data and formulas, shared by the server
 -- (buying, drawing the pads) and the client (texts, the walkthrough arrow).
 
@@ -19,7 +21,7 @@ type TycoonState = Types.TycoonState
 
 export type Step = {
 	Id: string,
-	Kind: "Bay" | "Automate" | "Decor",
+	Kind: "Bay" | "Automate" | "Decor" | "Ascend",
 	-- The bay (and Shiba number) the pad belongs to, 1 … Bays.
 	Bay: number,
 	-- Step ids that must be bought before this pad shows up.
@@ -84,7 +86,13 @@ for bay = 1, STREET.Bays do
 	end
 end
 
+-- Id of the Ascension pad. It is not in ById (so it is never saved in tycoon.Steps); TycoonService.Actions.BuyStep knows it.
+local ASCEND_ID = "Ascend"
+local ascendStep: Step = { Id = ASCEND_ID, Kind = "Ascend", Bay = 0, Needs = {} }
+
 local TycoonSteps = {
+	AscendId = ASCEND_ID,
+	AscendStep = ascendStep,
 	-- Every pad in flow order (Shibas, decor and the interns).
 	List = list,
 	-- Only the decor steps (a subset of List), for drawing what was bought.
@@ -107,8 +115,28 @@ local function needsMet(tycoon: TycoonState, step: Step): boolean
 	return true
 end
 
+-- The highest Shiba number (bay) the player owns in this run: tier + 1 of the best Shiba, 0 without one.
+function TycoonSteps.BestShiba(tycoon: TycoonState): number
+	local best = 0
+	for _, shiba in tycoon.Shibas do
+		best = math.max(best, shiba.Tier + 1)
+	end
+	return best
+end
+
+-- The Shiba number the player must own for the next Ascension: StreetFirstShiba + StreetShibaStep per Ascension done, at most Bays.
+function TycoonSteps.AscendRequirement(ascensions: number): number
+	local rule = TycoonConfig.Ascension
+	return math.min(STREET.Bays, rule.StreetFirstShiba + rule.StreetShibaStep * math.max(0, ascensions))
+end
+
+-- Whether the Ascension pad is available (street mode only).
+function TycoonSteps.CanAscend(tycoon: TycoonState): boolean
+	return tycoon.Street == true and TycoonSteps.BestShiba(tycoon) >= TycoonSteps.AscendRequirement(tycoon.Ascensions)
+end
+
 -- The pads to show now: not bought yet and everything they need bought. At most Street.MaxPads Shiba/decor pads (in flow
--- order); the intern pads (optional, one beside each Shiba) are always shown.
+-- order); the intern pads (optional, one beside each Shiba) and the Ascension pad (once available) are always shown, the latter last.
 function TycoonSteps.Visible(tycoon: TycoonState): { Step }
 	local visible: { Step } = {}
 	local counted = 0
@@ -121,6 +149,9 @@ function TycoonSteps.Visible(tycoon: TycoonState): { Step }
 				counted += 1
 			end
 		end
+	end
+	if TycoonSteps.CanAscend(tycoon) then
+		table.insert(visible, ascendStep)
 	end
 	return visible
 end
@@ -148,6 +179,9 @@ end
 
 -- What the pad costs right now (an intern gets dearer with every Shiba already automated).
 function TycoonSteps.Price(step: Step, tycoon: TycoonState): number
+	if step.Kind == "Ascend" then
+		return 0
+	end
 	if step.Kind == "Decor" then
 		local part = decorPart(step)
 		return if part
@@ -180,6 +214,9 @@ function TycoonSteps.ShibaName(bay: number): string
 end
 
 function TycoonSteps.Title(step: Step): string
+	if step.Kind == "Ascend" then
+		return "Ascend"
+	end
 	if step.Kind == "Decor" then
 		local part = decorPart(step)
 		return if part then part.Name else "Decor"
@@ -191,6 +228,9 @@ function TycoonSteps.Title(step: Step): string
 end
 
 function TycoonSteps.Description(step: Step): string
+	if step.Kind == "Ascend" then
+		return "start over with more income"
+	end
 	if step.Kind == "Decor" then
 		local part = decorPart(step)
 		if not part then

@@ -410,6 +410,31 @@ by rarity (Common 25, Rare 50, Epic 100, Legendary 200, Exclusive 300). Finding 
 of 1,000 bonks; Robux-only trophies (VIP, Diamond, Rainbow, Starter), optional ones and variants never count, so
 every player can finish it. A bar on top shows the progress ("12/52 found"). Optional trophies (Bonk Buddies, it needs a
 friend) show and pay their reward but are not counted for completion.
+## Update log board
+
+A board that says when the next update comes (`Config/Updates`, `UpdateBoardService`): the title UPDATE LOG, the last
+`ShownEntries` (2) updates with their date and short lines, and a footer "Next update in 2d 03h". In street mode it
+stands at the west end of the road (non-solid, 6 studs above the ground on two poles, readable from both sides); with
+`Features.Street` off it stands next to the hub plaza. Updates ship every **Friday 16:00 UTC** (`NextUpdate`, an
+open starting value: the Bonk Party on Saturday then shows the new content), so the countdown never needs editing; the
+developers only add a new entry at the top of `Entries` with every update (that is the whole process). Nothing is saved
+or sent over the network.
+
+## Milestones: badges and onboarding funnel
+
+`MilestoneService` reads each player's saved state every 5 seconds (`Config/Milestones`). It never changes the state, the
+economy or the network.
+
+- **Badges (Roblox):** first Shiba, 5 and 10 Shibas, 1,000,000 Bonk Dollars earned, first Ascension / rebirth, 10 Index
+  entries, 7-day streak, first Bonk Party quest, first Rainbow or Huge Shiba. When a goal is reached the server calls
+  `BadgeService:AwardBadgeAsync`. Badge ids are config (`Badges[n].BadgeId`); **0 = inert**: create the badges on the
+  Creator Hub (Monetization → Badges), paste the ids, done. The goals are display milestones, not rewards (no bonks).
+- **Onboarding funnel:** for players whose save is younger than 72 h, `AnalyticsService:LogOnboardingFunnelStepEvent`
+  logs ten steps: joined, 1 min played, first purchase, 3 min played, 3 Shibas, 10 purchases, 10 min played, 5 Shibas,
+  first Ascension, returned on day 2. In the Creator Hub (Analytics → Funnels) this shows where new players drop off
+  (Roblox counts sessions under 60 s and 180 s as bounces). Roblox keeps one event per step and player; nothing is
+  saved on our side, a rejoin may repeat a call (harmless).
+
 ## Obby (jump and run)
 
 A spiral tower of chunky green / yellow / orange platforms in the hub centre (`ObbyService`, layout in `Config/Obby`),
@@ -748,6 +773,13 @@ rings, zones (back to Meadow) and equip slots above the start count (3). It **ke
 variants, the Index, trophies, quests and streaks. Each Ascension adds x0.75 to the income multiplier (`1 + 0.75n`) and +10 to
 the level cap.
 
+**Street mode** (`Features.Street`): the same pad id `Ascend`, but it is a repeatable floor pad beside the plot entrance, used with a
+2 s hold prompt (never stepped on by accident). It appears when the best Shiba of the run reaches `Ascension.StreetFirstShiba +
+StreetShibaStep × ascensions` (10, 12, 14 … at most 30, `TycoonSteps.AscendRequirement`). It **resets** the whole run: every bought step
+(Shibas, decor, Interns), all Shibas and the money (back to bay 1, 0 money); it **keeps** `Ascensions` (income x(1 + 0.75n), applied to every
+lane), the cosmetic decor and passes (not in the tycoon state), the Index, trophies, quests and streaks. Saved at once. Runs take about 1.5 to
+2.3 h for the first six Ascensions (table in `docs/economy/BALANCING.md`). Open question 8 (decor as a permanent trophy) is answered "resets" for now.
+
 ### Active play (never required)
 
 - **Golden Crates** appear on a belt for a short time (`CrateSpawned`, ends at a server time); the player walks to the belt and
@@ -910,7 +942,7 @@ into the plot, +Z toward the road, Y up. The Shiba stands at (-16, 0, 0) facing 
 
 **Terraces and wall (decided by Marco 2026-10-01).** Every 3 Shibas the plot rises by 18 studs (`TycoonWorld.Street.GroupSize`, `Rise`): the next group stands on a brown rock terrace reached by a staircase (12 steps of 1.5 studs) in front of its first stage. Terrace and stairs are NOT there from the start: they are built when the group's first Shiba becomes available (its pad appears). There is **ONE white wall as a rectangle around all 10 plots and the road** (StreetService), no walls between the plots and none that follow a plot's contour. It reaches back as far as the furthest stage any owner has reached, at least the first group (Shibas 1 to 3), so the entry area is already phase 2-3 sized and the wall grows for everybody when someone expands. The plot ground fills the gaps between the plots. Util/StreetLayout holds the stage positions. `PlotDepth` 5400, `ReachHeight` 250.
 
-**Stage layout of the themes (Marco 2026-10-01, first 5 Shibas first).** A theme (Config/DecorTypes) may place its Shiba (`Shiba`: position and facing), give the walkway a winding shape (`Path`: waypoints), put the Shiba pad and the Intern pad where it wants (`BayPad`, `AutoPad`) and put the pad of every part where the prop will stand (`Part.Pad`), so the player buys a prop on the spot. Themes use the whole plot width (`Area.X` up to 190), the first Shiba stands inside its little house. Props taller than 0.6 studs are solid (StreetPlot sets `CanCollide`); themes keep the walkway, the zone in front of the Shiba and every pad free and reachable. `lune run docs/tools/theme_check <file> <bay>` checks all of it. **Swing animation (street mode, Marco 2026-10-01):** the Shiba swings with its OWN arm: `ThrowArm` and the stick in its paw turn around the `Shoulder` marker (overhead to `Throw.WindupDegrees`, then a fast chop down to `Throw.ReleaseDegrees`, then back), with fixed times (0.3 s wind-up, 0.2 s strike, 0.45 s recovery; they do NOT shrink with the level, a fast Shiba just swings back-to-back) while the stick in the paw is tilted 40 degrees further forward during the swing (`TycoonController.playSwing`). Only a model without an arm gets an extra stick part. **Movement (street mode):** the player walks at 22 studs/s and sprints at 36 while Left Shift is held and moving (`Gameplay.Character.StreetWalkSpeed` / `StreetSprintSpeed`, `SprintController`). **Prices (Marco 2026-10-01, rebalanced):** counted in seconds of the income a Shiba earns at level 25 (`TycoonMath.StreetReadyIncome`), times a calibrated `StageFactor` per stage; level cost = 8 s x 1.05^L of the Shiba's own income; Shiba tiers grow x4. The active player buys Shiba 2 after about 8 min, Shiba 10 after 1.8 h and Shiba 30 after about 53 h (see docs/economy/BALANCING.md). **Decor bonuses (Marco 2026-10-01):** a part can have a `RewardMult` (1 to 2): once bought, the Shiba of the theme pays that many times more cash (house = x2); the bonuses multiply (whole theme at most x8, `TycoonMath.DecorMultiplier`, applied in `LaneIncome`), the pad text names it, and no effect is spawned for it. Not every theme has a "Get Bonked Sign" any more. Shibas stand on their tier's platform (`Config/ShibaPlatforms`, parts or `Platform_<AssetName>` model, with the barrier of the old ring); the Intern stands outside the barrier. The newer themes live in `Config/DecorTheme01 … 05` (merged by `DecorThemesD`) and replace the older ones of the same bay.
+**Stage layout of the themes (Marco 2026-10-01, first 5 Shibas first).** A theme (Config/DecorTypes) may place its Shiba (`Shiba`: position and facing), give the walkway a winding shape (`Path`: waypoints), put the Shiba pad and the Intern pad where it wants (`BayPad`, `AutoPad`) and put the pad of every part where the prop will stand (`Part.Pad`), so the player buys a prop on the spot. Themes use the whole plot width (`Area.X` up to 190), the first Shiba stands inside its little house. Props taller than 0.6 studs are solid (StreetPlot sets `CanCollide`); themes keep the walkway, the zone in front of the Shiba and every pad free and reachable. `lune run docs/tools/theme_check <file> <bay>` checks all of it. **Swing animation (street mode, Marco 2026-10-01):** the Shiba swings with its OWN arm: `ThrowArm` and the stick in its paw turn around the `Shoulder` marker (overhead to `Throw.WindupDegrees`, then a fast chop down to `Throw.ReleaseDegrees`, then back), with fixed times (0.3 s wind-up, 0.2 s strike, 0.45 s recovery; they do NOT shrink with the level, a fast Shiba just swings back-to-back) while the stick in the paw is tilted 40 degrees further forward during the swing (`TycoonController.playSwing`). Only a model without an arm gets an extra stick part. **Movement (street mode):** the player walks at 22 studs/s and sprints at 36 while Left Shift is held and moving (`Gameplay.Character.StreetWalkSpeed` / `StreetSprintSpeed`, `SprintController`). **Prices (Marco 2026-10-01, rebalanced):** counted in seconds of the income a Shiba earns at level 25 (`TycoonMath.StreetReadyIncome`), times a calibrated `StageFactor` per stage; level cost = 8 s x 1.05^L of the Shiba's own income; Shiba tiers grow x4. The active player buys Shiba 2 after about 6.5 min (retention retune, docs/economy/BALANCING.md), Shiba 10 after 1.8 h and Shiba 30 after about 53 h (see docs/economy/BALANCING.md). **Decor bonuses (Marco 2026-10-01):** a part can have a `RewardMult` (1 to 2): once bought, the Shiba of the theme pays that many times more cash (house = x2); the bonuses multiply (whole theme at most x8, `TycoonMath.DecorMultiplier`, applied in `LaneIncome`), the pad text names it, and no effect is spawned for it. Not every theme has a "Get Bonked Sign" any more. Shibas stand on their tier's platform (`Config/ShibaPlatforms`, parts or `Platform_<AssetName>` model, with the barrier of the old ring); the Intern stands outside the barrier. The newer themes live in `Config/DecorTheme01 … 05` (merged by `DecorThemesD`) and replace the older ones of the same bay.
 
 **Old game parts switched off in street mode (Marco 2026-10-01).** With `Features.Street` on there is no hub island (HubService), no ocean, clouds or floating islands (DecorService keeps only the lighting), no obby, coin flips, party sign or server events, and no GIFTS, QUESTS, SPIN, INDEX, SHIBAS or MANAGE tiles no starter-pack and no welcome-back (offline earnings) popup. SHOP, INVITE, SETTINGS and ADMIN stay. The code stays for the flag-off game; it is deleted at the cutover when the islands are removed.
 
@@ -1045,6 +1077,12 @@ until then finishing a theme has no effect beyond looking good.
 The Vault stands in the centre; money in it is `VaultStored` and is collected by walking to it (`CollectVault`, auto-collect
 nearby). **Currently the vault stays empty.** Offline earnings come later: planned 40 % of the online rate, capped at 2 h,
 growing to 8 h with upgrades; the existing Offline Shiba Bank (`Bank.Pending`, "Welcome back" panel) keeps working until then.
+
+**Street mode (decided in the retention retune, implemented):** no popup and no basket. `OfflineService` pays on join, straight to the
+balance (`EconomyService.PayOffline`): 40 % of the sampled income per minute (`EconomyConfig.Automation.StreetOfflineShare`) for the time
+away, at most 1 h (`StreetOfflineSeconds`), at least 60 s away; the rate is clamped to 1.5 x what the Shibas earn now
+(`StreetSampleCap`). The player sees the toast "Welcome back! +X while you were away". `Bank.Pending` stays 0, `OfflineEarnings` /
+`ClaimOffline` / the "DoubleOffline" product are unused in this mode.
 
 ### HUD rules
 
