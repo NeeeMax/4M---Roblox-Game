@@ -3,5 +3,5 @@
 -- Bump the label with every change that should be visible in a playtest.
 
 return {
-	Label = "2026-10-01 #35: street: old hub island, ocean, clouds, events and old menus switched off (flags off)",
+	Label = "2026-10-01 #36: street: terraces grow with the next Shiba, tall white wall around all plots, brown rock terrain (flags off)",
 }

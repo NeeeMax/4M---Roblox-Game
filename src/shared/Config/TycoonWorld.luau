@@ -37,19 +37,20 @@ return {
 		-- deep, StairWidth wide) in front of the next group's first stage. They are built when the group's first Shiba becomes
 		-- available (the plot grows as the player progresses).
 		GroupSize = 3,
-		Rise = 12,
+		Rise = 18,
 		StairRise = 1.5,
 		StairRun = 5,
 		StairWidth = 22,
-		StairColor = Color3.fromRGB(165, 165, 175),
-		TerraceColor = Color3.fromRGB(95, 185, 85),
+		StairColor = Color3.fromRGB(120, 78, 45),
+		TerraceColor = Color3.fromRGB(150, 95, 52),
+		TerraceMaterial = Enum.Material.Rock,
 		-- Privacy wall all around every one of the 10 plots (StreetService, built from the start): WallHeight, WallThickness, the front
 		-- wall (FrontWallDepth from the road) has an opening of OpeningWidth in the middle.
-		WallHeight = 18,
+		WallHeight = 30,
 		WallThickness = 2,
 		FrontWallDepth = 6,
 		OpeningWidth = 28,
-		WallColor = Color3.fromRGB(55, 125, 60),
+		WallColor = Color3.fromRGB(238, 238, 242),
 		-- Depth (from the road end of the plot) where the first stage starts, and the free margin added to every stage's Area.
 		FirstStageDepth = 20,
 		StageMargin = 10,
