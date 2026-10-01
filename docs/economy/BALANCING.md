@@ -293,7 +293,7 @@ old constants the sim finished the whole game (30 bays, all decor, all Interns, 
 - Stage n = the decor of bay n + the expansion to bay n+1. `StageFactor[n]` (29 numbers in `Config/Tycoon`) was calibrated per stage
   (secant search on the sim, `node docs/tools/calibrate_street.js`) so that every stage takes: 8 min for stages 1 to 3, then 17%
   longer than the stage before. The factors are rough where the themes differ (10 to 30 parts, different PriceSeconds).
-- Lowest cooldown per tier (`MinCooldownGrowth` 1.25) and +100% of the level-1 payout per level (`PayoutPerLevel` 1) as in
+- Base cooldown 1 s + 8 s per tier (max 240 s), lowest cooldown per tier 20 ms x 1.28^tier (`MinCooldownGrowth`) and +100% of the level-1 payout per level (`PayoutPerLevel` 1) as in
   docs/GAME_DESIGN.md. Decor of bays 6 to 30 has no `RewardMult` yet: the sim assumes x6 per theme.
 
 **Player.** Heads for the next progress item (a decor part, then the next Shiba); while it is not affordable it buys only what pays for

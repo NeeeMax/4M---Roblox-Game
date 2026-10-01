@@ -140,13 +140,13 @@ return {
 		-- Street mode ("Gameplay flow"): one hit pays BonkPayout(tier) = TierIncome(tier) * BaseCooldown(tier) (before
 		-- multipliers). BaseCooldown(tier) = Cooldown + CooldownPerTier * tier seconds (at most MaxBaseCooldown): the first Shiba
 		-- 1 s, higher Shibas wait longer but pay more. Every upgrade level shrinks the cooldown geometrically from there to
-		-- MinCooldown at StreetLevelCap, so a fully upgraded Shiba bonks every few milliseconds.
-		CooldownPerTier = 4,
-		MaxBaseCooldown = 120,
+		-- MinCooldown at StreetLevelCap (the first Shiba bonks every 20 ms when fully upgraded).
+		CooldownPerTier = 8,
+		MaxBaseCooldown = 240,
 		-- The lowest cooldown a Shiba can reach: MinCooldown for the first Shiba, times MinCooldownGrowth for every tier above it
-		-- (5 ms, 0.05 s at Shiba 10, 0.4 s at Shiba 20, 3 s at Shiba 30), so higher Shibas stay slower even fully upgraded.
-		MinCooldown = 0.005,
-		MinCooldownGrowth = 1.25,
+		-- (20 ms, 0.18 s at Shiba 10, 2 s at Shiba 20, 25 s at Shiba 30), so higher Shibas stay slower even fully upgraded.
+		MinCooldown = 0.02,
+		MinCooldownGrowth = 1.28,
 		-- Every upgrade level also raises the payout per hit by this share of the level-1 payout (linear: $1, $2, $3 ... per hit
 		-- for the first Shiba, so an upgrade is felt at once).
 		PayoutPerLevel = 1,
@@ -181,35 +181,35 @@ return {
 		-- Stage n = the decor of bay n plus the expansion to bay n + 1. StageFactor[n] multiplies the prices of that stage (default 1);
 		-- it is calibrated with docs/economy/street_sim so that every stage takes the intended time (it grows from stage to stage).
 		StageFactor = {
-			0.5208, -- stage 1
-			8.037, -- stage 2
-			35.02, -- stage 3
-			67.66, -- stage 4
-			125, -- stage 5
-			242.9, -- stage 6
-			376.7, -- stage 7
-			604, -- stage 8
-			767, -- stage 9
-			808, -- stage 10
-			864.9, -- stage 11
-			1252, -- stage 12
-			2374, -- stage 13
-			3567, -- stage 14
-			5437, -- stage 15
-			6524, -- stage 16
-			6339, -- stage 17
-			7607, -- stage 18
-			12450, -- stage 19
-			18220, -- stage 20
-			42300, -- stage 21
-			31230, -- stage 22
-			21280, -- stage 23
-			27040, -- stage 24
-			37430, -- stage 25
-			32000, -- stage 26
-			52150, -- stage 27
-			33270, -- stage 28
-			24850, -- stage 29
+			1, -- stage 1
+			7.68, -- stage 2
+			28.91, -- stage 3
+			50.21, -- stage 4
+			86.65, -- stage 5
+			162.9, -- stage 6
+			259.1, -- stage 7
+			403.9, -- stage 8
+			484.7, -- stage 9
+			498.5, -- stage 10
+			526.5, -- stage 11
+			739.5, -- stage 12
+			1286, -- stage 13
+			1851, -- stage 14
+			2681, -- stage 15
+			3217, -- stage 16
+			2949, -- stage 17
+			3539, -- stage 18
+			5622, -- stage 19
+			7298, -- stage 20
+			17140, -- stage 21
+			12920, -- stage 22
+			8628, -- stage 23
+			10350, -- stage 24
+			14280, -- stage 25
+			12160, -- stage 26
+			19210, -- stage 27
+			12200, -- stage 28
+			8892, -- stage 29
 		} :: { [number]: number },
 		-- Expansion n (n >= 2) costs StreetReadyIncome(n - 2) * BaySeconds * StageFactor[n - 1] (the Shiba before it); the first one is free.
 		BaySeconds = 300,
