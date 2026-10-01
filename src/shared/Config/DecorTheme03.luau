@@ -254,6 +254,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Hall",
+			RewardMult = 2,
 			Name = "Gym Hall",
 			Description = "Tall concrete walls with wide doorways and a steel roof with a red stripe.",
 			Pad = Vector2.new(-62, 49),
@@ -270,6 +271,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Benches",
+			RewardMult = 1.1,
 			Name = "Bench Presses",
 			Description = "Two padded benches with loaded barbells.",
 			Pad = Vector2.new(-73, 28),
@@ -278,6 +280,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Racks",
+			RewardMult = 1.1,
 			Name = "Dumbbell Rack",
 			Description = "A long rack with chunky red dumbbells.",
 			Pad = Vector2.new(-76, 15),
@@ -286,6 +289,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Treadmills",
+			RewardMult = 1.2,
 			Name = "Treadmills",
 			Description = "Three treadmills in a row with little screens.",
 			Pad = Vector2.new(-48.5, 21),
@@ -294,6 +298,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Ring",
+			RewardMult = 1.3,
 			Name = "Boxing Ring",
 			Description = "A raised ring with a red canvas and solid ropes.",
 			Pad = Vector2.new(58, 21),
@@ -302,6 +307,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Bags",
+			RewardMult = 1.2,
 			Name = "Bags and Pull-up Bars",
 			Description = "Three heavy bags on a beam and a pull-up rig.",
 			Pad = Vector2.new(34, -13),
@@ -310,6 +316,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Bar",
+			RewardMult = 1.2,
 			Name = "Protein Bar and Lockers",
 			Description = "A wooden protein bar with tubs and stools, and a row of lockers.",
 			Pad = Vector2.new(-62, -24),
@@ -318,6 +325,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Trophy",
+			RewardMult = 1.4,
 			Name = "Golden Barbell",
 			Description = "The showpiece: a giant golden barbell on a pedestal.",
 			Pad = Vector2.new(20, -37),
