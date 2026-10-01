@@ -115,11 +115,7 @@ local function check(player: Player, session: Session)
 		return
 	end
 	for _, badge in Milestones.Badges do
-		if
-			badge.BadgeId > 0
-			and not session.Badges[badge.Id]
-			and measure(badge.Kind, state, session) >= badge.Goal
-		then
+		if badge.BadgeId > 0 and not session.Badges[badge.Id] and measure(badge.Kind, state, session) >= badge.Goal then
 			session.Badges[badge.Id] = true
 			task.spawn(awardBadge, player, badge)
 		end

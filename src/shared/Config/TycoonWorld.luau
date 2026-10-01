@@ -76,6 +76,14 @@ return {
 		PadBillboardDistance = 140,
 		-- Seconds before the same pad can be triggered again.
 		PadCooldown = 1,
+		-- The Ascend pad (Util/TycoonSteps → Ascend): on the lawn beside the entrance of the plot (AscendPadDepth studs from the road
+		-- end, AscendPadLateral to the right of the path, off the walkway so nobody steps on it by accident) and it is used with a
+		-- hold prompt (AscendHoldSeconds, AscendPromptDistance) instead of a touch, because it resets the run.
+		AscendPadDepth = 12,
+		AscendPadLateral = 14,
+		AscendHoldSeconds = 2,
+		AscendPromptDistance = 10,
+		AscendColor = Color3.fromRGB(190, 110, 255),
 	},
 
 	-- Conveyor spokes: from BeltFrom (Shiba side) to BeltTo (Mill side). Client: Belt_<n> is a Part whose LookVector

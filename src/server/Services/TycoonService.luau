@@ -649,9 +649,22 @@ function actions.BuyAutomation(player: Player, slot: number)
 	NotifyService.Send(player, `{if def then def.Name else "Shiba"} works by itself now!`, "Good")
 end
 
+-- Defined further down (they need the plot builders and the island-mode helpers); BuyStep and BuyPad call them.
+local ascend: (player: Player, tycoon: TycoonState) -> ()
+local rebuildStreetPlot: (player: Player) -> ()
+
 -- Street mode: stepping on a floor pad. Only the pads the walkthrough shows right now can be bought (Util/TycoonSteps).
 function actions.BuyStep(player: Player, stepId: string)
 	if not STREET or typeof(stepId) ~= "string" then
+		return
+	end
+	if stepId == TycoonSteps.AscendId then
+		-- The repeatable Ascension pad: only while the best Shiba of the run has reached the requirement. A second trigger after the
+		-- reset finds no Shibas and does nothing.
+		local _, ascendingTycoon = tycoonOf(player)
+		if ascendingTycoon and TycoonSteps.CanAscend(ascendingTycoon) then
+			ascend(player, ascendingTycoon)
+		end
 		return
 	end
 	local state, tycoon = tycoonOf(player)
@@ -724,11 +737,36 @@ local function swingLoop()
 	end
 end
 
-local function ascend(player: Player, tycoon: TycoonState)
+-- One Ascension for both modes. Island: see the comment above. Street: the run starts over at bay 1 (every step, Shiba, Intern and
+-- the money are gone); what stays is outside the tycoon state (cosmetic decor, passes, Index, quests, streaks, trophies) plus
+-- Ascensions, which is the multiplier (TycoonMath.AscensionMultiplier).
+function ascend(player: Player, tycoon: TycoonState)
 	tycoon.Ascensions += 1
 	tycoon.Zone = 0
 	tycoon.Pads = {}
 	tycoon.Arches = {}
+	if STREET then
+		tycoon.Steps = {}
+		tycoon.Shibas = {}
+		tycoon.Equipped = {}
+		tycoon.EquipSlots = 0
+		carry[player] = 0
+		swingReadyAt[player] = {}
+		bonkReadyAt[player] = nil
+		-- SetPoints replicates the state; the plot is rebuilt from it.
+		EconomyService.SetPoints(player, 0)
+		rebuildStreetPlot(player)
+		local multiplier = TycoonMath.AscensionMultiplier(tycoon.Ascensions)
+		local nextShiba = TycoonSteps.AscendRequirement(tycoon.Ascensions)
+		NotifyService.Send(
+			player,
+			`Ascension {tycoon.Ascensions}! All income x{multiplier}. The next one needs Shiba {nextShiba}.`,
+			"Good"
+		)
+		-- Saved at once: a crash must not bring the old run (and a second Ascension for it) back.
+		DataService.SaveNow(player)
+		return
+	end
 	tycoon.EquipSlots = TycoonConfig.StartEquipSlots
 	tycoon.Equipped = {}
 	for _, shiba in tycoon.Shibas do
@@ -747,6 +785,10 @@ local function ascend(player: Player, tycoon: TycoonState)
 end
 
 function actions.BuyPad(player: Player, padId: string)
+	-- The street buys with floor pads (BuyStep); the island pad ids (slots, zones, rings, Ascend) don't exist there.
+	if STREET then
+		return
+	end
 	local state, tycoon = tycoonOf(player)
 	if not state or not tycoon or not isId(padId) or tycoon.Pads[padId] then
 		return
@@ -1005,6 +1047,15 @@ local function buildPlot(player: Player)
 	if state then
 		plotRefresh(player, state)
 	end
+end
+
+-- Street mode: the plot is destroyed and built again for the reset state (called after the state changed), and the character is put
+-- back on the road in front of it first (it may stand on a terrace that is about to vanish).
+function rebuildStreetPlot(player: Player)
+	IslandService.SpawnOnIsland(player)
+	plotDestroy(player)
+	plotBuilt[player] = nil
+	task.spawn(buildPlot, player)
 end
 
 local function onLoaded(player: Player, state: Types.PlayerState)

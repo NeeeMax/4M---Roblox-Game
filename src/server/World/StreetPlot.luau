@@ -24,6 +24,7 @@ local TycoonWorld = require(ReplicatedStorage.Shared.Config.TycoonWorld)
 local Assets = require(ReplicatedStorage.Shared.Util.Assets)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
 local StreetLayout = require(ReplicatedStorage.Shared.Util.StreetLayout)
+local TycoonMath = require(ReplicatedStorage.Shared.Util.TycoonMath)
 local TycoonSteps = require(ReplicatedStorage.Shared.Util.TycoonSteps)
 local Types = require(ReplicatedStorage.Shared.Types)
 
@@ -675,6 +676,11 @@ local function padPosition(plot: Plot, step: TycoonSteps.Step): Vector3
 		end
 		return frame:PointToWorldSpace(Vector3.new(0, 0, area.Y / 2 - LAYOUT.AutoPadInset))
 	end
+	if step.Kind == "Ascend" then
+		local elev = plot.Elev[1] or 0
+		local aside = plot.RoadEnd + plot.Back * LAYOUT.AscendPadDepth + plot.Right * LAYOUT.AscendPadLateral
+		return aside + Vector3.new(0, elev, 0)
+	end
 	local index = step.PartIndex or 1
 	local own = if theme and step.PartIndex then theme.Parts[step.PartIndex] else nil
 	if own and own.Pad then
@@ -730,8 +736,32 @@ local function buildPad(plot: Plot, step: TycoonSteps.Step): PadRefs
 		Price = labels.Price,
 		Busy = false,
 	}
+	if step.Kind == "Ascend" then
+		-- Resets the run: a hold prompt (like the island's Ascension shrine) instead of a touch, so it is never stepped on by accident.
+		-- BuyStep validates everything again; the prompt only asks.
+		part.CanTouch = false
+		local prompt = Instance.new("ProximityPrompt")
+		prompt.Name = "Tycoon_Ascend"
+		prompt.ActionText = "Ascend"
+		prompt.ObjectText = "Start over with more income"
+		prompt.KeyboardKeyCode = Enum.KeyCode.E
+		prompt.GamepadKeyCode = Enum.KeyCode.ButtonX
+		prompt.HoldDuration = LAYOUT.AscendHoldSeconds
+		prompt.MaxActivationDistance = LAYOUT.AscendPromptDistance
+		prompt.RequiresLineOfSight = false
+		prompt.Parent = part
+		prompt.Triggered:Connect(function(triggerer: Player)
+			if triggerer == owner and not pad.Busy then
+				pad.Busy = true
+				plot.Actions.BuyStep(owner, step.Id)
+				task.delay(LAYOUT.PadCooldown, function()
+					pad.Busy = false
+				end)
+			end
+		end)
+	end
 	part.Touched:Connect(function(hit: BasePart)
-		if pad.Busy then
+		if pad.Busy or step.Kind == "Ascend" then
 			return
 		end
 		local character = hit.Parent
@@ -754,6 +784,13 @@ local function refreshPad(pad: PadRefs, step: TycoonSteps.Step, tycoon: Types.Ty
 	local price = TycoonSteps.Price(step, tycoon)
 	setText(pad.Title, TycoonSteps.Title(step))
 	setText(pad.Desc, TycoonSteps.Description(step))
+	if step.Kind == "Ascend" then
+		-- The next multiplier instead of a price; always available while it is shown.
+		local multiplier = TycoonMath.AscensionMultiplier(tycoon.Ascensions + 1)
+		setText(pad.Price, `income x{string.format("%g", multiplier)}`)
+		pad.Part.Color = LAYOUT.AscendColor
+		return
+	end
 	setText(pad.Price, if price <= 0 then "FREE" else Format.Money(price))
 	pad.Part.Color = if money >= price then PAD_AFFORDABLE else PAD_TOO_DEAR
 end
@@ -765,6 +802,8 @@ function StreetPlot.Destroy(player: Player)
 	plots[player] = nil
 	if plot then
 		plot.Folder:Destroy()
+		-- The white wall only had to reach as far as this plot's owner did (a rebuilt plot after an Ascension starts at bay 1).
+		StreetService.SetReach(plot.Slot, 1)
 	end
 end
 

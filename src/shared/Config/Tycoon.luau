@@ -257,7 +257,10 @@ return {
 
 	-- Ascension (pad "Ascend"): needs the last zone's egg unlocked. Resets money, Shiba levels, arches, rings, zones and
 	-- equip slots above the start count; keeps the collection, variants, Index, trophies, quests, streaks.
-	Ascension = { MinZone = 5, PerAscension = 0.75 },
+	-- Street mode (floor pad "Ascend", docs/economy/BALANCING.md → Ascension in the street mode): the player's best Shiba must reach
+	-- number StreetFirstShiba + StreetShibaStep × (ascensions done), at most Street.Bays, so each run reaches StreetShibaStep Shibas
+	-- further while the multiplier (PerAscension) grows only linearly. Ascending resets the plot to bay 1 (steps, Shibas, money).
+	Ascension = { MinZone = 5, PerAscension = 0.75, StreetFirstShiba = 10, StreetShibaStep = 2 },
 
 	-- Sanity limits for saved data.
 	MaxZone = 5,

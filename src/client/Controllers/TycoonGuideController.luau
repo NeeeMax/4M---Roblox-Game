@@ -75,7 +75,13 @@ end
 
 -- The step of the arrow: first affordable visible pad, else the first visible one, else nil (everything bought).
 local function currentStep(tycoon: TycoonState, money: number): (Step?, boolean)
-	local visible = TycoonSteps.Visible(tycoon)
+	-- The Ascension pad (resets the run, always "affordable") is never the arrow's target.
+	local visible: { Step } = {}
+	for _, step in TycoonSteps.Visible(tycoon) do
+		if step.Kind ~= "Ascend" then
+			table.insert(visible, step)
+		end
+	end
 	for _, step in visible do
 		if money >= TycoonSteps.Price(step, tycoon) then
 			return step, true

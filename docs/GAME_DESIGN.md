@@ -773,6 +773,13 @@ rings, zones (back to Meadow) and equip slots above the start count (3). It **ke
 variants, the Index, trophies, quests and streaks. Each Ascension adds x0.75 to the income multiplier (`1 + 0.75n`) and +10 to
 the level cap.
 
+**Street mode** (`Features.Street`): the same pad id `Ascend`, but it is a repeatable floor pad beside the plot entrance, used with a
+2 s hold prompt (never stepped on by accident). It appears when the best Shiba of the run reaches `Ascension.StreetFirstShiba +
+StreetShibaStep × ascensions` (10, 12, 14 … at most 30, `TycoonSteps.AscendRequirement`). It **resets** the whole run: every bought step
+(Shibas, decor, Interns), all Shibas and the money (back to bay 1, 0 money); it **keeps** `Ascensions` (income x(1 + 0.75n), applied to every
+lane), the cosmetic decor and passes (not in the tycoon state), the Index, trophies, quests and streaks. Saved at once. Runs take about 1.5 to
+2.3 h for the first six Ascensions (table in `docs/economy/BALANCING.md`). Open question 8 (decor as a permanent trophy) is answered "resets" for now.
+
 ### Active play (never required)
 
 - **Golden Crates** appear on a belt for a short time (`CrateSpawned`, ends at a server time); the player walks to the belt and
@@ -1070,6 +1077,12 @@ until then finishing a theme has no effect beyond looking good.
 The Vault stands in the centre; money in it is `VaultStored` and is collected by walking to it (`CollectVault`, auto-collect
 nearby). **Currently the vault stays empty.** Offline earnings come later: planned 40 % of the online rate, capped at 2 h,
 growing to 8 h with upgrades; the existing Offline Shiba Bank (`Bank.Pending`, "Welcome back" panel) keeps working until then.
+
+**Street mode (decided in the retention retune, implemented):** no popup and no basket. `OfflineService` pays on join, straight to the
+balance (`EconomyService.PayOffline`): 40 % of the sampled income per minute (`EconomyConfig.Automation.StreetOfflineShare`) for the time
+away, at most 1 h (`StreetOfflineSeconds`), at least 60 s away; the rate is clamped to 1.5 x what the Shibas earn now
+(`StreetSampleCap`). The player sees the toast "Welcome back! +X while you were away". `Bank.Pending` stays 0, `OfflineEarnings` /
+`ClaimOffline` / the "DoubleOffline" product are unused in this mode.
 
 ### HUD rules
 

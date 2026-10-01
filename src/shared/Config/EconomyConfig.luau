@@ -190,6 +190,12 @@ local AUTOMATION = {
 	OfflineShare = 1,
 	BaseOfflineShare = 0.05,
 	NoBasketHours = 1,
+	-- Street mode (docs/economy/BALANCING.md → Retention retune, miss 1): no basket and no popup. On join the player is paid
+	-- StreetOfflineShare × their sampled income per minute for the time away, at most StreetOfflineSeconds of it, straight to
+	-- their balance. The sampled rate is clamped to StreetSampleCap × the income per minute their Shibas can really earn now.
+	StreetOfflineShare = 0.4,
+	StreetOfflineSeconds = 3600,
+	StreetSampleCap = 1.5,
 }
 
 -- Every purchase of a full run. Count = levels in the Route (the upgrade's MaxLevel); From/To = where in the run

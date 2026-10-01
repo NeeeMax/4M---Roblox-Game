@@ -374,31 +374,38 @@ Each of the first sessions ends one or two Shibas further along and with the nex
 for the next one" shape. From stage 8 on a stage takes one session, from stage 12 more than one (28 min and up), so after about a week of 22
 minutes a day the player waits for one Shiba per day; that is the intended slow curve and was left alone.
 
-### Open points that need CODE or a design decision (not changed here)
+### Open points 1 and 2: implemented (street offline payout and Ascension)
 
-1. **Offline earnings are zero in the street mode.** Design plan (`GAME_DESIGN.md`, "Vault and offline"): 40% of the online rate, capped at
-   2 h. The node sim says what that is worth for a returning player (credit = 40% of the automated income per second times min(away, cap) when
-   the next session starts): with a 1 h cap a D1 + D2 + D3 player (10 / 15 / 25 min) reaches 7 instead of 6 Shibas on D3, and a 22-minute-a-day
-   player is one Shiba ahead by D7 (12 instead of 11); with a 2 h cap the credit on D3 is 1.5e8 against 1.8e7 for 1 h (early income grows about 100 times
-   per stage), more than the price of Shiba 4 (about 1.9e6) many times over, i.e. it would reward the long break more than the play. **Recommendation: 40% of the sampled income per
-   minute, at most 1 h, paid automatically on join** (the street has no popup): in `OfflineService.onLoaded`, when `Features.Street` is on, call
-   `EconomyService.PayOffline(player, 1)` and `NotifyService.Send(player, "Your Shibas earned ... while you were away", "Good")` instead of
-   firing `OfflineEarnings`. The sample is already taken: tycoon income goes through `EconomyService.AddPoints`, so it lands in
-   `Bank.IncomePerMinute`; set `EconomyConfig.Automation.BaseOfflineShare` from 0.05 to 0.4 for it (it is the only share that is non-zero in
-   the street mode) and keep `NoBasketHours = 1`. No new remote or type needed. 1 h matches the Roblox rule that counts at most 60 min of
-   playtime a day: nobody is paid for a 3 hour grind.
-2. **No Ascension in the street mode.** Research: prestige is a new layer with a rising requirement and a sub-linear boost. The sim
-   (`mult` option) gives the run times for the existing multiplier `1 + 0.75 n` (`Config/Tycoon.Ascension.PerAscension`): reaching Shiba 10
-   takes 1.80 h at x1, 1.03 h at x1.75, 0.72 h at x2.5, 0.55 h at x3.25, i.e. a fixed requirement makes every run shorter and the layer is
-   used up after three rebirths. Proposal: **ascend at Shiba 10 first (about 1.8 h, a D7 player), and every Ascension asks 2 more Shibas** (10,
-   12, 14, ...): run 2 (x1.75) reaches Shiba 12 in 1.5 h, run 3 (x2.5) Shiba 14 in 1.5 h, run 4 (x3.25) Shiba 16 in 1.7 h, run 5 (x4) Shiba 18
-   in 1.9 h, run 6 (x4.75) Shiba 20 in 2.3 h, run 7 (x5.5) Shiba 22 in 2.8 h. Every run takes about as long as the one before, but reaches
-   two Shibas further; the multiplier grows linearly while the prices grow exponentially (x4 per Shiba), so it stays sub-linear in effect.
-   What resets: money, levels, Interns, bought decor and Shibas above 1 (decor as a permanent trophy is the open question 8 in GAME_DESIGN);
-   what stays: Index, multiplier, trophies. Needs an `Ascend` pad in `TycoonSteps` (or a button) and a `RebirthService`/`TycoonService` hook
-   that is street-aware; the saved fields (`Tycoon.Ascensions`) already exist, so it is probably no contract change, but the pad id and a
-   street reset in `ascend()` are Marco's call.
-3. **Active versus idle** is 1.0 from about 25 min on (Interns cost 1/5 of the next Shiba). If clicking should stay worth something after the
+**1. Offline payout in the street mode (done).** `OfflineService.onLoaded` calls `payAwayStreet` when `Features.Tycoon and Features.Street`: away time =
+`clamp(now - Bank.LastSeenAt, 0, StreetOfflineSeconds = 3600)`, paid only if at least 60 s (`OfflineBank.MinSeconds`), amount =
+`floor(StreetOfflineShare 0.4 x min(Bank.IncomePerMinute, 1.5 x current Shiba income per minute) x away / 60)`, through `EconomyService.PayOffline`
+(counts for the leaderboard, not for the income rate) and a `Notify` toast "Welcome back! +X while you were away". The proposal said to raise `BaseOfflineShare`
+0.05 to 0.4; that was NOT done: the old basket path keeps its numbers and the street has its own fields (`StreetOfflineShare`, `StreetOfflineSeconds`,
+`StreetSampleCap` in `EconomyConfig.Automation`). Also needed: the old rate cap (`maxPerMinute`, from the old throw economy) would have clamped every street
+sample to a few points per minute, so in the street mode the sample cap is the Shiba income (`TycoonMath.TotalIncome` x income multiplier x 60 x 1.5).
+A full credit is 24 min of active income (0.4 x 60 min), which in the earlier node sim (credit with a 1 h cap) put a D1 + D2 + D3 player at 7 instead of 6 Shibas on D3.
+
+**2. Ascension in the street mode (done).** Floor pad `Ascend` beside the plot entrance (hold 2 s), available when the best Shiba of the run reaches
+`StreetFirstShiba 10 + StreetShibaStep 2 x n` (max 30), resets steps, Shibas and money, keeps `Ascensions` (income x(1 + 0.75 n)). Simulation
+(`node docs/tools/street_ascension.js`, a fresh run per row with the multiplier, active player; `EFF=0.35 node ...` for the slower player):
+
+| Run | Ascensions done | Income multiplier | Shiba needed to ascend | Time of the run | vs run 1 | Time of Shiba 2 (this run) |
+|---|---|---|---|---|---|---|
+| 1 | 0 | x1.00 | 10 | 1.80 h | 1.00 | 7 min |
+| 2 | 1 | x1.75 | 12 | 1.51 h | 0.84 | 4 min |
+| 3 | 2 | x2.50 | 14 | 1.54 h | 0.86 | 3 min |
+| 4 | 3 | x3.25 | 16 | 1.69 h | 0.94 | 2 min |
+| 5 | 4 | x4.00 | 18 | 1.92 h | 1.07 | 2 min |
+| 6 | 5 | x4.75 | 20 | 2.28 h | 1.27 | 1 min |
+| 7 | 6 | x5.50 | 22 | 2.75 h | 1.53 | 1 min |
+| 8 | 7 | x6.25 | 24 | 3.32 h | 1.85 | 1 min |
+
+Real player (EFF 0.35): run times 1.88 h / 1.59 h / 1.60 h / 1.74 h / 1.99 h / 2.34 h / 2.81 h / 3.38 h. Runs 1 to 6 take 1.5 to 2.3 h (the target), each reaches 2 Shibas further than the one before; from run 7 on they
+grow (2.75 h, 3.3 h) because prices grow x4 per Shiba while the multiplier is linear. That is the intended soft cap; if long sessions beyond
+Ascension 6 are not wanted, raise `PerAscension` or lower `StreetShibaStep` and re-run the tool. The sim assumes a decor reset (open question 8 in GAME_DESIGN):
+keeping the decor multipliers would shorten every run after the first.
+
+3. **Active versus idle** (still open) is 1.0 from about 25 min on (Interns cost 1/5 of the next Shiba). If clicking should stay worth something after the
    first 20 minutes, raise `AutomationSeconds` / `AutomationGrowth` (60 / 1.08) and re-run; not done because it makes the early game slower.
 
 ### Not verified

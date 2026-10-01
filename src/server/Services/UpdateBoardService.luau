@@ -67,13 +67,8 @@ local function buildBoard(ground: Vector3, facing: Vector3)
 	local titleY = (BODY_HEIGHT + TITLE_HEIGHT) / 2
 	local footerY = -(BODY_HEIGHT + FOOTER_HEIGHT) / 2
 
-	local title = newPart(
-		"Title",
-		Vector3.new(width, TITLE_HEIGHT, 0.5),
-		base * CFrame.new(0, titleY, 0),
-		BOARD.Color,
-		folder
-	)
+	local title =
+		newPart("Title", Vector3.new(width, TITLE_HEIGHT, 0.5), base * CFrame.new(0, titleY, 0), BOARD.Color, folder)
 	local titleLabel = Signs.Text(title, Enum.NormalId.Front, BOARD.TitleText, Color3.fromRGB(20, 20, 35))
 	Signs.Mirror(title, titleLabel)
 
@@ -83,13 +78,8 @@ local function buildBoard(ground: Vector3, facing: Vector3)
 	text.TextYAlignment = Enum.TextYAlignment.Top
 	Signs.Mirror(body, text)
 
-	local footer = newPart(
-		"Footer",
-		Vector3.new(width, FOOTER_HEIGHT, 0.5),
-		base * CFrame.new(0, footerY, 0),
-		BOARD.Color,
-		folder
-	)
+	local footer =
+		newPart("Footer", Vector3.new(width, FOOTER_HEIGHT, 0.5), base * CFrame.new(0, footerY, 0), BOARD.Color, folder)
 	local label = Signs.Text(footer, Enum.NormalId.Front, "", Color3.fromRGB(20, 20, 35), 70)
 	Signs.Mirror(footer, label)
 	footerLabel = label

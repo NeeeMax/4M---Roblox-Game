@@ -255,6 +255,8 @@ function make(over = {}, opts = {}) {
 }
 
 
+module.exports = { make, loadConfig };
+if (require.main !== module) return;
 const f = t => (t === undefined ? "-" : t < 90 ? t.toFixed(0) + "s" : t < 5400 ? (t / 60).toFixed(1) + "m" : (t / 3600).toFixed(2) + "h");
 const eff = Number(process.env.EFF || 0.5);
 const S = make({}, { clickEff: eff });
