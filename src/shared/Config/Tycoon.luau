@@ -147,6 +147,9 @@ return {
 		StreetLevelCap = 100,
 		-- The stick lands this share of the cooldown after the swing starts, at most HitDelay seconds.
 		HitDelayShare = 0.45,
+		-- Street mode: popups, knockback and the swings of automated Shibas happen at most this often (seconds), however short
+		-- the cooldown is. The money is not capped: every hit pays, automated Shibas pay through the income tick.
+		EffectInterval = 0.25,
 	},
 
 	-- Street mode (docs/GAME_DESIGN.md → Street, plots and buttons, "One Shiba per expansion"). Prices are placeholders
