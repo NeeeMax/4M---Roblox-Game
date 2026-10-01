@@ -15,6 +15,8 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local EconomyConfig = require(ReplicatedStorage.Shared.Config.EconomyConfig)
+local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
+local ShibaPlatforms = require(ReplicatedStorage.Shared.Config.ShibaPlatforms)
 local Street = require(ReplicatedStorage.Shared.Config.Street)
 local TycoonDecor = require(ReplicatedStorage.Shared.Config.TycoonDecor)
 local TycoonWorld = require(ReplicatedStorage.Shared.Config.TycoonWorld)
@@ -40,7 +42,16 @@ type BayRefs = {
 	Folder: Folder,
 	Ground: Vector3,
 	Inward: Vector3,
-	Platform: Part,
+	-- The Shiba's platform (Config/ShibaPlatforms, built per tier), its invisible barrier, and what moves with its height.
+	PlatformKey: string?,
+	PlatformFolder: Instance?,
+	Barrier: Part?,
+	Anchor: Part,
+	SwingPart: Part,
+	Belt: Part,
+	-- Height of the standing surface above the ground and the barrier's radius (the Intern stands outside it).
+	Top: number,
+	Radius: number,
 	SwingClick: ClickDetector,
 	Visual: Model?,
 	VisualKey: string?,
@@ -88,7 +99,6 @@ local StreetPlot = {}
 local PAD_AFFORDABLE = Color3.fromRGB(255, 220, 60)
 local PAD_TOO_DEAR = Color3.fromRGB(125, 125, 135)
 local PAD_BASE = Color3.fromRGB(40, 40, 48)
-local PLATFORM_COLOR = Color3.fromRGB(95, 90, 110)
 local SKIN = Color3.fromRGB(255, 214, 170)
 
 -- Nothing on the plot glows (glow is for special effects only): Neon and ForceField are drawn as plain plastic.
@@ -260,17 +270,6 @@ local function buildBay(plot: Plot, bay: number): BayRefs
 	local folder = Instance.new("Folder")
 	folder.Name = `Lane_{bay}`
 
-	local platform = newPart(
-		"Platform",
-		Vector3.new(LANE.PlatformTop, LAYOUT.PlatformDiameter, LAYOUT.PlatformDiameter),
-		CFrame.new(ground + Vector3.new(0, LANE.PlatformTop / 2, 0)) * CFrame.Angles(0, 0, math.rad(90)),
-		PLATFORM_COLOR,
-		folder
-	)
-	platform.Shape = Enum.PartType.Cylinder
-	platform.Material = Enum.Material.Slate
-	platform.Transparency = 1
-
 	-- The client hangs the Shiba's menu on this point.
 	local standPoint = ground + Vector3.new(0, LANE.PlatformTop, 0)
 	local anchor = newPart("Anchor", Vector3.new(0.2, 0.2, 0.2), CFrame.new(standPoint), Color3.new(1, 1, 1), folder)
@@ -306,7 +305,14 @@ local function buildBay(plot: Plot, bay: number): BayRefs
 		Folder = folder,
 		Ground = ground,
 		Inward = inward,
-		Platform = platform,
+		PlatformKey = nil,
+		PlatformFolder = nil,
+		Barrier = nil,
+		Anchor = anchor,
+		SwingPart = swingPart,
+		Belt = belt,
+		Top = LANE.PlatformTop,
+		Radius = LAYOUT.PlatformDiameter / 2,
 		SwingClick = click,
 		Visual = nil,
 		VisualKey = nil,
@@ -319,7 +325,7 @@ end
 local function buildIntern(bay: BayRefs): Model
 	local model = Instance.new("Model")
 	model.Name = "Intern"
-	local base = bay.Ground + bay.Inward * LAYOUT.InternDistance
+	local base = bay.Ground + bay.Inward * (bay.Radius + LAYOUT.InternGap)
 	local frame = CFrame.lookAt(base, base - bay.Inward)
 	local function piece(name: string, size: Vector3, offset: Vector3, color: Color3, shape: Enum.PartType?): Part
 		local part = newPart(name, size, frame * CFrame.new(offset), color, model)
@@ -338,16 +344,115 @@ local function buildIntern(bay: BayRefs): Model
 	return model
 end
 
+-- The platform's pieces around `frame` (on the ground, -Z = the way the Shiba faces).
+local function buildPlatformParts(platform: ShibaPlatforms.Platform, frame: CFrame, parent: Instance): Model
+	local folder = Instance.new("Model")
+	folder.Name = "Platform"
+	for index, piece in platform.Pieces do
+		local cframe = frame * CFrame.new(piece.Offset) * CFrame.Angles(0, math.rad(piece.Yaw or 0), 0)
+		local size = piece.Size
+		local part = newPart(`Piece{index}`, size, cframe, piece.Color, folder)
+		if piece.Shape == "Cylinder" then
+			-- A cylinder's axis is its X axis, so lay the height along X and stand it up.
+			part.Shape = Enum.PartType.Cylinder
+			part.Size = Vector3.new(size.Y, size.X, size.X)
+			part.CFrame = cframe * CFrame.Angles(0, 0, math.rad(90))
+		elseif piece.Shape == "Ball" then
+			part.Shape = Enum.PartType.Ball
+			part.Size = Vector3.new(size.X, size.X, size.X)
+		end
+		part.Material = flat(piece.Material)
+		part.Transparency = piece.Transparency or 0
+	end
+	folder.Parent = parent
+	return folder
+end
+
+-- A Platform_<AssetName> model instead of the parts: scaled so its StandPoint marker ends `top` above the ground and its bottom
+-- ModelSink below it, the marker right above `frame`'s position.
+local function placePlatformModel(asset: Model, top: number, frame: CFrame, parent: Instance): Model
+	Assets.MakeVisualOnly(asset, true)
+	local marker = asset:FindFirstChild(ShibaPlatforms.StandMarkerName, true)
+	local standPart: BasePart? = if marker and marker:IsA("BasePart") then marker else nil
+	local function measure(): (CFrame, Vector3)
+		local box, size = asset:GetBoundingBox()
+		local bottom = box * CFrame.new(0, -size.Y / 2, 0)
+		local stand = if standPart then bottom:PointToObjectSpace(standPart.Position) else Vector3.new(0, size.Y, 0)
+		return bottom, stand
+	end
+	local _, stand = measure()
+	if stand.Y > 0 then
+		asset:ScaleTo(asset:GetScale() * (top + ShibaPlatforms.ModelSink) / stand.Y)
+	end
+	local bottom, scaled = measure()
+	local target = frame * CFrame.new(-scaled.X, -ShibaPlatforms.ModelSink, -scaled.Z)
+	asset:PivotTo(target * bottom:ToObjectSpace(asset:GetPivot()))
+	if standPart then
+		standPart.Transparency = 1
+		standPart.CastShadow = false
+	end
+	asset.Name = "Platform"
+	asset.Parent = parent
+	return asset
+end
+
+-- Gives the bay the platform of its Shiba's tier (nil = no Shiba: no platform) and moves everything that stands on it.
+local function applyPlatform(bay: BayRefs, assetName: string?, shibaHeight: number)
+	if assetName == bay.PlatformKey then
+		return
+	end
+	bay.PlatformKey = assetName
+	if bay.PlatformFolder then
+		bay.PlatformFolder:Destroy()
+		bay.PlatformFolder = nil
+	end
+	if bay.Barrier then
+		bay.Barrier:Destroy()
+		bay.Barrier = nil
+	end
+	local top = LANE.PlatformTop
+	local radius = LAYOUT.PlatformDiameter / 2
+	if assetName then
+		local platform = ShibaPlatforms.Platforms[assetName] or ShibaPlatforms.Default
+		local frame = CFrame.lookAt(bay.Ground, bay.Ground + bay.Inward)
+		local model = Assets.CloneModel(`{ShibaPlatforms.ModelPrefix}{assetName}`)
+		top =
+			math.max(if model then platform.ModelTop or platform.Top else platform.Top, Gameplay.Shooters.PlatformLift)
+		bay.PlatformFolder = if model
+			then placePlatformModel(model, top, frame, bay.Folder)
+			else buildPlatformParts(platform, frame, bay.Folder)
+		-- Invisible wall around platform and Shiba, so nobody walks through it (only characters collide with it).
+		local padding = Gameplay.Shooters.Barrier.Padding
+		radius = platform.Diameter / 2 + padding
+		local sink = Gameplay.Shooters.Barrier.Sink
+		local tall = sink + top + shibaHeight + Gameplay.Shooters.Barrier.ExtraHeight
+		local barrier = newPart(
+			"Barrier",
+			Vector3.new(tall, radius * 2, radius * 2),
+			CFrame.new(bay.Ground + Vector3.new(0, tall / 2 - sink, 0)) * CFrame.Angles(0, 0, math.rad(90)),
+			Color3.new(1, 1, 1),
+			bay.Folder
+		)
+		barrier.Shape = Enum.PartType.Cylinder
+		barrier.Transparency = 1
+		barrier.CanCollide = true
+		bay.Barrier = barrier
+	end
+	bay.Top = top
+	bay.Radius = radius
+	local stand = bay.Ground + Vector3.new(0, top, 0)
+	bay.Anchor.CFrame = CFrame.new(stand)
+	bay.SwingPart.CFrame = CFrame.new(stand + Vector3.new(0, LANE.SwingBoxSize.Y / 2, 0))
+	bay.Belt.CFrame = CFrame.lookAt(stand, stand + bay.Inward)
+end
+
 local function refreshBay(bay: BayRefs, tycoon: Types.TycoonState, index: number)
 	local id = tycoon.Equipped[tostring(index)]
 	local shiba = if id then tycoon.Shibas[id] else nil
 	local def = if shiba then EconomyConfig.Shibas[shiba.Tier + 1] else nil
 	local active = shiba ~= nil and id ~= nil and def ~= nil
 
-	bay.Platform.Transparency = if active then 0 else 1
-	if def then
-		bay.Platform.Color = def.Color
-	end
+	applyPlatform(bay, if def then def.AssetName else nil, if def then def.Height else 0)
 
 	-- Shiba visual: swap only when (id, tier, variant) changed.
 	local key = if shiba and id then `{id}:{shiba.Tier}:{shiba.Variant}` else nil
@@ -358,7 +463,13 @@ local function refreshBay(bay: BayRefs, tycoon: Types.TycoonState, index: number
 		end
 		bay.VisualKey = key
 		if shiba then
-			local visual = TycoonPlot.BuildShibaVisual(bay, shiba)
+			-- The Shiba stands on the platform: BuildShibaVisual adds LANE.PlatformTop to the ground it gets.
+			local lane = {
+				Ground = bay.Ground + Vector3.new(0, bay.Top - LANE.PlatformTop, 0),
+				Inward = bay.Inward,
+				Folder = bay.Folder,
+			}
+			local visual = TycoonPlot.BuildShibaVisual(lane, shiba)
 			bay.Visual = visual
 		end
 	end
@@ -688,7 +799,7 @@ function StreetPlot.GetLaneAim(player: Player, slot: number): { Origin: Vector3,
 	if not bay then
 		return nil
 	end
-	return { Origin = bay.Ground + Vector3.new(0, LANE.PlatformTop, 0), Forward = bay.Inward }
+	return { Origin = bay.Ground + Vector3.new(0, bay.Top, 0), Forward = bay.Inward }
 end
 
 return StreetPlot

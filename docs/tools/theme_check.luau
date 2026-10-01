@@ -11,7 +11,7 @@
 --  * every piece inside the Area (rotated bounding boxes)
 --  * a piece is SOLID (the player cannot walk through it) if it is over 0.6 studs high and starts lower than 7 studs above the
 --    ground (same rule as World/StreetPlot); solid pieces keep clear of: the walkway (5.5 studs from its centre line), the Shiba
---    (7 studs), the zone in front of the Shiba (7-16 studs along its facing, 5 studs to each side), every pad (3 studs, pieces of
+--    (8 studs: its platform and barrier), the zone in front of the Shiba (8-17 studs along its facing, 5 studs to each side), every pad (3 studs, pieces of
 --    OTHER parts; the own prop stands where the pad is) and the Intern's spot
 --  * walkability: a player (radius 1.5) entering at the stage's front centre can reach every pad (with all props of the other
 --    parts built), the area in front of the Shiba and the stage's back exit
@@ -132,6 +132,25 @@ if not theme.BayPad or not theme.AutoPad then
 	process.exit(1)
 end
 
+-- RewardMult: 1 to 2 per part, the whole theme at most 8, at least 3 parts have one
+local bonusProduct, bonusParts = 1, 0
+for i, part in theme.Parts do
+	if part.RewardMult ~= nil then
+		if type(part.RewardMult) ~= "number" or part.RewardMult < 1 or part.RewardMult > 2 then
+			err(`part {i} ({part.Id}): RewardMult must be between 1 and 2`)
+		else
+			bonusProduct *= part.RewardMult
+			bonusParts += 1
+		end
+	end
+end
+if bonusProduct > 8 then
+	err(`the RewardMult of the whole theme is {bonusProduct}, at most 8`)
+end
+if bonusParts < 3 then
+	err(`only {bonusParts} parts have a RewardMult (at least 3)`)
+end
+
 -- ---- path
 local path = theme.Path
 if path[1].X ~= 0 or path[1].Y ~= hz then
@@ -234,10 +253,10 @@ local sp = theme.Shiba.Position
 local face = math.rad(theme.Shiba.Facing)
 local fx, fz = math.cos(face), -math.sin(face)
 local rx, rz = -fz, fx -- to the side
-if blockedAt(sp.X, sp.Y, 7, nil) then
-	err("a solid piece is within 7 studs of the Shiba")
+if blockedAt(sp.X, sp.Y, 8, nil) then
+	err("a solid piece is within 8 studs of the Shiba")
 end
-for along = 7, 16, 1 do
+for along = 8, 17, 1 do
 	for side = -5, 5, 2.5 do
 		local x, z = sp.X + fx * along + rx * side, sp.Y + fz * along + rz * side
 		if blockedAt(x, z, 0, nil) then
@@ -249,7 +268,7 @@ end
 if math.abs(sp.X) > hx - 8 or math.abs(sp.Y) > hz - 8 then
 	err("the Shiba stands too close to the edge of the Area")
 end
-local intern = { sp.X + fx * 6, sp.Y + fz * 6 }
+local intern = { sp.X + fx * 7.5, sp.Y + fz * 7.5 }
 if blockedAt(intern[1], intern[2], 1.5, nil) then
 	err("a solid piece stands on the Intern's spot")
 end

@@ -3,5 +3,5 @@
 -- Bump the label with every change that should be visible in a playtest.
 
 return {
-	Label = "2026-10-01 #42: street: min cooldown grows with the Shiba tier, upgrades raise the payout (flags off)",
+	Label = "2026-10-01 #43: street: tier platforms, decor reward bonuses (flags off)",
 }

@@ -4,6 +4,7 @@
 -- Everything is computed from the saved Types.TycoonState, so server and client always agree on the numbers.
 
 local Config = require(script.Parent.Parent.Config.Tycoon)
+local TycoonDecor = require(script.Parent.Parent.Config.TycoonDecor)
 local Types = require(script.Parent.Parent.Types)
 
 type TycoonState = Types.TycoonState
@@ -193,6 +194,23 @@ local function selfPerk(perk: Config.Perk, rings: number): number
 end
 
 -- Income per second of the lane on equip `slot` (0 if empty), without pass / boost / event / friend multipliers.
+-- Street mode: what the bought decor of the Shiba in bay `bay` multiplies its cash by (Config/DecorTypes → RewardMult).
+function TycoonMath.DecorMultiplier(tycoon: TycoonState, bay: number): number
+	local theme = TycoonDecor.Themes[bay]
+	local steps = tycoon.Steps
+	if not theme or not steps then
+		return 1
+	end
+	local mult = 1
+	for _, part in theme.Parts do
+		local bonus = part.RewardMult
+		if bonus and steps[`Decor{bay}_{part.Id}`] == true then
+			mult *= bonus
+		end
+	end
+	return mult
+end
+
 function TycoonMath.LaneIncome(tycoon: TycoonState, slot: number): number
 	local shiba = shibaAt(tycoon, slot)
 	if not shiba then
@@ -210,6 +228,9 @@ function TycoonMath.LaneIncome(tycoon: TycoonState, slot: number): number
 		* rings
 		* TycoonMath.AscensionMultiplier(tycoon.Ascensions)
 	income *= selfPerk(perks[shiba.Tier + 1], rings)
+	if tycoon.Street == true then
+		income *= TycoonMath.DecorMultiplier(tycoon, slot)
+	end
 
 	-- Neighbours: on the ring (equip slots are spaced evenly over it) or, in street mode, the bays next to it (no wrap).
 	local slots = tycoon.EquipSlots
