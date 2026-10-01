@@ -22,3 +22,7 @@ desktop.ini
 .claude/settings.local.json
 CLAUDE.local.md
 street_factors.json
+
+# Regenerable decor previews
+assets/models/decor/out/*/preview_*.png
+assets/models/decor/__pycache__/

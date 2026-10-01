@@ -1,0 +1,2399 @@
+{
+  "Area": [
+    184,
+    104
+  ],
+  "AutoPad": [
+    62,
+    -40
+  ],
+  "BayPad": [
+    68,
+    -20
+  ],
+  "Key": "GymHall",
+  "Name": "Gym",
+  "Parts": [
+    {
+      "Description": "Black rubber flooring with red tiles under the hall, the ring and the trail.",
+      "Id": "Floor",
+      "Name": "Rubber Gym Floor",
+      "Pad": [
+        25,
+        48
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            40,
+            40,
+            46
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -62,
+            0.15,
+            25
+          ],
+          "Size": [
+            48,
+            0.3,
+            42
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -62,
+            0.35,
+            25
+          ],
+          "Size": [
+            36,
+            0.1,
+            30
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            46
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            30,
+            0.15,
+            44
+          ],
+          "Size": [
+            30,
+            0.3,
+            14
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            30,
+            0.35,
+            44
+          ],
+          "Size": [
+            20,
+            0.1,
+            8
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            46
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            58,
+            0.15,
+            6
+          ],
+          "Size": [
+            28,
+            0.3,
+            28
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            46
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            36,
+            0.15,
+            -16
+          ],
+          "Size": [
+            28,
+            0.3,
+            24
+          ]
+        },
+        {
+          "Color": [
+            60,
+            60,
+            68
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -62,
+            0.15,
+            -32
+          ],
+          "Size": [
+            30,
+            0.3,
+            28
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Tall concrete walls with wide doorways and a steel roof with a red stripe.",
+      "Id": "Hall",
+      "Name": "Gym Hall",
+      "Pad": [
+        -62,
+        49
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            78,
+            78,
+            90
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -85.25,
+            6,
+            25
+          ],
+          "Size": [
+            1.5,
+            12,
+            42
+          ]
+        },
+        {
+          "Color": [
+            78,
+            78,
+            90
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -77.5,
+            6,
+            45.25
+          ],
+          "Size": [
+            17,
+            12,
+            1.5
+          ]
+        },
+        {
+          "Color": [
+            78,
+            78,
+            90
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -46.5,
+            6,
+            45.25
+          ],
+          "Size": [
+            17,
+            12,
+            1.5
+          ]
+        },
+        {
+          "Color": [
+            78,
+            78,
+            90
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -77.5,
+            6,
+            4.75
+          ],
+          "Size": [
+            17,
+            12,
+            1.5
+          ]
+        },
+        {
+          "Color": [
+            78,
+            78,
+            90
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -46.5,
+            6,
+            4.75
+          ],
+          "Size": [
+            17,
+            12,
+            1.5
+          ]
+        },
+        {
+          "Color": [
+            78,
+            78,
+            90
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -38.75,
+            6,
+            11
+          ],
+          "Size": [
+            1.5,
+            12,
+            14
+          ]
+        },
+        {
+          "Color": [
+            78,
+            78,
+            90
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -38.75,
+            6,
+            39
+          ],
+          "Size": [
+            1.5,
+            12,
+            14
+          ]
+        },
+        {
+          "Color": [
+            90,
+            90,
+            100
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -62,
+            12.5,
+            25
+          ],
+          "Size": [
+            50,
+            1,
+            44
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -62,
+            13.2,
+            25
+          ],
+          "Size": [
+            50,
+            0.4,
+            6
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -62,
+            9.75,
+            46.2
+          ],
+          "Size": [
+            48,
+            2.5,
+            0.5
+          ]
+        },
+        {
+          "Color": [
+            240,
+            240,
+            240
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -62,
+            10.75,
+            15
+          ],
+          "Size": [
+            30,
+            0.5,
+            1
+          ]
+        },
+        {
+          "Color": [
+            240,
+            240,
+            240
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -62,
+            10.75,
+            35
+          ],
+          "Size": [
+            30,
+            0.5,
+            1
+          ]
+        }
+      ],
+      "RewardMult": 2
+    },
+    {
+      "Description": "A big black board with red letters and a gold trim.",
+      "Id": "Sign",
+      "Name": "Get Bonked Sign",
+      "Pad": [
+        70,
+        47
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            60,
+            60,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            60,
+            4,
+            38
+          ],
+          "Size": [
+            1,
+            8,
+            1
+          ]
+        },
+        {
+          "Color": [
+            60,
+            60,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            80,
+            4,
+            38
+          ],
+          "Size": [
+            1,
+            8,
+            1
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            46
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            70,
+            10.5,
+            38
+          ],
+          "Size": [
+            24,
+            9,
+            1
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            40
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            70,
+            15.4,
+            38
+          ],
+          "Size": [
+            25,
+            0.8,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            40
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            70,
+            5.800000000000001,
+            38
+          ],
+          "Size": [
+            25,
+            0.8,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            62.5,
+            10.5,
+            38.6
+          ],
+          "Size": [
+            3.6,
+            6,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            46
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            62.5,
+            10.5,
+            38.9
+          ],
+          "Size": [
+            1.2,
+            2,
+            0.3
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            67.5,
+            10.5,
+            38.6
+          ],
+          "Size": [
+            3.6,
+            6,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            46
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            67.5,
+            10.5,
+            38.9
+          ],
+          "Size": [
+            1.2,
+            2,
+            0.3
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            72.5,
+            10.5,
+            38.6
+          ],
+          "Size": [
+            3.6,
+            6,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            46
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            72.5,
+            10.5,
+            38.9
+          ],
+          "Size": [
+            1.2,
+            2,
+            0.3
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            77.5,
+            10.5,
+            38.6
+          ],
+          "Size": [
+            3.6,
+            6,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            46
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            77.5,
+            10.5,
+            38.9
+          ],
+          "Size": [
+            1.2,
+            2,
+            0.3
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Two padded benches with loaded barbells.",
+      "Id": "Benches",
+      "Name": "Bench Presses",
+      "Pad": [
+        -73,
+        28
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            40,
+            40,
+            46
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            -78,
+            0.8999999999999999,
+            36
+          ],
+          "Size": [
+            2,
+            1.2,
+            5
+          ]
+        },
+        {
+          "Color": [
+            150,
+            150,
+            160
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -79.6,
+            1.8,
+            36
+          ],
+          "Size": [
+            0.4,
+            3,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            150,
+            150,
+            160
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -76.4,
+            1.8,
+            36
+          ],
+          "Size": [
+            0.4,
+            3,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            190,
+            190,
+            200
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -78,
+            3.4,
+            36
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            7,
+            0.4,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            46
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -81.2,
+            3.4,
+            36
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.6,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            46
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -74.8,
+            3.4,
+            36
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.6,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            46
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            -68,
+            0.8999999999999999,
+            36
+          ],
+          "Size": [
+            2,
+            1.2,
+            5
+          ]
+        },
+        {
+          "Color": [
+            150,
+            150,
+            160
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -69.6,
+            1.8,
+            36
+          ],
+          "Size": [
+            0.4,
+            3,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            150,
+            150,
+            160
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -66.4,
+            1.8,
+            36
+          ],
+          "Size": [
+            0.4,
+            3,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            190,
+            190,
+            200
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -68,
+            3.4,
+            36
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            7,
+            0.4,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            46
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -71.2,
+            3.4,
+            36
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.6,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            46
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -64.8,
+            3.4,
+            36
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.6,
+            2.4,
+            2.4
+          ]
+        }
+      ],
+      "RewardMult": 1.1
+    },
+    {
+      "Description": "A long rack with chunky red dumbbells.",
+      "Id": "Racks",
+      "Name": "Dumbbell Rack",
+      "Pad": [
+        -76,
+        15
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            60,
+            60,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -82.2,
+            0.5,
+            15
+          ],
+          "Size": [
+            3,
+            0.4,
+            14
+          ]
+        },
+        {
+          "Color": [
+            60,
+            60,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -82.2,
+            2.6,
+            15
+          ],
+          "Size": [
+            3,
+            0.4,
+            14
+          ]
+        },
+        {
+          "Color": [
+            60,
+            60,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -82.2,
+            2.1,
+            8.3
+          ],
+          "Size": [
+            3,
+            3.6,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            60,
+            60,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -82.2,
+            2.1,
+            15
+          ],
+          "Size": [
+            3,
+            3.6,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            60,
+            60,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -82.2,
+            2.1,
+            21.7
+          ],
+          "Size": [
+            3,
+            3.6,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            150,
+            150,
+            160
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -82.2,
+            3.2,
+            11.5
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2.4,
+            0.3,
+            0.3
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -83.3,
+            3.2,
+            11.5
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.5,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -81.10000000000001,
+            3.2,
+            11.5
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.5,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            150,
+            150,
+            160
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -82.2,
+            3.2,
+            15
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2.4,
+            0.3,
+            0.3
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -83.3,
+            3.2,
+            15
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.5,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -81.10000000000001,
+            3.2,
+            15
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.5,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            150,
+            150,
+            160
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -82.2,
+            3.2,
+            18.5
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2.4,
+            0.3,
+            0.3
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -83.3,
+            3.2,
+            18.5
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.5,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -81.10000000000001,
+            3.2,
+            18.5
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.5,
+            1.2,
+            1.2
+          ]
+        }
+      ],
+      "RewardMult": 1.1
+    },
+    {
+      "Description": "Three treadmills in a row with little screens.",
+      "Id": "Treadmills",
+      "Name": "Treadmills",
+      "Pad": [
+        -48.5,
+        21
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            60,
+            60,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -54,
+            0.7,
+            10
+          ],
+          "Size": [
+            3,
+            0.8,
+            7
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            46
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -54,
+            2.8,
+            6.7
+          ],
+          "Size": [
+            2.4,
+            3.4,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            30,
+            70,
+            90
+          ],
+          "Material": "Material.Glass",
+          "Offset": [
+            -54,
+            3.95,
+            6.9
+          ],
+          "Size": [
+            2.2,
+            1.1,
+            0.3
+          ]
+        },
+        {
+          "Color": [
+            60,
+            60,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -48.5,
+            0.7,
+            10
+          ],
+          "Size": [
+            3,
+            0.8,
+            7
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            46
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -48.5,
+            2.8,
+            6.7
+          ],
+          "Size": [
+            2.4,
+            3.4,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            30,
+            70,
+            90
+          ],
+          "Material": "Material.Glass",
+          "Offset": [
+            -48.5,
+            3.95,
+            6.9
+          ],
+          "Size": [
+            2.2,
+            1.1,
+            0.3
+          ]
+        },
+        {
+          "Color": [
+            60,
+            60,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -43,
+            0.7,
+            10
+          ],
+          "Size": [
+            3,
+            0.8,
+            7
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            46
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -43,
+            2.8,
+            6.7
+          ],
+          "Size": [
+            2.4,
+            3.4,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            30,
+            70,
+            90
+          ],
+          "Material": "Material.Glass",
+          "Offset": [
+            -43,
+            3.95,
+            6.9
+          ],
+          "Size": [
+            2.2,
+            1.1,
+            0.3
+          ]
+        }
+      ],
+      "RewardMult": 1.2
+    },
+    {
+      "Description": "A raised ring with a red canvas and solid ropes.",
+      "Id": "Ring",
+      "Name": "Boxing Ring",
+      "Pad": [
+        58,
+        21
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            60,
+            60,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            58,
+            0.75,
+            6
+          ],
+          "Size": [
+            20,
+            1.5,
+            20
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            58,
+            1.6,
+            6
+          ],
+          "Size": [
+            19,
+            0.2,
+            19
+          ]
+        },
+        {
+          "Color": [
+            60,
+            60,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            48.6,
+            4,
+            -3.4000000000000004
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4.6,
+            0.8,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            60,
+            60,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            48.6,
+            4,
+            15.4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4.6,
+            0.8,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            60,
+            60,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            67.4,
+            4,
+            -3.4000000000000004
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4.6,
+            0.8,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            60,
+            60,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            67.4,
+            4,
+            15.4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4.6,
+            0.8,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            240,
+            240,
+            240
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            58,
+            3.325,
+            -3.4000000000000004
+          ],
+          "Size": [
+            18,
+            0.25,
+            0.25
+          ]
+        },
+        {
+          "Color": [
+            240,
+            240,
+            240
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            58,
+            3.325,
+            15.4
+          ],
+          "Size": [
+            18,
+            0.25,
+            0.25
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            48.6,
+            3.325,
+            6
+          ],
+          "Size": [
+            0.25,
+            0.25,
+            18
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            67.4,
+            3.325,
+            6
+          ],
+          "Size": [
+            0.25,
+            0.25,
+            18
+          ]
+        },
+        {
+          "Color": [
+            240,
+            240,
+            240
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            58,
+            4.925,
+            -3.4000000000000004
+          ],
+          "Size": [
+            18,
+            0.25,
+            0.25
+          ]
+        },
+        {
+          "Color": [
+            240,
+            240,
+            240
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            58,
+            4.925,
+            15.4
+          ],
+          "Size": [
+            18,
+            0.25,
+            0.25
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            48.6,
+            4.925,
+            6
+          ],
+          "Size": [
+            0.25,
+            0.25,
+            18
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            67.4,
+            4.925,
+            6
+          ],
+          "Size": [
+            0.25,
+            0.25,
+            18
+          ]
+        }
+      ],
+      "RewardMult": 1.3
+    },
+    {
+      "Description": "Three heavy bags on a beam and a pull-up rig.",
+      "Id": "Bags",
+      "Name": "Bags and Pull-up Bars",
+      "Pad": [
+        34,
+        -13
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            60,
+            60,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            23,
+            3.5,
+            -20
+          ],
+          "Size": [
+            0.8,
+            7,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            60,
+            60,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            45,
+            3.5,
+            -20
+          ],
+          "Size": [
+            0.8,
+            7,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            150,
+            150,
+            160
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            34,
+            7.3,
+            -20
+          ],
+          "Size": [
+            24,
+            0.6,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            60,
+            60,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            25,
+            4.5,
+            -32
+          ],
+          "Size": [
+            0.8,
+            9,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            60,
+            60,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            37,
+            4.5,
+            -32
+          ],
+          "Size": [
+            0.8,
+            9,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            150,
+            150,
+            160
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            31,
+            8.6,
+            -32
+          ],
+          "Size": [
+            13,
+            0.4,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            150,
+            150,
+            160
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            28,
+            6.7,
+            -20
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.6,
+            0.2,
+            0.2
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            28,
+            3.7,
+            -20
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            5.4,
+            2.6,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            150,
+            150,
+            160
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            34,
+            6.7,
+            -20
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.6,
+            0.2,
+            0.2
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            34,
+            3.7,
+            -20
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            5.4,
+            2.6,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            150,
+            150,
+            160
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            40,
+            6.7,
+            -20
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.6,
+            0.2,
+            0.2
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            40,
+            3.7,
+            -20
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            5.4,
+            2.6,
+            2.6
+          ]
+        }
+      ],
+      "RewardMult": 1.2
+    },
+    {
+      "Description": "A wooden protein bar with tubs and stools, and a row of lockers.",
+      "Id": "Bar",
+      "Name": "Protein Bar and Lockers",
+      "Pad": [
+        -62,
+        -24
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            120,
+            80,
+            45
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -62,
+            1.8,
+            -30
+          ],
+          "Size": [
+            20,
+            3.6,
+            4
+          ]
+        },
+        {
+          "Color": [
+            40,
+            30,
+            25
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -62,
+            3.8000000000000003,
+            -30
+          ],
+          "Size": [
+            20.6,
+            0.4,
+            4.8
+          ]
+        },
+        {
+          "Color": [
+            60,
+            60,
+            75
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -62,
+            4,
+            -36
+          ],
+          "Size": [
+            20,
+            8,
+            1
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.Plastic",
+          "Offset": [
+            -69,
+            5,
+            -30
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2,
+            1.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            40
+          ],
+          "Material": "Material.Plastic",
+          "Offset": [
+            -64.4,
+            5,
+            -30
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2,
+            1.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.Plastic",
+          "Offset": [
+            -59.8,
+            5,
+            -30
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2,
+            1.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            40
+          ],
+          "Material": "Material.Plastic",
+          "Offset": [
+            -55.2,
+            5,
+            -30
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2,
+            1.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            -66,
+            1.3,
+            -26.5
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2.6,
+            1.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            200,
+            40,
+            40
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            -58,
+            1.3,
+            -26.5
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2.6,
+            1.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            50,
+            90,
+            160
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -86,
+            3.5,
+            -47
+          ],
+          "Size": [
+            3.2,
+            7,
+            2
+          ]
+        },
+        {
+          "Color": [
+            170,
+            50,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -82.4,
+            3.5,
+            -47
+          ],
+          "Size": [
+            3.2,
+            7,
+            2
+          ]
+        },
+        {
+          "Color": [
+            50,
+            90,
+            160
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -78.8,
+            3.5,
+            -47
+          ],
+          "Size": [
+            3.2,
+            7,
+            2
+          ]
+        },
+        {
+          "Color": [
+            170,
+            50,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -75.2,
+            3.5,
+            -47
+          ],
+          "Size": [
+            3.2,
+            7,
+            2
+          ]
+        },
+        {
+          "Color": [
+            50,
+            90,
+            160
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -71.6,
+            3.5,
+            -47
+          ],
+          "Size": [
+            3.2,
+            7,
+            2
+          ]
+        }
+      ],
+      "RewardMult": 1.2
+    },
+    {
+      "Description": "The showpiece: a giant golden barbell on a pedestal.",
+      "Id": "Trophy",
+      "Name": "Golden Barbell",
+      "Pad": [
+        20,
+        -37
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            40,
+            30,
+            25
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            20,
+            0.6,
+            -46
+          ],
+          "Size": [
+            16,
+            1.2,
+            7
+          ]
+        },
+        {
+          "Color": [
+            70,
+            55,
+            40
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            20,
+            1.7999999999999998,
+            -46
+          ],
+          "Size": [
+            12,
+            1.2,
+            5
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            40
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            15,
+            4.6,
+            -46
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4.4,
+            1.4,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            40
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            25,
+            4.6,
+            -46
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4.4,
+            1.4,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            40
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            20,
+            7,
+            -46
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            16,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            40
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            12.2,
+            7,
+            -46
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.2,
+            6,
+            6
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            40
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            10.8,
+            7,
+            -46
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.2,
+            4.6,
+            4.6
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            40
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            27.8,
+            7,
+            -46
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.2,
+            6,
+            6
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            40
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            29.2,
+            7,
+            -46
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.2,
+            4.6,
+            4.6
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            40
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            20,
+            3.0999999999999996,
+            -43.2
+          ],
+          "Size": [
+            6,
+            1.4,
+            0.3
+          ]
+        }
+      ],
+      "RewardMult": 1.4
+    }
+  ],
+  "Path": [
+    [
+      0,
+      52
+    ],
+    [
+      45,
+      30
+    ],
+    [
+      10,
+      0
+    ],
+    [
+      -40,
+      -20
+    ],
+    [
+      0,
+      -52
+    ]
+  ],
+  "Shiba": {
+    "Facing": 180,
+    "Position": [
+      68,
+      -30
+    ]
+  }
+}
