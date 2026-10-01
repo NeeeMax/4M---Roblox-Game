@@ -31,9 +31,11 @@ end
 -- Street mode: price of the Bonk Intern of a Shiba of `tier` when `automated` Shibas already have one.
 function TycoonMath.StreetAutomationPrice(tier: number, automated: number): number
 	local street = Config.Street
-	return math.floor(
-		TycoonMath.StreetReadyIncome(tier) * street.AutomationSeconds * street.AutomationGrowth ^ automated
-	)
+	local price = TycoonMath.StreetReadyIncome(tier) * street.AutomationSeconds * street.AutomationGrowth ^ automated
+	if automated == 0 then
+		price *= street.AutomationFirstShare
+	end
+	return math.floor(price)
 end
 
 function TycoonMath.LevelCap(ascensions: number): number

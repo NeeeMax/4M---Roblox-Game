@@ -93,6 +93,7 @@ local KEYS = {
 	DECOR_SCALE = { Config.Street, "DecorScale" },
 	AUTO_SECONDS = { Config.Street, "AutomationSeconds" },
 	AUTO_GROWTH = { Config.Street, "AutomationGrowth" },
+	AUTO_FIRST_SHARE = { Config.Street, "AutomationFirstShare" },
 	LEVEL_SECONDS = { Config.Swing, "StreetLevelSeconds" },
 	LEVEL_GROWTH = { Config.Swing, "StreetLevelGrowth" },
 	PAYOUT_PER_LEVEL = { Config.Swing, "PayoutPerLevel" },
