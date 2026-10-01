@@ -289,7 +289,7 @@ old constants the sim finished the whole game (30 bays, all decor, all Interns, 
 - All other prices are counted in seconds of `StreetReadyIncome(tier)` = the income a Shiba earns at `ReadyLevel` 25 (what the player
   typically has when the purchase is due): expansion n = `StreetReadyIncome(n-2) x BaySeconds x StageFactor[n-1]`, a decor part =
   `StreetReadyIncome(bay-1) x PriceSeconds x DecorScale x StageFactor[bay]`, the Bonk Intern = `StreetReadyIncome(tier) x
-  AutomationSeconds x AutomationGrowth^(Interns bought)`. The Intern of Shiba 1, bought before any other Intern, costs a fixed `AutomationFirstPrice` of 100. `TierGrowth` (street only) is 4.
+  AutomationSeconds x AutomationGrowth^(Interns bought)`. The Intern of Shiba 1, bought before any other Intern, costs a fixed `AutomationFirstPrice` of 300. `TierGrowth` (street only) is 4.
 - Stage n = the decor of bay n + the expansion to bay n+1. `StageFactor[n]` (29 numbers in `Config/Tycoon`) was calibrated per stage
   (secant search on the sim, `node docs/tools/calibrate_street.js`) so that every stage takes: 8 min for stages 1 to 3, then 17%
   longer than the stage before. The factors are rough where the themes differ (10 to 30 parts, different PriceSeconds).
