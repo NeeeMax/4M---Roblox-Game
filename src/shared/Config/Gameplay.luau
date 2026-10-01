@@ -106,16 +106,17 @@ return {
 			PivotName = "ShibaPivot",
 		},
 		-- Throw animation (client, Controllers/ShibaController). Models with a ThrowArmName part and a ShoulderName
-		-- marker swing that arm (with what is in the paw) around the shoulder: back during AimTime, forward to
-		-- ReleaseDegrees in SwingTime when the projectile leaves the paw, then back to rest in ReturnTime. The server
+		-- marker swing that arm (with what is in the paw) around the shoulder: raised overhead to WindupDegrees during
+		-- AimTime, chopped down to ReleaseDegrees in SwingTime when the projectile leaves the paw, then back to rest in
+		-- ReturnTime (0 = hanging, 180 = straight up). The server
 		-- sets ThrowAtAttribute on the shooter model to the release time (Workspace:GetServerTimeNow()) when it starts
 		-- aiming.
 		Throw = {
 			ThrowArmName = "ThrowArm",
 			ShoulderName = "Shoulder",
 			ThrowAtAttribute = "ThrowAt",
-			WindupDegrees = 50,
-			ReleaseDegrees = 110,
+			WindupDegrees = 150,
+			ReleaseDegrees = 25,
 			SwingTime = 0.12,
 			ReturnTime = 0.5,
 		},

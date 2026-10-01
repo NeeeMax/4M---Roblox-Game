@@ -4,8 +4,8 @@
 -- - Turning: the server only publishes the yaw a Shiba should face; the model turns there smoothly.
 -- - Floating and orbit spin, for models whose Config/ShibaEffects entry (keyed by the model's name) asks for it.
 -- - Throw animation: the server sets the release time (attribute Shooters.Throw.ThrowAtAttribute, server clock); the
---   throwing arm with what is in the paw turns around the shoulder: back during the aim time, a fast swing forward at
---   the release, then back to rest. Only models with a ThrowArm part and a Shoulder marker swing (assets/README.md).
+--   throwing arm with what is in the paw turns around the shoulder: raised overhead during the aim time, a fast downward
+--   chop at the release, then back to rest. Only models with a ThrowArm part and a Shoulder marker swing (assets/README.md).
 -- - What is in the paw (the hand projectile the server put there, else the model's Stick) swings with the arm and is
 --   hidden from the release for Shooters.HandStickHideTime, so it looks thrown. Hiding happens here, on the same
 --   server-clock release time as the swing (the server never changes it). A projectile's Grip marker stays hidden.
@@ -218,18 +218,19 @@ local function easeOut(k: number): number
 	return 1 - (1 - k) * (1 - k)
 end
 
--- Arm angle in degrees at `t` seconds after the release (negative t: still aiming). Positive swings forward.
+-- Arm angle in degrees at `t` seconds after the release (negative t: still aiming). Positive raises the paw forward
+-- and up (180 = straight overhead): raised during the aim, a fast downward chop at the release, then back to rest.
 local function swingAngle(t: number): number
 	local aim = SHOOTERS.AimTime
 	if t < -aim or t >= THROW.SwingTime + THROW.ReturnTime then
 		return 0
 	end
 	if t < 0 then
-		return -THROW.WindupDegrees * easeOut((t + aim) / aim)
+		return THROW.WindupDegrees * easeOut((t + aim) / aim)
 	end
 	if t < THROW.SwingTime then
 		local k = t / THROW.SwingTime
-		return -THROW.WindupDegrees + (THROW.WindupDegrees + THROW.ReleaseDegrees) * k * k
+		return THROW.WindupDegrees + (THROW.ReleaseDegrees - THROW.WindupDegrees) * k * k
 	end
 	local k = (t - THROW.SwingTime) / THROW.ReturnTime
 	return THROW.ReleaseDegrees * (1 - k * k * (3 - 2 * k))
