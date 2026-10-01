@@ -1,11 +1,12 @@
 --!strict
--- The floor pads of the street (docs/GAME_DESIGN.md → Street, plots and buttons, "Progression chain"): one row per pad,
--- in walkthrough order. For every Shiba n the chain is
---   Bay n      unlocks Shiba n (it is spawned; at first the player earns with it by clicking/bonking it by hand),
---   Auto n     the Cash Register: automates it,
---   (level)    the Shiba has to reach a level (Street.LevelGate...) before its decoration unlocks,
---   Decor n_k  the parts of its theme (Config/TycoonDecor), in order: REQUIRED,
--- and only then the pad for Shiba n + 1 (its bay and surrounding) shows up. Pure data and formulas, shared by the server
+-- The floor pads of the street (docs/GAME_DESIGN.md → Street, plots and buttons, "Gameplay flow"). For every Shiba n:
+--   Bay n      the pad that spawns Shiba n (n = 1: the first, free one). The player earns by standing in front of the Shiba
+--              and clicking it: the Shiba bonks them and pays.
+--   Decor n_i  the pieces of the Shiba's themed surrounding (Config/TycoonDecor), 10 to 30 pads depending on the tier. They
+--              are bought in TWO parallel chains (odd and even pieces), so two decor pads are visible at once; buying one
+--              reveals the next of its chain. All of them are needed.
+--   Auto n     separate from the decor, next to the Shiba: the Bonk Intern that gets bonked automatically. Optional.
+-- Only when ALL decor of Shiba n is bought, the pad of Shiba n + 1 shows up. Pure data and formulas, shared by the server
 -- (buying, drawing the pads) and the client (texts, the walkthrough arrow).
 
 local EconomyConfig = require(script.Parent.Parent.Config.EconomyConfig)
@@ -26,16 +27,11 @@ export type Step = {
 	-- Decor only: the part of the bay's theme (Config/TycoonDecor), its position in the theme's Parts.
 	PartIndex: number?,
 	PartId: string?,
-	-- The Shiba of `Bay` must be at least this level before the pad shows up (the first decor part of a bay).
-	LevelGate: number?,
 }
 
 local STREET = TycoonConfig.Street
-
--- Level a Shiba needs before its decor unlocks: Base, plus Step for every five bays, at most Max.
-local function levelGate(bay: number): number
-	return math.min(STREET.LevelGateMax, STREET.LevelGateBase + STREET.LevelGateStep * math.floor((bay - 1) / 5))
-end
+-- Decor is bought in this many parallel chains (so this many decor pads are visible at the same time).
+local CHAINS = STREET.DecorChains
 
 local list: { Step } = {}
 local decorList: { Step } = {}
@@ -46,41 +42,41 @@ local function add(step: Step)
 	byId[step.Id] = step
 end
 
--- The id of the last decor part of a bay's theme (what the next Shiba waits for), nil without a theme.
-local function lastDecorId(bay: number): string?
-	local theme = TycoonDecor.Themes[bay]
-	if theme and #theme.Parts > 0 then
-		return `Decor{bay}_{theme.Parts[#theme.Parts].Id}`
-	end
-	return nil
+local function decorId(bay: number, partId: string): string
+	return `Decor{bay}_{partId}`
 end
 
--- Order matters: the first MaxPads visible ones are shown, so the pads follow the walkthrough.
-for bay = 1, STREET.Bays do
+-- What the next Shiba waits for: the end of every decor chain of the bay's theme (without a theme: just the bay itself).
+local function finishedNeeds(bay: number): { string }
+	local theme = TycoonDecor.Themes[bay]
 	local needs: { string } = {}
-	if bay > 1 then
-		-- The next Shiba: the previous one is automated and its decoration is complete.
-		table.insert(needs, `Auto{bay - 1}`)
-		local lastDecor = lastDecorId(bay - 1)
-		if lastDecor then
-			table.insert(needs, lastDecor)
+	if theme and #theme.Parts > 0 then
+		local count = #theme.Parts
+		for index = math.max(1, count - CHAINS + 1), count do
+			table.insert(needs, decorId(bay, theme.Parts[index].Id))
 		end
+	else
+		table.insert(needs, `Bay{bay}`)
 	end
-	add({ Id = `Bay{bay}`, Kind = "Bay", Bay = bay, Needs = needs })
+	return needs
+end
+
+-- Order matters: the first MaxPads visible Bay/Decor pads are shown, so the pads follow the flow.
+for bay = 1, STREET.Bays do
+	add({ Id = `Bay{bay}`, Kind = "Bay", Bay = bay, Needs = if bay > 1 then finishedNeeds(bay - 1) else {} })
 	add({ Id = `Auto{bay}`, Kind = "Automate", Bay = bay, Needs = { `Bay{bay}` } })
 
 	local theme = TycoonDecor.Themes[bay]
 	if theme then
 		for index, part in theme.Parts do
 			local step: Step = {
-				Id = `Decor{bay}_{part.Id}`,
+				Id = decorId(bay, part.Id),
 				Kind = "Decor",
 				Bay = bay,
-				-- The first part follows the automation (and needs the level); every other part the one before it.
-				Needs = if index == 1 then { `Auto{bay}` } else { `Decor{bay}_{theme.Parts[index - 1].Id}` },
+				-- The first pieces of every chain follow the Shiba; every other piece the one CHAINS before it.
+				Needs = if index <= CHAINS then { `Bay{bay}` } else { decorId(bay, theme.Parts[index - CHAINS].Id) },
 				PartIndex = index,
 				PartId = part.Id,
-				LevelGate = if index == 1 then levelGate(bay) else nil,
 			}
 			add(step)
 			table.insert(decorList, step)
@@ -89,7 +85,7 @@ for bay = 1, STREET.Bays do
 end
 
 local TycoonSteps = {
-	-- Every pad of the chain in walkthrough order (Shibas, automation and decor).
+	-- Every pad in flow order (Shibas, decor and the interns).
 	List = list,
 	-- Only the decor steps (a subset of List), for drawing what was bought.
 	DecorList = decorList,
@@ -102,13 +98,6 @@ function TycoonSteps.IsBought(tycoon: TycoonState, id: string): boolean
 	return steps ~= nil and steps[id] == true
 end
 
--- The level the Shiba of bay `bay` has reached (0 without one).
-function TycoonSteps.ShibaLevel(tycoon: TycoonState, bay: number): number
-	local id = tycoon.Equipped[tostring(bay)]
-	local shiba = if id then tycoon.Shibas[id] else nil
-	return if shiba then shiba.Level else 0
-end
-
 local function needsMet(tycoon: TycoonState, step: Step): boolean
 	for _, need in step.Needs do
 		if not TycoonSteps.IsBought(tycoon, need) then
@@ -118,38 +107,37 @@ local function needsMet(tycoon: TycoonState, step: Step): boolean
 	return true
 end
 
--- The pads to show now: not bought yet, everything they need bought and their level reached, at most Street.MaxPads, in
--- table order.
+-- The pads to show now: not bought yet and everything they need bought. At most Street.MaxPads Shiba/decor pads (in flow
+-- order); the intern pads (optional, one beside each Shiba) are always shown.
 function TycoonSteps.Visible(tycoon: TycoonState): { Step }
 	local visible: { Step } = {}
+	local counted = 0
 	for _, step in list do
 		if not TycoonSteps.IsBought(tycoon, step.Id) and needsMet(tycoon, step) then
-			local gate = step.LevelGate
-			if gate == nil or TycoonSteps.ShibaLevel(tycoon, step.Bay) >= gate then
+			if step.Kind == "Automate" then
 				table.insert(visible, step)
-				if #visible >= STREET.MaxPads then
-					break
-				end
+			elseif counted < STREET.MaxPads then
+				table.insert(visible, step)
+				counted += 1
 			end
 		end
 	end
 	return visible
 end
 
--- The first step that is held back only by a Shiba's level (nothing to buy yet: the player has to level up), or nil.
-function TycoonSteps.Waiting(tycoon: TycoonState): Step?
-	for _, step in list do
-		local gate = step.LevelGate
-		if
-			gate ~= nil
-			and not TycoonSteps.IsBought(tycoon, step.Id)
-			and needsMet(tycoon, step)
-			and TycoonSteps.ShibaLevel(tycoon, step.Bay) < gate
-		then
-			return step
+-- How many decor pads the bay's theme has, and how many of them are bought.
+function TycoonSteps.DecorProgress(tycoon: TycoonState, bay: number): (number, number)
+	local theme = TycoonDecor.Themes[bay]
+	if not theme then
+		return 0, 0
+	end
+	local bought = 0
+	for _, part in theme.Parts do
+		if TycoonSteps.IsBought(tycoon, decorId(bay, part.Id)) then
+			bought += 1
 		end
 	end
-	return nil
+	return bought, #theme.Parts
 end
 
 local function decorPart(step: Step): TycoonDecor.Part?
@@ -158,7 +146,7 @@ local function decorPart(step: Step): TycoonDecor.Part?
 	return if theme and index then theme.Parts[index] else nil
 end
 
--- What the pad costs right now (an automation gets dearer with every Shiba already automated).
+-- What the pad costs right now (an intern gets dearer with every Shiba already automated).
 function TycoonSteps.Price(step: Step, tycoon: TycoonState): number
 	if step.Kind == "Decor" then
 		local part = decorPart(step)
@@ -188,9 +176,9 @@ function TycoonSteps.Title(step: Step): string
 		return if part then part.Name else "Decor"
 	end
 	if step.Kind == "Automate" then
-		return "Cash Register"
+		return "Bonk Intern"
 	end
-	return if step.Bay == 1 then "First Shiba" else `Expansion {step.Bay}`
+	return if step.Bay == 1 then "Spawn Shiba" else shibaName(step.Bay)
 end
 
 function TycoonSteps.Description(step: Step): string
@@ -200,9 +188,9 @@ function TycoonSteps.Description(step: Step): string
 	end
 	local name = shibaName(step.Bay)
 	if step.Kind == "Automate" then
-		return `automates {name}`
+		return `an intern gets bonked for {name}`
 	end
-	return if step.Bay == 1 then "spawns your first Shiba" else `the plot grows, {name} joins`
+	return if step.Bay == 1 then "spawns your first Shiba" else "a new Shiba joins the plot"
 end
 
 return TycoonSteps

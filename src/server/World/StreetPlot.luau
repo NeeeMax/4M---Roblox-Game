@@ -357,8 +357,8 @@ local function decorAnchor(plot: Plot, bay: number): Vector3?
 	if not theme then
 		return nil
 	end
-	local depth = rowDepth(rowOf(bay)) + theme.Depth
-	return position(plot, depth, sideOf(bay) * (LAYOUT.ShibaOffset + theme.Outward))
+	local depth = rowDepth(rowOf(bay)) + 0
+	return position(plot, depth, sideOf(bay) * (LAYOUT.ShibaOffset + 11))
 end
 
 local function padPosition(plot: Plot, step: TycoonSteps.Step): Vector3
@@ -367,7 +367,9 @@ local function padPosition(plot: Plot, step: TycoonSteps.Step): Vector3
 		local theme = TycoonDecor.Themes[step.Bay]
 		local anchor = decorAnchor(plot, step.Bay)
 		if theme and anchor then
-			return anchor + plot.Right * (sideOf(step.Bay) * theme.PadOffset.X) + plot.Back * theme.PadOffset.Z
+			return anchor
+				+ plot.Right * (sideOf(step.Bay) * Vector3.new(0, 0, -12).X)
+				+ plot.Back * Vector3.new(0, 0, -12).Z
 		end
 		return position(plot, rowDepth(row), 0)
 	end
