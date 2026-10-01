@@ -23,6 +23,8 @@ local Signs = require(script.Parent.Parent.World.Signs)
 local ISLAND = Gameplay.Island
 local ROAD = Street.Road
 local PLOT = Street.Plot
+-- Longest ground part (Roblox allows 2048 studs per side).
+local GROUND_SEGMENT = 1500
 
 -- The same shape as IslandService.Island (structural typing), so the rest of the server needs no change.
 export type Island = {
@@ -138,15 +140,23 @@ local function buildPlot(slot: number, parent: Instance): Plot
 
 	local model = Instance.new("Model")
 	model.Name = `Plot{slot}`
-	local ground = newPart(
-		"Ground",
-		Vector3.new(Street.PlotWidth, Street.PlotThickness, Street.PlotDepth),
-		CFrame.new(center - Vector3.new(0, Street.PlotThickness / 2, 0)),
-		PLOT.GroundColor,
-		model,
-		true
-	)
-	ground.Material = Enum.Material.Grass
+	-- A part is at most 2048 studs long, so the long ground is built from segments (the first one is named "Ground").
+	local segments = math.ceil(Street.PlotDepth / GROUND_SEGMENT)
+	for number = 1, segments do
+		local from = (number - 1) * GROUND_SEGMENT
+		local length = math.min(GROUND_SEGMENT, Street.PlotDepth - from)
+		local segment = newPart(
+			if number == 1 then "Ground" else `Ground{number}`,
+			Vector3.new(Street.PlotWidth, Street.PlotThickness, length),
+			CFrame.new(
+				Vector3.new(x, origin.Y - Street.PlotThickness / 2, origin.Z + side * (edge + from + length / 2))
+			),
+			PLOT.GroundColor,
+			model,
+			true
+		)
+		segment.Material = Enum.Material.Grass
+	end
 
 	-- Entrance mat at the road end of the plot, in the plot's own colour.
 	newPart(
