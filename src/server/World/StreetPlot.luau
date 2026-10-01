@@ -1,13 +1,15 @@
 --!strict
--- The tycoon on a street plot (docs/GAME_DESIGN.md → Street, plots and buttons, "One Shiba per expansion"). Built under
--- island.Model/Tycoon for the plot's owner only (the island tycoon's TycoonPlot is used without the street):
--- - Bays: two per row, left and right of a path that leads away from the road. Bay n holds Shiba n (tier n - 1). A bay is
---   built when its Shiba exists; the rows appear one after another, so the plot grows backward.
--- - Pads: glowing floor ovals, at most Street.MaxPads at a time (Util/TycoonSteps): the next expansion at the end of the
---   path and the Cash Register (automation) beside each Shiba. Stepping on one asks TycoonService to buy it.
--- - On a Shiba: click / tap / Q swings, E levels up (F = 10 levels). The client draws the swing (TycoonController) and
---   finds Lane_<n>/Shiba and Belt_<n> (an invisible part whose LookVector is the direction the Shiba faces).
--- Everything is visual or a request; TycoonService validates every action and decides all money.
+-- The tycoon on a street plot (docs/GAME_DESIGN.md → "Gameplay flow"). Built under island.Model/Tycoon for the plot's owner:
+-- - Stages: one per Shiba, one after the other away from the road. Stage n is as deep as its theme's Area (Config/TycoonDecor)
+--   plus a margin, with a path through its middle. Shiba n stands at the stage-local point (-ShibaX, 0, 0) facing the path
+--   (the stage frame is defined in Config/DecorTypes).
+-- - A bay (Lane_<n>): a platform, the visual-only Shiba, an invisible click box (StreetGameService handles the click) and,
+--   once automated, the Bonk Intern standing in front of the Shiba. The client draws the Shiba's menu, the swing and the
+--   intern's ducking; there are no prompts or billboards on the Shiba.
+-- - Decor: the pieces of every bought decor pad, built in the stage frame.
+-- - Pads: glowing floor ovals (Util/TycoonSteps). The Shiba pad stands on the path at the front of its stage, the decor pads
+--   in two lanes on the path, the Intern pad just before the Shiba pad. Stepping on one asks StreetGameService to buy it.
+-- Everything here is visual or a request; StreetGameService validates every action and decides all money.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -18,7 +20,6 @@ local TycoonDecor = require(ReplicatedStorage.Shared.Config.TycoonDecor)
 local TycoonWorld = require(ReplicatedStorage.Shared.Config.TycoonWorld)
 local Assets = require(ReplicatedStorage.Shared.Util.Assets)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
-local TycoonMath = require(ReplicatedStorage.Shared.Util.TycoonMath)
 local TycoonSteps = require(ReplicatedStorage.Shared.Util.TycoonSteps)
 local Types = require(ReplicatedStorage.Shared.Types)
 
@@ -30,7 +31,6 @@ local LAYOUT = TycoonWorld.Street
 local TEXT = TycoonWorld.Text
 
 export type Actions = {
-	UpgradeShiba: (player: Player, slot: number, quantity: number) -> (),
 	SwingShiba: (player: Player, slot: number) -> (),
 	BuyStep: (player: Player, stepId: string) -> (),
 }
@@ -40,16 +40,10 @@ type BayRefs = {
 	Ground: Vector3,
 	Inward: Vector3,
 	Platform: Part,
-	Gui: BillboardGui,
-	Title: TextLabel,
-	Sub: TextLabel,
-	Hint: TextLabel,
 	SwingClick: ClickDetector,
-	SwingPrompt: ProximityPrompt,
-	LevelPrompt: ProximityPrompt,
-	BigLevelPrompt: ProximityPrompt,
 	Visual: Model?,
 	VisualKey: string?,
+	Intern: Model?,
 }
 
 type PadRefs = {
@@ -69,6 +63,9 @@ type Plot = {
 	RoadEnd: Vector3,
 	Back: Vector3,
 	Right: Vector3,
+	-- Per bay: how far from RoadEnd its stage starts and how deep it is (the theme's Area plus the margin).
+	Starts: { [number]: number },
+	Depths: { [number]: number },
 	Bays: { [number]: BayRefs },
 	Paths: { [number]: Part },
 	Pads: { [string]: PadRefs },
@@ -84,6 +81,7 @@ local PAD_AFFORDABLE = Color3.fromRGB(255, 220, 60)
 local PAD_TOO_DEAR = Color3.fromRGB(125, 125, 135)
 local PAD_BASE = Color3.fromRGB(40, 40, 48)
 local PLATFORM_COLOR = Color3.fromRGB(95, 90, 110)
+local SKIN = Color3.fromRGB(255, 214, 170)
 
 -- ==== small helpers ====================================================================================================
 
@@ -115,30 +113,17 @@ local function setText(label: TextLabel, text: string)
 	end
 end
 
-local function setPrompt(prompt: ProximityPrompt, enabled: boolean, actionText: string?)
-	if actionText and prompt.ActionText ~= actionText then
-		prompt.ActionText = actionText
-	end
-	if prompt.Enabled ~= enabled then
-		prompt.Enabled = enabled
-	end
+local function areaOf(bay: number): Vector2
+	local theme = TycoonDecor.Themes[bay]
+	return if theme then theme.Area else LAYOUT.DefaultArea
 end
 
-local function position(plot: Plot, depth: number, lateral: number): Vector3
-	return plot.RoadEnd + plot.Back * depth + plot.Right * lateral
-end
-
-local function rowOf(bay: number): number
-	return math.ceil(bay / 2)
-end
-
-local function rowDepth(row: number): number
-	return LAYOUT.FirstRowDepth + (row - 1) * LAYOUT.RowPitch
-end
-
--- Odd bays stand left of the path, even ones right.
-local function sideOf(bay: number): number
-	return if bay % 2 == 1 then -1 else 1
+-- The stage frame of a bay (Config/DecorTypes): origin on the path's centre line in the middle of the stage, +X = the plot's
+-- right, -Z = deeper into the plot, +Y = up.
+local function stageFrame(plot: Plot, bay: number): CFrame
+	local middle = plot.Starts[bay] + plot.Depths[bay] / 2
+	local at = plot.RoadEnd + plot.Back * middle
+	return CFrame.lookAt(at, at + plot.Back)
 end
 
 -- ==== bays =============================================================================================================
@@ -146,10 +131,10 @@ end
 local function buildBay(plot: Plot, bay: number): BayRefs
 	local owner = plot.Owner
 	local actions = plot.Actions
-	local side = sideOf(bay)
-	local depth = rowDepth(rowOf(bay))
-	local ground = position(plot, depth, side * LAYOUT.ShibaOffset)
-	local inward = (position(plot, depth, 0) - ground).Unit
+	local frame = stageFrame(plot, bay)
+	local ground = frame:PointToWorldSpace(Vector3.new(-LAYOUT.ShibaX, 0, 0))
+	-- The Shiba faces the path (+X of the stage frame).
+	local inward = frame.RightVector
 
 	local folder = Instance.new("Folder")
 	folder.Name = `Lane_{bay}`
@@ -165,25 +150,15 @@ local function buildBay(plot: Plot, bay: number): BayRefs
 	platform.Material = Enum.Material.Slate
 	platform.Transparency = 1
 
-	-- Info billboard above the Shiba.
+	-- The client hangs the Shiba's menu on this point.
 	local standPoint = ground + Vector3.new(0, LANE.PlatformTop, 0)
 	local anchor = newPart("Anchor", Vector3.new(0.2, 0.2, 0.2), CFrame.new(standPoint), Color3.new(1, 1, 1), folder)
 	anchor.Transparency = 1
-	local gui, labels = TycoonPlot.NewBillboard(anchor, 240, 8, LANE.BillboardDistance, {
-		{ Name = "Title", Height = 24, TextSize = 22, Color = TEXT.Title },
-		{ Name = "Sub", Height = 20, TextSize = 18, Color = TEXT.Income },
-		{ Name = "Hint", Height = 16, TextSize = 14, Color = TEXT.Hint },
-	})
 
-	-- The Shiba itself: an invisible box takes the click (the model is visual only); Q swings, E / F level up.
-	local boxSize = LANE.SwingBoxSize
-	local swingPart = newPart(
-		"SwingPart",
-		boxSize,
-		CFrame.new(standPoint + Vector3.new(0, boxSize.Y / 2, 0)),
-		Color3.new(1, 1, 1),
-		folder
-	)
+	-- The click: an invisible box around the Shiba (the model is visual only). The server validates the click.
+	local box = LANE.SwingBoxSize
+	local swingPart =
+		newPart("SwingPart", box, CFrame.new(standPoint + Vector3.new(0, box.Y / 2, 0)), Color3.new(1, 1, 1), folder)
 	swingPart.Transparency = 1
 	swingPart.CanQuery = true
 	local click = Instance.new("ClickDetector")
@@ -194,47 +169,8 @@ local function buildBay(plot: Plot, bay: number): BayRefs
 			actions.SwingShiba(owner, bay)
 		end
 	end)
-	local swingPrompt = TycoonPlot.NewPrompt(
-		owner,
-		swingPart,
-		"Tycoon_Swing",
-		Enum.KeyCode.Q,
-		Enum.KeyCode.ButtonR1,
-		"Shiba",
-		0,
-		LANE.PromptDistance,
-		function()
-			actions.SwingShiba(owner, bay)
-		end
-	)
-	local levelPrompt = TycoonPlot.NewPrompt(
-		owner,
-		swingPart,
-		"Tycoon_LevelUp",
-		Enum.KeyCode.E,
-		Enum.KeyCode.ButtonX,
-		"Shiba",
-		LANE.LevelHoldSeconds,
-		LANE.PromptDistance,
-		function()
-			actions.UpgradeShiba(owner, bay, 1)
-		end
-	)
-	local bigLevelPrompt = TycoonPlot.NewPrompt(
-		owner,
-		swingPart,
-		"Tycoon_LevelUp10",
-		Enum.KeyCode.F,
-		Enum.KeyCode.ButtonY,
-		"Shiba",
-		LANE.LevelHoldSeconds,
-		LANE.PromptDistance,
-		function()
-			actions.UpgradeShiba(owner, bay, LANE.BigLevelStep)
-		end
-	)
 
-	-- For the client's swing animation: Belt_<n> is an invisible part looking the way the Shiba faces.
+	-- For the client's animation: Belt_<n> is an invisible part looking the way the Shiba faces.
 	local belt = newPart(
 		`Belt_{bay}`,
 		Vector3.new(1, 0.2, 1),
@@ -250,17 +186,35 @@ local function buildBay(plot: Plot, bay: number): BayRefs
 		Ground = ground,
 		Inward = inward,
 		Platform = platform,
-		Gui = gui,
-		Title = labels.Title,
-		Sub = labels.Sub,
-		Hint = labels.Hint,
 		SwingClick = click,
-		SwingPrompt = swingPrompt,
-		LevelPrompt = levelPrompt,
-		BigLevelPrompt = bigLevelPrompt,
 		Visual = nil,
 		VisualKey = nil,
+		Intern = nil,
 	}
+end
+
+-- The Bonk Intern: a simple NPC made of blocks, standing in front of the Shiba and facing it. Visual only; the client makes
+-- it duck when the stick lands.
+local function buildIntern(bay: BayRefs): Model
+	local model = Instance.new("Model")
+	model.Name = "Intern"
+	local base = bay.Ground + bay.Inward * LAYOUT.InternDistance
+	local frame = CFrame.lookAt(base, base - bay.Inward)
+	local function piece(name: string, size: Vector3, offset: Vector3, color: Color3, shape: Enum.PartType?): Part
+		local part = newPart(name, size, frame * CFrame.new(offset), color, model)
+		if shape then
+			part.Shape = shape
+		end
+		return part
+	end
+	piece("Legs", Vector3.new(1.8, 1.6, 1), Vector3.new(0, 0.8, 0), Color3.fromRGB(50, 55, 80))
+	local body = piece("Body", Vector3.new(2.2, 2.2, 1.2), Vector3.new(0, 2.7, 0), Color3.fromRGB(245, 245, 250))
+	piece("Tie", Vector3.new(0.35, 1.4, 0.15), Vector3.new(0, 2.9, -0.65), Color3.fromRGB(215, 50, 50))
+	piece("Head", Vector3.new(1.9, 1.9, 1.9), Vector3.new(0, 4.5, 0), SKIN, Enum.PartType.Ball)
+	piece("Cap", Vector3.new(2, 0.5, 2), Vector3.new(0, 5.35, 0), Color3.fromRGB(35, 40, 70))
+	model.PrimaryPart = body
+	model.Parent = bay.Folder
+	return model
 end
 
 local function refreshBay(bay: BayRefs, tycoon: Types.TycoonState, index: number)
@@ -283,65 +237,34 @@ local function refreshBay(bay: BayRefs, tycoon: Types.TycoonState, index: number
 		end
 		bay.VisualKey = key
 		if shiba then
-			local visual, height = TycoonPlot.BuildShibaVisual(bay, shiba)
+			local visual = TycoonPlot.BuildShibaVisual(bay, shiba)
 			bay.Visual = visual
-			bay.Gui.StudsOffset = Vector3.new(0, height + LANE.BillboardGap, 0)
 		end
 	end
-	bay.Gui.Enabled = active
 
-	if shiba and def then
-		local name = def.Name
-		if shiba.Variant ~= "Normal" then
-			name = `{shiba.Variant} {name}`
-		end
-		if shiba.Automated == true then
-			name = `{name} [AUTO]`
-		end
-		local income = TycoonMath.LaneIncome(tycoon, index) * TycoonMath.GlobalMultiplier(tycoon)
-		setText(bay.Title, name)
-		setText(
-			bay.Sub,
-			`Lv {shiba.Level}  |  {Format.Money(income)}/s  |  {string.format("%.1f", TycoonMath.SwingTimer(shiba.Tier))}s`
-		)
-		setText(bay.Hint, if shiba.Automated == true then "" else "Click me!")
+	-- Clicks are accepted while the Shiba exists (the server ignores them for automated Shibas).
+	bay.SwingClick.MaxActivationDistance = if active then LAYOUT.ClickDistance else 0
 
-		local cap = TycoonMath.LevelCap(tycoon.Ascensions)
-		local level = shiba.Level
-		local canLevel = level < cap
-		setPrompt(
-			bay.LevelPrompt,
-			canLevel,
-			if canLevel
-				then `Level {level + 1} - {Format.Money(TycoonMath.LevelCost(shiba.Tier, level))}`
-				else "Max level"
-		)
-		local levels, spent = TycoonMath.LevelUpPlan(shiba.Tier, level, LANE.BigLevelStep, math.huge, cap)
-		setPrompt(
-			bay.BigLevelPrompt,
-			levels > 1,
-			if levels > 1 then `+{levels} levels - {Format.Money(spent)}` else nil
-		)
-	else
-		setPrompt(bay.LevelPrompt, false, nil)
-		setPrompt(bay.BigLevelPrompt, false, nil)
+	-- The Intern stands there as long as the Shiba is automated.
+	local automated = active and shiba ~= nil and shiba.Automated == true
+	if automated and not bay.Intern then
+		bay.Intern = buildIntern(bay)
+	elseif not automated and bay.Intern then
+		bay.Intern:Destroy()
+		bay.Intern = nil
 	end
-
-	local manual = active and shiba ~= nil and shiba.Automated ~= true
-	setPrompt(bay.SwingPrompt, manual, if manual then "Bonk!" else nil)
-	bay.SwingClick.MaxActivationDistance = if manual then LANE.PromptDistance + 6 else 0
 end
 
--- The stretch of path in front of the bays of `row` (row 1 also covers the way from the road).
-local function ensurePath(plot: Plot, row: number)
-	if plot.Paths[row] then
+-- The path through the stage of `bay` (stage 1 also covers the way from the road).
+local function ensurePath(plot: Plot, bay: number)
+	if plot.Paths[bay] then
 		return
 	end
-	local from = if row == 1 then 0 else rowDepth(row) - LAYOUT.RowPitch / 2
-	local to = rowDepth(row) + LAYOUT.RowPitch / 2
-	local middle = position(plot, (from + to) / 2, 0) + Vector3.new(0, 0.05, 0)
-	plot.Paths[row] = newPart(
-		`Path{row}`,
+	local from = if bay == 1 then 0 else plot.Starts[bay]
+	local to = plot.Starts[bay] + plot.Depths[bay]
+	local middle = plot.RoadEnd + plot.Back * ((from + to) / 2) + Vector3.new(0, 0.05, 0)
+	plot.Paths[bay] = newPart(
+		`Path{bay}`,
 		Vector3.new(LAYOUT.PathWidth, 0.1, to - from),
 		CFrame.lookAt(middle, middle + plot.Back),
 		LAYOUT.PathColor,
@@ -349,36 +272,81 @@ local function ensurePath(plot: Plot, row: number)
 	)
 end
 
--- ==== pads =============================================================================================================
+-- ==== decor ============================================================================================================
 
--- Ground point of a theme's anchor: beside the Shiba's bay, away from the path, on the bay's row depth.
-local function decorAnchor(plot: Plot, bay: number): Vector3?
-	local theme = TycoonDecor.Themes[bay]
-	if not theme then
+-- A bought decor part: a cloned Decor_<Key>_<PartId> model if the asset exists, else the part's primitive pieces.
+local function buildDecor(plot: Plot, step: TycoonSteps.Step): Model?
+	local theme = TycoonDecor.Themes[step.Bay]
+	local index = step.PartIndex
+	local part = if theme and index then theme.Parts[index] else nil
+	if not theme or not part then
 		return nil
 	end
-	local depth = rowDepth(rowOf(bay)) + 0
-	return position(plot, depth, sideOf(bay) * (LAYOUT.ShibaOffset + 11))
+	local frame = stageFrame(plot, step.Bay)
+	local assetName = `Decor_{theme.Key}_{part.Id}`
+	local model: Model
+	local cloned = if Assets.Has(assetName) then Assets.CloneModel(assetName) else nil
+	if cloned then
+		model = cloned
+		Assets.MakeVisualOnly(model, true)
+		model:PivotTo(frame)
+	else
+		model = Instance.new("Model")
+		for number, piece in part.Pieces do
+			local rotation = piece.Rotation or Vector3.zero
+			local cframe = frame
+				* CFrame.new(piece.Offset)
+				* CFrame.Angles(math.rad(rotation.X), math.rad(rotation.Y), math.rad(rotation.Z))
+			local instance = newPart(`Piece{number}`, piece.Size, cframe, piece.Color, model)
+			instance.Material = piece.Material or Enum.Material.SmoothPlastic
+			instance.Shape = piece.Shape or Enum.PartType.Block
+		end
+	end
+	model.Name = `Decor_{step.Id}`
+	model.Parent = plot.Folder
+	return model
 end
 
-local function padPosition(plot: Plot, step: TycoonSteps.Step): Vector3
-	local row = rowOf(step.Bay)
-	if step.Kind == "Decor" then
-		local theme = TycoonDecor.Themes[step.Bay]
-		local anchor = decorAnchor(plot, step.Bay)
-		if theme and anchor then
-			return anchor
-				+ plot.Right * (sideOf(step.Bay) * Vector3.new(0, 0, -12).X)
-				+ plot.Back * Vector3.new(0, 0, -12).Z
+-- Decor parts of the bought steps exist, all others are removed.
+local function refreshDecor(plot: Plot, tycoon: Types.TycoonState)
+	for _, step in TycoonSteps.DecorList do
+		local built = plot.Decor[step.Id]
+		if TycoonSteps.IsBought(tycoon, step.Id) then
+			if not built then
+				local model = buildDecor(plot, step)
+				if model then
+					plot.Decor[step.Id] = model
+				end
+			end
+		elseif built then
+			built:Destroy()
+			plot.Decor[step.Id] = nil
 		end
-		return position(plot, rowDepth(row), 0)
 	end
+end
+
+-- ==== pads =============================================================================================================
+
+-- Where a pad stands, in the stage frame of its bay: the Shiba pad at the front of the stage on the path, the decor pads in
+-- two lanes on the path (one per chain) from the front to the back, the Intern pad just before the Shiba pad.
+local function padPosition(plot: Plot, step: TycoonSteps.Step): Vector3
+	local frame = stageFrame(plot, step.Bay)
+	local area = areaOf(step.Bay)
+	local front = area.Y / 2 - LAYOUT.PadFrontInset
 	if step.Kind == "Bay" then
-		-- The next expansion: on the path just before the new row.
-		return position(plot, rowDepth(row) - LAYOUT.RowPitch / 2, 0)
+		return frame:PointToWorldSpace(Vector3.new(0, 0, front))
+	elseif step.Kind == "Automate" then
+		return frame:PointToWorldSpace(Vector3.new(0, 0, area.Y / 2 - LAYOUT.AutoPadInset))
 	end
-	-- The Cash Register: on the path beside its Shiba.
-	return position(plot, rowDepth(row), sideOf(step.Bay) * LAYOUT.AutoPadOffset)
+	local index = step.PartIndex or 1
+	local theme = TycoonDecor.Themes[step.Bay]
+	local count = if theme then #theme.Parts else index
+	local chain = (index - 1) % 2
+	local row = math.floor((index - 1) / 2)
+	local rows = math.ceil(count / 2)
+	local span = area.Y - 2 * LAYOUT.PadFrontInset
+	local z = if rows <= 1 then front else front - row * span / (rows - 1)
+	return frame:PointToWorldSpace(Vector3.new(LAYOUT.DecorPadX[chain + 1], 0, z))
 end
 
 local function buildPad(plot: Plot, step: TycoonSteps.Step): PadRefs
@@ -448,62 +416,7 @@ local function refreshPad(pad: PadRefs, step: TycoonSteps.Step, tycoon: Types.Ty
 	setText(pad.Title, TycoonSteps.Title(step))
 	setText(pad.Desc, TycoonSteps.Description(step))
 	setText(pad.Price, if price <= 0 then "FREE" else Format.Money(price))
-	local affordable = money >= price
-	pad.Part.Color = if affordable then PAD_AFFORDABLE else PAD_TOO_DEAR
-end
-
--- ==== decor ============================================================================================================
-
--- A bought decor part: a cloned Decor_<Key>_<PartId> model if the asset exists, else the part's primitive pieces.
-local function buildDecor(plot: Plot, step: TycoonSteps.Step): Model?
-	local theme = TycoonDecor.Themes[step.Bay]
-	local index = step.PartIndex
-	local part = if theme and index then theme.Parts[index] else nil
-	local anchor = decorAnchor(plot, step.Bay)
-	if not theme or not part or not anchor then
-		return nil
-	end
-	local frame = CFrame.lookAt(anchor, anchor + plot.Back)
-	local assetName = `Decor_{theme.Key}_{part.Id}`
-	local model: Model
-	local cloned = if Assets.Has(assetName) then Assets.CloneModel(assetName) else nil
-	if cloned then
-		model = cloned
-		Assets.MakeVisualOnly(model, true)
-		model:PivotTo(frame)
-	else
-		model = Instance.new("Model")
-		for number, piece in part.Pieces do
-			local rotation = piece.Rotation or Vector3.zero
-			local cframe = frame
-				* CFrame.new(piece.Offset)
-				* CFrame.Angles(math.rad(rotation.X), math.rad(rotation.Y), math.rad(rotation.Z))
-			local instance = newPart(`Piece{number}`, piece.Size, cframe, piece.Color, model)
-			instance.Material = piece.Material or Enum.Material.SmoothPlastic
-			instance.Shape = piece.Shape or Enum.PartType.Block
-		end
-	end
-	model.Name = `Decor_{step.Id}`
-	model.Parent = plot.Folder
-	return model
-end
-
--- Decor parts of the bought steps exist, all others are removed.
-local function refreshDecor(plot: Plot, tycoon: Types.TycoonState)
-	for _, step in TycoonSteps.DecorList do
-		local built = plot.Decor[step.Id]
-		if TycoonSteps.IsBought(tycoon, step.Id) then
-			if not built then
-				local model = buildDecor(plot, step)
-				if model then
-					plot.Decor[step.Id] = model
-				end
-			end
-		elseif built then
-			built:Destroy()
-			plot.Decor[step.Id] = nil
-		end
-	end
+	pad.Part.Color = if money >= price then PAD_AFFORDABLE else PAD_TOO_DEAR
 end
 
 -- ==== public ===========================================================================================================
@@ -523,6 +436,17 @@ function StreetPlot.Build(player: Player, island: StreetService.Island, actions:
 	folder.Name = TycoonWorld.FolderName
 	local towardRoad = direction(island.HubAngle)
 	local back = -towardRoad
+
+	-- The stages follow each other from the road: stage n is as deep as its theme plus the margin.
+	local starts: { [number]: number } = {}
+	local depths: { [number]: number } = {}
+	local depth = LAYOUT.FirstStageDepth
+	for bay = 1, TycoonSteps.Bays do
+		starts[bay] = depth
+		depths[bay] = areaOf(bay).Y + LAYOUT.StageMargin
+		depth += depths[bay]
+	end
+
 	plots[player] = {
 		Owner = player,
 		Folder = folder,
@@ -530,6 +454,8 @@ function StreetPlot.Build(player: Player, island: StreetService.Island, actions:
 		RoadEnd = island.Center + towardRoad * (Street.PlotDepth / 2),
 		Back = back,
 		Right = back:Cross(Vector3.yAxis),
+		Starts = starts,
+		Depths = depths,
 		Bays = {},
 		Paths = {},
 		Pads = {},
@@ -555,16 +481,15 @@ function StreetPlot.Refresh(player: Player, state: Types.PlayerState)
 			bay = buildBay(plot, index)
 			plot.Bays[index] = bay
 		end
-		ensurePath(plot, rowOf(index))
+		ensurePath(plot, index)
 		refreshBay(bay, tycoon, index)
 	end
 
 	refreshDecor(plot, tycoon)
 
-	-- The pads of the chain (Util/TycoonSteps): Shibas, automation and the required decor, at most Street.MaxPads.
-	local visible = TycoonSteps.Visible(tycoon)
+	-- The pads of the flow (Util/TycoonSteps): Shibas, required decor and the optional interns.
 	local wanted: { [string]: boolean } = {}
-	for _, step in visible do
+	for _, step in TycoonSteps.Visible(tycoon) do
 		wanted[step.Id] = true
 		local pad = plot.Pads[step.Id]
 		if not pad then
@@ -581,7 +506,7 @@ function StreetPlot.Refresh(player: Player, state: Types.PlayerState)
 	end
 end
 
--- Where the Shiba of bay `slot` stands and which way it faces, for the server's Bonk hit check.
+-- Where the Shiba of bay `slot` stands and which way it faces (the hit zone is in front of it), for the server's hit check.
 function StreetPlot.GetLaneAim(player: Player, slot: number): { Origin: Vector3, Forward: Vector3 }?
 	local plot = plots[player]
 	local bay = if plot then plot.Bays[slot] else nil

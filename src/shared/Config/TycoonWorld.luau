@@ -30,21 +30,33 @@ return {
 		SwingBoxSize = Vector3.new(6, 7, 6),
 	},
 
-	-- Street plot (StreetPlot): two Shibas per row left and right of a path that leads away from the road.
+	-- Street plot (StreetPlot): one stage per Shiba along a path that leads away from the road. Positions are in the stage
+	-- frame (Config/DecorTypes): origin = the stage's middle on the path, +X right, -Z deeper, +Z toward the road.
 	Street = {
-		-- Depth (from the road end of the plot) of the first row and the distance between rows.
-		FirstRowDepth = 30,
-		RowPitch = 24,
-		-- Sideways distance of a Shiba from the path's centre line.
-		ShibaOffset = 14,
+		-- Depth (from the road end of the plot) where the first stage starts, and the free margin added to every stage's Area.
+		FirstStageDepth = 20,
+		StageMargin = 10,
+		-- Stage size of a bay whose theme is missing.
+		DefaultArea = Vector2.new(80, 80),
+		-- The Shiba stands this far left of the path, facing it.
+		ShibaX = 16,
 		PlatformDiameter = 10,
+		-- The click works up to this distance (studs) from the Shiba.
+		ClickDistance = 24,
+		-- The Bonk Intern stands this far in front of the Shiba (toward the path).
+		InternDistance = 6,
 		PathWidth = 12,
 		PathColor = Color3.fromRGB(205, 198, 185),
-		-- Floor pads: oval, with a dark base; the Cash Register stands on the path beside its Shiba.
-		PadDiameter = 7,
-		PadBaseDiameter = 8.6,
+		-- Floor pads: oval, with a dark base. All pads stand on the path: the Shiba pad at the front of the stage, the Intern pad
+		-- just before it and the decor pads in two lanes side by side (X of each lane) from the front to the back.
+		PadDiameter = 4.4,
+		PadBaseDiameter = 5.2,
 		PadHeight = 0.5,
-		AutoPadOffset = 4,
+		PadFrontInset = 10,
+		-- The Intern pad: on the path, this far inside the front of the stage (the Shiba pad is PadFrontInset inside).
+		AutoPadInset = 3,
+		-- Everything stays inside the path strip |X| < 7, which the themes keep free.
+		DecorPadX = { -3, 3 },
 		PadBillboardDistance = 140,
 		-- Seconds before the same pad can be triggered again.
 		PadCooldown = 1,

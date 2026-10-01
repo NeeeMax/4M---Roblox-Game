@@ -3,5 +3,5 @@
 -- Bump the label with every change that should be visible in a playtest.
 
 return {
-	Label = "2026-09-30 #32: Shibas swing a bonk stick: click to start, buy automation per Shiba, get bonked for a bonus (tycoon, flag off) + street decor (pirate ship parts, flag off)",
+	Label = "2026-10-01 #33: street tycoon rework: stage layout, hits are the only income, Shiba menu (pill bar + UPGRADE), Bonk Intern (flags off)",
 }
