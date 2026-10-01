@@ -45,7 +45,6 @@ type BayRefs = {
 	-- The Shiba's platform (Config/ShibaPlatforms, built per tier), its invisible barrier, and what moves with its height.
 	PlatformKey: string?,
 	PlatformFolder: Instance?,
-	Barrier: Part?,
 	Anchor: Part,
 	SwingPart: Part,
 	Belt: Part,
@@ -307,7 +306,6 @@ local function buildBay(plot: Plot, bay: number): BayRefs
 		Inward = inward,
 		PlatformKey = nil,
 		PlatformFolder = nil,
-		Barrier = nil,
 		Anchor = anchor,
 		SwingPart = swingPart,
 		Belt = belt,
@@ -406,12 +404,9 @@ local function applyPlatform(bay: BayRefs, assetName: string?, shibaHeight: numb
 		bay.PlatformFolder:Destroy()
 		bay.PlatformFolder = nil
 	end
-	if bay.Barrier then
-		bay.Barrier:Destroy()
-		bay.Barrier = nil
-	end
 	local top = LANE.PlatformTop
 	local radius = LAYOUT.PlatformDiameter / 2
+	local swing = bay.SwingPart
 	if assetName then
 		local platform = ShibaPlatforms.Platforms[assetName] or ShibaPlatforms.Default
 		local frame = CFrame.lookAt(bay.Ground, bay.Ground + bay.Inward)
@@ -421,28 +416,26 @@ local function applyPlatform(bay: BayRefs, assetName: string?, shibaHeight: numb
 		bay.PlatformFolder = if model
 			then placePlatformModel(model, top, frame, bay.Folder)
 			else buildPlatformParts(platform, frame, bay.Folder)
-		-- Invisible wall around platform and Shiba, so nobody walks through it (only characters collide with it).
+		-- The click part is also the invisible wall around platform and Shiba (so nobody walks through it): the mouse hits
+		-- it first, so the ClickDetector has to sit on this very part. Only characters collide with it.
 		local padding = Gameplay.Shooters.Barrier.Padding
 		radius = platform.Diameter / 2 + padding
 		local sink = Gameplay.Shooters.Barrier.Sink
 		local tall = sink + top + shibaHeight + Gameplay.Shooters.Barrier.ExtraHeight
-		local barrier = newPart(
-			"Barrier",
-			Vector3.new(tall, radius * 2, radius * 2),
-			CFrame.new(bay.Ground + Vector3.new(0, tall / 2 - sink, 0)) * CFrame.Angles(0, 0, math.rad(90)),
-			Color3.new(1, 1, 1),
-			bay.Folder
-		)
-		barrier.Shape = Enum.PartType.Cylinder
-		barrier.Transparency = 1
-		barrier.CanCollide = true
-		bay.Barrier = barrier
+		swing.Shape = Enum.PartType.Cylinder
+		swing.Size = Vector3.new(tall, radius * 2, radius * 2)
+		swing.CFrame = CFrame.new(bay.Ground + Vector3.new(0, tall / 2 - sink, 0)) * CFrame.Angles(0, 0, math.rad(90))
+		swing.CanCollide = true
+	else
+		swing.Shape = Enum.PartType.Block
+		swing.Size = LANE.SwingBoxSize
+		swing.CFrame = CFrame.new(bay.Ground + Vector3.new(0, LANE.PlatformTop + LANE.SwingBoxSize.Y / 2, 0))
+		swing.CanCollide = false
 	end
 	bay.Top = top
 	bay.Radius = radius
 	local stand = bay.Ground + Vector3.new(0, top, 0)
 	bay.Anchor.CFrame = CFrame.new(stand)
-	bay.SwingPart.CFrame = CFrame.new(stand + Vector3.new(0, LANE.SwingBoxSize.Y / 2, 0))
 	bay.Belt.CFrame = CFrame.lookAt(stand, stand + bay.Inward)
 end
 
