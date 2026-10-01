@@ -60,6 +60,18 @@ while true do
 		shibas += 1
 		tag = string.format(" (Shiba purchase %d)", shibas)
 	end
-	print(string.format("| %d | %s %d%s | %d | %.1f | %s | %s |", buys, best.id, levels[best.id], tag, bestCost, rate, fmt(wait), fmt(time)))
+	print(
+		string.format(
+			"| %d | %s %d%s | %d | %.1f | %s | %s |",
+			buys,
+			best.id,
+			levels[best.id],
+			tag,
+			bestCost,
+			rate,
+			fmt(wait),
+			fmt(time)
+		)
+	)
 end
 print(string.format("\nAll %d purchases: %s. Final income %.0f/s.", buys, fmt(time), income()))

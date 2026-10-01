@@ -177,7 +177,8 @@ local function bounds(piece)
 	local sx, sy, sz = piece.Size.X / 2, piece.Size.Y / 2, piece.Size.Z / 2
 	if r and (r.X ~= 0 or r.Y ~= 0 or r.Z ~= 0) then
 		local ax, ay, az = math.rad(r.X), math.rad(r.Y), math.rad(r.Z)
-		local cx, sx_, cy, sy_, cz, sz_ = math.cos(ax), math.sin(ax), math.cos(ay), math.sin(ay), math.cos(az), math.sin(az)
+		local cx, sx_, cy, sy_, cz, sz_ =
+			math.cos(ax), math.sin(ax), math.cos(ay), math.sin(ay), math.cos(az), math.sin(az)
 		local Rx = { { 1, 0, 0 }, { 0, cx, -sx_ }, { 0, sx_, cx } }
 		local Ry = { { cy, 0, sy_ }, { 0, 1, 0 }, { -sy_, 0, cy } }
 		local Rz = { { cz, -sz_, 0 }, { sz_, cz, 0 }, { 0, 0, 1 } }
