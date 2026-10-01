@@ -3,5 +3,5 @@
 -- Bump the label with every change that should be visible in a playtest.
 
 return {
-	Label = "2026-10-01 #55: shibas: overhead-to-downward throw swing of the old game (patch from Marco), street unchanged (flags off)",
+	Label = "2026-10-01 #56: street tycoon is ON for everybody (Features.Tycoon and Features.Street = true)",
 }
