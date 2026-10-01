@@ -83,6 +83,14 @@ local PAD_BASE = Color3.fromRGB(40, 40, 48)
 local PLATFORM_COLOR = Color3.fromRGB(95, 90, 110)
 local SKIN = Color3.fromRGB(255, 214, 170)
 
+-- Nothing on the plot glows (glow is for special effects only): Neon and ForceField are drawn as plain plastic.
+local function flat(material: Enum.Material?): Enum.Material
+	if material == nil or material == Enum.Material.Neon or material == Enum.Material.ForceField then
+		return Enum.Material.SmoothPlastic
+	end
+	return material
+end
+
 -- ==== small helpers ====================================================================================================
 
 local function direction(angle: number): Vector3
@@ -290,6 +298,11 @@ local function buildDecor(plot: Plot, step: TycoonSteps.Step): Model?
 		model = cloned
 		Assets.MakeVisualOnly(model, true)
 		model:PivotTo(frame)
+		for _, descendant in model:GetDescendants() do
+			if descendant:IsA("BasePart") then
+				descendant.Material = flat(descendant.Material)
+			end
+		end
 	else
 		model = Instance.new("Model")
 		for number, piece in part.Pieces do
@@ -298,7 +311,7 @@ local function buildDecor(plot: Plot, step: TycoonSteps.Step): Model?
 				* CFrame.new(piece.Offset)
 				* CFrame.Angles(math.rad(rotation.X), math.rad(rotation.Y), math.rad(rotation.Z))
 			local instance = newPart(`Piece{number}`, piece.Size, cframe, piece.Color, model)
-			instance.Material = piece.Material or Enum.Material.SmoothPlastic
+			instance.Material = flat(piece.Material)
 			instance.Shape = piece.Shape or Enum.PartType.Block
 		end
 	end
@@ -373,7 +386,6 @@ local function buildPad(plot: Plot, step: TycoonSteps.Step): PadRefs
 		folder
 	)
 	part.Shape = Enum.PartType.Cylinder
-	part.Material = Enum.Material.Neon
 	part.CanTouch = true
 
 	local gui, labels = TycoonPlot.NewBillboard(part, 260, 5, LAYOUT.PadBillboardDistance, {

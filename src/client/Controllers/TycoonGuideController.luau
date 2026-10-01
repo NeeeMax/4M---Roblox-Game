@@ -127,7 +127,7 @@ local function newArrowPart(name: string, size: Vector3): Part
 	part.CanQuery = false
 	part.CanTouch = false
 	part.CastShadow = false
-	part.Material = Enum.Material.Neon
+	part.Material = Enum.Material.SmoothPlastic
 	part.Color = Color3.new(1, 1, 1)
 	part.Size = size
 	part.TopSurface = Enum.SurfaceType.Smooth
