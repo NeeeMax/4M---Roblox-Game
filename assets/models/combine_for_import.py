@@ -5,7 +5,7 @@
 #
 #   blender --background --factory-startup --python combine_for_import.py -- <out.fbx> [<name> ...]
 #
-# Without names: every .fbx in models/ and models/props/. With names: only those (file names without .fbx).
+# Without names: every .fbx in models/, models/props/ and models/decor/out/<Theme>/. With names: only those (file names without .fbx).
 import bpy, os, sys
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -13,7 +13,9 @@ ARGS = sys.argv[sys.argv.index("--") + 1:]
 OUT = ARGS[0]
 ONLY = set(ARGS[1:])
 files = []
-for folder in (ROOT, os.path.join(ROOT, "props")):
+decor = os.path.join(ROOT, "decor", "out")
+decor_folders = [os.path.join(decor, d) for d in sorted(os.listdir(decor))] if os.path.isdir(decor) else []
+for folder in (ROOT, os.path.join(ROOT, "props"), *decor_folders):
     files += [os.path.join(folder, f) for f in sorted(os.listdir(folder)) if f.endswith(".fbx")]
 if ONLY:
     files = [f for f in files if os.path.splitext(os.path.basename(f))[0] in ONLY]
