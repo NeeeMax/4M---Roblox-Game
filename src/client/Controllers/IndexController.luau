@@ -9,6 +9,10 @@
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Features = require(ReplicatedStorage.Shared.Config.Features)
+-- The street tycoon replaces this part of the old game (docs/GAME_DESIGN.md → Street, plots and buttons).
+local STREET_MODE = Features.Tycoon and Features.Street
+
 local Index = require(ReplicatedStorage.Shared.Config.Index)
 local Net = require(ReplicatedStorage.Shared.Net)
 
@@ -299,10 +303,16 @@ function refresh()
 end
 
 function IndexController.Init()
+	if STREET_MODE then
+		return
+	end
 	build()
 end
 
 function IndexController.Start()
+	if STREET_MODE then
+		return
+	end
 	State.Start()
 	State.Changed:Connect(refresh)
 	refresh()

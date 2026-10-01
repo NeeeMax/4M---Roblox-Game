@@ -910,6 +910,8 @@ into the plot, +Z toward the road, Y up. The Shiba stands at (-16, 0, 0) facing 
 
 **Terraces and walls (decided by Marco 2026-10-01: the map was too flat).** Every 3 Shibas the plot rises by 12 studs (`TycoonWorld.Street.GroupSize`, `Rise`): the next group stands on a terrace reached by a staircase (8 steps of 1.5 studs) in front of its first stage, then 3 more Shibas on the level, then the next climb. All terraces and stairs are built from the start, so other players see that the plot goes on upward. A privacy wall surrounds the plot (sides and back, the side walls rise with each terrace; the front wall has a 28 studs wide entrance). `PlotDepth` 4700, `ReachHeight` 200.
 
+**Old game parts switched off in street mode (Marco 2026-10-01).** With `Features.Street` on there is no hub island (HubService), no ocean, clouds or floating islands (DecorService keeps only the lighting), no obby, coin flips, party sign or server events, and no GIFTS, QUESTS, SPIN, INDEX, SHIBAS or MANAGE tiles and no starter-pack popup. SHOP, INVITE, SETTINGS and ADMIN stay. The code stays for the flag-off game; it is deleted at the cutover when the islands are removed.
+
 ##### Shiba menu (client)
 
 `ShibaPanelController` draws one `BillboardGui` (about 220x80 px, `MaxDistance` 60) on `Lane_<n>/Anchor` for each own Shiba the

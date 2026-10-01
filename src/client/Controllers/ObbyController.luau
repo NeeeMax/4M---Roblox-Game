@@ -5,6 +5,10 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Features = require(ReplicatedStorage.Shared.Config.Features)
+-- The street tycoon replaces this part of the old game (docs/GAME_DESIGN.md → Street, plots and buttons).
+local STREET_MODE = Features.Tycoon and Features.Street
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
@@ -203,6 +207,9 @@ local function onFinished(time: unknown, reward: unknown, bestTime: unknown, nex
 end
 
 function ObbyController.Start()
+	if STREET_MODE then
+		return
+	end
 	build()
 	Net.Get(Net.ObbyStarted).OnClientEvent:Connect(onStarted)
 	Net.Get(Net.ObbyFinished).OnClientEvent:Connect(onFinished)

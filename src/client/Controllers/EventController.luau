@@ -7,6 +7,10 @@
 -- starts. QuestController reads the window through GetPartyWindow / PartyChanged.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Features = require(ReplicatedStorage.Shared.Config.Features)
+-- The street tycoon replaces this part of the old game (docs/GAME_DESIGN.md → Street, plots and buttons).
+local STREET_MODE = Features.Tycoon and Features.Street
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
@@ -228,10 +232,16 @@ end
 -- ==== end Weekend Bonk Party ====
 
 function EventController.Init()
+	if STREET_MODE then
+		return
+	end
 	build()
 end
 
 function EventController.Start()
+	if STREET_MODE then
+		return
+	end
 	Net.Get(Net.ServerEvent).OnClientEvent:Connect(onServerEvent)
 	Net.Get(Net.PartyChanged).OnClientEvent:Connect(onPartyChanged)
 	task.spawn(function()
