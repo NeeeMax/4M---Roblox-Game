@@ -257,6 +257,10 @@ return {
 	Character = {
 		-- The jump take-off speed.
 		JumpPower = 50,
+		-- Street mode: the walking speed (the old Move Speed upgrade does not apply) and the speed while Left Shift is held
+		-- (client/Controllers/SprintController).
+		StreetWalkSpeed = 22,
+		StreetSprintSpeed = 36,
 	},
 
 	-- Hits in a row: each hit within the window adds Step to the multiplier (up to MaxMultiplier).
