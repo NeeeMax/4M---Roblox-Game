@@ -180,36 +180,39 @@ return {
 		ReadyLevel = 25,
 		-- Stage n = the decor of bay n plus the expansion to bay n + 1. StageFactor[n] multiplies the prices of that stage (default 1);
 		-- it is calibrated with docs/economy/street_sim so that every stage takes the intended time (it grows from stage to stage).
+		-- Level costs also grow with the tier: LevelCost is multiplied by StageFactor[tier + 1] ^ LevelFactorPower, so the upgrades of a
+		-- higher Shiba stay in proportion to its (much higher) price.
+		LevelFactorPower = 0.9,
 		StageFactor = {
 			1, -- stage 1
-			7.68, -- stage 2
-			28.91, -- stage 3
-			50.21, -- stage 4
-			86.65, -- stage 5
-			162.9, -- stage 6
-			259.1, -- stage 7
-			403.9, -- stage 8
-			484.7, -- stage 9
-			498.5, -- stage 10
-			526.5, -- stage 11
-			739.5, -- stage 12
-			1286, -- stage 13
-			1851, -- stage 14
-			2681, -- stage 15
-			3217, -- stage 16
-			2949, -- stage 17
-			3539, -- stage 18
-			5622, -- stage 19
-			7298, -- stage 20
-			17140, -- stage 21
-			12920, -- stage 22
-			8628, -- stage 23
-			10350, -- stage 24
-			14280, -- stage 25
-			12160, -- stage 26
-			19210, -- stage 27
-			12200, -- stage 28
-			8892, -- stage 29
+			4.778, -- stage 2
+			7.189, -- stage 3
+			6.355, -- stage 4
+			7.626, -- stage 5
+			10.47, -- stage 6
+			11.06, -- stage 7
+			13.27, -- stage 8
+			13.95, -- stage 9
+			12.51, -- stage 10
+			11.83, -- stage 11
+			16.99, -- stage 12
+			25.46, -- stage 13
+			30.56, -- stage 14
+			36.67, -- stage 15
+			38.66, -- stage 16
+			33.38, -- stage 17
+			43.5, -- stage 18
+			67.2, -- stage 19
+			80.64, -- stage 20
+			168.3, -- stage 21
+			166.1, -- stage 22
+			120.8, -- stage 23
+			133.2, -- stage 24
+			212.4, -- stage 25
+			241.8, -- stage 26
+			346, -- stage 27
+			316.2, -- stage 28
+			241.9, -- stage 29
 		} :: { [number]: number },
 		-- Expansion n (n >= 2) costs StreetReadyIncome(n - 2) * BaySeconds * StageFactor[n - 1] (the Shiba before it); the first one is free.
 		BaySeconds = 300,

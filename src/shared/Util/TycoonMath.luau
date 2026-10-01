@@ -64,12 +64,17 @@ function TycoonMath.LevelMultiplier(level: number): number
 end
 
 -- Cost of raising a Shiba of `tier` from `level` to `level + 1`. Street mode: StreetLevelSeconds * StreetLevelGrowth ^ (level - 1)
--- seconds of the Shiba's own income at that level.
+-- seconds of the Shiba's own income at that level, times StageFactor[tier + 1] ^ LevelFactorPower (higher Shibas cost more to level).
 function TycoonMath.LevelCost(tier: number, level: number, street: boolean?): number
 	if street == true then
 		local swing = Config.Swing
 		local rate = TycoonMath.BonkPayout(tier, level) / TycoonMath.SwingCooldown(tier, level)
-		return math.max(1, math.floor(rate * swing.StreetLevelSeconds * swing.StreetLevelGrowth ^ (level - 1)))
+		local prices = Config.Street
+		local tierFactor = (prices.StageFactor[tier + 1] or 1) ^ prices.LevelFactorPower
+		return math.max(
+			1,
+			math.floor(rate * swing.StreetLevelSeconds * swing.StreetLevelGrowth ^ (level - 1) * tierFactor)
+		)
 	end
 	return math.floor(TycoonMath.TierIncome(tier) * LANE.LevelCostSeconds * LANE.LevelCostGrowth ^ (level - 1))
 end

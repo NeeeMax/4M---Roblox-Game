@@ -96,6 +96,7 @@ local KEYS = {
 	AUTO_FIRST_PRICE = { Config.Street, "AutomationFirstPrice" },
 	LEVEL_SECONDS = { Config.Swing, "StreetLevelSeconds" },
 	LEVEL_GROWTH = { Config.Swing, "StreetLevelGrowth" },
+	LEVEL_POWER = { Config.Street, "LevelFactorPower" },
 	PAYOUT_PER_LEVEL = { Config.Swing, "PayoutPerLevel" },
 	MIN_COOLDOWN_GROWTH = { Config.Swing, "MinCooldownGrowth" },
 }
@@ -457,6 +458,22 @@ end
 print(
 	`street_sim: TierGrowth {Config.Street.TierGrowth}, BaySeconds {Config.Street.BaySeconds}, DecorScale {Config.Street.DecorScale}, {#Config.Street.StageFactor} stage factors, Intern {Config.Street.AutomationSeconds}*{Config.Street.AutomationGrowth}^n, level {Config.Swing.StreetLevelSeconds}s*{Config.Swing.StreetLevelGrowth}^L, payout +{Config.Swing.PayoutPerLevel}/level, min cooldown x{Config.Swing.MinCooldownGrowth}/tier`
 )
+-- LEVELRATIO=1: what levelling a Shiba from 1 to 30 and to 100 costs compared with its own purchase price
+if process.env.LEVELRATIO then
+	for bay = 2, BAYS do
+		local price = Steps.Price(Steps.ById[`Bay{bay}`], newState())
+		local to30, to100 = 0, 0
+		for level = 1, 99 do
+			local cost = Math.LevelCost(bay - 1, level, true)
+			if level < 30 then
+				to30 += cost
+			end
+			to100 += cost
+		end
+		print(string.format("bay %2d: price %.3g, levels 1-30 %.3g (%.2fx the price), levels 1-100 %.3g (%.1fx)", bay, price, to30, to30 / price, to100, to100 / price))
+	end
+	return
+end
 local which = process.env.PLAYER or "both"
 if which ~= "idle" then
 	report("active clicker", run(false))
