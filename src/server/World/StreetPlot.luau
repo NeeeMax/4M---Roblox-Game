@@ -61,8 +61,6 @@ type Plot = {
 	-- The street slot and how many stages the walled cell covers (StreetService.SetReach).
 	Slot: number,
 	WallReach: number,
-	-- Per bay: half the width of the cell at that stage.
-	HalfWidth: { [number]: number },
 	Folder: Folder,
 	Actions: Actions,
 	-- Where the plot meets the road (on the centre line), the direction away from the road and the owner's right.
@@ -186,10 +184,6 @@ local function buildGroup(plot: Plot, number: number): Folder
 	local stairs = math.floor(LAYOUT.Rise / LAYOUT.StairRise + 0.5)
 	local ramp = stairs * LAYOUT.StairRun
 	local to = plot.Starts[last] + plot.Depths[last]
-	local widest = 0
-	for bay = first, last do
-		widest = math.max(widest, plot.HalfWidth[bay])
-	end
 
 	plotBox(
 		plot,
@@ -197,7 +191,7 @@ local function buildGroup(plot: Plot, number: number): Folder
 		(plot.Starts[first] + to) / 2,
 		0,
 		to - plot.Starts[first],
-		2 * widest,
+		Street.PlotWidth,
 		-1,
 		height,
 		LAYOUT.TerraceColor,
@@ -563,7 +557,6 @@ function StreetPlot.Build(player: Player, island: StreetService.Island, actions:
 		Owner = player,
 		Slot = island.Slot,
 		WallReach = 1,
-		HalfWidth = layout.HalfWidth,
 		Folder = folder,
 		Actions = actions,
 		RoadEnd = island.Center + towardRoad * (Street.PlotDepth / 2),
@@ -614,7 +607,7 @@ function StreetPlot.Refresh(player: Player, state: Types.PlayerState)
 		end
 	end
 	refreshTerrain(plot, reached)
-	-- The cell of rock walls grows with the plot too.
+	-- The white wall around the street reaches back as far as the furthest owner (StreetService).
 	reached = math.max(reached, 1)
 	if plot.WallReach ~= reached then
 		plot.WallReach = reached
