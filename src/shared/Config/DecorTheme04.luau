@@ -278,6 +278,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "TruckBurger",
+			RewardMult = 2,
 			Name = "Burger Truck",
 			Description = "A white food truck with a red-white awning and a serving window.",
 			Pad = Vector2.new(-68, 31),
@@ -285,23 +286,24 @@ local theme: DecorTypes.Theme = {
 			Pieces = truck(-65, 22, WHITE, RED, RED, WHITE),
 		},
 		{
-			Id = "BonkSign",
-			Name = "Get Bonked Sign",
-			Description = "A huge red board with yellow letters on two sturdy posts.",
+			Id = "TicketBooth",
+			Name = "Ticket Booth",
+			Description = "A striped ticket booth with a glass window and a little roof.",
 			Pad = Vector2.new(-48, 45),
 			PriceSeconds = 22,
 			Pieces = {
-				box(-56, 0, 52, 0.8, 5, 0.8, DARK_WOOD, Enum.Material.Wood),
-				box(-40, 0, 52, 0.8, 5, 0.8, DARK_WOOD, Enum.Material.Wood),
-				box(-48, 5, 52, 20, 7, 0.8, RED, Enum.Material.SmoothPlastic),
-				box(-48, 11.6, 52, 20.6, 0.5, 1.2, DARK_WOOD, Enum.Material.Wood),
-				box(-48, 9.4, 52.5, 14, 1.4, 0.2, YELLOW, Enum.Material.SmoothPlastic),
-				box(-48, 7.2, 52.5, 11, 1.4, 0.2, YELLOW, Enum.Material.SmoothPlastic),
-				box(-48, 5.6, 52.5, 16, 0.5, 0.2, WHITE, Enum.Material.SmoothPlastic),
+				box(-48, 0, 52, 6, 7, 5, RED, Enum.Material.SmoothPlastic),
+				box(-48, 7, 52, 7.6, 0.5, 6.6, DARK_WOOD, Enum.Material.Wood),
+				box(-48, 3.4, 54.55, 3.6, 2.2, 0.15, GLASS, Enum.Material.Glass),
+				box(-48, 2.8, 55, 4.4, 0.3, 1, WOOD, Enum.Material.Wood),
+				box(-48, 5.8, 54.55, 5.4, 0.9, 0.15, YELLOW, Enum.Material.SmoothPlastic),
+				box(-48, 1.0, 54.55, 5.4, 0.9, 0.15, WHITE, Enum.Material.SmoothPlastic),
+				box(-48, 7.5, 52, 1.2, 1.8, 1.2, YELLOW, Enum.Material.SmoothPlastic),
 			},
 		},
 		{
 			Id = "TruckTaco",
+			RewardMult = 1.2,
 			Name = "Taco Truck",
 			Description = "A teal taco truck with a yellow stripe and an orange awning.",
 			Pad = Vector2.new(67, 29),
@@ -326,6 +328,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Fountain",
+			RewardMult = 1.3,
 			Name = "Plaza Fountain",
 			Description = "A two-tier stone fountain next to the Shiba.",
 			Pad = Vector2.new(62, -23),
@@ -342,6 +345,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "TruckPizza",
+			RewardMult = 1.2,
 			Name = "Pizza Truck",
 			Description = "A red pizza truck with a white stripe, parked at the left edge.",
 			Pad = Vector2.new(-73, -6),
@@ -381,6 +385,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "TruckDessert",
+			RewardMult = 1.2,
 			Name = "Dessert Truck",
 			Description = "A pink ice cream truck with a big orange awning.",
 			Pad = Vector2.new(32, -36),
@@ -389,6 +394,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Stage",
+			RewardMult = 1.1,
 			Name = "Stage Corner",
 			Description = "A small stage with a red backdrop, speakers and a light truss.",
 			Pad = Vector2.new(-70, -37),
@@ -397,6 +403,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "GiantBurger",
+			RewardMult = 1.5,
 			Name = "Giant Burger",
 			Description = "A giant burger monument with sesame seeds, cheese and lettuce.",
 			Pad = Vector2.new(78, -38),
