@@ -20,7 +20,6 @@ local TycoonWorld = require(ReplicatedStorage.Shared.Config.TycoonWorld)
 local World = require(ReplicatedStorage.Shared.Config.World)
 local StreetLayout = require(ReplicatedStorage.Shared.Util.StreetLayout)
 
-local PlotWalls = require(script.Parent.Parent.World.PlotWalls)
 local Signs = require(script.Parent.Parent.World.Signs)
 
 local ISLAND = Gameplay.Island
@@ -53,16 +52,15 @@ type Plot = {
 	Color: Color3,
 	NameLabel: TextLabel,
 	Owner: Player?,
-	-- The plot's model, where it meets the road, the walled cell around the reached stages and how many stages it covers.
-	Model: Model,
-	Frame: PlotWalls.Frame,
-	Walls: Folder?,
+	-- The highest Shiba available to the owner (1 = free plot): the white wall reaches back that far.
 	Reached: number,
 }
 
 local ENABLED = Features.Street and Features.Tycoon
 
 local islandsFolder: Folder
+local streetFolder: Folder
+local outerWall: Folder?
 local plots: { Plot } = {}
 local islands: { [Player]: Island } = {}
 
@@ -98,42 +96,49 @@ local function plotEdge(): number
 	return ROAD.Width / 2 + ROAD.SidewalkWidth
 end
 
--- ONE white wall around all 10 plots and the road (no walls between the plots).
-local function buildOuterWall(parent: Instance)
+-- ONE white wall around all 10 plots and the road: a rectangle, no walls between the plots. It reaches back as far as the
+-- furthest stage any owner has reached (at least the first group), so it grows when someone expands and everybody sees it.
+local function rebuildOuterWall()
+	if outerWall then
+		outerWall:Destroy()
+	end
+	local folder = Instance.new("Folder")
+	folder.Name = "OuterWall"
 	local origin = Street.Origin
 	local walls = TycoonWorld.Street
+	local layout = StreetLayout.Compute()
+	local reached = walls.GroupSize
+	for _, plot in plots do
+		reached = math.max(reached, plot.Reached)
+	end
+	reached = math.min(reached, #layout.Starts)
+	local depth = layout.Starts[reached] + layout.Depths[reached]
 	local thick = walls.OuterWallThickness
-	local halfX = Street.PlotsPerSide * Street.PlotPitch / 2 + ROAD.Margin + thick / 2
-	local halfZ = plotEdge() + Street.PlotDepth + thick / 2
-	local height = walls.OuterWallHeight + 1
-	local middleY = origin.Y + (walls.OuterWallHeight - 1) / 2
+	local top = walls.OuterWallHeight + layout.Elev[reached]
+	local halfX = Street.PlotsPerSide * Street.PlotPitch / 2 + thick / 2
+	local halfZ = plotEdge() + depth + thick / 2
+	local middleY = origin.Y + (top - 1) / 2
 	for _, side in { -1, 1 } do
 		newPart(
 			"OuterWall",
-			Vector3.new(2 * halfX + thick, height, thick),
+			Vector3.new(2 * halfX + thick, top + 1, thick),
 			CFrame.new(origin.X, middleY, origin.Z + side * halfZ),
 			walls.WallColor,
-			parent,
+			folder,
+			true
+		)
+		-- The two ends of the road.
+		newPart(
+			"OuterWall",
+			Vector3.new(thick, top + 1, 2 * halfZ + thick),
+			CFrame.new(origin.X + side * halfX, middleY, origin.Z),
+			walls.WallColor,
+			folder,
 			true
 		)
 	end
-	-- The two ends of the road: long, so built from segments.
-	local length = 2 * halfZ + thick
-	for _, side in { -1, 1 } do
-		local from = origin.Z - length / 2
-		while from < origin.Z + length / 2 do
-			local part = math.min(GROUND_SEGMENT, origin.Z + length / 2 - from)
-			newPart(
-				"OuterWall",
-				Vector3.new(thick, height, part),
-				CFrame.new(origin.X + side * halfX, middleY, from + part / 2),
-				walls.WallColor,
-				parent,
-				true
-			)
-			from += part
-		end
-	end
+	folder.Parent = streetFolder
+	outerWall = folder
 end
 
 local function buildRoad(parent: Instance)
@@ -193,7 +198,7 @@ local function buildPlot(slot: number, parent: Instance): Plot
 		local length = math.min(GROUND_SEGMENT, Street.PlotDepth - from)
 		local segment = newPart(
 			if number == 1 then "Ground" else `Ground{number}`,
-			Vector3.new(Street.PlotWidth, Street.PlotThickness, length),
+			Vector3.new(Street.PlotPitch, Street.PlotThickness, length),
 			CFrame.new(
 				Vector3.new(x, origin.Y - Street.PlotThickness / 2, origin.Z + side * (edge + from + length / 2))
 			),
@@ -238,15 +243,6 @@ local function buildPlot(slot: number, parent: Instance): Plot
 	local label = Signs.Text(board, Enum.NormalId.Front, PLOT.FreeText, color)
 	Signs.Mirror(board, label)
 
-	-- The walled cell: stage 1 until the owner reaches further (StreetService.SetReach).
-	local back = Vector3.new(0, 0, side)
-	local frame: PlotWalls.Frame = {
-		RoadEnd = Vector3.new(x, origin.Y, origin.Z + side * edge),
-		Back = back,
-		Right = back:Cross(Vector3.yAxis),
-	}
-	local walls = PlotWalls.Build(model, frame, StreetLayout.Compute(), 1)
-
 	model.Parent = parent
 	return {
 		Slot = slot,
@@ -255,9 +251,6 @@ local function buildPlot(slot: number, parent: Instance): Plot
 		Center = center,
 		Color = color,
 		NameLabel = label,
-		Model = model,
-		Frame = frame,
-		Walls = walls,
 		Reached = 1,
 	}
 end
@@ -376,17 +369,14 @@ local function onPlayerRemoving(player: Player)
 	island.Model:Destroy()
 end
 
--- The walled cell of plot `slot` covers the stages 1 … `reached` (the highest Shiba that is available to its owner).
+-- The highest Shiba available to the owner of plot `slot`: the white wall reaches back at least that far.
 function StreetService.SetReach(slot: number, reached: number)
 	local plot = plots[slot]
 	if not plot or plot.Reached == reached then
 		return
 	end
 	plot.Reached = reached
-	if plot.Walls then
-		plot.Walls:Destroy()
-	end
-	plot.Walls = PlotWalls.Build(plot.Model, plot.Frame, StreetLayout.Compute(), reached)
+	rebuildOuterWall()
 end
 
 function StreetService.Init()
@@ -397,13 +387,13 @@ function StreetService.Init()
 	islandsFolder.Name = ISLAND.FolderName
 	islandsFolder.Parent = Workspace
 
-	local streetFolder = Instance.new("Folder")
+	streetFolder = Instance.new("Folder")
 	streetFolder.Name = "Street"
 	buildRoad(streetFolder)
-	buildOuterWall(streetFolder)
 	for slot = 1, Street.PlotCount do
 		table.insert(plots, buildPlot(slot, streetFolder))
 	end
+	rebuildOuterWall()
 	streetFolder.Parent = Workspace
 end
 

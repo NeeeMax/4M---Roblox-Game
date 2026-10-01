@@ -21,7 +21,7 @@ return {
 		Width = 28,
 		Thickness = 2,
 		-- Extra road beyond the first and last plot on each end.
-		Margin = 30,
+		Margin = 0,
 		Color = Color3.fromRGB(45, 45, 52),
 		DashColor = Color3.fromRGB(240, 200, 60),
 		DashLength = 6,

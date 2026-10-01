@@ -44,13 +44,8 @@ return {
 		StairColor = Color3.fromRGB(120, 78, 45),
 		TerraceColor = Color3.fromRGB(150, 95, 52),
 		TerraceMaterial = Enum.Material.Rock,
-		-- The cell around a plot's reached stages (World/PlotWalls): brown rock cliffs CliffHeight above the terrace, WallThickness
-		-- thick, WallMargin wider than the stage on each side. It starts at stage 1 and grows with every Shiba that becomes available.
-		CliffHeight = 24,
-		CliffColor = Color3.fromRGB(150, 95, 52),
-		WallThickness = 4,
-		WallMargin = 6,
-		-- The one wall around all 10 plots and the road (StreetService): white.
+		-- The one white wall around all 10 plots and the road (StreetService): a rectangle that reaches back as far as the furthest
+		-- stage any owner has reached (at least the first GroupSize stages) and grows when someone expands.
 		WallColor = Color3.fromRGB(238, 238, 242),
 		OuterWallHeight = 40,
 		OuterWallThickness = 8,
