@@ -217,7 +217,8 @@ local function drawBar(panel: Panel, now: number)
 		panel.Fill.Size = UDim2.fromScale(alpha, 1)
 		panel.Fill.Visible = alpha > 0
 	end
-	local text = formatSeconds(seconds)
+	-- A Shiba that has to be clicked says so until it is clicked; then the time runs down.
+	local text = if panel.Automated or isAnimating(panel, now) then formatSeconds(seconds) else "CLICK ME"
 	if text ~= panel.ShownTime then
 		panel.ShownTime = text
 		panel.Time.Text = text
