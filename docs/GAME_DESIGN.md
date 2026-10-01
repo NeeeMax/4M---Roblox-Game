@@ -908,6 +908,8 @@ stage frame: origin = the middle of the stage on the path's centre line, +X to t
 into the plot, +Z toward the road, Y up. The Shiba stands at (-16, 0, 0) facing +X (the path), the Intern at (-10, 0, 0), the path
 (|x| < 7) stays free. The stage is `Area.X` wide and `Area.Y` deep (the theme's own size, bigger for higher Shibas), centred on the origin.
 
+**Terraces and walls (decided by Marco 2026-10-01: the map was too flat).** Every 3 Shibas the plot rises by 12 studs (`TycoonWorld.Street.GroupSize`, `Rise`): the next group stands on a terrace reached by a staircase (8 steps of 1.5 studs) in front of its first stage, then 3 more Shibas on the level, then the next climb. All terraces and stairs are built from the start, so other players see that the plot goes on upward. A privacy wall surrounds the plot (sides and back, the side walls rise with each terrace; the front wall has a 28 studs wide entrance). `PlotDepth` 4700, `ReachHeight` 200.
+
 ##### Shiba menu (client)
 
 `ShibaPanelController` draws one `BillboardGui` (about 220x80 px, `MaxDistance` 60) on `Lane_<n>/Anchor` for each own Shiba the

@@ -33,6 +33,23 @@ return {
 	-- Street plot (StreetPlot): one stage per Shiba along a path that leads away from the road. Positions are in the stage
 	-- frame (Config/DecorTypes): origin = the stage's middle on the path, +X right, -Z deeper, +Z toward the road.
 	Street = {
+		-- Terraces: every GroupSize Shibas the plot rises by Rise studs, reached by a staircase (steps of StairRise high and StairRun
+		-- deep, StairWidth wide) in front of the next group's first stage. All terraces and stairs exist from the start, so other
+		-- players see that the plot goes on upward.
+		GroupSize = 3,
+		Rise = 12,
+		StairRise = 1.5,
+		StairRun = 5,
+		StairWidth = 22,
+		StairColor = Color3.fromRGB(165, 165, 175),
+		TerraceColor = Color3.fromRGB(95, 185, 85),
+		-- Privacy wall around the plot: WallHeight above the current terrace (so the side walls rise with the plot), WallThickness,
+		-- the front wall (FrontWallDepth from the road) has an opening of OpeningWidth in the middle.
+		WallHeight = 18,
+		WallThickness = 2,
+		FrontWallDepth = 6,
+		OpeningWidth = 28,
+		WallColor = Color3.fromRGB(55, 125, 60),
 		-- Depth (from the road end of the plot) where the first stage starts, and the free margin added to every stage's Area.
 		FirstStageDepth = 20,
 		StageMargin = 10,
