@@ -5,8 +5,8 @@
 
 return {
 	-- The tycoon core loop ("Shiba Workers", docs/decisions/0006). False = the old throw-and-catch loop runs unchanged.
-	Tycoon = false,
+	Tycoon = true,
 	-- The street with 10 plots instead of the islands (docs/GAME_DESIGN.md → Street, plots and buttons, StreetService).
 	-- Only has an effect together with Tycoon = true. False keeps the islands.
-	Street = false,
+	Street = true,
 }
