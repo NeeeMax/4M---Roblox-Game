@@ -8,7 +8,7 @@
 --   intern's ducking; there are no prompts or billboards on the Shiba.
 -- - Decor: the pieces of every bought decor pad, built in the stage frame.
 -- - Pads: glowing floor ovals (Util/TycoonSteps). The Shiba pad stands on the path at the front of its stage, the decor pads
---   in two lanes right of the path, the Intern pad beside the Shiba. Stepping on one asks StreetGameService to buy it.
+--   in two lanes on the path, the Intern pad just before the Shiba pad. Stepping on one asks StreetGameService to buy it.
 -- Everything here is visual or a request; StreetGameService validates every action and decides all money.
 
 local Players = game:GetService("Players")
@@ -328,7 +328,7 @@ end
 -- ==== pads =============================================================================================================
 
 -- Where a pad stands, in the stage frame of its bay: the Shiba pad at the front of the stage on the path, the decor pads in
--- two lanes right of the path (one per chain) from the front to the back, the Intern pad beside the Shiba.
+-- two lanes on the path (one per chain) from the front to the back, the Intern pad just before the Shiba pad.
 local function padPosition(plot: Plot, step: TycoonSteps.Step): Vector3
 	local frame = stageFrame(plot, step.Bay)
 	local area = areaOf(step.Bay)
@@ -336,7 +336,7 @@ local function padPosition(plot: Plot, step: TycoonSteps.Step): Vector3
 	if step.Kind == "Bay" then
 		return frame:PointToWorldSpace(Vector3.new(0, 0, front))
 	elseif step.Kind == "Automate" then
-		return frame:PointToWorldSpace(LAYOUT.AutoPad)
+		return frame:PointToWorldSpace(Vector3.new(0, 0, area.Y / 2 - LAYOUT.AutoPadInset))
 	end
 	local index = step.PartIndex or 1
 	local theme = TycoonDecor.Themes[step.Bay]
