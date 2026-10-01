@@ -147,8 +147,13 @@ return {
 		-- (5 ms, 0.05 s at Shiba 10, 0.4 s at Shiba 20, 3 s at Shiba 30), so higher Shibas stay slower even fully upgraded.
 		MinCooldown = 0.005,
 		MinCooldownGrowth = 1.25,
-		-- Every upgrade level also raises the payout per hit by this share of the level-1 payout (linear, about x2 at level 100).
-		PayoutPerLevel = 0.01,
+		-- Every upgrade level also raises the payout per hit by this share of the level-1 payout (linear: $1, $2, $3 ... per hit
+		-- for the first Shiba, so an upgrade is felt at once).
+		PayoutPerLevel = 1,
+		-- Street mode level costs (TycoonMath.LevelCost): an upgrade costs this many hits of the current payout at level 1, growing
+		-- by StreetClickGrowth per level. The first upgrade of the first Shiba is 8 clicks away.
+		StreetClicksStart = 8,
+		StreetClickGrowth = 1.04,
 		StreetLevelCap = 100,
 		-- The stick lands this share of the cooldown after the swing starts, at most HitDelay seconds.
 		HitDelayShare = 0.45,

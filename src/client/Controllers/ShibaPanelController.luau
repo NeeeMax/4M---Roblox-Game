@@ -262,7 +262,7 @@ local function requestUpgrade(panel: Panel, animate: boolean)
 	if shiba.Level >= TycoonMath.CapFor(tycoon) then
 		return
 	end
-	if state.BonkPoints < TycoonMath.LevelCost(shiba.Tier, shiba.Level) then
+	if state.BonkPoints < TycoonMath.LevelCost(shiba.Tier, shiba.Level, true) then
 		return
 	end
 	Net.Get(Net.UpgradeShiba):FireServer(panel.Slot, 1)
@@ -409,7 +409,7 @@ local function refreshPanel(panel: Panel, tycoon: TycoonState, shiba: Types.Owne
 	end
 
 	local maxed = shiba.Level >= TycoonMath.CapFor(tycoon)
-	local cost = TycoonMath.LevelCost(shiba.Tier, shiba.Level)
+	local cost = TycoonMath.LevelCost(shiba.Tier, shiba.Level, true)
 	local text = if maxed then "MAX" else `UPGRADE  ${Format.Short(cost)}`
 	if text ~= panel.ShownButton then
 		panel.ShownButton = text

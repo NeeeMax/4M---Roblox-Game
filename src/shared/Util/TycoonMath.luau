@@ -42,8 +42,14 @@ function TycoonMath.LevelMultiplier(level: number): number
 	return base * milestones * beyond
 end
 
--- Cost of raising a Shiba of `tier` from `level` to `level + 1`.
-function TycoonMath.LevelCost(tier: number, level: number): number
+-- Cost of raising a Shiba of `tier` from `level` to `level + 1`. Street mode: about StreetClicksStart hits of the Shiba's current
+-- payout at level 1 (so the first upgrade is 5 to 10 clicks away), a few percent more hits with every level.
+function TycoonMath.LevelCost(tier: number, level: number, street: boolean?): number
+	if street == true then
+		local swing = Config.Swing
+		local hits = swing.StreetClicksStart * swing.StreetClickGrowth ^ (level - 1)
+		return math.max(1, math.floor(TycoonMath.BonkPayout(tier, level) * hits))
+	end
 	return math.floor(TycoonMath.TierIncome(tier) * LANE.LevelCostSeconds * LANE.LevelCostGrowth ^ (level - 1))
 end
 
@@ -54,12 +60,13 @@ function TycoonMath.LevelUpPlan(
 	level: number,
 	count: number,
 	budget: number,
-	cap: number
+	cap: number,
+	street: boolean?
 ): (number, number)
 	local levels, spent = 0, 0
 	local limit = if count > 0 then count else math.huge
 	while levels < limit and level + levels < cap do
-		local cost = TycoonMath.LevelCost(tier, level + levels)
+		local cost = TycoonMath.LevelCost(tier, level + levels, street)
 		if spent + cost > budget then
 			break
 		end
