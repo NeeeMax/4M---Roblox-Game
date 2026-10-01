@@ -410,9 +410,10 @@ function actions.UpgradeShiba(player: Player, slot: number, quantity: number)
 		NotifyService.Send(player, "This Shiba is at its level cap! Ascend to raise it.", "Info")
 		return
 	end
-	local levels, spent = TycoonMath.LevelUpPlan(shiba.Tier, shiba.Level, quantity, state.BonkPoints, cap)
+	local levels, spent =
+		TycoonMath.LevelUpPlan(shiba.Tier, shiba.Level, quantity, state.BonkPoints, cap, tycoon.Street == true)
 	if levels <= 0 then
-		needMoney(player, TycoonMath.LevelCost(shiba.Tier, shiba.Level))
+		needMoney(player, TycoonMath.LevelCost(shiba.Tier, shiba.Level, tycoon.Street == true))
 		return
 	end
 	if not EconomyService.TrySpend(player, spent) then
