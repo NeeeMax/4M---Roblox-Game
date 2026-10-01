@@ -291,7 +291,7 @@ old constants the sim finished the whole game (30 bays, all decor, all Interns, 
   `StreetReadyIncome(bay-1) x PriceSeconds x DecorScale x StageFactor[bay]`, the Bonk Intern = `StreetReadyIncome(tier) x
   AutomationSeconds x AutomationGrowth^(Interns bought)`. `TierGrowth` (street only) is 4.
 - Stage n = the decor of bay n + the expansion to bay n+1. `StageFactor[n]` (29 numbers in `Config/Tycoon`) was calibrated per stage
-  (secant search on the sim, `calibrate` driver kept out of the repo) so that every stage takes: 8 min for stages 1 to 3, then 17%
+  (secant search on the sim, `node docs/tools/calibrate_street.js`) so that every stage takes: 8 min for stages 1 to 3, then 17%
   longer than the stage before. The factors are rough where the themes differ (10 to 30 parts, different PriceSeconds).
 - Lowest cooldown per tier (`MinCooldownGrowth` 1.25) and +100% of the level-1 payout per level (`PayoutPerLevel` 1) as in
   docs/GAME_DESIGN.md. Decor of bays 6 to 30 has no `RewardMult` yet: the sim assumes x6 per theme.
@@ -305,6 +305,7 @@ Shiba 2: 0.13 h, 3: 0.26, 5: 0.55, 10: 1.8, 15: 4.6, 20: 10.7, 25: 24, 30: 53.4 
 (8 min), 46 at 16 min, 70 at 33 min and about 80 after 1.8 h; the idle player is within 1% of the active one because the Intern is cheap.
 After the last Shiba every level is bought within minutes (no ascension yet), so the game ends with the last expansion.
 
-**Re-calibrating.** After changing any constant or a theme (prices, `RewardMult`), re-run the calibration: for stage n = 1 to 29 find
-`StageFactor[n]` with `STOP_BAY=n+1` until `BAYTIME[n+1] - BAYTIME[n]` hits the target (8 min, then x1.17 per stage). The sim prints the
-stage times (`minutes per stage`); the numbers above are what the committed constants give.
+**Re-calibrating.** After changing any constant or a theme (prices, `RewardMult`), run `node docs/tools/calibrate_street.js BAY_SECONDS=300
+DECOR_SCALE=0.1 AUTO_SECONDS=60 AUTO_GROWTH=1.08` (about 3 minutes): for stage n = 1 to 29 it finds `StageFactor[n]` until stage n takes its target
+(8 min, then x1.17 per stage) and prints the new factors for `Config/Tycoon`. The sim prints the stage times (`minutes per stage`); the numbers
+above are what the committed constants give.
