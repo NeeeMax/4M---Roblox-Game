@@ -14,7 +14,7 @@ return {
 	PlotPitch = 210,
 	-- A plot is long and narrow: it grows backward (away from the road) as the player progresses.
 	PlotWidth = 200,
-	PlotDepth = 2400,
+	PlotDepth = 4400,
 	PlotThickness = 4,
 
 	Road = {
