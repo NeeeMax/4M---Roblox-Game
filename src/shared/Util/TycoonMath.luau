@@ -4,6 +4,7 @@
 -- Everything is computed from the saved Types.TycoonState, so server and client always agree on the numbers.
 
 local Config = require(script.Parent.Parent.Config.Tycoon)
+local TycoonDecor = require(script.Parent.Parent.Config.TycoonDecor)
 local Types = require(script.Parent.Parent.Types)
 
 type TycoonState = Types.TycoonState
@@ -89,18 +90,25 @@ function TycoonMath.BaseCooldown(tier: number): number
 	return math.min(swing.MaxBaseCooldown, swing.Cooldown + swing.CooldownPerTier * tier)
 end
 
--- Street mode: the cooldown of a Shiba at `level`: BaseCooldown at level 1, shrinking geometrically to MinCooldown at the
--- street level cap (a few milliseconds when fully upgraded).
+-- Street mode: the lowest cooldown a Shiba of `tier` can reach (the higher the Shiba, the higher this floor).
+function TycoonMath.MinCooldownFor(tier: number): number
+	local swing = Config.Swing
+	return math.min(swing.MinCooldown * swing.MinCooldownGrowth ^ tier, TycoonMath.BaseCooldown(tier))
+end
+
+-- Street mode: the cooldown of a Shiba at `level`: BaseCooldown at level 1, shrinking geometrically to MinCooldownFor(tier) at
+-- the street level cap.
 function TycoonMath.SwingCooldown(tier: number, level: number): number
 	local swing = Config.Swing
 	local base = TycoonMath.BaseCooldown(tier)
 	local progress = math.clamp((level - 1) / (swing.StreetLevelCap - 1), 0, 1)
-	return base * (swing.MinCooldown / base) ^ progress
+	return base * (TycoonMath.MinCooldownFor(tier) / base) ^ progress
 end
 
--- Street mode: the money one hit pays before multipliers (bigger and rarer for higher Shibas).
-function TycoonMath.BonkPayout(tier: number): number
-	return TycoonMath.TierIncome(tier) * TycoonMath.BaseCooldown(tier)
+-- Street mode: the money one hit pays before multipliers (bigger and rarer for higher Shibas; every level adds a little).
+function TycoonMath.BonkPayout(tier: number, level: number?): number
+	local gain = 1 + Config.Swing.PayoutPerLevel * ((level or 1) - 1)
+	return TycoonMath.TierIncome(tier) * TycoonMath.BaseCooldown(tier) * gain
 end
 
 -- The level cap that applies to this player's Shibas.
@@ -186,6 +194,23 @@ local function selfPerk(perk: Config.Perk, rings: number): number
 end
 
 -- Income per second of the lane on equip `slot` (0 if empty), without pass / boost / event / friend multipliers.
+-- Street mode: what the bought decor of the Shiba in bay `bay` multiplies its cash by (Config/DecorTypes → RewardMult).
+function TycoonMath.DecorMultiplier(tycoon: TycoonState, bay: number): number
+	local theme = TycoonDecor.Themes[bay]
+	local steps = tycoon.Steps
+	if not theme or not steps then
+		return 1
+	end
+	local mult = 1
+	for _, part in theme.Parts do
+		local bonus = part.RewardMult
+		if bonus and steps[`Decor{bay}_{part.Id}`] == true then
+			mult *= bonus
+		end
+	end
+	return mult
+end
+
 function TycoonMath.LaneIncome(tycoon: TycoonState, slot: number): number
 	local shiba = shibaAt(tycoon, slot)
 	if not shiba then
@@ -195,7 +220,7 @@ function TycoonMath.LaneIncome(tycoon: TycoonState, slot: number): number
 	local rings = TycoonMath.RingsMultiplier(tycoon.Pads)
 	-- Street mode: payout per hit divided by the level's cooldown; the island tycoon: tier income times the level multiplier.
 	local base = if tycoon.Street == true
-		then TycoonMath.BonkPayout(shiba.Tier) / TycoonMath.SwingCooldown(shiba.Tier, shiba.Level)
+		then TycoonMath.BonkPayout(shiba.Tier, shiba.Level) / TycoonMath.SwingCooldown(shiba.Tier, shiba.Level)
 		else TycoonMath.TierIncome(shiba.Tier) * TycoonMath.LevelMultiplier(shiba.Level)
 	local income = base
 		* Config.VariantMult[shiba.Variant]
@@ -203,6 +228,9 @@ function TycoonMath.LaneIncome(tycoon: TycoonState, slot: number): number
 		* rings
 		* TycoonMath.AscensionMultiplier(tycoon.Ascensions)
 	income *= selfPerk(perks[shiba.Tier + 1], rings)
+	if tycoon.Street == true then
+		income *= TycoonMath.DecorMultiplier(tycoon, slot)
+	end
 
 	-- Neighbours: on the ring (equip slots are spaced evenly over it) or, in street mode, the bays next to it (no wrap).
 	local slots = tycoon.EquipSlots

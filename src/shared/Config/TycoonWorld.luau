@@ -59,8 +59,8 @@ return {
 		PlatformDiameter = 10,
 		-- The click works up to this distance (studs) from the Shiba.
 		ClickDistance = 24,
-		-- The Bonk Intern stands this far in front of the Shiba (toward the path).
-		InternDistance = 6,
+		-- The Bonk Intern stands this far outside the Shiba platform's barrier, in front of the Shiba.
+		InternGap = 2,
 		PathWidth = 12,
 		PathColor = Color3.fromRGB(205, 198, 185),
 		-- Floor pads: oval, with a dark base. All pads stand on the path: the Shiba pad at the front of the stage, the Intern pad

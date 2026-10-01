@@ -22,6 +22,9 @@ export type Part = {
 	-- Where the floor pad of this part stands (stage frame, X and Z): where the prop will appear, so the player buys it on the
 	-- spot. Optional; without it the pad stands in one of two lanes on the path (old themes).
 	Pad: Vector2?,
+	-- Optional: once this part is bought, the Shiba of the theme pays this many times more cash per hit and per second (1 to 2;
+	-- the bonuses of all bought parts multiply, the whole theme at most 8). No visual effect is spawned for it; the pad text names it.
+	RewardMult: number?,
 	-- Price = TierIncome(bay - 1) * PriceSeconds (placeholders, calibrated by the economy simulation).
 	PriceSeconds: number,
 	Pieces: { Piece },
