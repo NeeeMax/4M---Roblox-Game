@@ -30,21 +30,31 @@ return {
 		SwingBoxSize = Vector3.new(6, 7, 6),
 	},
 
-	-- Street plot (StreetPlot): two Shibas per row left and right of a path that leads away from the road.
+	-- Street plot (StreetPlot): one stage per Shiba along a path that leads away from the road. Positions are in the stage
+	-- frame (Config/DecorTypes): origin = the stage's middle on the path, +X right, -Z deeper, +Z toward the road.
 	Street = {
-		-- Depth (from the road end of the plot) of the first row and the distance between rows.
-		FirstRowDepth = 30,
-		RowPitch = 24,
-		-- Sideways distance of a Shiba from the path's centre line.
-		ShibaOffset = 14,
+		-- Depth (from the road end of the plot) where the first stage starts, and the free margin added to every stage's Area.
+		FirstStageDepth = 20,
+		StageMargin = 10,
+		-- Stage size of a bay whose theme is missing.
+		DefaultArea = Vector2.new(80, 80),
+		-- The Shiba stands this far left of the path, facing it.
+		ShibaX = 16,
 		PlatformDiameter = 10,
+		-- The click works up to this distance (studs) from the Shiba.
+		ClickDistance = 24,
+		-- The Bonk Intern stands this far in front of the Shiba (toward the path).
+		InternDistance = 6,
 		PathWidth = 12,
 		PathColor = Color3.fromRGB(205, 198, 185),
-		-- Floor pads: oval, with a dark base; the Cash Register stands on the path beside its Shiba.
+		-- Floor pads: oval, with a dark base. The Shiba pad is on the path at the front of the stage, the Intern pad beside the
+		-- Shiba and the decor pads in two lanes right of the path (X of each lane), PadFrontInset from the stage's ends.
 		PadDiameter = 7,
 		PadBaseDiameter = 8.6,
 		PadHeight = 0.5,
-		AutoPadOffset = 4,
+		PadFrontInset = 12,
+		AutoPad = Vector3.new(-16, 0, 11),
+		DecorPadX = { 14, 26 },
 		PadBillboardDistance = 140,
 		-- Seconds before the same pad can be triggered again.
 		PadCooldown = 1,

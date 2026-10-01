@@ -192,7 +192,7 @@ local function isNearIsland(player: Player): boolean
 end
 
 local function levelCap(tycoon: TycoonState): number
-	return TycoonMath.LevelCap(tycoon.Ascensions)
+	return TycoonMath.CapFor(tycoon)
 end
 
 -- Rough strength of a Shiba, for "equip the best".
@@ -523,16 +523,18 @@ local function payPoints(player: Player, amount: number): number
 	return whole
 end
 
--- The stick has landed: the owner standing in the zone in front of the Shiba is flung and paid the Bonk bonus.
+-- The stick has landed: the owner standing in the zone in front of the Shiba is flung and paid. Island mode: a bonus on top of
+-- the belt income. Street mode: the hit IS the payment (BonkPayout), there is no payment without a hit.
 local function checkBonkHit(player: Player, tycoon: TycoonState, slot: number)
 	local character = player.Character
 	local root = if character then character:FindFirstChild("HumanoidRootPart") else nil
 	local aim = plotAim(player, slot)
-	if not root or not root:IsA("BasePart") or not aim then
+	local shiba = shibaOnSlot(tycoon, slot)
+	if not root or not root:IsA("BasePart") or not aim or not shiba then
 		return
 	end
 	local now = os.clock()
-	if now < (bonkReadyAt[player] or 0) then
+	if not STREET and now < (bonkReadyAt[player] or 0) then
 		return
 	end
 	local offset = root.Position - aim.Origin
@@ -543,8 +545,14 @@ local function checkBonkHit(player: Player, tycoon: TycoonState, slot: number)
 	if flat.Magnitude > 0.5 and flat.Unit:Dot(aim.Forward) < math.cos(math.rad(SWING.HitHalfAngle)) then
 		return
 	end
-	bonkReadyAt[player] = now + SWING.BonusCooldown
-	local amount = payPoints(player, laneRate(player, tycoon, slot) * SWING.BonusSeconds)
+	local amount = if STREET
+		then payPoints(player, laneRate(player, tycoon, slot) * TycoonMath.SwingCooldown(shiba.Tier, shiba.Level))
+		else payPoints(player, laneRate(player, tycoon, slot) * SWING.BonusSeconds)
+	if STREET and now < (bonkReadyAt[player] or 0) then
+		-- Very short cooldowns hit many times a second: every hit pays, the popup and the knockback keep their rhythm.
+		return
+	end
+	bonkReadyAt[player] = now + (if STREET then SWING.EffectInterval else SWING.BonusCooldown)
 	if amount >= 1 then
 		Net.Get(Net.TycoonPayout):FireClient(player, slot, amount, "Bonk")
 	end
@@ -558,6 +566,13 @@ local function landSwing(player: Player, slot: number, pay: boolean)
 	local _, tycoon = tycoonOf(player)
 	local shiba = if tycoon then shibaOnSlot(tycoon, slot) else nil
 	if not tycoon or not shiba then
+		return
+	end
+	if STREET then
+		-- Only a Shiba that is clicked hits the player; the Intern of an automated one is not hit (no knockback).
+		if pay then
+			checkBonkHit(player, tycoon, slot)
+		end
 		return
 	end
 	if pay then
@@ -575,9 +590,23 @@ local function startSwing(player: Player, tycoon: TycoonState, slot: number, pay
 		return
 	end
 	local shiba = shibaOnSlot(tycoon, slot)
-	ready[slot] = os.clock() + (if shiba then TycoonMath.SwingTimer(shiba.Tier) else SWING.Cooldown)
+	local cooldown = SWING.Cooldown
+	local delay = SWING.HitDelay
+	if shiba then
+		if STREET then
+			cooldown = TycoonMath.SwingCooldown(shiba.Tier, shiba.Level)
+			delay = math.min(SWING.HitDelay, cooldown * SWING.HitDelayShare)
+			if not pay then
+				-- An automated Shiba is paid by the income tick; its swings are for show, so cap how often they are sent.
+				cooldown = math.max(cooldown, SWING.EffectInterval)
+			end
+		else
+			cooldown = TycoonMath.SwingTimer(shiba.Tier)
+		end
+	end
+	ready[slot] = os.clock() + cooldown
 	Net.Get(Net.ShibaSwung):FireClient(player, slot, Workspace:GetServerTimeNow(), isAutomated(tycoon, slot))
-	task.delay(SWING.HitDelay, landSwing, player, slot, pay)
+	task.delay(delay, landSwing, player, slot, pay)
 end
 
 -- Click / tap / Q on a Shiba. Automated Shibas ignore clicks (they pay the same rate on their own).
