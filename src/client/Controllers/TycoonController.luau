@@ -704,7 +704,7 @@ local internHome: { [Model]: CFrame } = {}
 -- The Intern ducks and pops back up like a bonk on the head (local animation of the anchored model).
 local function duckIntern(lane: Instance)
 	local intern = lane:FindFirstChild("Intern")
-	if not intern or not intern:IsA("Model") or ducking[intern] then
+	if not intern or not intern:IsA("Model") or ducking[intern] or intern:GetAttribute("Spawning") then
 		return
 	end
 	local camera = Workspace.CurrentCamera
@@ -829,6 +829,10 @@ local function playSwing(slot: number, automated: boolean)
 	local shiba = if lane then lane:FindFirstChild("Shiba") else nil
 	local belt = if folder then folder:FindFirstChild(`Belt_{slot}`) else nil
 	if not lane or not shiba or not shiba:IsA("Model") or not belt or not belt:IsA("BasePart") then
+		return
+	end
+	if shiba:GetAttribute("Spawning") then
+		-- Still popping in (Controllers/SpawnController): its parts are being scaled.
 		return
 	end
 	local look = belt.CFrame.LookVector
