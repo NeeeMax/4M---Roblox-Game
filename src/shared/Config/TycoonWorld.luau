@@ -47,14 +47,16 @@ return {
 		InternDistance = 6,
 		PathWidth = 12,
 		PathColor = Color3.fromRGB(205, 198, 185),
-		-- Floor pads: oval, with a dark base. The Shiba pad is on the path at the front of the stage, the Intern pad beside the
-		-- Shiba and the decor pads in two lanes right of the path (X of each lane), PadFrontInset from the stage's ends.
-		PadDiameter = 7,
-		PadBaseDiameter = 8.6,
+		-- Floor pads: oval, with a dark base. All pads stand on the path: the Shiba pad at the front of the stage, the Intern pad
+		-- just before it and the decor pads in two lanes side by side (X of each lane) from the front to the back.
+		PadDiameter = 4.4,
+		PadBaseDiameter = 5.2,
 		PadHeight = 0.5,
-		PadFrontInset = 12,
-		AutoPad = Vector3.new(-16, 0, 11),
-		DecorPadX = { 14, 26 },
+		PadFrontInset = 10,
+		-- The Intern pad: on the path, this far inside the front of the stage (the Shiba pad is PadFrontInset inside).
+		AutoPadInset = 3,
+		-- Everything stays inside the path strip |X| < 7, which the themes keep free.
+		DecorPadX = { -3, 3 },
 		PadBillboardDistance = 140,
 		-- Seconds before the same pad can be triggered again.
 		PadCooldown = 1,
