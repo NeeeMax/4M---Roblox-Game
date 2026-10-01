@@ -160,6 +160,7 @@ local theme: DecorTypes.Theme = {
 			Description = "A raised black stage with a tall back wall and a screen frame.",
 			Pad = Vector2.new(35, -21),
 			PriceSeconds = 15,
+			RewardMult = 2,
 			Pieces = {
 				B(50, 1.25, -40, 50, 2.5, 30, black, Metal),
 				B(50, 9.5, -54.5, 50, 14, 1, dark, Slate),
@@ -174,23 +175,23 @@ local theme: DecorTypes.Theme = {
 			},
 		},
 		{
-			Id = "BonkSign",
-			Name = "Get Bonked Sign",
-			Description = "A huge black board with the party name in bright colours.",
+			Id = "MerchStand",
+			Name = "Merch Stand",
+			Description = "A stall with a pink canopy and a pile of party shirts.",
 			Pad = Vector2.new(-60, 53),
 			PriceSeconds = 25,
 			Pieces = {
-				B(-70, 5, 48, 1.4, 10, 1.4, metal, Metal),
-				B(-50, 5, 48, 1.4, 10, 1.4, metal, Metal),
-				B(-60, 12.5, 48, 26, 9, 0.8, black, Slate),
-				B(-60, 17.4, 48, 26.4, 0.8, 1, pink, Plastic),
-				B(-60, 7.6, 48, 26.4, 0.8, 1, cyan, Plastic),
-				B(-67, 12.5, 48.6, 4, 5.5, 0.4, pink, Plastic),
-				B(-63, 12.5, 48.6, 4, 5.5, 0.4, yellow, Plastic),
-				B(-59, 12.5, 48.6, 4, 5.5, 0.4, cyan, Plastic),
-				B(-55, 12.5, 48.6, 4, 5.5, 0.4, white, Plastic),
-				B(-70, 0.3, 48, 3, 0.6, 3, black, Slate),
-				B(-50, 0.3, 48, 3, 0.6, 3, black, Slate),
+				B(-60, 1.7, 48, 14, 3.4, 3, dark, Wood),
+				B(-60, 3.5, 48, 14.4, 0.2, 3.4, black, Slate),
+				B(-67, 5, 45, 0.8, 10, 0.8, metal, Metal),
+				B(-53, 5, 45, 0.8, 10, 0.8, metal, Metal),
+				B(-60, 10.6, 46.5, 15, 0.4, 5.5, pink, Fabric),
+				B(-60, 5, 44.2, 14, 8, 0.6, dark, Wood),
+				B(-64, 5.5, 43.7, 3, 3, 0.3, cyan, Plastic),
+				B(-60, 5.5, 43.7, 3, 3, 0.3, yellow, Plastic),
+				B(-56, 5.5, 43.7, 3, 3, 0.3, purple, Plastic),
+				B(-63, 4.3, 48, 3, 1.4, 1.8, white, Fabric),
+				B(-57, 4.3, 48, 3, 1.4, 1.8, red, Fabric),
 			},
 		},
 		{
@@ -199,6 +200,7 @@ local theme: DecorTypes.Theme = {
 			Description = "Two towers of speakers on both sides of the stage.",
 			Pad = Vector2.new(83, -24),
 			PriceSeconds = 35,
+			RewardMult = 1.2,
 			Pieces = merge(speakerStack(18, -32), speakerStack(83, -32)),
 		},
 		{
@@ -207,6 +209,7 @@ local theme: DecorTypes.Theme = {
 			Description = "A DJ desk with two turntables, a laptop and the DJ.",
 			Pad = Vector2.new(-25, 14),
 			PriceSeconds = 50,
+			RewardMult = 1.3,
 			Pieces = {
 				B(-25, 1.7, 8, 14, 3.4, 4.5, black, Metal),
 				B(-25, 3.5, 8, 14.4, 0.2, 4.9, pink, Plastic),
@@ -227,6 +230,7 @@ local theme: DecorTypes.Theme = {
 			Description = "A long counter with a bottle shelf and three round stools.",
 			Pad = Vector2.new(74, 23),
 			PriceSeconds = 65,
+			RewardMult = 1.1,
 			Pieces = {
 				B(74, 2, 14, 18, 4, 3, wood, Wood),
 				B(74, 4.15, 14, 18.6, 0.3, 3.6, black, Slate),
@@ -262,6 +266,7 @@ local theme: DecorTypes.Theme = {
 			Description = "A steel frame over the dance floor full of coloured lamps.",
 			Pad = Vector2.new(35, 27),
 			PriceSeconds = 105,
+			RewardMult = 1.1,
 			Pieces = {
 				Cy(11, 9, 31, 1.4, 18, metal, Metal),
 				Cy(59, 9, 31, 1.4, 18, metal, Metal),
@@ -281,6 +286,7 @@ local theme: DecorTypes.Theme = {
 			Description = "A big silver ball on a tall pole in the middle of the floor.",
 			Pad = Vector2.new(30, 44),
 			PriceSeconds = 130,
+			RewardMult = 1.2,
 			Pieces = {
 				B(35, 0.6, 44, 4, 1.2, 4, black, Metal),
 				Cy(35, 6, 44, 1.2, 12, metal, Metal),
@@ -388,6 +394,7 @@ local theme: DecorTypes.Theme = {
 			Description = "A giant golden bonk hammer on a tall pedestal with colourful corner lamps.",
 			Pad = Vector2.new(-70, -39),
 			PriceSeconds = 320,
+			RewardMult = 1.5,
 			Pieces = {
 				B(-70, 1, -50, 15, 2, 15, black, Slate),
 				B(-70, 3, -50, 11, 2, 11, metal, Metal),
