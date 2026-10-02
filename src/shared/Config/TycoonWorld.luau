@@ -35,13 +35,13 @@ return {
 	Street = {
 		-- Hillside: the first GroupSize stages (also the base depth of the white wall) lie on the flat plot ground. From the next
 		-- stage on EVERY stage stands higher than the one before: the first one RiseFirst studs, every further one RiseGrowth more
-		-- (Shiba 30 is about 160 studs up). Before each higher stage the ground eases up over a wide grassy slope of
+		-- (Shiba 30 is about 385 studs up). Before each higher stage the ground eases up over a wide grassy slope of
 		-- rise / RampSlope studs (average slope; the eased profile peaks at 1.5x, so 0.33 stays under 27 degrees). The stage floor
 		-- itself is a flat grass slab ShelfThickness thick, the full width between two plots, tinted per stage (GrassTints, cycled).
 		-- Everything is built when the stage becomes available (StreetPlot.refreshTerrain).
 		GroupSize = 3,
-		RiseFirst = 4,
-		RiseGrowth = 0.15,
+		RiseFirst = 9,
+		RiseGrowth = 0.4,
 		RampSlope = 0.33,
 		ShelfThickness = 2,
 		GrassMaterial = Enum.Material.Grass,
