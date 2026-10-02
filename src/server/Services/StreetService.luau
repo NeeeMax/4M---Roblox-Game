@@ -10,6 +10,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local StarterPlayer = game:GetService("StarterPlayer")
 local Workspace = game:GetService("Workspace")
 
 local Features = require(ReplicatedStorage.Shared.Config.Features)
@@ -96,7 +97,7 @@ local function plotEdge(): number
 	return ROAD.Width / 2 + ROAD.SidewalkWidth
 end
 
--- The white wall: a fixed rectangle around all 10 plots and the road, as deep as the first group of stages. Where an owner has
+-- The dirt wall: a fixed rectangle around all 10 plots and the road, as deep as the first group of stages. Where an owner has
 -- reached further, only THAT plot's wall steps back (its own back wall, and short side walls where its neighbours are shallower);
 -- the other plots keep their wall where it was. Everybody sees it, so the street shows who has expanded.
 local function rebuildOuterWall()
@@ -112,7 +113,8 @@ local function rebuildOuterWall()
 	local edge = plotEdge()
 
 	local function piece(size: Vector3, center: Vector3)
-		newPart("OuterWall", size, CFrame.new(center), walls.WallColor, folder, true)
+		local part = newPart("OuterWall", size, CFrame.new(center), walls.WallColor, folder, true)
+		part.Material = walls.WallMaterial
 	end
 
 	-- Distance from the road centre to the inside of a plot's back wall, and the wall's top above the ground.
@@ -164,16 +166,61 @@ local function rebuildOuterWall()
 			end
 		end
 	end
+	-- The two ends of the road: a wall with a tunnel opening where the road runs out, and the tunnel itself behind it.
+	local tunnelWidth = ROAD.Width + 2 * ROAD.SidewalkWidth
+	local tunnelHeight = walls.TunnelHeight
+	local tunnelLength = walls.TunnelLength
 	for key, depths in endDepth do
 		local left, right = depths[-1] or edge, depths[1] or edge
 		local top = endTop[key] or walls.OuterWallHeight
+		local wallX = origin.X + key * (Street.PlotsPerSide * Street.PlotPitch / 2 + thick / 2)
+		local lowZ, highZ = origin.Z - left - thick, origin.Z + right + thick
+		local openLow, openHigh = origin.Z - tunnelWidth / 2, origin.Z + tunnelWidth / 2
+		-- Wall pieces beside the opening, and the lintel above it.
 		piece(
-			Vector3.new(thick, top + 1, left + right + 2 * thick),
-			Vector3.new(
-				origin.X + key * (Street.PlotsPerSide * Street.PlotPitch / 2 + thick / 2),
-				origin.Y + (top - 1) / 2,
-				origin.Z + (right - left) / 2
+			Vector3.new(thick, top + 1, openLow - lowZ),
+			Vector3.new(wallX, origin.Y + (top - 1) / 2, (lowZ + openLow) / 2)
+		)
+		piece(
+			Vector3.new(thick, top + 1, highZ - openHigh),
+			Vector3.new(wallX, origin.Y + (top - 1) / 2, (openHigh + highZ) / 2)
+		)
+		if top > tunnelHeight then
+			piece(
+				Vector3.new(thick, top - tunnelHeight + 1, tunnelWidth),
+				Vector3.new(wallX, origin.Y + (tunnelHeight + top - 1) / 2, origin.Z)
 			)
+		end
+		-- The tunnel: floor, two walls, a roof and a dark end, going out from the wall's outer face.
+		local startX = wallX + key * thick / 2
+		local midX = startX + key * tunnelLength / 2
+		local endX = startX + key * tunnelLength
+		local floor = newPart(
+			"TunnelFloor",
+			Vector3.new(tunnelLength, ROAD.Thickness, tunnelWidth),
+			CFrame.new(midX, origin.Y - ROAD.Thickness / 2, origin.Z),
+			ROAD.Color,
+			folder,
+			true
+		)
+		floor.Material = Enum.Material.Asphalt
+		for _, sideZ in { -1, 1 } do
+			piece(
+				Vector3.new(tunnelLength, tunnelHeight + 1, thick),
+				Vector3.new(midX, origin.Y + (tunnelHeight - 1) / 2, origin.Z + sideZ * (tunnelWidth / 2 + thick / 2))
+			)
+		end
+		piece(
+			Vector3.new(tunnelLength, thick, tunnelWidth + 2 * thick),
+			Vector3.new(midX, origin.Y + tunnelHeight + thick / 2, origin.Z)
+		)
+		newPart(
+			"TunnelEnd",
+			Vector3.new(thick, tunnelHeight + thick, tunnelWidth + 2 * thick),
+			CFrame.new(endX + key * thick / 2, origin.Y + (tunnelHeight + thick) / 2 - 1, origin.Z),
+			walls.TunnelEndColor,
+			folder,
+			true
 		)
 	end
 	folder.Parent = streetFolder
@@ -440,6 +487,8 @@ function StreetService.Start()
 	if not ENABLED then
 		return
 	end
+	-- The camera may zoom out only half as far as Roblox allows by default.
+	StarterPlayer.CameraMaxZoomDistance = Street.CameraMaxZoomDistance
 	Players.PlayerAdded:Connect(onPlayerAdded)
 	Players.PlayerRemoving:Connect(onPlayerRemoving)
 	for _, player in Players:GetPlayers() do

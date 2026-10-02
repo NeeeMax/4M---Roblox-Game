@@ -37,6 +37,8 @@ return {
 	-- ReachHeight above or below its surface (the stages rise to about 385 studs at Shiba 30, Config/TycoonWorld → Street).
 	ReachMargin = 30,
 	ReachHeight = 480,
+	-- How far the camera may zoom out (Roblox default 128; half of it).
+	CameraMaxZoomDistance = 64,
 	-- Below this height the character is put back on the street.
 	FallOffY = 50,
 	FallCheckInterval = 0.5,

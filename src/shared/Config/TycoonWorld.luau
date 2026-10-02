@@ -61,9 +61,15 @@ return {
 		StageScale = 0.85,
 		-- The one white wall around all 10 plots and the road (StreetService): a fixed rectangle GroupSize stages deep; only the
 		-- wall of a plot whose owner expanded further steps back (its back wall and the side walls toward shallower neighbours).
-		WallColor = Color3.fromRGB(238, 238, 242),
-		OuterWallHeight = 40,
+		-- Dirt coloured. At each end of the road the wall has a tunnel opening (road plus sidewalks wide, TunnelHeight high) with
+		-- a TunnelLength long tunnel behind it that ends in a dark wall.
+		WallColor = Color3.fromRGB(121, 88, 58),
+		WallMaterial = Enum.Material.Ground,
+		OuterWallHeight = 64,
 		OuterWallThickness = 8,
+		TunnelHeight = 26,
+		TunnelLength = 60,
+		TunnelEndColor = Color3.fromRGB(20, 16, 14),
 		-- Depth (from the road end of the plot) where the first stage starts, and the free margin added to every (scaled) stage Area.
 		FirstStageDepth = 20,
 		StageMargin = 8,
