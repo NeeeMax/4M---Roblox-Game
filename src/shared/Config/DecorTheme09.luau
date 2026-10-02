@@ -272,6 +272,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Dummies",
+			Yaw = 20,
 			Name = "Training Dummies",
 			Description = "Three straw dummies on a post that wait to be bonked with a mean headband.",
 			Pad = Vector2.new(-74, 14),
@@ -281,6 +282,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Lanterns",
+			Yaw = 10,
 			Name = "Stone Lanterns",
 			Description = "Four stone lanterns with a warm light that guard the doorstep of the dojo.",
 			Pad = Vector2.new(61, -6),
@@ -289,6 +291,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Zen",
+			Yaw = -12,
 			Name = "Zen Garden",
 			Description = "Raked sand in a stone frame, three round rocks and a tiny pine tree.",
 			Pad = Vector2.new(60, 31),
@@ -309,6 +312,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Bamboo",
+			Yaw = 4,
 			Name = "Bamboo Grove",
 			Description = "Fourteen tall green bamboo stalks that rustle when a ninja sneaks by.",
 			Pad = Vector2.new(87, 10),
@@ -317,6 +321,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Cherry",
+			Yaw = -4,
 			Name = "Cherry Trees",
 			Description = "Three cherry trees in full pink bloom with a carpet of petals below.",
 			Pad = Vector2.new(-42, 50),
@@ -330,6 +335,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Weapons",
+			Yaw = 14,
 			Name = "Katana Rack",
 			Description = "A wooden rack with shiny katanas, ready for a surprise attack.",
 			Pad = Vector2.new(-76, 38),
@@ -348,6 +354,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Banners",
+			Yaw = 8,
 			Name = "War Banners",
 			Description = "Three tall red banners with a white moon fluttering behind the dojo.",
 			Pad = Vector2.new(31, -44),
@@ -377,6 +384,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Teahouse",
+			Yaw = 8,
 			Name = "Tea House",
 			Description = "A tiny open tea house with a low table, two cushions and a hip roof.",
 			Pad = Vector2.new(-78, 61),
@@ -397,6 +405,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Tower",
+			Yaw = 15,
 			Name = "Ninja Watchtower",
 			Description = "A tall wooden watchtower with a lookout nest and a two-tier roof.",
 			Pad = Vector2.new(-36, -36),
@@ -422,6 +431,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Taiko",
+			Yaw = -22,
 			Name = "Taiko Drum",
 			Description = "A giant war drum on a wooden stand with two mallets. Boom!",
 			Pad = Vector2.new(22, 30),
@@ -462,6 +472,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Course",
+			Yaw = -10,
 			Name = "Obstacle Course",
 			Description = "A climbing wall, a balance beam, jumping stumps and a pull-up bar for sneaky training.",
 			Pad = Vector2.new(-83, -6),
@@ -483,6 +494,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Targets",
+			Yaw = 14,
 			Name = "Shuriken Targets",
 			Description = "Three round straw targets with red rings and golden bullseyes.",
 			Pad = Vector2.new(76, 8),
@@ -491,6 +503,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Totem",
+			Yaw = 20,
 			Name = "Shuriken Totem",
 			Description = "A carved totem pole with two giant steel shuriken, a real eye-catcher.",
 			Pad = Vector2.new(88, -14),
@@ -505,6 +518,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Statue",
+			Yaw = -18,
 			Name = "Ninja Shiba Statue",
 			Description = "A stone Shiba with a red headband sits proudly on its plinth.",
 			Pad = Vector2.new(-16, -20),
@@ -527,6 +541,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Moon",
+			Yaw = 12,
 			Name = "Giant Moon",
 			Description = "A huge glowing-white moon hangs between two red pillars: the pride of every ninja.",
 			Pad = Vector2.new(-68, -44),

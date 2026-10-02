@@ -1,0 +1,562 @@
+[
+ {
+  "name": "OakA",
+  "biome": "suburban",
+  "size": [
+   17.2,
+   19.1,
+   13.3
+  ],
+  "tris": 436
+ },
+ {
+  "name": "OakB",
+  "biome": "suburban",
+  "size": [
+   13.8,
+   21.7,
+   9.5
+  ],
+  "tris": 376
+ },
+ {
+  "name": "Birch",
+  "biome": "suburban",
+  "size": [
+   10.0,
+   19.1,
+   7.5
+  ],
+  "tris": 436
+ },
+ {
+  "name": "Pine",
+  "biome": "suburban",
+  "size": [
+   10.9,
+   20.5,
+   10.6
+  ],
+  "tris": 64
+ },
+ {
+  "name": "PineSmall",
+  "biome": "suburban",
+  "size": [
+   8.2,
+   12.6,
+   8.0
+  ],
+  "tris": 52
+ },
+ {
+  "name": "Bush",
+  "biome": "suburban",
+  "size": [
+   7.2,
+   4.2,
+   5.7
+  ],
+  "tris": 240
+ },
+ {
+  "name": "BushFlowers",
+  "biome": "suburban",
+  "size": [
+   6.6,
+   3.6,
+   4.9
+  ],
+  "tris": 336
+ },
+ {
+  "name": "FlowerPatch",
+  "biome": "suburban",
+  "size": [
+   4.1,
+   1.4,
+   4.1
+  ],
+  "tris": 192
+ },
+ {
+  "name": "Hedge",
+  "biome": "suburban",
+  "size": [
+   6.8,
+   3.8,
+   2.8
+  ],
+  "tris": 196
+ },
+ {
+  "name": "PicketFenceSegment",
+  "biome": "suburban",
+  "size": [
+   8.6,
+   4.6,
+   1.0
+  ],
+  "tris": 220
+ },
+ {
+  "name": "PicketFencePost",
+  "biome": "suburban",
+  "size": [
+   1.5,
+   5.1,
+   1.5
+  ],
+  "tris": 30
+ },
+ {
+  "name": "LampPost",
+  "biome": "suburban",
+  "size": [
+   3.4,
+   14.1,
+   3.4
+  ],
+  "tris": 90
+ },
+ {
+  "name": "StumpLog",
+  "biome": "suburban",
+  "size": [
+   8.5,
+   2.4,
+   5.9
+  ],
+  "tris": 136
+ },
+ {
+  "name": "GardenGnome",
+  "biome": "suburban",
+  "size": [
+   1.9,
+   5.1,
+   2.0
+  ],
+  "tris": 148
+ },
+ {
+  "name": "GrassTuftA",
+  "biome": "suburban",
+  "size": [
+   1.6,
+   2.4,
+   1.6
+  ],
+  "tris": 36
+ },
+ {
+  "name": "GrassTuftB",
+  "biome": "suburban",
+  "size": [
+   2.6,
+   3.0,
+   2.5
+  ],
+  "tris": 56
+ },
+ {
+  "name": "PalmA",
+  "biome": "beach",
+  "size": [
+   15.4,
+   20.0,
+   14.8
+  ],
+  "tris": 412
+ },
+ {
+  "name": "PalmB",
+  "biome": "beach",
+  "size": [
+   16.3,
+   16.7,
+   16.0
+  ],
+  "tris": 404
+ },
+ {
+  "name": "Beachgrass",
+  "biome": "beach",
+  "size": [
+   2.6,
+   4.3,
+   2.9
+  ],
+  "tris": 48
+ },
+ {
+  "name": "Driftwood",
+  "biome": "beach",
+  "size": [
+   7.5,
+   2.7,
+   2.6
+  ],
+  "tris": 152
+ },
+ {
+  "name": "ShellRock",
+  "biome": "beach",
+  "size": [
+   6.1,
+   2.4,
+   4.9
+  ],
+  "tris": 232
+ },
+ {
+  "name": "Towel",
+  "biome": "beach",
+  "size": [
+   3.6,
+   0.4,
+   6.0
+  ],
+  "tris": 72
+ },
+ {
+  "name": "SandcastleSmall",
+  "biome": "beach",
+  "size": [
+   5.7,
+   7.0,
+   5.0
+  ],
+  "tris": 228
+ },
+ {
+  "name": "Crate",
+  "biome": "beach",
+  "size": [
+   3.1,
+   3.1,
+   3.2
+  ],
+  "tris": 96
+ },
+ {
+  "name": "ChainFenceSegment",
+  "biome": "city",
+  "size": [
+   8.2,
+   4.5,
+   0.4
+  ],
+  "tris": 220
+ },
+ {
+  "name": "TrafficCone",
+  "biome": "city",
+  "size": [
+   2.0,
+   2.4,
+   2.0
+  ],
+  "tris": 68
+ },
+ {
+  "name": "Barrel",
+  "biome": "city",
+  "size": [
+   2.6,
+   3.3,
+   2.7
+  ],
+  "tris": 144
+ },
+ {
+  "name": "Dumpster",
+  "biome": "city",
+  "size": [
+   6.2,
+   4.5,
+   3.4
+  ],
+  "tris": 100
+ },
+ {
+  "name": "StreetLamp",
+  "biome": "city",
+  "size": [
+   5.8,
+   14.3,
+   1.8
+  ],
+  "tris": 104
+ },
+ {
+  "name": "PlanterBox",
+  "biome": "city",
+  "size": [
+   4.2,
+   3.8,
+   2.3
+  ],
+  "tris": 232
+ },
+ {
+  "name": "Hydrant",
+  "biome": "city",
+  "size": [
+   2.1,
+   3.7,
+   2.0
+  ],
+  "tris": 196
+ },
+ {
+  "name": "CactusA",
+  "biome": "western",
+  "size": [
+   6.9,
+   8.7,
+   2.3
+  ],
+  "tris": 196
+ },
+ {
+  "name": "CactusB",
+  "biome": "western",
+  "size": [
+   6.1,
+   3.7,
+   4.6
+  ],
+  "tris": 312
+ },
+ {
+  "name": "Haystack",
+  "biome": "western",
+  "size": [
+   7.7,
+   5.5,
+   6.8
+  ],
+  "tris": 180
+ },
+ {
+  "name": "WoodFenceSegment",
+  "biome": "western",
+  "size": [
+   8.2,
+   3.7,
+   1.0
+  ],
+  "tris": 72
+ },
+ {
+  "name": "Tumbleweed",
+  "biome": "western",
+  "size": [
+   4.5,
+   3.9,
+   4.6
+  ],
+  "tris": 240
+ },
+ {
+  "name": "DeadTree",
+  "biome": "western",
+  "size": [
+   7.4,
+   13.6,
+   2.4
+  ],
+  "tris": 112
+ },
+ {
+  "name": "RockRed",
+  "biome": "western",
+  "size": [
+   8.4,
+   5.5,
+   6.4
+  ],
+  "tris": 164
+ },
+ {
+  "name": "RopeCoil",
+  "biome": "harbor",
+  "size": [
+   6.2,
+   3.0,
+   3.9
+  ],
+  "tris": 240
+ },
+ {
+  "name": "CratesStack",
+  "biome": "harbor",
+  "size": [
+   6.6,
+   5.5,
+   3.8
+  ],
+  "tris": 72
+ },
+ {
+  "name": "BarrelStack",
+  "biome": "harbor",
+  "size": [
+   5.1,
+   6.0,
+   2.8
+  ],
+  "tris": 288
+ },
+ {
+  "name": "Anchor",
+  "biome": "harbor",
+  "size": [
+   7.4,
+   7.4,
+   1.6
+  ],
+  "tris": 144
+ },
+ {
+  "name": "NetPile",
+  "biome": "harbor",
+  "size": [
+   6.1,
+   1.7,
+   5.2
+  ],
+  "tris": 496
+ },
+ {
+  "name": "BambooClump",
+  "biome": "asia",
+  "size": [
+   9.9,
+   17.1,
+   7.5
+  ],
+  "tris": 320
+ },
+ {
+  "name": "SakuraTree",
+  "biome": "asia",
+  "size": [
+   14.9,
+   16.9,
+   11.7
+  ],
+  "tris": 392
+ },
+ {
+  "name": "StoneLantern",
+  "biome": "asia",
+  "size": [
+   4.2,
+   7.5,
+   4.2
+  ],
+  "tris": 176
+ },
+ {
+  "name": "LowFenceSegment",
+  "biome": "asia",
+  "size": [
+   8.0,
+   3.2,
+   0.9
+  ],
+  "tris": 200
+ },
+ {
+  "name": "ZenRock",
+  "biome": "asia",
+  "size": [
+   7.8,
+   3.8,
+   8.0
+  ],
+  "tris": 436
+ },
+ {
+  "name": "PineSnow",
+  "biome": "viking",
+  "size": [
+   10.5,
+   18.4,
+   10.3
+  ],
+  "tris": 112
+ },
+ {
+  "name": "RuneStoneSmall",
+  "biome": "viking",
+  "size": [
+   4.7,
+   5.3,
+   2.5
+  ],
+  "tris": 152
+ },
+ {
+  "name": "LogPile",
+  "biome": "viking",
+  "size": [
+   4.7,
+   4.4,
+   5.2
+  ],
+  "tris": 360
+ },
+ {
+  "name": "ShieldFence",
+  "biome": "viking",
+  "size": [
+   8.4,
+   4.5,
+   1.0
+  ],
+  "tris": 252
+ },
+ {
+  "name": "RockA",
+  "biome": "rocks",
+  "size": [
+   4.3,
+   3.2,
+   4.2
+  ],
+  "tris": 80
+ },
+ {
+  "name": "RockB",
+  "biome": "rocks",
+  "size": [
+   7.4,
+   2.7,
+   4.9
+  ],
+  "tris": 160
+ },
+ {
+  "name": "RockC",
+  "biome": "rocks",
+  "size": [
+   5.2,
+   4.9,
+   3.4
+  ],
+  "tris": 240
+ },
+ {
+  "name": "BoulderA",
+  "biome": "rocks",
+  "size": [
+   9.8,
+   6.0,
+   8.6
+  ],
+  "tris": 240
+ }
+]

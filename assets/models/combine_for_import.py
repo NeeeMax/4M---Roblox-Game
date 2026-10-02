@@ -15,8 +15,9 @@ ONLY = set(ARGS[1:])
 files = []
 decor = os.path.join(ROOT, "decor", "out")
 decor_folders = [os.path.join(decor, d) for d in sorted(os.listdir(decor))] if os.path.isdir(decor) else []
-for folder in (ROOT, os.path.join(ROOT, "props"), *decor_folders):
-    files += [os.path.join(folder, f) for f in sorted(os.listdir(folder)) if f.endswith(".fbx")]
+for folder in (ROOT, os.path.join(ROOT, "props"), os.path.join(ROOT, "scatter", "out"), *decor_folders):
+    if os.path.isdir(folder):
+        files += [os.path.join(folder, f) for f in sorted(os.listdir(folder)) if f.endswith(".fbx")]
 if ONLY:
     files = [f for f in files if os.path.splitext(os.path.basename(f))[0] in ONLY]
 
