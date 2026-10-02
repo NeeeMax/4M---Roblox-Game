@@ -52,7 +52,7 @@ type Plot = {
 	Color: Color3,
 	NameLabel: TextLabel,
 	Owner: Player?,
-	-- The highest Shiba available to the owner (1 = free plot): the white wall reaches back that far.
+	-- The highest Shiba available to the owner (1 = free plot): that plot's white wall reaches back that far.
 	Reached: number,
 }
 
@@ -96,8 +96,9 @@ local function plotEdge(): number
 	return ROAD.Width / 2 + ROAD.SidewalkWidth
 end
 
--- ONE white wall around all 10 plots and the road: a rectangle, no walls between the plots. It reaches back as far as the
--- furthest stage any owner has reached (at least the first group), so it grows when someone expands and everybody sees it.
+-- The white wall: a fixed rectangle around all 10 plots and the road, as deep as the first group of stages. Where an owner has
+-- reached further, only THAT plot's wall steps back (its own back wall, and short side walls where its neighbours are shallower);
+-- the other plots keep their wall where it was. Everybody sees it, so the street shows who has expanded.
 local function rebuildOuterWall()
 	if outerWall then
 		outerWall:Destroy()
@@ -107,34 +108,72 @@ local function rebuildOuterWall()
 	local origin = Street.Origin
 	local walls = TycoonWorld.Street
 	local layout = StreetLayout.Compute()
-	local reached = walls.GroupSize
-	for _, plot in plots do
-		reached = math.max(reached, plot.Reached)
-	end
-	reached = math.min(reached, #layout.Starts)
-	local depth = layout.Starts[reached] + layout.Depths[reached]
 	local thick = walls.OuterWallThickness
-	local top = walls.OuterWallHeight + layout.Elev[reached]
-	local halfX = Street.PlotsPerSide * Street.PlotPitch / 2 + thick / 2
-	local halfZ = plotEdge() + depth + thick / 2
-	local middleY = origin.Y + (top - 1) / 2
-	for _, side in { -1, 1 } do
-		newPart(
-			"OuterWall",
-			Vector3.new(2 * halfX + thick, top + 1, thick),
-			CFrame.new(origin.X, middleY, origin.Z + side * halfZ),
-			walls.WallColor,
-			folder,
-			true
-		)
-		-- The two ends of the road.
-		newPart(
-			"OuterWall",
-			Vector3.new(thick, top + 1, 2 * halfZ + thick),
-			CFrame.new(origin.X + side * halfX, middleY, origin.Z),
-			walls.WallColor,
-			folder,
-			true
+	local edge = plotEdge()
+
+	local function piece(size: Vector3, center: Vector3)
+		newPart("OuterWall", size, CFrame.new(center), walls.WallColor, folder, true)
+	end
+
+	-- Distance from the road centre to the inside of a plot's back wall, and the wall's top above the ground.
+	local function extent(plot: Plot): (number, number)
+		local reached = math.clamp(math.max(plot.Reached, walls.GroupSize), 1, #layout.Starts)
+		return edge + layout.Starts[reached] + layout.Depths[reached], walls.OuterWallHeight + layout.Elev[reached]
+	end
+
+	-- The plots of one side, ordered along the road.
+	local rows: { [number]: { Plot } } = { [-1] = {}, [1] = {} }
+	for _, plot in plots do
+		table.insert(rows[plot.Side], plot)
+	end
+	local endDepth: { [number]: { [number]: number } } = { [-1] = {}, [1] = {} }
+	local endTop: { [number]: number } = {}
+	for side, row in rows do
+		table.sort(row, function(a, b)
+			return a.X < b.X
+		end)
+		for index, plot in row do
+			local depth, top = extent(plot)
+			-- Back wall of this plot (a little wider than the plot so the corners close).
+			piece(
+				Vector3.new(Street.PlotPitch + thick, top + 1, thick),
+				Vector3.new(plot.X, origin.Y + (top - 1) / 2, origin.Z + side * (depth + thick / 2))
+			)
+			local nextPlot = row[index + 1]
+			if nextPlot then
+				-- Between two neighbours only the part where one reaches further than the other.
+				local nextDepth, nextTop = extent(nextPlot)
+				if nextDepth ~= depth then
+					local near, far = math.min(depth, nextDepth), math.max(depth, nextDepth)
+					local height = math.max(top, nextTop)
+					piece(
+						Vector3.new(thick, height + 1, far - near + thick),
+						Vector3.new(
+							(plot.X + nextPlot.X) / 2,
+							origin.Y + (height - 1) / 2,
+							origin.Z + side * (near + far) / 2 + side * thick / 2
+						)
+					)
+				end
+			end
+			-- The ends of the road follow the outermost plots.
+			if index == 1 or index == #row then
+				local key = if index == 1 then -1 else 1
+				endDepth[key][side] = depth
+				endTop[key] = math.max(endTop[key] or 0, top)
+			end
+		end
+	end
+	for key, depths in endDepth do
+		local left, right = depths[-1] or edge, depths[1] or edge
+		local top = endTop[key] or walls.OuterWallHeight
+		piece(
+			Vector3.new(thick, top + 1, left + right + 2 * thick),
+			Vector3.new(
+				origin.X + key * (Street.PlotsPerSide * Street.PlotPitch / 2 + thick / 2),
+				origin.Y + (top - 1) / 2,
+				origin.Z + (right - left) / 2
+			)
 		)
 	end
 	folder.Parent = streetFolder

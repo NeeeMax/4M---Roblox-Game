@@ -57,6 +57,10 @@ type BayRefs = {
 	Visual: Model?,
 	VisualKey: string?,
 	Intern: Model?,
+	-- The Intern is built asynchronously (CreateHumanoidModelFromDescription yields): true while one is being built, and
+	-- whether the Shiba still wants one when the build is done.
+	InternPending: boolean,
+	InternWanted: boolean,
 }
 
 type PadRefs = {
@@ -67,6 +71,9 @@ type PadRefs = {
 	Price: TextLabel,
 	Busy: boolean,
 }
+
+-- A sphere of smooth Terrain this plot put into the world (Terrain has no parent, so it is cleared by hand).
+type Fill = { Center: Vector3, Radius: number }
 
 type Plot = {
 	Owner: Player,
@@ -83,11 +90,14 @@ type Plot = {
 	Right: Vector3,
 	-- Per bay: the height of its terrace above the plot's ground.
 	Elev: { [number]: number },
-	-- Built terraces by group number (Refresh).
+	-- Built hillsides (slope, floor slab, rocks) by bay (Refresh), and the Terrain regions each of them filled (to clear again).
 	Terrain: { [number]: Folder },
-	-- Per bay: how far from RoadEnd its stage starts and how deep it is (the theme's Area plus the margin).
+	Fills: { [number]: { Fill } },
+	-- Per bay: how far from RoadEnd its stage starts, how deep it is (the theme's scaled Area plus the margin) and how long
+	-- the slope before it is.
 	Starts: { [number]: number },
 	Depths: { [number]: number },
+	Ramp: { [number]: number },
 	Bays: { [number]: BayRefs },
 	Paths: { [number]: Folder },
 	Pads: { [string]: PadRefs },
@@ -142,9 +152,13 @@ local function setText(label: TextLabel, text: string)
 	end
 end
 
+-- The theme files are written unscaled: every coordinate taken from them (Area, Shiba spot, path, pads, pieces) is multiplied by
+-- STAGE_SCALE so the props sit closer together. Sizes the player deals with (Shiba, platform, barrier, path width, pads) are not.
+local STAGE_SCALE = LAYOUT.StageScale
+
+-- The stage's Area after scaling.
 local function areaOf(bay: number): Vector2
-	local theme = TycoonDecor.Themes[bay]
-	return if theme then theme.Area else LAYOUT.DefaultArea
+	return StreetLayout.AreaOf(bay)
 end
 
 -- The stage frame of a bay (Config/DecorTypes): origin on the path's centre line in the middle of the stage, +X = the plot's
@@ -158,8 +172,9 @@ end
 -- Where the Shiba of a bay stands and which way it faces (Config/DecorTypes → ShibaSpot).
 local function shibaSpot(bay: number): TycoonDecor.ShibaSpot
 	local theme = TycoonDecor.Themes[bay]
-	local spot = if theme then theme.Shiba else nil
-	return spot or { Position = Vector2.new(-LAYOUT.ShibaX, 0), Facing = 0 }
+	local own = if theme then theme.Shiba else nil
+	local spot: TycoonDecor.ShibaSpot = own or { Position = Vector2.new(-LAYOUT.ShibaX, 0), Facing = 0 }
+	return { Position = spot.Position * STAGE_SCALE, Facing = spot.Facing }
 end
 
 local function facingVector(degrees: number): Vector3
@@ -194,68 +209,241 @@ local function plotBox(
 	return solid(name, Vector3.new(width, top - bottom, length), CFrame.lookAt(at, at + plot.Back), color, parent)
 end
 
--- The plot rises in terraces (one per group of Shibas) joined by stairs. They grow with the player: group `number` (2 and up)
--- appears when its first Shiba becomes available, so the pad of that Shiba stands on its terrace (Refresh decides when).
-local function groupCount(): number
-	return math.ceil(TycoonSteps.Bays / LAYOUT.GroupSize)
+-- The first GroupSize stages lie on the flat plot ground; every later stage stands higher than the one before and is reached
+-- over a wide, eased grassy slope (Util/StreetLayout has the heights and lengths). Stage `bay` appears when its Shiba becomes
+-- available, so the pad of that Shiba stands on its floor (Refresh decides when). What is built per stage:
+--   - Slope1..n: collidable grass slabs following the eased profile across the whole width between two plots, plus the soil
+--     boxes under them (nobody sees these; the slabs are the safe, exact walking surface), and the path laid over the slope;
+--   - Floor: the flat, solid grass slab at the stage's height (tinted per stage) that the theme's props and floors stand on;
+--   - smooth Terrain mounds and rocky outcrops beside the walkway and along both flanks, boulders and shrubs (deterministic per
+--     stage). The Terrain fills are tracked per stage (Plot.Fills) and cleared with Air when the stage or the plot goes away.
+local TERRAIN_FIRST = LAYOUT.GroupSize + 1
+-- The soil boxes under the slabs start this far above the plot ground's bottom and end this far under the slab's top.
+local SOIL_BOTTOM = -1
+local SOIL_INSET = 1.5
+-- Slope slabs are at most about this long along the path.
+local SLOPE_PIECE = 5
+-- Mounds, rocks, boulders and shrubs on a slope keep the walkway lane (half the path plus this) free.
+local LANE_MARGIN = 12
+
+local terrainReady = false
+
+-- A point of the plot: `depth` away from the road, `lateral` to the right of the path, `height` above the plot's ground.
+local function pointAt(plot: Plot, depth: number, lateral: number, height: number): Vector3
+	return plot.RoadEnd + plot.Back * depth + plot.Right * lateral + Vector3.new(0, height, 0)
 end
 
-local function buildGroup(plot: Plot, number: number): Folder
-	local folder = Instance.new("Folder")
-	folder.Name = `Terrain{number}`
-	local first = (number - 1) * LAYOUT.GroupSize + 1
-	local last = math.min(TycoonSteps.Bays, number * LAYOUT.GroupSize)
-	local height = plot.Elev[first]
-	local stairs = math.floor(LAYOUT.Rise / LAYOUT.StairRise + 0.5)
-	local ramp = stairs * LAYOUT.StairRun
-	local to = plot.Starts[last] + plot.Depths[last]
+-- Height of the walking surface on the slope before stage `bay` at `depth` (eased from the previous stage's floor).
+local function slopeHeight(plot: Plot, bay: number, depth: number): number
+	local low, high = plot.Elev[bay - 1], plot.Elev[bay]
+	local length = plot.Ramp[bay]
+	if length <= 0 then
+		return high
+	end
+	return low + (high - low) * StreetLayout.Ease((depth - (plot.Starts[bay] - length)) / length)
+end
 
-	plotBox(
+-- A solid grass slab whose top surface is the straight line from (depthA, heightA) to (depthB, heightB) along the path.
+local function slab(
+	plot: Plot,
+	name: string,
+	depthA: number,
+	heightA: number,
+	depthB: number,
+	heightB: number,
+	color: Color3,
+	parent: Instance
+): Part
+	local from = pointAt(plot, depthA, 0, heightA)
+	local to = pointAt(plot, depthB, 0, heightB)
+	local thick = LAYOUT.ShelfThickness
+	local frame = CFrame.lookAt((from + to) / 2, to) * CFrame.new(0, -thick / 2, 0)
+	local part = solid(name, Vector3.new(Street.PlotPitch, thick, (to - from).Magnitude), frame, color, parent)
+	part.Material = LAYOUT.GrassMaterial
+	return part
+end
+
+-- Soil under a slab (never seen, it only keeps the hillside from being hollow): from the plot ground up to just under the slab.
+local function soil(plot: Plot, depthA: number, depthB: number, lowTop: number, parent: Instance)
+	local top = lowTop - SOIL_INSET
+	if top <= SOIL_BOTTOM + 0.5 then
+		return
+	end
+	local box = plotBox(
 		plot,
-		"Terrace",
-		(plot.Starts[first] + to) / 2,
+		"Soil",
+		(depthA + depthB) / 2,
 		0,
-		to - plot.Starts[first],
-		Street.PlotWidth,
-		-1,
-		height,
-		LAYOUT.TerraceColor,
-		folder
+		depthB - depthA,
+		Street.PlotPitch - 2,
+		SOIL_BOTTOM,
+		top,
+		LAYOUT.SoilColor,
+		parent
 	)
-	for step = 1, stairs do
-		plotBox(
-			plot,
-			`Stair{step}`,
-			plot.Starts[first] - ramp + (step - 0.5) * LAYOUT.StairRun,
-			0,
-			LAYOUT.StairRun,
-			LAYOUT.StairWidth,
-			-1,
-			height - LAYOUT.Rise + step * LAYOUT.StairRise,
-			LAYOUT.StairColor,
+	box.Material = Enum.Material.Ground
+end
+
+-- Terrain has no parent: remember what was filled so it can be cleared again.
+local function fillBall(plot: Plot, bay: number, center: Vector3, radius: number, material: Enum.Material)
+	Workspace.Terrain:FillBall(center, radius, material)
+	local list = plot.Fills[bay]
+	if not list then
+		list = {}
+		plot.Fills[bay] = list
+	end
+	table.insert(list, { Center = center, Radius = radius })
+end
+
+local function clearFills(plot: Plot, bay: number)
+	local list = plot.Fills[bay]
+	if list then
+		for _, fill in list do
+			Workspace.Terrain:FillBall(fill.Center, fill.Radius + 2, Enum.Material.Air)
+		end
+		plot.Fills[bay] = nil
+	end
+end
+
+local function clearAllFills(plot: Plot)
+	for bay in plot.Fills do
+		clearFills(plot, bay)
+	end
+end
+
+local function buildStage(plot: Plot, bay: number): Folder
+	local folder = Instance.new("Folder")
+	folder.Name = `Terrain{bay}`
+	if not terrainReady then
+		terrainReady = true
+		local terrain = Workspace.Terrain
+		terrain:SetMaterialColor(Enum.Material.Grass, LAYOUT.TerrainGrass)
+		terrain:SetMaterialColor(Enum.Material.Ground, LAYOUT.SoilColor)
+		terrain:SetMaterialColor(Enum.Material.Rock, LAYOUT.RockColor)
+	end
+	local random = Random.new(bay * 7919 + 17)
+	local high = plot.Elev[bay]
+	local ramp = plot.Ramp[bay]
+	local floorFrom = plot.Starts[bay]
+	local floorTo = floorFrom + plot.Depths[bay]
+	local rampFrom = floorFrom - ramp
+	local tint = LAYOUT.GrassTints[(bay - 1) % #LAYOUT.GrassTints + 1]
+	local half = Street.PlotPitch / 2
+
+	-- The slope: slabs along the eased profile, the path on top of it.
+	local pieces = math.max(3, math.ceil(ramp / SLOPE_PIECE))
+	local lift = 0.05
+	for index = 1, pieces do
+		local depthA = rampFrom + ramp * (index - 1) / pieces
+		local depthB = rampFrom + ramp * index / pieces
+		local heightA = slopeHeight(plot, bay, depthA)
+		local heightB = slopeHeight(plot, bay, depthB)
+		slab(plot, `Slope{index}`, depthA, heightA, depthB, heightB, tint, folder)
+		soil(plot, depthA, depthB, heightA, folder)
+		local a = pointAt(plot, depthA, 0, heightA + lift)
+		local b = pointAt(plot, depthB, 0, heightB + lift)
+		newPart(
+			"Path",
+			Vector3.new(LAYOUT.PathWidth, 0.1, (b - a).Magnitude),
+			CFrame.lookAt((a + b) / 2, b),
+			LAYOUT.PathColor,
 			folder
 		)
 	end
-	for _, part in folder:GetChildren() do
-		if part:IsA("BasePart") then
-			part.Material = LAYOUT.TerraceMaterial
+
+	-- The stage's floor.
+	slab(plot, "Floor", floorFrom, high, floorTo, high, tint, folder)
+	soil(plot, floorFrom, floorTo, high, folder)
+
+	-- Beside the walkway on the slope: Terrain mounds and rocky outcrops, boulders and shrubs.
+	local lane = LAYOUT.PathWidth / 2 + LANE_MARGIN
+	local function spot(): (number, number)
+		local side = if random:NextNumber() < 0.5 then -1 else 1
+		return rampFrom + ramp * random:NextNumber(), side * (lane + (half - 10 - lane) * random:NextNumber())
+	end
+	for _ = 1, 6 do
+		local depth, lateral = spot()
+		local radius = random:NextNumber(6, 11)
+		local material = if random:NextNumber() < 0.8 then Enum.Material.Grass else Enum.Material.Ground
+		fillBall(
+			plot,
+			bay,
+			pointAt(plot, depth, lateral, slopeHeight(plot, bay, depth) - radius * 0.7),
+			radius,
+			material
+		)
+	end
+	for _ = 1, 2 do
+		local depth, lateral = spot()
+		local radius = random:NextNumber(5, 8)
+		fillBall(
+			plot,
+			bay,
+			pointAt(plot, depth, lateral, slopeHeight(plot, bay, depth) - radius * 0.45),
+			radius,
+			Enum.Material.Rock
+		)
+	end
+	for _ = 1, 4 do
+		local depth, lateral = spot()
+		local size = random:NextNumber(2, 4.5)
+		local boulder = solid(
+			"Boulder",
+			Vector3.new(size, size, size),
+			CFrame.new(pointAt(plot, depth, lateral, slopeHeight(plot, bay, depth) + size * 0.25)),
+			LAYOUT.RockColor:Lerp(LAYOUT.SoilColor, random:NextNumber(0, 0.4)),
+			folder
+		)
+		boulder.Shape = Enum.PartType.Ball
+		boulder.Material = Enum.Material.Rock
+		boulder.CanQuery = false
+	end
+	for _ = 1, 8 do
+		local depth, lateral = spot()
+		local size = random:NextNumber(2.5, 4.5)
+		local shrub = newPart(
+			"Shrub",
+			Vector3.new(size, size, size),
+			CFrame.new(pointAt(plot, depth, lateral, slopeHeight(plot, bay, depth) + size * 0.3)),
+			Color3.fromRGB(
+				50 + random:NextInteger(0, 30),
+				130 + random:NextInteger(0, 40),
+				55 + random:NextInteger(0, 25)
+			),
+			folder
+		)
+		shrub.Shape = Enum.PartType.Ball
+		shrub.Material = Enum.Material.LeafyGrass
+	end
+
+	-- The flanks of the stage: rounded rocky hills along both sides, beside the white wall (themes keep their props inside
+	-- their Area, which ends well before them).
+	for _, side in { -1, 1 } do
+		for _ = 1, 2 do
+			local depth = floorFrom + (floorTo - floorFrom) * random:NextNumber(0.1, 0.9)
+			local radius = random:NextNumber(6, 11)
+			local lateral = side * (half - 14 + random:NextNumber(-1, 1))
+			local material = if random:NextNumber() < 0.5 then Enum.Material.Rock else Enum.Material.Grass
+			fillBall(plot, bay, pointAt(plot, depth, lateral, high - radius * 0.5), radius, material)
 		end
 	end
+
 	folder.Parent = plot.Folder
 	return folder
 end
 
--- Builds the terrain of every group that is reached (`reached` = the highest Shiba available) and removes the rest.
+-- Builds the hillside of every stage that is reached (`reached` = the highest Shiba available) and removes the rest.
 local function refreshTerrain(plot: Plot, reached: number)
-	for number = 2, groupCount() do
-		local built = plot.Terrain[number]
-		if reached >= (number - 1) * LAYOUT.GroupSize + 1 then
+	for bay = TERRAIN_FIRST, TycoonSteps.Bays do
+		local built = plot.Terrain[bay]
+		if reached >= bay then
 			if not built then
-				plot.Terrain[number] = buildGroup(plot, number)
+				plot.Terrain[bay] = buildStage(plot, bay)
 			end
 		elseif built then
 			built:Destroy()
-			plot.Terrain[number] = nil
+			clearFills(plot, bay)
+			plot.Terrain[bay] = nil
 		end
 	end
 end
@@ -319,14 +507,17 @@ local function buildBay(plot: Plot, bay: number): BayRefs
 		Visual = nil,
 		VisualKey = nil,
 		Intern = nil,
+		InternPending = false,
+		InternWanted = false,
 	}
 end
 
--- The Bonk Intern: a simple NPC made of blocks, standing in front of the Shiba and facing it. Visual only; the client makes
--- it duck when the stick lands.
-local function buildIntern(bay: BayRefs): Model
+-- The Bonk Intern fallback (when the R15 character cannot be built): a simple NPC made of blocks, standing in front of the
+-- Shiba and facing it. Visual only; the client makes it duck when the stick lands. Returned without a parent.
+local function buildFallbackIntern(bay: BayRefs): Model
 	local model = Instance.new("Model")
 	model.Name = "Intern"
+	model:SetAttribute("StreetIntern", true)
 	local base = bay.Ground + bay.Inward * (bay.Radius + LAYOUT.InternGap)
 	local frame = CFrame.lookAt(base, base - bay.Inward)
 	local function piece(name: string, size: Vector3, offset: Vector3, color: Color3, shape: Enum.PartType?): Part
@@ -342,7 +533,154 @@ local function buildIntern(bay: BayRefs): Model
 	piece("Head", Vector3.new(1.9, 1.9, 1.9), Vector3.new(0, 4.5, 0), SKIN, Enum.PartType.Ball)
 	piece("Cap", Vector3.new(2, 0.5, 2), Vector3.new(0, 5.35, 0), Color3.fromRGB(35, 40, 70))
 	model.PrimaryPart = body
-	model.Parent = bay.Folder
+	return model
+end
+
+-- Outfits of the R15 interns (body colours instead of catalog clothes: no asset ids needed): skin, shirt, trousers.
+local INTERN_OUTFITS = {
+	{ Skin = Color3.fromRGB(255, 214, 170), Shirt = Color3.fromRGB(90, 200, 120), Pants = Color3.fromRGB(60, 80, 140) },
+	{ Skin = Color3.fromRGB(224, 172, 125), Shirt = Color3.fromRGB(255, 140, 50), Pants = Color3.fromRGB(50, 55, 70) },
+	{ Skin = Color3.fromRGB(141, 95, 66), Shirt = Color3.fromRGB(70, 140, 255), Pants = Color3.fromRGB(35, 35, 45) },
+	{ Skin = Color3.fromRGB(255, 205, 160), Shirt = Color3.fromRGB(160, 90, 230), Pants = Color3.fromRGB(80, 80, 95) },
+	{ Skin = Color3.fromRGB(198, 134, 92), Shirt = Color3.fromRGB(235, 70, 80), Pants = Color3.fromRGB(60, 80, 140) },
+	{ Skin = Color3.fromRGB(240, 190, 150), Shirt = Color3.fromRGB(245, 245, 245), Pants = Color3.fromRGB(45, 50, 80) },
+	{ Skin = Color3.fromRGB(110, 75, 55), Shirt = Color3.fromRGB(250, 205, 60), Pants = Color3.fromRGB(50, 55, 70) },
+}
+local INTERN_HATS = { "HardHat", "Headband", "Cap", "None" }
+local INTERN_SCALE = 1.2
+
+-- Welds a decoration to the head at `offset` (relative to the head).
+local function attachToHead(head: BasePart, part: BasePart, offset: CFrame)
+	part.Anchored = false
+	part.CanCollide = false
+	part.CanQuery = false
+	part.CanTouch = false
+	part.Massless = true
+	part.CastShadow = false
+	part.CFrame = head.CFrame * offset
+	local weld = Instance.new("Weld")
+	weld.Part0 = head
+	weld.Part1 = part
+	weld.C0 = offset
+	weld.Parent = part
+	part.Parent = head.Parent
+end
+
+local function headPiece(name: string, size: Vector3, color: Color3, shape: Enum.PartType?): Part
+	local part = Instance.new("Part")
+	part.Name = name
+	part.Size = size
+	part.Color = color
+	part.Material = Enum.Material.SmoothPlastic
+	if shape then
+		part.Shape = shape
+	end
+	return part
+end
+
+-- The Bonk Intern: a real Roblox character (R15 blocky avatar from a HumanoidDescription), standing in front of the Shiba
+-- and facing it. Visual only: the root is anchored, the rest hangs on its Motor6Ds so the client can animate them (idle bob,
+-- flinch, see Controllers/InternChatController) and duck it when the stick lands. Yields; returned without a parent.
+local function buildIntern(bay: BayRefs): Model
+	local base = bay.Ground + bay.Inward * (bay.Radius + LAYOUT.InternGap)
+	local frame = CFrame.lookAt(base, base - bay.Inward)
+	-- Varied but deterministic look per bay.
+	local seed = 0
+	for _, code in { string.byte(bay.Folder.Name, 1, -1) } do
+		seed = seed * 31 + code
+	end
+	local outfit = INTERN_OUTFITS[seed % #INTERN_OUTFITS + 1]
+	local hat = INTERN_HATS[(seed // #INTERN_OUTFITS) % #INTERN_HATS + 1]
+
+	local okBuild, built = pcall(function()
+		local description = Instance.new("HumanoidDescription")
+		description.HeadColor = outfit.Skin
+		description.LeftArmColor = outfit.Skin
+		description.RightArmColor = outfit.Skin
+		description.TorsoColor = outfit.Shirt
+		description.LeftLegColor = outfit.Pants
+		description.RightLegColor = outfit.Pants
+		local character = Players:CreateHumanoidModelFromDescription(description, Enum.HumanoidRigType.R15)
+		description:Destroy()
+		return character
+	end)
+	if not okBuild or typeof(built) ~= "Instance" or not built:IsA("Model") then
+		return buildFallbackIntern(bay)
+	end
+	local model: Model = built
+	local humanoid = model:FindFirstChildOfClass("Humanoid")
+	local root = model:FindFirstChild("HumanoidRootPart")
+	local head = model:FindFirstChild("Head")
+	if not humanoid or not root or not root:IsA("BasePart") or not head or not head:IsA("BasePart") then
+		model:Destroy()
+		return buildFallbackIntern(bay)
+	end
+
+	model.Name = "Intern"
+	model:SetAttribute("StreetIntern", true)
+	humanoid.WalkSpeed = 0
+	humanoid.JumpPower = 0
+	humanoid.JumpHeight = 0
+	humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+	humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
+	humanoid.NameDisplayDistance = 0
+	humanoid.HealthDisplayDistance = 0
+	humanoid.DisplayName = ""
+	humanoid.BreakJointsOnDeath = false
+
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			descendant.CanCollide = false
+			descendant.CanQuery = false
+			descendant.CanTouch = false
+			descendant.CastShadow = false
+			-- Only the root is anchored: the limbs hang on their Motor6Ds so they can be animated.
+			descendant.Anchored = descendant == root
+			descendant.Massless = descendant ~= root
+		elseif descendant:IsA("Decal") and descendant.Parent == head then
+			-- The default face decal is replaced by simple parts below (no asset ids).
+			descendant:Destroy()
+		end
+	end
+
+	-- Stand it on the ground facing the Shiba (its pivot is the root; measure the feet first).
+	model:ScaleTo(INTERN_SCALE)
+	model:PivotTo(CFrame.new())
+	local box, size = model:GetBoundingBox()
+	local feet = box.Position.Y - size.Y / 2
+	model:PivotTo(frame * CFrame.new(0, -feet, 0))
+
+	-- Face: two eyes and a mouth on the front of the head (-Z).
+	local hs = head.Size
+	local dark = Color3.fromRGB(30, 30, 35)
+	for _, side in { -1, 1 } do
+		local eye = headPiece("Eye", Vector3.new(hs.X * 0.1, hs.Y * 0.2, 0.05), dark)
+		attachToHead(head, eye, CFrame.new(side * hs.X * 0.2, hs.Y * 0.08, -hs.Z / 2 - 0.02))
+	end
+	local mouth = headPiece("Mouth", Vector3.new(hs.X * 0.36, hs.Y * 0.07, 0.05), dark)
+	attachToHead(head, mouth, CFrame.new(0, -hs.Y * 0.2, -hs.Z / 2 - 0.02))
+
+	-- Hard hat, headband or cap (simple parts, no catalog assets).
+	if hat == "HardHat" then
+		local dome =
+			headPiece("HardHat", Vector3.new(hs.X * 1.1, hs.Y * 0.55, hs.Z * 1.1), Color3.fromRGB(255, 210, 40))
+		attachToHead(head, dome, CFrame.new(0, hs.Y * 0.5, 0))
+		local rim =
+			headPiece("HardHatRim", Vector3.new(hs.X * 1.25, hs.Y * 0.12, hs.Z * 1.35), Color3.fromRGB(240, 190, 30))
+		attachToHead(head, rim, CFrame.new(0, hs.Y * 0.28, -hs.Z * 0.1))
+	elseif hat == "Headband" then
+		local band =
+			headPiece("Headband", Vector3.new(hs.X * 1.06, hs.Y * 0.16, hs.Z * 1.06), Color3.fromRGB(215, 50, 50))
+		attachToHead(head, band, CFrame.new(0, hs.Y * 0.28, 0))
+		local knot =
+			headPiece("HeadbandKnot", Vector3.new(hs.X * 0.2, hs.Y * 0.2, hs.Z * 0.2), Color3.fromRGB(215, 50, 50))
+		attachToHead(head, knot, CFrame.new(hs.X * 0.5, hs.Y * 0.28, hs.Z * 0.3))
+	elseif hat == "Cap" then
+		local crown = headPiece("Cap", Vector3.new(hs.X * 1.08, hs.Y * 0.4, hs.Z * 1.08), Color3.fromRGB(35, 40, 70))
+		attachToHead(head, crown, CFrame.new(0, hs.Y * 0.45, 0))
+		local brim = headPiece("CapBrim", Vector3.new(hs.X * 0.9, hs.Y * 0.1, hs.Z * 0.6), Color3.fromRGB(35, 40, 70))
+		attachToHead(head, brim, CFrame.new(0, hs.Y * 0.3, -hs.Z * 0.7))
+	end
 	return model
 end
 
@@ -483,12 +821,23 @@ local function refreshBay(bay: BayRefs, tycoon: Types.TycoonState, index: number
 
 	-- The Intern stands there as long as the Shiba is automated.
 	local automated = active and shiba ~= nil and shiba.Automated == true
-	if automated and not bay.Intern then
-		local intern = buildIntern(bay)
-		bay.Intern = intern
-		if animate then
-			intern:SetAttribute("SpawnedAt", Workspace:GetServerTimeNow())
-		end
+	bay.InternWanted = automated
+	if automated and not bay.Intern and not bay.InternPending then
+		-- The R15 character takes a moment to build (it yields); the bay takes it over when it is done.
+		bay.InternPending = true
+		task.spawn(function()
+			local intern = buildIntern(bay)
+			bay.InternPending = false
+			if not bay.InternWanted or bay.Intern or not bay.Folder.Parent then
+				intern:Destroy()
+				return
+			end
+			if animate then
+				intern:SetAttribute("SpawnedAt", Workspace:GetServerTimeNow())
+			end
+			intern.Parent = bay.Folder
+			bay.Intern = intern
+		end)
 	elseif not automated and bay.Intern then
 		bay.Intern:Destroy()
 		bay.Intern = nil
@@ -515,7 +864,9 @@ local function ensurePath(plot: Plot, bay: number)
 	local points: { Vector3 } = {}
 	table.insert(points, plot.RoadEnd + plot.Back * from + Vector3.new(0, plot.Elev[bay], 0) + lift)
 	for _, waypoint in waypoints do
-		table.insert(points, frame:PointToWorldSpace(Vector3.new(waypoint.X, 0, waypoint.Y)) + lift)
+		-- The default straight path already uses the scaled Area; the theme's own waypoints are unscaled.
+		local scaled = if theme and theme.Path then waypoint * STAGE_SCALE else waypoint
+		table.insert(points, frame:PointToWorldSpace(Vector3.new(scaled.X, 0, scaled.Y)) + lift)
 	end
 	table.insert(points, plot.RoadEnd + plot.Back * to + Vector3.new(0, plot.Elev[bay], 0) + lift)
 	local width = LAYOUT.PathWidth
@@ -563,7 +914,8 @@ local function piecesBox(pieces: { TycoonDecor.Piece }): (Vector3, Vector3)
 			end
 		end
 	end
-	return (low + high) / 2, high - low
+	-- Scaled with the stage (StageScale): the box the pieces get after scaling.
+	return (low + high) / 2 * STAGE_SCALE, (high - low) * STAGE_SCALE
 end
 
 -- A Decor_<Key>_<PartId> model is made to the size and place of the part's pieces, whatever scale it was imported at.
@@ -611,9 +963,10 @@ local function buildDecor(plot: Plot, step: TycoonSteps.Step): Model?
 			if isSolid(piece) then
 				local rotation = piece.Rotation or Vector3.zero
 				local cframe = frame
-					* CFrame.new(piece.Offset)
+					* CFrame.new(piece.Offset * STAGE_SCALE)
 					* CFrame.Angles(math.rad(rotation.X), math.rad(rotation.Y), math.rad(rotation.Z))
-				local collider = newPart(`Collider{number}`, piece.Size, cframe, Color3.new(1, 1, 1), model)
+				local collider =
+					newPart(`Collider{number}`, piece.Size * STAGE_SCALE, cframe, Color3.new(1, 1, 1), model)
 				collider.Shape = piece.Shape or Enum.PartType.Block
 				collider.Transparency = 1
 				collider.CanCollide = true
@@ -624,9 +977,9 @@ local function buildDecor(plot: Plot, step: TycoonSteps.Step): Model?
 		for number, piece in part.Pieces do
 			local rotation = piece.Rotation or Vector3.zero
 			local cframe = frame
-				* CFrame.new(piece.Offset)
+				* CFrame.new(piece.Offset * STAGE_SCALE)
 				* CFrame.Angles(math.rad(rotation.X), math.rad(rotation.Y), math.rad(rotation.Z))
-			local instance = newPart(`Piece{number}`, piece.Size, cframe, piece.Color, model)
+			local instance = newPart(`Piece{number}`, piece.Size * STAGE_SCALE, cframe, piece.Color, model)
 			instance.Material = flat(piece.Material)
 			instance.Shape = piece.Shape or Enum.PartType.Block
 			instance.CanCollide = isSolid(piece)
@@ -666,7 +1019,8 @@ local function padPosition(plot: Plot, step: TycoonSteps.Step): Vector3
 	local theme = TycoonDecor.Themes[step.Bay]
 	local front = area.Y / 2 - LAYOUT.PadFrontInset
 	local function at(spot: Vector2): Vector3
-		return frame:PointToWorldSpace(Vector3.new(spot.X, 0, spot.Y))
+		-- Spots from the theme are unscaled (the pad itself keeps its size).
+		return frame:PointToWorldSpace(Vector3.new(spot.X * STAGE_SCALE, 0, spot.Y * STAGE_SCALE))
 	end
 	if step.Kind == "Bay" then
 		return if theme and theme.BayPad then at(theme.BayPad) else frame:PointToWorldSpace(Vector3.new(0, 0, front))
@@ -802,6 +1156,7 @@ function StreetPlot.Destroy(player: Player)
 	plots[player] = nil
 	if plot then
 		plot.Folder:Destroy()
+		clearAllFills(plot)
 		-- The white wall only had to reach as far as this plot's owner did (a rebuilt plot after an Ascension starts at bay 1).
 		StreetService.SetReach(plot.Slot, 1)
 	end
@@ -830,8 +1185,10 @@ function StreetPlot.Build(player: Player, island: StreetService.Island, actions:
 		Right = back:Cross(Vector3.yAxis),
 		Elev = layout.Elev,
 		Terrain = {},
+		Fills = {},
 		Starts = layout.Starts,
 		Depths = layout.Depths,
+		Ramp = layout.Ramp,
 		Bays = {},
 		Paths = {},
 		Pads = {},
@@ -847,7 +1204,8 @@ function StreetPlot.Refresh(player: Player, state: Types.PlayerState)
 		return
 	end
 	if plot.Folder.Parent == nil then
-		-- The island is gone (the player left): drop the plot.
+		-- The island is gone (the player left): drop the plot (its Terrain regions too, Terrain has no parent).
+		clearAllFills(plot)
 		return
 	end
 
@@ -873,7 +1231,7 @@ function StreetPlot.Refresh(player: Player, state: Types.PlayerState)
 		end
 	end
 	refreshTerrain(plot, reached)
-	-- The white wall around the street reaches back as far as the furthest owner (StreetService).
+	-- This plot's part of the white wall reaches back as far as its owner (StreetService).
 	reached = math.max(reached, 1)
 	if plot.WallReach ~= reached then
 		plot.WallReach = reached

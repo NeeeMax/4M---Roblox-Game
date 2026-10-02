@@ -723,6 +723,8 @@ local function duckIntern(lane: Instance)
 		return
 	end
 	ducking[intern] = true
+	-- Local marker: InternChatController flinches the R15 rig and may answer with a line.
+	intern:SetAttribute("BonkedAt", os.clock())
 	task.spawn(function()
 		local startedAt = os.clock()
 		local total = DUCK_DOWN + DUCK_UP
