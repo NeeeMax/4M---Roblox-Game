@@ -14,6 +14,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local EconomyConfig = require(ReplicatedStorage.Shared.Config.EconomyConfig)
@@ -159,6 +160,8 @@ end
 -- The theme files are written unscaled: every coordinate taken from them (Area, Shiba spot, path, pads, pieces) is multiplied by
 -- STAGE_SCALE so the props sit closer together. Sizes the player deals with (Shiba, platform, barrier, path width, pads) are not.
 local STAGE_SCALE = LAYOUT.StageScale
+-- Studio only: decor models get Tune* attributes (docs/TUNING.md); production stays clean.
+local IS_STUDIO = RunService:IsStudio()
 
 -- The stage's Area after scaling.
 local function areaOf(bay: number): Vector2
@@ -944,9 +947,9 @@ local function piecesBox(pieces: { TycoonDecor.Piece }): (Vector3, Vector3)
 	return (low + high) / 2 * STAGE_SCALE, (high - low) * STAGE_SCALE
 end
 
--- A Decor_<Key>_<PartId> model is made to the size and place of the part's pieces, whatever scale it was imported at.
-local function fitToPieces(model: Model, frame: CFrame, pieces: { TycoonDecor.Piece })
-	local center, size = piecesBox(pieces)
+-- A Decor_<Key>_<PartId> model is made to the size (`size`, already scaled by the part's Scale) of the part's pieces, whatever
+-- scale it was imported at, and its box centre is put on `pivot` (the part's pivot frame, see buildDecor).
+local function fitToPieces(model: Model, pivot: CFrame, size: Vector3)
 	model:PivotTo(CFrame.new())
 	local _, modelSize = model:GetBoundingBox()
 	local longest = math.max(modelSize.X, modelSize.Y, modelSize.Z)
@@ -954,7 +957,7 @@ local function fitToPieces(model: Model, frame: CFrame, pieces: { TycoonDecor.Pi
 		model:ScaleTo(model:GetScale() * math.max(size.X, size.Y, size.Z) / longest)
 	end
 	local box = model:GetBoundingBox()
-	model:PivotTo(frame * CFrame.new(center - box.Position))
+	model:PivotTo(pivot * CFrame.new(-box.Position))
 end
 
 -- Props the player could walk into are solid (floors, rugs and things high above the head are not).
@@ -972,17 +975,21 @@ local function buildDecor(plot: Plot, step: TycoonSteps.Step): Model?
 	if not theme or not part then
 		return nil
 	end
-	-- The part's own frame: the stage frame turned by its Yaw around the vertical axis through the centre of its pieces.
+	-- The part's pivot frame (docs/TUNING.md): at the centre of the union box of its pieces, moved by its Nudge (stage frame, scaled
+	-- like every coordinate) and turned by its Yaw around the vertical axis. Order: Scale about the centre, Yaw about the centre,
+	-- Nudge. A piece stands at pivot * ((its stage position - centre) * Scale) with its size times Scale.
 	local stage = stageFrame(plot, step.Bay)
-	local middle = piecesBox(part.Pieces)
-	local frame = stage * CFrame.new(middle) * CFrame.Angles(0, math.rad(part.Yaw or 0), 0) * CFrame.new(-middle)
+	local middle, boxSize = piecesBox(part.Pieces)
+	local grow = math.clamp(part.Scale or 1, 0.3, 3)
+	local nudge = (part.Nudge or Vector3.zero) * STAGE_SCALE
+	local pivot = stage * CFrame.new(nudge) * CFrame.new(middle) * CFrame.Angles(0, math.rad(part.Yaw or 0), 0)
 	local assetName = `Decor_{theme.Key}_{part.Id}`
 	local model: Model
 	local cloned = if Assets.Has(assetName) then Assets.CloneModel(assetName) else nil
 	if cloned then
 		model = cloned
 		Assets.MakeVisualOnly(model, true)
-		fitToPieces(model, frame, part.Pieces)
+		fitToPieces(model, pivot, boxSize * grow)
 		for _, descendant in model:GetDescendants() do
 			if descendant:IsA("BasePart") then
 				descendant.Material = flat(descendant.Material)
@@ -991,11 +998,11 @@ local function buildDecor(plot: Plot, step: TycoonSteps.Step): Model?
 		for number, piece in part.Pieces do
 			if isSolid(piece) then
 				local rotation = piece.Rotation or Vector3.zero
-				local cframe = frame
-					* CFrame.new(piece.Offset * STAGE_SCALE)
+				local cframe = pivot
+					* CFrame.new((piece.Offset * STAGE_SCALE - middle) * grow)
 					* CFrame.Angles(math.rad(rotation.X), math.rad(rotation.Y), math.rad(rotation.Z))
 				local collider =
-					newPart(`Collider{number}`, piece.Size * STAGE_SCALE, cframe, Color3.new(1, 1, 1), model)
+					newPart(`Collider{number}`, piece.Size * STAGE_SCALE * grow, cframe, Color3.new(1, 1, 1), model)
 				collider.Shape = piece.Shape or Enum.PartType.Block
 				collider.Transparency = 1
 				collider.CanCollide = true
@@ -1005,16 +1012,28 @@ local function buildDecor(plot: Plot, step: TycoonSteps.Step): Model?
 		model = Instance.new("Model")
 		for number, piece in part.Pieces do
 			local rotation = piece.Rotation or Vector3.zero
-			local cframe = frame
-				* CFrame.new(piece.Offset * STAGE_SCALE)
+			local cframe = pivot
+				* CFrame.new((piece.Offset * STAGE_SCALE - middle) * grow)
 				* CFrame.Angles(math.rad(rotation.X), math.rad(rotation.Y), math.rad(rotation.Z))
-			local instance = newPart(`Piece{number}`, piece.Size * STAGE_SCALE, cframe, piece.Color, model)
+			local instance = newPart(`Piece{number}`, piece.Size * STAGE_SCALE * grow, cframe, piece.Color, model)
 			instance.Material = flat(piece.Material)
 			instance.Shape = piece.Shape or Enum.PartType.Block
 			instance.CanCollide = isSolid(piece)
 		end
 	end
 	model.Name = `Decor_{step.Id}`
+	if IS_STUDIO then
+		-- Tuning mode (docs/TUNING.md): the pivot sits at the part's centre, and the attributes say what is applied now, so
+		-- docs/tools/studio_tuner.luau can work out the new Yaw / Scale / Nudge after the model was moved in Studio.
+		StageScatter.StampTuning(model, pivot, stage)
+		model:SetAttribute("TunePartId", part.Id)
+		model:SetAttribute("TuneStepId", step.Id)
+		model:SetAttribute("TuneBay", step.Bay)
+		model:SetAttribute("TuneYaw", part.Yaw or 0)
+		model:SetAttribute("TuneScale", grow)
+		model:SetAttribute("TuneNudge", part.Nudge or Vector3.zero)
+		model:SetAttribute("TuneCenter", middle)
+	end
 	model.Parent = plot.Folder
 	announce(plot, model)
 	return model

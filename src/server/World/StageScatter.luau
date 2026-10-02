@@ -5,12 +5,13 @@
 --   - the scatter: fence rows along both sides of the curve (rotated to its tangent, with gaps), clusters of trees, bushes, rocks
 --     and flowers in the empty areas (random yaw, random scale, rocks and logs lean), tufts and small rocks along the border of
 --     the theme's Area and along the path's edges.
--- Everything is deterministic (seeded by plot slot and bay), anchored, not queryable and not collidable, except the invisible
+-- Everything is deterministic (seeded by the bay only, so every plot looks the same and Pins/Skip apply to all), anchored, not queryable and not collidable, except the invisible
 -- trunk colliders of big trees and boulders. A prop is the model Assets.Scatter_<Name> if it exists, else a primitive-built
 -- fallback. Nothing is announced (no pop-in): the scatter appears silently with its stage. The stage frame is the one of
 -- Config/DecorTypes (origin in the middle of the stage on the path's centre line, +X right, -Z deeper, +Y up).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local Config = require(ReplicatedStorage.Shared.Config.StageScatter)
 local TycoonDecor = require(ReplicatedStorage.Shared.Config.TycoonDecor)
@@ -21,6 +22,8 @@ local StreetLayout = require(ReplicatedStorage.Shared.Util.StreetLayout)
 local LAYOUT = TycoonWorld.Street
 local STAGE_SCALE = LAYOUT.StageScale
 local TAU = math.pi * 2
+-- Tuning attributes (Tune*, docs/TUNING.md) are only put on the models in Studio, production stays clean.
+local IS_STUDIO = RunService:IsStudio()
 
 type Prop = Config.Prop
 type Entries = Config.Entries
@@ -48,6 +51,35 @@ export type Params = {
 type Rect = { X: number, Z: number, HX: number, HZ: number, Cos: number, Sin: number }
 
 local StageScatter = {}
+
+-- ==== tuning (Studio only) ==============================================================================================
+
+-- The box of a model in the orientation of its own pivot: (centre relative to the pivot, size). Measured on a copy turned to the
+-- origin, so it does not depend on where or how the model stands and ignores any rotation of the whole model.
+function StageScatter.Measure(model: Model): (Vector3, Vector3)
+	local probe = model:Clone()
+	probe:PivotTo(CFrame.new())
+	local box, size = probe:GetBoundingBox()
+	probe:Destroy()
+	return box.Position, size
+end
+
+-- Studio only: makes `pivot` the model's pivot (so the Studio Move / Rotate tools turn it about that point) and records what
+-- docs/tools/studio_tuner.luau needs to invert the placement: TunePivot, TuneFrame (the stage frame), TuneBoxOffset and TuneSize
+-- (Measure at build time) and TuneModelScale. The caller adds its own Tune* attributes.
+function StageScatter.StampTuning(model: Model, pivot: CFrame, frame: CFrame)
+	if not IS_STUDIO then
+		return
+	end
+	model.WorldPivot = pivot
+	local offset, size = StageScatter.Measure(model)
+	model:SetAttribute("TunePivot", pivot)
+	model:SetAttribute("TuneFrame", frame)
+	model:SetAttribute("TuneBoxOffset", offset)
+	model:SetAttribute("TuneSize", size)
+	model:SetAttribute("TuneModelScale", model:GetScale())
+	model:SetAttribute("TuneStageScale", STAGE_SCALE)
+end
 
 -- ==== the path =========================================================================================================
 
@@ -279,6 +311,9 @@ local function footprints(theme: TycoonDecor.Theme?): { Rect }
 	for _, part in theme.Parts do
 		local yaw = math.rad(part.Yaw or 0)
 		local cosYaw, sinYaw = math.cos(yaw), math.sin(yaw)
+		-- Scale about the centre, then Yaw about the centre, then Nudge (same order as World/StreetPlot.buildDecor).
+		local grow = math.clamp(part.Scale or 1, 0.3, 3)
+		local nudge = (part.Nudge or Vector3.zero) * STAGE_SCALE
 		local center = partCenter(part.Pieces)
 		for _, piece in part.Pieces do
 			if isSolid(piece) then
@@ -306,12 +341,12 @@ local function footprints(theme: TycoonDecor.Theme?): { Rect }
 					angle = yaw
 				end
 				local offset = piece.Offset * STAGE_SCALE
-				local relX, relZ = offset.X - center.X, offset.Z - center.Y
+				local relX, relZ = (offset.X - center.X) * grow, (offset.Z - center.Y) * grow
 				table.insert(rects, {
-					X = center.X + relX * cosYaw + relZ * sinYaw,
-					Z = center.Y - relX * sinYaw + relZ * cosYaw,
-					HX = halfX,
-					HZ = halfZ,
+					X = center.X + nudge.X + relX * cosYaw + relZ * sinYaw,
+					Z = center.Y + nudge.Z - relX * sinYaw + relZ * cosYaw,
+					HX = halfX * grow,
+					HZ = halfZ * grow,
 					Cos = math.cos(angle),
 					Sin = math.sin(angle),
 				})
@@ -748,7 +783,7 @@ function StageScatter.Build(params: Params): Folder
 	local depth = StreetLayout.Compute().Depths[bay]
 	local path = StageScatter.PathFor(bay)
 	local biome = Config.Biomes[bay] or Config.Default
-	local random = Random.new(params.Slot * 100003 + bay * 7919 + 13)
+	local random = Random.new(bay * 7919 + 13)
 	local halfX = Config.MaxHalfWidth
 	local halfZ = depth / 2 - 2
 	local halfPath = LAYOUT.PathWidth / 2 * (1 + WIDTH_VARIATION)
@@ -766,6 +801,7 @@ function StageScatter.Build(params: Params): Folder
 
 	local placed: { { X: number, Z: number, R: number } } = {}
 	local count = 0
+	local skipped = Config.Skip[bay]
 
 	-- Room for a prop of radius r at (x, z): inside the stage, off the path (`pathMin`), the pads, the Shiba zone and the
 	-- theme's solid pieces.
@@ -835,7 +871,35 @@ function StageScatter.Build(params: Params): Folder
 		end
 	end
 
-	-- Puts one prop on the ground at (x, z), turned `yaw` radians (about the vertical axis, stage frame), at `scale`.
+	-- Builds one prop standing at (x, z) of the stage frame, turned `yaw` radians (about the vertical axis), at `scale`, using the
+	-- random stream `rng` (tilt, colours). Returns the model without a parent. Studio: stamps the Tune* attributes.
+	local function makeProp(name: string, x: number, z: number, yaw: number, scale: number, rng: Random): Model?
+		local spec = Config.Props[name]
+		if not spec then
+			return nil
+		end
+		local tilt = spec.Tilt or 0
+		local tiltX = if tilt > 0 then math.rad(rng:NextNumber(-tilt, tilt)) else 0
+		local tiltZ = if tilt > 0 then math.rad(rng:NextNumber(-tilt, tilt)) else 0
+		local sink = if tilt > 0 and spec.Length == nil then 0.12 * spec.Height * scale else 0
+		local base = frame * CFrame.new(x, -sink, z) * CFrame.Angles(0, yaw, 0) * CFrame.Angles(tiltX, 0, tiltZ)
+		local model = modelProp(name, spec, base, scale) or buildFallback(spec, base, scale, rng)
+		model.Name = name
+		addColliders(model, spec, base, scale)
+		if IS_STUDIO then
+			StageScatter.StampTuning(model, base, frame)
+			model:SetAttribute("TuneScatter", true)
+			model:SetAttribute("TuneBay", bay)
+			model:SetAttribute("TuneName", name)
+			model:SetAttribute("TuneYaw", math.deg(yaw))
+			model:SetAttribute("TuneScale", scale)
+		end
+		return model
+	end
+
+	-- Puts one prop on the ground at (x, z), turned `yaw` radians (about the vertical axis, stage frame), at `scale`. A prop whose
+	-- index (its place in the generation order) is in Config.Skip is built and registered like the others (so everything else
+	-- stays where it was) but then thrown away.
 	local function place(
 		name: string,
 		x: number,
@@ -848,17 +912,20 @@ function StageScatter.Build(params: Params): Folder
 		if not spec or count >= Config.MaxProps then
 			return false
 		end
-		local tilt = spec.Tilt or 0
-		local tiltX = if tilt > 0 then math.rad(random:NextNumber(-tilt, tilt)) else 0
-		local tiltZ = if tilt > 0 then math.rad(random:NextNumber(-tilt, tilt)) else 0
-		local sink = if tilt > 0 and spec.Length == nil then 0.12 * spec.Height * scale else 0
-		local base = frame * CFrame.new(x, -sink, z) * CFrame.Angles(0, yaw, 0) * CFrame.Angles(tiltX, 0, tiltZ)
-		local model = modelProp(name, spec, base, scale) or buildFallback(spec, base, scale, random)
-		model.Name = name
-		addColliders(model, spec, base, scale)
-		model.Parent = folder
+		local model = makeProp(name, x, z, yaw, scale, random)
+		if not model then
+			return false
+		end
 		count += 1
 		table.insert(placed, { X = x, Z = z, R = registerRadius or spec.Width * scale / 2 })
+		if skipped and skipped[count] then
+			model:Destroy()
+			return true
+		end
+		if IS_STUDIO then
+			model:SetAttribute("TuneIndex", count)
+		end
+		model.Parent = folder
 		return true
 	end
 
@@ -1115,6 +1182,45 @@ function StageScatter.Build(params: Params): Folder
 			tryProp(weightedPick(random, biome.Rocks), x, z, 0.35, 0.6, halfPath + 0.3, 0.6)
 		else
 			tryProp(weightedPick(random, biome.Flowers or biome.Bushes), x, z, 0.5, 0.8, halfPath + 0.6, 0.6)
+		end
+	end
+
+	-- ---- hand-placed props (Config.Pins): in addition to the random ones, no collision rejection, not counted in MaxProps ----
+	local pins = Config.Pins[bay]
+	if IS_STUDIO then
+		-- For the tuner: which indices exist (count) and are skipped by the config, so deleted props can be found. Indices are
+		-- those of the bay's sequence (the seed is the bay only).
+		local skippedList: { number } = {}
+		if skipped then
+			for index in skipped do
+				table.insert(skippedList, index)
+			end
+		end
+		table.sort(skippedList)
+		local texts: { string } = {}
+		for _, index in skippedList do
+			table.insert(texts, tostring(index))
+		end
+		folder:SetAttribute("TuneBay", bay)
+		folder:SetAttribute("TuneSlot", params.Slot)
+		folder:SetAttribute("TuneCount", count)
+		folder:SetAttribute("TuneSkipped", table.concat(texts, ","))
+		folder:SetAttribute("TunePins", if pins then #pins else 0)
+	end
+	if pins then
+		for number, pin in pins do
+			local pinRandom = Random.new(bay * 7919 + 977 + number)
+			local scale = math.clamp(pin.Scale or 1, 0.1, 6)
+			local model =
+				makeProp(pin.Name, pin.X * STAGE_SCALE, pin.Z * STAGE_SCALE, math.rad(pin.Yaw or 0), scale, pinRandom)
+			if model then
+				if IS_STUDIO then
+					model:SetAttribute("TunePin", number)
+				end
+				model.Parent = folder
+			else
+				warn(`StageScatter bay {bay}: pin {number} has the unknown prop {pin.Name}`)
+			end
 		end
 	end
 

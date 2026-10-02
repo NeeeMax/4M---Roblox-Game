@@ -26,6 +26,13 @@ export type Part = {
 	-- of its pieces (positive = counter-clockwise seen from above, like CFrame.Angles(0, yaw, 0) in the stage frame). The piece
 	-- offsets and rotations are written unyawed; the layout rules (Area, solid, walkway, pads) apply to the turned part.
 	Yaw: number?,
+	-- Optional: uniform scale (0.3 to 3, default 1) of the whole part (pieces, model, colliders) about the centre of the union box of
+	-- its pieces. Applied first, then Yaw (about the same centre), then Nudge. The layout rules apply to the scaled part.
+	Scale: number?,
+	-- Optional: offset of the whole part in the stage frame, in UNSCALED theme units (multiplied by StageScale like every other
+	-- coordinate), applied after Scale and Yaw (not turned by Yaw). Y = lift above the floor. The part's Pad stays where it is.
+	-- Normally filled in by pasting the output of docs/tools/studio_tuner.luau (see docs/TUNING.md).
+	Nudge: Vector3?,
 	-- Optional: once this part is bought, the Shiba of the theme pays this many times more cash per hit and per second (1 to 2;
 	-- the bonuses of all bought parts multiply, the whole theme at most 8). No visual effect is spawned for it; the pad text names it.
 	RewardMult: number?,
