@@ -3,5 +3,5 @@
 -- Bump the label with every change that should be visible in a playtest.
 
 return {
-	Label = "2026-10-02 #64: fix: Ascend pad crashed the pad refresh at Shiba 10 (Viking buttons); terrain, Interns, bays 4-5 models",
+	Label = "2026-10-02 #65: much higher hillside (stages rise 9 studs and more per Shiba, Shiba 30 about 385 up)",
 }
