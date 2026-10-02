@@ -233,6 +233,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Jail",
+			Yaw = -8,
 			Name = "Sheriff's Office",
 			Description = "A plank office with a stone jail cell on the side, a tin star and a JAIL board.",
 			Pad = Vector2.new(-64, 57.5),
@@ -249,6 +250,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Horses",
+			Yaw = 14,
 			Name = "Hitching Rail",
 			Description = "Two saddle horses, one brown and one white, tied up at a rail with a water trough.",
 			Pad = Vector2.new(74, 13),
@@ -263,6 +265,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Well",
+			Yaw = 20,
 			Name = "Town Well",
 			Description = "A round stone well with a little shingle roof, a crank and a wooden bucket.",
 			Pad = Vector2.new(-8, 34),
@@ -279,6 +282,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Wagon",
+			Yaw = -25,
 			Name = "Covered Wagon",
 			Description = "A canvas-topped prairie wagon with big wooden wheels, a driver's seat and a pair of barrels.",
 			Pad = Vector2.new(-48, 29),
@@ -300,6 +304,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Bank",
+			Yaw = 6,
 			Name = "Gold Bank",
 			Description = "A sandstone bank with four columns, a golden vault door and a BANK sign over the portico.",
 			Pad = Vector2.new(-63, 10.5),
@@ -320,6 +325,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Cacti",
+			Yaw = 18,
 			Name = "Cactus Garden",
 			Description = "Two tall saguaros with raised arms, round barrel cacti and a few sun-warmed rocks.",
 			Pad = Vector2.new(75, 26),
@@ -333,6 +339,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "WaterTower",
+			Yaw = 22,
 			Name = "Water Tower",
 			Description = "A tall wooden water tank on four legs with braces, a ladder and a pointed roof.",
 			Pad = Vector2.new(12, -31),
@@ -356,6 +363,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Windmill",
+			Yaw = -18,
 			Name = "Wind Pump",
 			Description = "A steel lattice windmill with a big blade wheel and tail vane, pumping water into a trough.",
 			Pad = Vector2.new(-18, 47),
@@ -380,6 +388,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Mine",
+			Yaw = 7,
 			Name = "Gold Mine",
 			Description = "A rocky hillside with a timber-framed mine shaft, an ore cart on rails and a pile of gold nuggets.",
 			Pad = Vector2.new(-73, -30),
@@ -426,6 +435,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Camp",
+			Yaw = 25,
 			Name = "Cowboy Camp",
 			Description = "A teepee, a crackling campfire between log seats, a crate of supplies and a rolled-up bed.",
 			Pad = Vector2.new(-52, -17),
@@ -447,6 +457,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Mesa",
+			Yaw = -10,
 			Name = "Red Rock Mesa",
 			Description = "A huge layered red-rock butte with a giant cowboy hat balanced on its flat top.",
 			Pad = Vector2.new(79, 32),

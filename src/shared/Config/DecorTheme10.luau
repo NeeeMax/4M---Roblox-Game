@@ -216,6 +216,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Smithy",
+			Yaw = 8,
 			Name = "Rune Forge",
 			Description = "A stone forge with a tall chimney, a glowing hearth, a heavy anvil and a water barrel.",
 			Pad = Vector2.new(-80, 44),
@@ -236,6 +237,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "FirePit",
+			Yaw = 20,
 			Name = "Bonfire Circle",
 			Description = "A ring of stones around a roaring fire and a cauldron, with log stumps to sit on.",
 			Pad = Vector2.new(28, 16),
@@ -258,6 +260,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Longship",
+			Yaw = 10,
 			Name = "Dragon Longship",
 			Description = "A mighty longship with a dragon prow, a red striped sail and a row of round shields.",
 			Pad = Vector2.new(58, -30),
@@ -282,6 +285,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Feast",
+			Yaw = 0,
 			Name = "Feast Table",
 			Description = "A long table with roast boar and mugs, two benches and a barrel of mead.",
 			Pad = Vector2.new(14, -5),
@@ -327,6 +331,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "ShieldWall",
+			Yaw = -6,
 			Name = "Shield Wall",
 			Description = "A timber wall hung with round painted shields and crowned with spears.",
 			Pad = Vector2.new(-75, 60),
@@ -349,6 +354,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Storehouse",
+			Yaw = 6,
 			Name = "Stilt Storehouse",
 			Description = "A little food store on stilts with a turf roof, so the mice cannot get in.",
 			Pad = Vector2.new(-66, 12),
@@ -368,6 +374,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Watchtower",
+			Yaw = 18,
 			Name = "Lookout Tower",
 			Description = "A tall timber tower on four legs with a roofed lookout and a ladder.",
 			Pad = Vector2.new(66, 42),
@@ -390,6 +397,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "FishRacks",
+			Yaw = -14,
 			Name = "Fish Drying Racks",
 			Description = "Two racks of silver fish drying in the wind and an upturned rowing boat.",
 			Pad = Vector2.new(62, 22),
@@ -410,6 +418,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "AxeRange",
+			Yaw = 8,
 			Name = "Axe Throwing Range",
 			Description = "Three round targets on posts and a line to throw from. Bonk, thunk, bullseye!",
 			Pad = Vector2.new(-40, 57),
@@ -432,6 +441,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "RuneStones",
+			Yaw = 22,
 			Name = "Rune Stone Circle",
 			Description = "Seven tall standing stones carved with runes around a flat altar stone.",
 			Pad = Vector2.new(-19, -37),
@@ -452,6 +462,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Banners",
+			Yaw = 0,
 			Name = "Raven Banners",
 			Description = "Four tall banners with the raven of the clan flapping before the longhouse.",
 			Pad = Vector2.new(-36, -30),
@@ -465,6 +476,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Sauna",
+			Yaw = -14,
 			Name = "Turf Sauna",
 			Description = "A log sauna hut with a turf roof, a stone chimney and clouds of steam.",
 			Pad = Vector2.new(47, 10),
@@ -485,6 +497,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Throne",
+			Yaw = 6,
 			Name = "Chieftain Throne",
 			Description = "A carved wooden throne with horns on a stone dais, guarded by two fire bowls.",
 			Pad = Vector2.new(-44, 34),
@@ -508,6 +521,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Totem",
+			Yaw = 25,
 			Name = "Raven Totem",
 			Description = "A carved totem pole of faces with a big black raven on top.",
 			Pad = Vector2.new(10, 37),
@@ -527,6 +541,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Stables",
+			Yaw = -8,
 			Name = "Horse Paddock",
 			Description = "A fenced paddock with a stable shed, hay bales and a sturdy shaggy pony.",
 			Pad = Vector2.new(62, 48),
@@ -550,6 +565,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Hoard",
+			Yaw = 20,
 			Name = "Dragon Hoard",
 			Description = "A rocky cave full of gold coins, a treasure chest and shiny crowns.",
 			Pad = Vector2.new(-58, 50),
@@ -571,6 +587,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Helmet",
+			Yaw = 6,
 			Name = "Giant Horned Helmet",
 			Description = "The showpiece: a giant horned helmet of steel and gold on a stone plinth.",
 			Pad = Vector2.new(-2, -34),

@@ -241,6 +241,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Sign",
+			Yaw = 8,
 			Name = "Get Bonked Sign",
 			Description = "A big black board on two posts, a skull on top and GET BONKED in bone white letters.",
 			Pad = Vector2.new(-52, 48),
@@ -323,6 +324,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Tavern",
+			Yaw = -8,
 			Name = "Rum Tavern",
 			Description = "A two storey pirate tavern with a red roof, a porch, rum barrels and a hanging sign.",
 			Pad = Vector2.new(38, -26),
@@ -367,6 +369,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Camp",
+			Yaw = 22,
 			Name = "Pirate Camp",
 			Description = "A cream tent, a campfire with log seats, barrels and a stack of crates on the beach.",
 			Pad = Vector2.new(76, 27),
@@ -408,6 +411,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Palms",
+			Yaw = 15,
 			Name = "Palm Grove",
 			Description = "Three leaning palm trees with coconuts on the right side of the beach.",
 			Pad = Vector2.new(74, 12),
@@ -416,6 +420,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Rowboat",
+			Yaw = -30,
 			Name = "Beached Rowboat",
 			Description = "A little rowboat pulled up on the sand with two oars and a rusty anchor.",
 			Pad = Vector2.new(-33, -47),
@@ -436,6 +441,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Chest",
+			Yaw = 25,
 			Name = "Treasure Hoard",
 			Description = "A giant chest with a round lid and gold bands, piles of gold coins, a goblet and a skull.",
 			Pad = Vector2.new(74, -20),
@@ -457,6 +463,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "SkullRock",
+			Yaw = 12,
 			Name = "Skull Rock",
 			Description = "A grey rock in the lagoon shaped like a giant skull with dark eyes, a toothy grin and a pirate hat.",
 			Pad = Vector2.new(-92, -50),

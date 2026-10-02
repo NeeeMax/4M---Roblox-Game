@@ -8,7 +8,7 @@
 --  * schema: Key, Name, Area (X, Y <= 190), part count (10 for bays 1-3, 15 for 4-8, 20 for 9-14, 25 for 15-21, 30 for 22-30), unique alphanumeric ids, prices not
 --    dropping, 1-16 pieces per part, every Part has Pad, the theme has Shiba, Path, BayPad, AutoPad
 --  * Path: starts at (0, Area.Y/2), ends at (0, -Area.Y/2), every waypoint inside the Area, segments >= 8 long
---  * every piece inside the Area (rotated bounding boxes)
+--  * every piece inside the Area (rotated bounding boxes; a part's optional Yaw turns all its pieces about the centre of their union box)
 --  * a piece is SOLID (the player cannot walk through it) if it is over 0.6 studs high and starts lower than 7 studs above the
 --    ground (same rule as World/StreetPlot); solid pieces keep clear of: the walkway (5.5 studs from its centre line), the Shiba
 --    (8 studs: its platform and barrier), the zone in front of the Shiba (8-17 studs along its facing, 5 studs to each side), every pad (3 studs, pieces of
@@ -113,6 +113,9 @@ for i, part in theme.Parts do
 	if #part.Pieces < 1 or #part.Pieces > 16 then
 		err(`part {i} ({part.Id}): {#part.Pieces} pieces (1 to 16)`)
 	end
+	if part.Yaw ~= nil and type(part.Yaw) ~= "number" then
+		err(`part {i} ({part.Id}): Yaw must be a number (degrees)`)
+	end
 	if not part.Pad then
 		err(`part {i} ({part.Id}): Pad missing`)
 	elseif math.abs(part.Pad.X) > hx - 3 or math.abs(part.Pad.Y) > hz - 3 then
@@ -172,11 +175,15 @@ for i, point in path do
 end
 
 -- ---- pieces and obstacles
-local function bounds(piece)
+-- The footprint (x0, x1, z0, z1) of a piece. `yaw` (radians) and `center` (x, z of the union box of the part's pieces) apply the
+-- part's Yaw: the offset is turned about the centre, and the piece's own rotation gets the yaw added.
+local function bounds(piece, yaw, center)
+	yaw = yaw or 0
 	local r = piece.Rotation
 	local sx, sy, sz = piece.Size.X / 2, piece.Size.Y / 2, piece.Size.Z / 2
-	if r and (r.X ~= 0 or r.Y ~= 0 or r.Z ~= 0) then
-		local ax, ay, az = math.rad(r.X), math.rad(r.Y), math.rad(r.Z)
+	local rotated = r and (r.X ~= 0 or r.Y ~= 0 or r.Z ~= 0)
+	if rotated or yaw ~= 0 then
+		local ax, ay, az = math.rad(r and r.X or 0), math.rad(r and r.Y or 0), math.rad(r and r.Z or 0)
 		local cx, sx_, cy, sy_, cz, sz_ =
 			math.cos(ax), math.sin(ax), math.cos(ay), math.sin(ay), math.cos(az), math.sin(az)
 		local Rx = { { 1, 0, 0 }, { 0, cx, -sx_ }, { 0, sx_, cx } }
@@ -197,21 +204,43 @@ local function bounds(piece)
 			return o
 		end
 		local m = mul(mul(Ry, Rx), Rz)
+		if yaw ~= 0 then
+			local cw, sw = math.cos(yaw), math.sin(yaw)
+			m = mul({ { cw, 0, sw }, { 0, 1, 0 }, { -sw, 0, cw } }, m)
+		end
 		sx, sy, sz =
 			math.abs(m[1][1]) * sx + math.abs(m[1][2]) * sy + math.abs(m[1][3]) * sz,
 			math.abs(m[2][1]) * sx + math.abs(m[2][2]) * sy + math.abs(m[2][3]) * sz,
 			math.abs(m[3][1]) * sx + math.abs(m[3][2]) * sy + math.abs(m[3][3]) * sz
 	end
 	local o = piece.Offset
-	return o.X - sx, o.X + sx, o.Z - sz, o.Z + sz
+	local ox, oz = o.X, o.Z
+	if yaw ~= 0 then
+		local dx, dz = ox - center[1], oz - center[2]
+		ox = center[1] + dx * math.cos(yaw) + dz * math.sin(yaw)
+		oz = center[2] - dx * math.sin(yaw) + dz * math.cos(yaw)
+	end
+	return ox - sx, ox + sx, oz - sz, oz + sz
+end
+
+-- Centre (x, z) of the union box of a part's pieces (before its Yaw): the point the Yaw turns around.
+local function partCenter(part)
+	local x0, x1, z0, z1 = math.huge, -math.huge, math.huge, -math.huge
+	for _, piece in part.Pieces do
+		local a, b, c, d = bounds(piece)
+		x0, x1, z0, z1 = math.min(x0, a), math.max(x1, b), math.min(z0, c), math.max(z1, d)
+	end
+	return { (x0 + x1) / 2, (z0 + z1) / 2 }
 end
 
 local obstacles = {} -- { x0, x1, z0, z1, part = index }
 local pieceCount = 0
 for i, part in theme.Parts do
+	local yaw = math.rad(part.Yaw or 0)
+	local center = partCenter(part)
 	for n, piece in part.Pieces do
 		pieceCount += 1
-		local x0, x1, z0, z1 = bounds(piece)
+		local x0, x1, z0, z1 = bounds(piece, yaw, center)
 		if x0 < -hx - 0.01 or x1 > hx + 0.01 or z0 < -hz - 0.01 or z1 > hz + 0.01 then
 			err(`part {i} ({part.Id}) piece {n} sticks out of the Area`)
 		end

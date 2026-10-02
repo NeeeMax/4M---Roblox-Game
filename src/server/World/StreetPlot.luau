@@ -7,6 +7,7 @@
 --   once automated, the Bonk Intern standing in front of the Shiba. The client draws the Shiba's menu, the swing and the
 --   intern's ducking; there are no prompts or billboards on the Shiba.
 -- - Decor: the pieces of every bought decor pad, built in the stage frame.
+-- - Path and scatter: the curved walkway and the silent organic dressing of every stage (World/StageScatter).
 -- - Pads: glowing floor ovals (Util/TycoonSteps). The Shiba pad stands on the path at the front of its stage, the decor pads
 --   in two lanes on the path, the Intern pad just before the Shiba pad. Stepping on one asks StreetGameService to buy it.
 -- Everything here is visual or a request; StreetGameService validates every action and decides all money.
@@ -29,6 +30,7 @@ local TycoonSteps = require(ReplicatedStorage.Shared.Util.TycoonSteps)
 local Types = require(ReplicatedStorage.Shared.Types)
 
 local StreetService = require(script.Parent.Parent.Services.StreetService)
+local StageScatter = require(script.Parent.StageScatter)
 local TycoonPlot = require(script.Parent.TycoonPlot)
 
 local LANE = TycoonWorld.Lane
@@ -100,6 +102,8 @@ type Plot = {
 	Ramp: { [number]: number },
 	Bays: { [number]: BayRefs },
 	Paths: { [number]: Folder },
+	-- The organic scatter (trees, fences, rocks, ...) of every reached stage (World/StageScatter), built silently with the stage.
+	Scatter: { [number]: Folder },
 	Pads: { [string]: PadRefs },
 	-- Built decor parts by step id (the ones whose step is bought).
 	Decor: { [string]: Model },
@@ -844,8 +848,10 @@ local function refreshBay(bay: BayRefs, tycoon: Types.TycoonState, index: number
 	end
 end
 
--- The walkway through the stage of `bay`: a polyline (Theme.Path, else straight) from the stage's front to its back, joined to the
--- road (stage 1) or to the neighbouring stages by straight pieces over the margins.
+-- The walkway through the stage of `bay`: the smooth curve of World/StageScatter.PathFor (the theme's waypoints, Theme.Path, else
+-- straight) from the stage's front to its back, which joins the road (stage 1) or the neighbouring stages at the stage ends. Many
+-- short overlapping segments with a round joint at every point, the width varies slightly (+-8%, the walkway keeps its gameplay width
+-- of Config/TycoonWorld.Street.PathWidth on average).
 local function ensurePath(plot: Plot, bay: number)
 	if plot.Paths[bay] then
 		return
@@ -853,33 +859,53 @@ local function ensurePath(plot: Plot, bay: number)
 	local folder = Instance.new("Folder")
 	folder.Name = `Path{bay}`
 	local frame = stageFrame(plot, bay)
-	local area = areaOf(bay)
-	local theme = TycoonDecor.Themes[bay]
-	local waypoints: { Vector2 } = if theme and theme.Path
-		then theme.Path
-		else { Vector2.new(0, area.Y / 2), Vector2.new(0, -area.Y / 2) }
+	local data = StageScatter.PathFor(bay)
 	local lift = Vector3.new(0, 0.05, 0)
-	local from = if bay == 1 then 0 else plot.Starts[bay]
-	local to = plot.Starts[bay] + plot.Depths[bay]
-	local points: { Vector3 } = {}
-	table.insert(points, plot.RoadEnd + plot.Back * from + Vector3.new(0, plot.Elev[bay], 0) + lift)
-	for _, waypoint in waypoints do
-		-- The default straight path already uses the scaled Area; the theme's own waypoints are unscaled.
-		local scaled = if theme and theme.Path then waypoint * STAGE_SCALE else waypoint
-		table.insert(points, frame:PointToWorldSpace(Vector3.new(scaled.X, 0, scaled.Y)) + lift)
-	end
-	table.insert(points, plot.RoadEnd + plot.Back * to + Vector3.new(0, plot.Elev[bay], 0) + lift)
-	local width = LAYOUT.PathWidth
-	for index = 1, #points - 1 do
-		local a, b = points[index], points[index + 1]
-		local length = (b - a).Magnitude
-		if length > 0.1 then
-			local middle = (a + b) / 2
-			newPart("Path", Vector3.new(width, 0.1, length), CFrame.lookAt(middle, b), LAYOUT.PathColor, folder)
+	local points: { Vector2 } = {}
+	local widths: { number } = {}
+	if bay == 1 then
+		-- Stage 1's walkway starts at the road, a straight bit before the stage.
+		local front = data.Points[1].Y
+		local z = plot.Starts[1] + plot.Depths[1] / 2
+		while z > front + 1 do
+			table.insert(points, Vector2.new(0, z))
+			table.insert(widths, 1)
+			z -= 3
 		end
-		if index > 1 then
-			-- A square at every joint fills the corner.
-			newPart("PathJoint", Vector3.new(width, 0.1, width), CFrame.new(a), LAYOUT.PathColor, folder)
+	end
+	for index, point in data.Points do
+		table.insert(points, point)
+		table.insert(widths, data.Widths[index])
+	end
+
+	local width = LAYOUT.PathWidth
+	local standing = CFrame.Angles(0, 0, math.rad(90))
+	for index, point in points do
+		local here = frame:PointToWorldSpace(Vector3.new(point.X, 0, point.Y)) + lift
+		local across = width * widths[index]
+		-- The round joint: a flat disc (a cylinder's axis is X, so it is stood up).
+		local disc = newPart(
+			"PathJoint",
+			Vector3.new(0.1, across, across),
+			CFrame.new(here) * standing,
+			LAYOUT.PathColor,
+			folder
+		)
+		disc.Shape = Enum.PartType.Cylinder
+		local nextPoint = points[index + 1]
+		if nextPoint then
+			local there = frame:PointToWorldSpace(Vector3.new(nextPoint.X, 0, nextPoint.Y)) + lift
+			local length = (there - here).Magnitude
+			if length > 0.1 then
+				local narrow = width * math.min(widths[index], widths[index + 1])
+				newPart(
+					"Path",
+					Vector3.new(narrow, 0.1, length + 0.3),
+					CFrame.lookAt((here + there) / 2, there),
+					LAYOUT.PathColor,
+					folder
+				)
+			end
 		end
 	end
 	folder.Parent = plot.Folder
@@ -946,7 +972,10 @@ local function buildDecor(plot: Plot, step: TycoonSteps.Step): Model?
 	if not theme or not part then
 		return nil
 	end
-	local frame = stageFrame(plot, step.Bay)
+	-- The part's own frame: the stage frame turned by its Yaw around the vertical axis through the centre of its pieces.
+	local stage = stageFrame(plot, step.Bay)
+	local middle = piecesBox(part.Pieces)
+	local frame = stage * CFrame.new(middle) * CFrame.Angles(0, math.rad(part.Yaw or 0), 0) * CFrame.new(-middle)
 	local assetName = `Decor_{theme.Key}_{part.Id}`
 	local model: Model
 	local cloned = if Assets.Has(assetName) then Assets.CloneModel(assetName) else nil
@@ -1048,6 +1077,44 @@ local function padPosition(plot: Plot, step: TycoonSteps.Step): Vector3
 	local span = area.Y - 2 * LAYOUT.PadFrontInset
 	local z = if rows <= 1 then front else front - row * span / (rows - 1)
 	return frame:PointToWorldSpace(Vector3.new(LAYOUT.DecorPadX[chain + 1], 0, z))
+end
+
+-- The scatter of every stage that is reached (`reached` = the highest Shiba available): built once, silently (no SpawnedAt), removed
+-- again when the stage goes away. A failure only costs the scatter, never the plot.
+local function refreshScatter(plot: Plot, reached: number)
+	for bay = 1, TycoonSteps.Bays do
+		local built = plot.Scatter[bay]
+		if reached >= bay then
+			if not built then
+				ensurePath(plot, bay)
+				local frame = stageFrame(plot, bay)
+				local pads: { Vector2 } = {}
+				for _, step in TycoonSteps.List do
+					if step.Bay == bay then
+						local spot = frame:PointToObjectSpace(padPosition(plot, step))
+						table.insert(pads, Vector2.new(spot.X, spot.Z))
+					end
+				end
+				local ok, result = pcall(function()
+					return StageScatter.Build({
+						Bay = bay,
+						Slot = plot.Slot,
+						Frame = frame,
+						Pads = pads,
+						Parent = plot.Folder,
+					})
+				end)
+				if ok then
+					plot.Scatter[bay] = result
+				else
+					warn(`StageScatter bay {bay}: {result}`)
+				end
+			end
+		elseif built then
+			built:Destroy()
+			plot.Scatter[bay] = nil
+		end
+	end
 end
 
 local function buildPad(plot: Plot, step: TycoonSteps.Step): PadRefs
@@ -1192,6 +1259,7 @@ function StreetPlot.Build(player: Player, island: StreetService.Island, actions:
 		Ramp = layout.Ramp,
 		Bays = {},
 		Paths = {},
+		Scatter = {},
 		Pads = {},
 		Decor = {},
 	}
@@ -1232,6 +1300,7 @@ function StreetPlot.Refresh(player: Player, state: Types.PlayerState)
 		end
 	end
 	refreshTerrain(plot, reached)
+	refreshScatter(plot, reached)
 	-- This plot's part of the white wall reaches back as far as its owner (StreetService).
 	reached = math.max(reached, 1)
 	if plot.WallReach ~= reached then

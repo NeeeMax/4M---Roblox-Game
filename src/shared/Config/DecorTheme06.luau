@@ -199,6 +199,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Cars",
+			Yaw = 12,
 			Name = "Patrol Cars",
 			Description = "Three white patrol cars with light bars, parked nose out in the lot.",
 			Pad = Vector2.new(-74, 52),
@@ -207,6 +208,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Cells",
+			Yaw = 6,
 			Name = "Holding Cells",
 			Description = "A grey cell block with barred windows, a fenced yard and a guard tower.",
 			Pad = Vector2.new(-77, -33),
@@ -229,6 +231,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Donuts",
+			Yaw = 15,
 			Name = "Donut Shop",
 			Description = "A pink donut shop with a giant donut on the roof. Every cop's favourite stop.",
 			Pad = Vector2.new(28, -11),
@@ -249,6 +252,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Beacon",
+			Yaw = 20,
 			Name = "Siren Tower",
 			Description = "A tall steel tower with a red and blue siren on top that you can see from the whole plot.",
 			Pad = Vector2.new(6, 2),
@@ -271,6 +275,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Range",
+			Yaw = -12,
 			Name = "Shooting Range",
 			Description = "Four target lanes with a wooden bench and a dirt wall. Bonk practice, of course.",
 			Pad = Vector2.new(56, 45),
@@ -295,6 +300,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Kennel",
+			Yaw = -14,
 			Name = "K-9 Kennel",
 			Description = "Three doghouses in a fenced run for the police dogs, with food bowls and a big K-9 sign.",
 			Pad = Vector2.new(82, 0),
@@ -318,6 +324,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Heli",
+			Yaw = 25,
 			Name = "Police Helicopter",
 			Description = "The showpiece: a blue police helicopter waiting on its helipad.",
 			Pad = Vector2.new(-40, -37),
@@ -343,6 +350,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Roadblock",
+			Yaw = 8,
 			Name = "Roadblock",
 			Description = "Red and white barriers, orange cones, a stop sign and a spike strip across the road.",
 			Pad = Vector2.new(30, 45),
@@ -359,6 +367,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Swat",
+			Yaw = -20,
 			Name = "SWAT Van",
 			Description = "A tough armoured van with a ram on the roof and a roof light bar.",
 			Pad = Vector2.new(22, -46),
@@ -380,6 +389,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Wanted",
+			Yaw = 10,
 			Name = "Wanted Board",
 			Description = "A huge WANTED poster on two posts. Somebody is up to no good.",
 			Pad = Vector2.new(-55, 8),
@@ -397,6 +407,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Impound",
+			Yaw = 5,
 			Name = "Impound Yard",
 			Description = "A fenced yard with a yellow tow truck, wrecked cars and a pile of old tyres.",
 			Pad = Vector2.new(-75, 0),
@@ -422,6 +433,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Bikes",
+			Yaw = -6,
 			Name = "Bike Patrol",
 			Description = "A covered stand with three police motorbikes ready to roll.",
 			Pad = Vector2.new(80, 50),
@@ -435,6 +447,7 @@ local theme: DecorTypes.Theme = {
 		},
 		{
 			Id = "Monument",
+			Yaw = 15,
 			Name = "Golden Badge Monument",
 			Description = "A giant golden police badge on a tall navy pedestal, with four lamps around the plaza.",
 			Pad = Vector2.new(-24, 14),
