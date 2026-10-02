@@ -1014,6 +1014,12 @@ end
 -- Where a pad stands, in the stage frame of its bay: the Shiba pad at the front of the stage on the path, the decor pads in
 -- two lanes on the path (one per chain) from the front to the back, the Intern pad just before the Shiba pad.
 local function padPosition(plot: Plot, step: TycoonSteps.Step): Vector3
+	if step.Kind == "Ascend" then
+		-- Beside the entrance of the plot (no stage of its own: its Bay is 0).
+		local elev = plot.Elev[1] or 0
+		local aside = plot.RoadEnd + plot.Back * LAYOUT.AscendPadDepth + plot.Right * LAYOUT.AscendPadLateral
+		return aside + Vector3.new(0, elev, 0)
+	end
 	local frame = stageFrame(plot, step.Bay)
 	local area = areaOf(step.Bay)
 	local theme = TycoonDecor.Themes[step.Bay]
@@ -1029,11 +1035,6 @@ local function padPosition(plot: Plot, step: TycoonSteps.Step): Vector3
 			return at(theme.AutoPad)
 		end
 		return frame:PointToWorldSpace(Vector3.new(0, 0, area.Y / 2 - LAYOUT.AutoPadInset))
-	end
-	if step.Kind == "Ascend" then
-		local elev = plot.Elev[1] or 0
-		local aside = plot.RoadEnd + plot.Back * LAYOUT.AscendPadDepth + plot.Right * LAYOUT.AscendPadLateral
-		return aside + Vector3.new(0, elev, 0)
 	end
 	local index = step.PartIndex or 1
 	local own = if theme and step.PartIndex then theme.Parts[step.PartIndex] else nil

@@ -3,5 +3,5 @@
 -- Bump the label with every change that should be visible in a playtest.
 
 return {
-	Label = "2026-10-02 #63: natural hillside terrain (every stage from Shiba 4 higher), tighter stages, Roblox-character Interns with speech, models for Shibas 4-5",
+	Label = "2026-10-02 #64: fix: Ascend pad crashed the pad refresh at Shiba 10 (Viking buttons); terrain, Interns, bays 4-5 models",
 }
