@@ -33,25 +33,40 @@ return {
 	-- Street plot (StreetPlot): one stage per Shiba along a path that leads away from the road. Positions are in the stage
 	-- frame (Config/DecorTypes): origin = the stage's middle on the path, +X right, -Z deeper, +Z toward the road.
 	Street = {
-		-- Terraces: every GroupSize Shibas the plot rises by Rise studs, reached by a staircase (steps of StairRise high and StairRun
-		-- deep, StairWidth wide) in front of the next group's first stage. They are built when the group's first Shiba becomes
-		-- available (the plot grows as the player progresses).
+		-- Hillside: the first GroupSize stages (also the base depth of the white wall) lie on the flat plot ground. From the next
+		-- stage on EVERY stage stands higher than the one before: the first one RiseFirst studs, every further one RiseGrowth more
+		-- (Shiba 30 is about 160 studs up). Before each higher stage the ground eases up over a wide grassy slope of
+		-- rise / RampSlope studs (average slope; the eased profile peaks at 1.5x, so 0.33 stays under 27 degrees). The stage floor
+		-- itself is a flat grass slab ShelfThickness thick, the full width between two plots, tinted per stage (GrassTints, cycled).
+		-- Everything is built when the stage becomes available (StreetPlot.refreshTerrain).
 		GroupSize = 3,
-		Rise = 18,
-		StairRise = 1.5,
-		StairRun = 5,
-		StairWidth = 22,
-		StairColor = Color3.fromRGB(120, 78, 45),
-		TerraceColor = Color3.fromRGB(150, 95, 52),
-		TerraceMaterial = Enum.Material.Rock,
+		RiseFirst = 4,
+		RiseGrowth = 0.15,
+		RampSlope = 0.33,
+		ShelfThickness = 2,
+		GrassMaterial = Enum.Material.Grass,
+		GrassTints = {
+			Color3.fromRGB(95, 185, 85),
+			Color3.fromRGB(104, 184, 80),
+			Color3.fromRGB(88, 172, 92),
+			Color3.fromRGB(112, 182, 82),
+			Color3.fromRGB(92, 176, 98),
+		},
+		-- Colour of smooth Terrain grass (mounds, hills), of the soil under the slabs and of the rocky outcrops and boulders.
+		TerrainGrass = Color3.fromRGB(98, 182, 86),
+		SoilColor = Color3.fromRGB(104, 80, 56),
+		RockColor = Color3.fromRGB(128, 124, 118),
+		-- All stage coordinates of the themes (Area, Shiba spot, path, pads, pieces) are multiplied by this so the props sit closer
+		-- together. The Shiba, its platform and barrier, the path width, pads and prompts keep their size (Util/StreetLayout).
+		StageScale = 0.85,
 		-- The one white wall around all 10 plots and the road (StreetService): a fixed rectangle GroupSize stages deep; only the
 		-- wall of a plot whose owner expanded further steps back (its back wall and the side walls toward shallower neighbours).
 		WallColor = Color3.fromRGB(238, 238, 242),
 		OuterWallHeight = 40,
 		OuterWallThickness = 8,
-		-- Depth (from the road end of the plot) where the first stage starts, and the free margin added to every stage's Area.
+		-- Depth (from the road end of the plot) where the first stage starts, and the free margin added to every (scaled) stage Area.
 		FirstStageDepth = 20,
-		StageMargin = 10,
+		StageMargin = 8,
 		-- Stage size of a bay whose theme is missing.
 		DefaultArea = Vector2.new(80, 80),
 		-- The Shiba stands this far left of the path, facing it.

@@ -101,6 +101,37 @@ return {
 		},
 	},
 
+	-- The street's R15 interns (Controllers/InternChatController): idle animation, flinch and speech bubbles.
+	-- Lines live in Config/InternLines.
+	Chat = {
+		-- Seconds between two lines of one intern (random per intern and per line).
+		MinInterval = 8,
+		MaxInterval = 25,
+		-- Only interns this close (studs) to the local player speak or animate.
+		SpeakDistance = 80,
+		AnimateDistance = 120,
+		-- At most this many bubbles at once, and at least this long between two bubbles starting (never all at once).
+		MaxBubbles = 3,
+		MinGap = 1.5,
+		-- Bubble: seconds on screen (including the fades), fade time, height above the head, text size and width limit.
+		BubbleTime = 3.5,
+		FadeTime = 0.25,
+		BubbleHeight = 2.2,
+		TextSize = 18,
+		MaxTextWidth = 220,
+		-- Chance (0-1) that a bonk is answered with a line, and that the first visit gets a greeting.
+		ReactionChance = 0.7,
+		GreetingChance = 0.6,
+		-- Idle bob: breathing and look-around (radians / seconds).
+		BobAmount = 0.03,
+		BobSpeed = 1.6,
+		LookAmount = 0.5,
+		LookSpeed = 0.35,
+		-- Flinch after a bonk: seconds and lean (degrees).
+		FlinchTime = 0.6,
+		FlinchDegrees = 22,
+	},
+
 	-- Client effects (AutomationController).
 	Effects = {
 		-- Coin popup "+B$ X" above the basket / intern.
