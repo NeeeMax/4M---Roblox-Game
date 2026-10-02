@@ -3,5 +3,5 @@
 -- Bump the label with every change that should be visible in a playtest.
 
 return {
-	Label = "2026-10-02 #66: organic stages: curved paths, scatter props (trees, fences, rocks), rotated decor",
+	Label = "2026-10-02 #67: dirt walls (higher) with tunnels at the road ends, camera zoom limited to 64; organic stages",
 }
