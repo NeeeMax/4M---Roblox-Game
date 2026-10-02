@@ -25,6 +25,9 @@ EXPORT = dict(axis_forward='Z', axis_up='Y', use_selection=True, object_types={'
 # Basis change stage -> Blender: stage (x, y, z) = Blender (x, z, y), so it swaps y and z.
 SWAP = Matrix(((1, 0, 0), (0, 0, 1), (0, 1, 0)))
 OUT = "."
+# The FBX export (forward Z, up Y) is a rotation that sends Blender x to -x, and S() above is a reflection of the stage, so the
+# two cancel only if x is mirrored once more before export (checked in Studio: without it every model came in mirrored in x).
+MIRROR_X_ON_EXPORT = True
 _rng = random.Random(7)
 
 
@@ -235,6 +238,17 @@ def join(objs, name):
     return j
 
 
+def _mirror_x(meshes):
+    """Bakes each mesh into world space and mirrors it in x (windings flipped back), so the exported FBX lands correctly in Roblox."""
+    for m in meshes:
+        me = m.data
+        me.transform(m.matrix_world)
+        m.matrix_world = Matrix.Identity(4)
+        me.transform(Matrix.Scale(-1, 4, (1, 0, 0)))
+        me.flip_normals()
+        me.update()
+
+
 def finish(part, key, groups=None):
     """Joins the part's objects and exports Decor_<key>_<id>.fbx to the output folder.
 
@@ -247,6 +261,8 @@ def finish(part, key, groups=None):
         groups["Body"] = groups.get("Body", []) + rest
     meshes = [join(objs, f"{part.id}_{name}") for name, objs in groups.items() if objs]
     part.meshes = meshes
+    if MIRROR_X_ON_EXPORT:
+        _mirror_x(meshes)
     bpy.ops.object.select_all(action='DESELECT')
     for m in meshes:
         m.select_set(True)
