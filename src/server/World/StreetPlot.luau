@@ -873,7 +873,7 @@ function StreetPlot.Refresh(player: Player, state: Types.PlayerState)
 		end
 	end
 	refreshTerrain(plot, reached)
-	-- The white wall around the street reaches back as far as the furthest owner (StreetService).
+	-- This plot's part of the white wall reaches back as far as its owner (StreetService).
 	reached = math.max(reached, 1)
 	if plot.WallReach ~= reached then
 		plot.WallReach = reached

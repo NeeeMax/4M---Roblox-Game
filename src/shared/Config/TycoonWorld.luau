@@ -44,8 +44,8 @@ return {
 		StairColor = Color3.fromRGB(120, 78, 45),
 		TerraceColor = Color3.fromRGB(150, 95, 52),
 		TerraceMaterial = Enum.Material.Rock,
-		-- The one white wall around all 10 plots and the road (StreetService): a rectangle that reaches back as far as the furthest
-		-- stage any owner has reached (at least the first GroupSize stages) and grows when someone expands.
+		-- The one white wall around all 10 plots and the road (StreetService): a fixed rectangle GroupSize stages deep; only the
+		-- wall of a plot whose owner expanded further steps back (its back wall and the side walls toward shallower neighbours).
 		WallColor = Color3.fromRGB(238, 238, 242),
 		OuterWallHeight = 40,
 		OuterWallThickness = 8,
