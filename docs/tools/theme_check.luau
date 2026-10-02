@@ -8,7 +8,8 @@
 --  * schema: Key, Name, Area (X, Y <= 190), part count (10 for bays 1-3, 15 for 4-8, 20 for 9-14, 25 for 15-21, 30 for 22-30), unique alphanumeric ids, prices not
 --    dropping, 1-16 pieces per part, every Part has Pad, the theme has Shiba, Path, BayPad, AutoPad
 --  * Path: starts at (0, Area.Y/2), ends at (0, -Area.Y/2), every waypoint inside the Area, segments >= 8 long
---  * every piece inside the Area (rotated bounding boxes; a part's optional Yaw turns all its pieces about the centre of their union box)
+--  * every piece inside the Area (rotated bounding boxes; a part's optional Scale (0.3 to 3) scales, its Yaw turns and its Nudge (Vector3,
+--    stage frame) moves all its pieces, in that order: scale and yaw about the centre of their union box; every check below uses the result)
 --  * a piece is SOLID (the player cannot walk through it) if it is over 0.6 studs high and starts lower than 7 studs above the
 --    ground (same rule as World/StreetPlot); solid pieces keep clear of: the walkway (5.5 studs from its centre line), the Shiba
 --    (8 studs: its platform and barrier), the zone in front of the Shiba (8-17 studs along its facing, 5 studs to each side), every pad (3 studs, pieces of
@@ -116,6 +117,23 @@ for i, part in theme.Parts do
 	if part.Yaw ~= nil and type(part.Yaw) ~= "number" then
 		err(`part {i} ({part.Id}): Yaw must be a number (degrees)`)
 	end
+	if part.Scale ~= nil and (type(part.Scale) ~= "number" or part.Scale < 0.3 or part.Scale > 3) then
+		err(`part {i} ({part.Id}): Scale must be a number between 0.3 and 3`)
+	end
+	if part.Nudge ~= nil then
+		local n = part.Nudge
+		if
+			type(n) ~= "table"
+			or type(n.X) ~= "number"
+			or type(n.Y) ~= "number"
+			or type(n.Z) ~= "number"
+			or math.abs(n.X) > 190
+			or math.abs(n.Y) > 190
+			or math.abs(n.Z) > 190
+		then
+			err(`part {i} ({part.Id}): Nudge must be a Vector3 (stage frame, unscaled units, at most 190 per axis)`)
+		end
+	end
 	if not part.Pad then
 		err(`part {i} ({part.Id}): Pad missing`)
 	elseif math.abs(part.Pad.X) > hx - 3 or math.abs(part.Pad.Y) > hz - 3 then
@@ -177,8 +195,10 @@ end
 -- ---- pieces and obstacles
 -- The footprint (x0, x1, z0, z1) of a piece. `yaw` (radians) and `center` (x, z of the union box of the part's pieces) apply the
 -- part's Yaw: the offset is turned about the centre, and the piece's own rotation gets the yaw added.
-local function bounds(piece, yaw, center)
+local function bounds(piece, yaw, center, scale, nudge)
 	yaw = yaw or 0
+	scale = scale or 1
+	center = center or { 0, 0 }
 	local r = piece.Rotation
 	local sx, sy, sz = piece.Size.X / 2, piece.Size.Y / 2, piece.Size.Z / 2
 	local rotated = r and (r.X ~= 0 or r.Y ~= 0 or r.Z ~= 0)
@@ -213,13 +233,14 @@ local function bounds(piece, yaw, center)
 			math.abs(m[2][1]) * sx + math.abs(m[2][2]) * sy + math.abs(m[2][3]) * sz,
 			math.abs(m[3][1]) * sx + math.abs(m[3][2]) * sy + math.abs(m[3][3]) * sz
 	end
+	-- Same order as World/StreetPlot.buildDecor: scale about the centre, yaw about the centre, then the nudge.
+	sx, sy, sz = sx * scale, sy * scale, sz * scale
 	local o = piece.Offset
-	local ox, oz = o.X, o.Z
+	local dx, dz = (o.X - center[1]) * scale, (o.Z - center[2]) * scale
 	if yaw ~= 0 then
-		local dx, dz = ox - center[1], oz - center[2]
-		ox = center[1] + dx * math.cos(yaw) + dz * math.sin(yaw)
-		oz = center[2] - dx * math.sin(yaw) + dz * math.cos(yaw)
+		dx, dz = dx * math.cos(yaw) + dz * math.sin(yaw), -dx * math.sin(yaw) + dz * math.cos(yaw)
 	end
+	local ox, oz = center[1] + dx + (nudge and nudge.X or 0), center[2] + dz + (nudge and nudge.Z or 0)
 	return ox - sx, ox + sx, oz - sz, oz + sz
 end
 
@@ -240,7 +261,7 @@ for i, part in theme.Parts do
 	local center = partCenter(part)
 	for n, piece in part.Pieces do
 		pieceCount += 1
-		local x0, x1, z0, z1 = bounds(piece, yaw, center)
+		local x0, x1, z0, z1 = bounds(piece, yaw, center, part.Scale or 1, part.Nudge)
 		if x0 < -hx - 0.01 or x1 > hx + 0.01 or z0 < -hz - 0.01 or z1 > hz + 0.01 then
 			err(`part {i} ({part.Id}) piece {n} sticks out of the Area`)
 		end

@@ -68,6 +68,16 @@ export type Biome = {
 	Mix: { Trees: number?, Rocks: number?, Bushes: number?, Flowers: number?, Misc: number? }?,
 }
 
+-- A hand-placed prop (see Pins below): the prop `Name`, its place in the stage frame in UNSCALED theme units (multiplied by
+-- StageScale like the theme coordinates), Yaw in degrees (default 0) and Scale (default 1 = the prop's nominal size).
+export type Pin = {
+	Name: string,
+	X: number,
+	Z: number,
+	Yaw: number?,
+	Scale: number?,
+}
+
 local function c(r: number, g: number, b: number): Color3
 	return Color3.fromRGB(r, g, b)
 end
@@ -551,6 +561,19 @@ local Biomes: { [number]: Biome } = {
 	},
 }
 
+-- ---- hand tuning (docs/TUNING.md; filled in by pasting the output of docs/tools/studio_tuner.luau) ----------------------------
+
+-- Pins[bay]: props placed by hand in addition to the random ones (no collision rejection, not counted in MaxProps).
+local Pins: { [number]: { Pin } } = {
+	-- [1] = { { Name = "OakA", X = 12, Z = -30, Yaw = 40, Scale = 1.2 } },
+}
+
+-- Skip[bay][index] = true: the random prop with that index (its place in the stage's generation order, shown by the tuner as
+-- TuneIndex) is not built. Everything else stays exactly where it is.
+local Skip: { [number]: { [number]: boolean } } = {
+	-- [1] = { [17] = true, [23] = true },
+}
+
 return {
 	-- Hard cap of props per stage and the playable half width of the floor the scatter may use.
 	MaxProps = 110,
@@ -573,4 +596,6 @@ return {
 	Props = Props,
 	Biomes = Biomes,
 	Default = Default,
+	Pins = Pins,
+	Skip = Skip,
 }
