@@ -1,0 +1,5184 @@
+{
+  "Area": [
+    190,
+    130
+  ],
+  "AutoPad": [
+    -49,
+    -26
+  ],
+  "BayPad": [
+    -71,
+    -26
+  ],
+  "Key": "VikingLonghouse",
+  "Name": "Viking Longhouse",
+  "Parts": [
+    {
+      "Description": "A green meadow, a pebble yard before the hall and a cold blue fjord along the shore.",
+      "Id": "Ground",
+      "Name": "Fjord Meadow",
+      "Pad": [
+        -12,
+        57
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            98,
+            150,
+            72
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            0,
+            0.15,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            190,
+            0.3,
+            130
+          ]
+        },
+        {
+          "Color": [
+            52,
+            120,
+            168
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            77,
+            0.3,
+            -27
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            36,
+            0.5,
+            70
+          ]
+        },
+        {
+          "Color": [
+            214,
+            196,
+            150
+          ],
+          "Material": "Material.Sand",
+          "Offset": [
+            58.5,
+            0.28,
+            -27
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            0.2,
+            70
+          ]
+        },
+        {
+          "Color": [
+            168,
+            156,
+            130
+          ],
+          "Material": "Material.Pebble",
+          "Offset": [
+            -60,
+            0.25,
+            -17
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            46,
+            0.2,
+            38
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "The chieftain's hall: dark timber walls, a turf roof and dragon heads on the gables.",
+      "Id": "Longhouse",
+      "Name": "Great Longhouse",
+      "Pad": [
+        -80,
+        -30
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            -60,
+            4,
+            -60.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            56,
+            8,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            -87.4,
+            4,
+            -49
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.2,
+            8,
+            24
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            -32.6,
+            4,
+            -49
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.2,
+            8,
+            24
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            -76.5,
+            4,
+            -37.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            23,
+            8,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            -43.5,
+            4,
+            -37.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            23,
+            8,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -60,
+            6.9,
+            -37.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10,
+            2.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -65.2,
+            4.4,
+            -37.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.4,
+            8.8,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -54.8,
+            4.4,
+            -37.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.4,
+            8.8,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            86,
+            132,
+            62
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            -60,
+            11.7,
+            -55.2
+          ],
+          "Rotation": [
+            -29.5,
+            0,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            60,
+            0.8,
+            14.2
+          ]
+        },
+        {
+          "Color": [
+            86,
+            132,
+            62
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            -60,
+            11.7,
+            -42.8
+          ],
+          "Rotation": [
+            29.5,
+            0,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            60,
+            0.8,
+            14.2
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -60,
+            15.2,
+            -49
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            60,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            236,
+            184,
+            56
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -90.4,
+            16.2,
+            -49
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.4,
+            2.8,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            236,
+            184,
+            56
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -29.6,
+            16.2,
+            -49
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.4,
+            2.8,
+            2.4
+          ]
+        }
+      ],
+      "RewardMult": 1.3
+    },
+    {
+      "Description": "A stone forge with a tall chimney, a glowing hearth, a heavy anvil and a water barrel.",
+      "Id": "Smithy",
+      "Name": "Rune Forge",
+      "Pad": [
+        -80,
+        44
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            86,
+            90,
+            96
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -80,
+            0.2,
+            34
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            16,
+            0.4,
+            12
+          ]
+        },
+        {
+          "Color": [
+            130,
+            132,
+            130
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            -80,
+            3.5,
+            28.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            16,
+            7,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            130,
+            132,
+            130
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            -87.4,
+            3.5,
+            34
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.2,
+            7,
+            12
+          ]
+        },
+        {
+          "Color": [
+            86,
+            90,
+            96
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            -84,
+            2,
+            31
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5,
+            4,
+            4
+          ]
+        },
+        {
+          "Color": [
+            130,
+            132,
+            130
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            -84,
+            9,
+            30.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            10,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            54,
+            56,
+            62
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -77,
+            1.6,
+            34
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            3.2,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            -80,
+            7,
+            34
+          ],
+          "Rotation": [
+            9.5,
+            0,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            17.5,
+            0.7,
+            12.2
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -87.4,
+            3.4,
+            39.4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6.8,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -72.6,
+            3.4,
+            39.4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6.8,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -74,
+            1.2,
+            30.6
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2.4,
+            2,
+            2
+          ]
+        },
+        {
+          "Color": [
+            54,
+            56,
+            62
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -80,
+            1,
+            31
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            2,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A ring of stones around a roaring fire and a cauldron, with log stumps to sit on.",
+      "Id": "FirePit",
+      "Name": "Bonfire Circle",
+      "Pad": [
+        28,
+        16
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            86,
+            90,
+            96
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            28,
+            0.2,
+            4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.4,
+            13,
+            13
+          ]
+        },
+        {
+          "Color": [
+            238,
+            130,
+            40
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            28,
+            2.2,
+            4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            3.6,
+            3
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            28,
+            0.9,
+            4
+          ],
+          "Rotation": [
+            0,
+            40,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5,
+            1.2,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            54,
+            56,
+            62
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            28,
+            4.8,
+            4
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3.4,
+            3,
+            3.4
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            22,
+            0.7,
+            4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.4,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            34,
+            0.7,
+            4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.4,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            28,
+            0.7,
+            -2
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.4,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            28,
+            0.7,
+            10
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.4,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            130,
+            132,
+            130
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            23.5,
+            0.6,
+            4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.4,
+            1.2,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            130,
+            132,
+            130
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            32.5,
+            0.6,
+            4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.4,
+            1.2,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            130,
+            132,
+            130
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            28,
+            0.6,
+            -0.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.4,
+            1.2,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            130,
+            132,
+            130
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            28,
+            0.6,
+            8.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.4,
+            1.2,
+            1.4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A mighty longship with a dragon prow, a red striped sail and a row of round shields.",
+      "Id": "Longship",
+      "Name": "Dragon Longship",
+      "Pad": [
+        58,
+        -30
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            78,
+            2.2,
+            -30
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9.6,
+            4.4,
+            28
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            78,
+            4.8,
+            -45.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4,
+            9.6,
+            3.5
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            78,
+            3.8,
+            -14.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4,
+            7.6,
+            3.5
+          ]
+        },
+        {
+          "Color": [
+            190,
+            48,
+            42
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            78,
+            11,
+            -47.5
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3.2,
+            3.4,
+            3.2
+          ]
+        },
+        {
+          "Color": [
+            190,
+            48,
+            42
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            78,
+            6.6,
+            -12.8
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.8,
+            3.6,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            78,
+            13,
+            -30
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            22,
+            1,
+            1
+          ]
+        },
+        {
+          "Color": [
+            190,
+            48,
+            42
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            78,
+            16,
+            -30
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10,
+            9,
+            0.5
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            78,
+            20.8,
+            -30
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            11.6,
+            0.7,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            48,
+            92,
+            150
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            73.2,
+            4.3,
+            -36
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.4,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            236,
+            228,
+            208
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            73.2,
+            4.3,
+            -24
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.4,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            236,
+            228,
+            208
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            82.8,
+            4.3,
+            -36
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.4,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            48,
+            92,
+            150
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            82.8,
+            4.3,
+            -24
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.4,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            236,
+            184,
+            56
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            73.2,
+            4.3,
+            -30
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.4,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            236,
+            184,
+            56
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            82.8,
+            4.3,
+            -30
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.4,
+            1.8,
+            1.8
+          ]
+        }
+      ],
+      "RewardMult": 1.4
+    },
+    {
+      "Description": "A long table with roast boar and mugs, two benches and a barrel of mead.",
+      "Id": "Feast",
+      "Name": "Feast Table",
+      "Pad": [
+        14,
+        -5
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            14,
+            2.9,
+            -14
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            18,
+            0.6,
+            4
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            8,
+            1.4,
+            -14
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1,
+            2.8,
+            3.4
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            20,
+            1.4,
+            -14
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1,
+            2.8,
+            3.4
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            14,
+            1.2,
+            -17.8
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            18,
+            0.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            14,
+            1.2,
+            -10.2
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            18,
+            0.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            9,
+            0.6,
+            -17.8
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.8,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            19,
+            0.6,
+            -17.8
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.8,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            9,
+            0.6,
+            -10.2
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.8,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            19,
+            0.6,
+            -10.2
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.8,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            150,
+            118,
+            88
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            14,
+            4.2,
+            -14
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            4,
+            1.8,
+            2.2
+          ]
+        },
+        {
+          "Color": [
+            176,
+            182,
+            192
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            10,
+            3.7,
+            -13
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            176,
+            182,
+            192
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            18.5,
+            3.7,
+            -15
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            25.4,
+            1.5,
+            -14
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            54,
+            56,
+            62
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            25.4,
+            3.2,
+            -14
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.4,
+            2.2,
+            2.2
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A wooden jetty reaching out into the fjord, with barrels, crates and a lantern post.",
+      "Id": "Jetty",
+      "Name": "Fjord Jetty",
+      "Pad": [
+        54,
+        -2
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            72,
+            1.4,
+            -2
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            28,
+            0.5,
+            5
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            62,
+            0.9,
+            -4.2
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            62,
+            0.9,
+            0.2
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            72,
+            0.9,
+            -4.2
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            72,
+            0.9,
+            0.2
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            82,
+            0.9,
+            -4.2
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            82,
+            0.9,
+            0.2
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            66,
+            2.75,
+            -3
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2.2,
+            2.2,
+            2.2
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            68.6,
+            2.75,
+            -3.4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2.2,
+            2.2,
+            2.2
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            77,
+            2.4,
+            -0.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            1.5,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            77.6,
+            3.9,
+            -0.8
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.6,
+            1.4,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            85,
+            3.5,
+            -2
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4,
+            0.6,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            130,
+            40
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            85,
+            6,
+            -2
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.2,
+            1.2,
+            1.2
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A timber wall hung with round painted shields and crowned with spears.",
+      "Id": "ShieldWall",
+      "Name": "Shield Wall",
+      "Pad": [
+        -75,
+        60
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            -75,
+            2,
+            55
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            29,
+            4,
+            1
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -89,
+            3.2,
+            55
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6.4,
+            1.4,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -61,
+            3.2,
+            55
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6.4,
+            1.4,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -82,
+            3.2,
+            55
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6.4,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -68,
+            3.2,
+            55
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6.4,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            190,
+            48,
+            42
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -86,
+            2.3,
+            55.7
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.4,
+            3.2,
+            3.2
+          ]
+        },
+        {
+          "Color": [
+            236,
+            228,
+            208
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -81,
+            2.3,
+            55.7
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.4,
+            3.2,
+            3.2
+          ]
+        },
+        {
+          "Color": [
+            48,
+            92,
+            150
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -76,
+            2.3,
+            55.7
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.4,
+            3.2,
+            3.2
+          ]
+        },
+        {
+          "Color": [
+            236,
+            184,
+            56
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -71,
+            2.3,
+            55.7
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.4,
+            3.2,
+            3.2
+          ]
+        },
+        {
+          "Color": [
+            190,
+            48,
+            42
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -66,
+            2.3,
+            55.7
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.4,
+            3.2,
+            3.2
+          ]
+        },
+        {
+          "Color": [
+            236,
+            228,
+            208
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -62.5,
+            2.3,
+            55.7
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.4,
+            2.6,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            176,
+            182,
+            192
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -75,
+            5.4,
+            55
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2.8,
+            0.4,
+            0.4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A little food store on stilts with a turf roof, so the mice cannot get in.",
+      "Id": "Storehouse",
+      "Name": "Stilt Storehouse",
+      "Pad": [
+        -66,
+        12
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -82.5,
+            1.2,
+            7.5
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2.4,
+            1,
+            1
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -73.5,
+            1.2,
+            7.5
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2.4,
+            1,
+            1
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -82.5,
+            1.2,
+            16.5
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2.4,
+            1,
+            1
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -73.5,
+            1.2,
+            16.5
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2.4,
+            1,
+            1
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            -78,
+            5,
+            12
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            11,
+            5.2,
+            11
+          ]
+        },
+        {
+          "Color": [
+            86,
+            132,
+            62
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            -78,
+            9.9,
+            15.2
+          ],
+          "Rotation": [
+            35,
+            0,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            12.4,
+            0.7,
+            7.6
+          ]
+        },
+        {
+          "Color": [
+            86,
+            132,
+            62
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            -78,
+            9.9,
+            8.8
+          ],
+          "Rotation": [
+            -35,
+            0,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            12.4,
+            0.7,
+            7.6
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -78,
+            12.4,
+            12
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            12.4,
+            0.7,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -78,
+            4.4,
+            17.7
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            3.6,
+            0.3
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            -78,
+            1.4,
+            19.8
+          ],
+          "Rotation": [
+            30,
+            0,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            2.8,
+            2.4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A tall timber tower on four legs with a roofed lookout and a ladder.",
+      "Id": "Watchtower",
+      "Name": "Lookout Tower",
+      "Pad": [
+        66,
+        42
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            74.4,
+            7.2,
+            38.4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            14.4,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            81.6,
+            7.2,
+            38.4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            14.4,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            74.4,
+            7.2,
+            45.6
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            14.4,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            81.6,
+            7.2,
+            45.6
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            14.4,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            78,
+            6,
+            45.6
+          ],
+          "Rotation": [
+            0,
+            0,
+            36
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10,
+            0.5,
+            0.5
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            78,
+            6,
+            45.6
+          ],
+          "Rotation": [
+            0,
+            0,
+            -36
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10,
+            0.5,
+            0.5
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            78,
+            14.6,
+            42
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10.4,
+            0.8,
+            10.4
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            78,
+            18,
+            42
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8,
+            6,
+            8
+          ]
+        },
+        {
+          "Color": [
+            86,
+            132,
+            62
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            73.6,
+            20.4,
+            42
+          ],
+          "Rotation": [
+            0,
+            0,
+            38
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            7.6,
+            0.8,
+            10
+          ]
+        },
+        {
+          "Color": [
+            86,
+            132,
+            62
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            82.4,
+            20.4,
+            42
+          ],
+          "Rotation": [
+            0,
+            0,
+            -38
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            7.6,
+            0.8,
+            10
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            78,
+            24,
+            42
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.8,
+            0.8,
+            10
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            78,
+            7.5,
+            47.8
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.6,
+            15,
+            0.5
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            78,
+            18.4,
+            46.2
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            2,
+            0.3
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Two racks of silver fish drying in the wind and an upturned rowing boat.",
+      "Id": "FishRacks",
+      "Name": "Fish Drying Racks",
+      "Pad": [
+        62,
+        22
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            64,
+            3,
+            18
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6,
+            0.7,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            80,
+            3,
+            18
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6,
+            0.7,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            72,
+            5.8,
+            18
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            17,
+            0.5,
+            0.5
+          ]
+        },
+        {
+          "Color": [
+            176,
+            182,
+            192
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            72,
+            4.4,
+            18
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            15,
+            2,
+            0.3
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            64,
+            3,
+            26
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6,
+            0.7,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            80,
+            3,
+            26
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6,
+            0.7,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            72,
+            5.8,
+            26
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            17,
+            0.5,
+            0.5
+          ]
+        },
+        {
+          "Color": [
+            176,
+            182,
+            192
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            72,
+            4.4,
+            26
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            15,
+            2,
+            0.3
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            72,
+            1.1,
+            22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10,
+            2.2,
+            3.8
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            72,
+            2.5,
+            22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8,
+            0.6,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            83,
+            1,
+            22
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2,
+            2,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Three round targets on posts and a line to throw from. Bonk, thunk, bullseye!",
+      "Id": "AxeRange",
+      "Name": "Axe Throwing Range",
+      "Pad": [
+        -40,
+        57
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -48,
+            2.4,
+            46
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.8,
+            4.8,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -40,
+            2.4,
+            46
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.8,
+            4.8,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -32,
+            2.4,
+            46
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.8,
+            4.8,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            236,
+            228,
+            208
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -48,
+            5.2,
+            46.6
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.6,
+            4.6,
+            4.6
+          ]
+        },
+        {
+          "Color": [
+            236,
+            228,
+            208
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -40,
+            5.2,
+            46.6
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.6,
+            4.6,
+            4.6
+          ]
+        },
+        {
+          "Color": [
+            236,
+            228,
+            208
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -32,
+            5.2,
+            46.6
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.6,
+            4.6,
+            4.6
+          ]
+        },
+        {
+          "Color": [
+            190,
+            48,
+            42
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -48,
+            5.2,
+            47
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.4,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            190,
+            48,
+            42
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -40,
+            5.2,
+            47
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.4,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            190,
+            48,
+            42
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -32,
+            5.2,
+            47
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.4,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            168,
+            156,
+            130
+          ],
+          "Material": "Material.Pebble",
+          "Offset": [
+            -40,
+            0.15,
+            53
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            22,
+            0.3,
+            10
+          ]
+        },
+        {
+          "Color": [
+            190,
+            48,
+            42
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -40,
+            0.35,
+            57.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            20,
+            0.3,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -27,
+            0.9,
+            54
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.8,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            176,
+            182,
+            192
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -27,
+            2.2,
+            54
+          ],
+          "Rotation": [
+            0,
+            0,
+            30
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.4,
+            1.6,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Seven tall standing stones carved with runes around a flat altar stone.",
+      "Id": "RuneStones",
+      "Name": "Rune Stone Circle",
+      "Pad": [
+        -19,
+        -37
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            86,
+            90,
+            96
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -19,
+            0.2,
+            -47
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.4,
+            17,
+            17
+          ]
+        },
+        {
+          "Color": [
+            130,
+            132,
+            130
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            -19,
+            4.5,
+            -47
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            9,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            190,
+            48,
+            42
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -19,
+            9.4,
+            -47
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.6,
+            0.8,
+            1.9
+          ]
+        },
+        {
+          "Color": [
+            130,
+            132,
+            130
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            -25.5,
+            2.5,
+            -47
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.2,
+            5,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            130,
+            132,
+            130
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            -22.2,
+            3.2,
+            -52.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.2,
+            6.4,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            130,
+            132,
+            130
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            -15.8,
+            2.7,
+            -52.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.2,
+            5.4,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            130,
+            132,
+            130
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            -12.5,
+            3,
+            -47
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.2,
+            6,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            130,
+            132,
+            130
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            -15.8,
+            2.4,
+            -41.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.2,
+            4.8,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            130,
+            132,
+            130
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            -22.2,
+            2.9,
+            -41.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.2,
+            5.8,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            86,
+            90,
+            96
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            -19,
+            0.5,
+            -44
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            1,
+            1.6
+          ]
+        }
+      ],
+      "RewardMult": 1.3
+    },
+    {
+      "Description": "Four tall banners with the raven of the clan flapping before the longhouse.",
+      "Id": "Banners",
+      "Name": "Raven Banners",
+      "Pad": [
+        -36,
+        -30
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -84,
+            6.5,
+            -34.5
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            13,
+            0.7,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -84,
+            12.2,
+            -34.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.4,
+            0.4,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            190,
+            48,
+            42
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            -84,
+            8.6,
+            -34.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            6.4,
+            0.2
+          ]
+        },
+        {
+          "Color": [
+            236,
+            184,
+            56
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -84,
+            13.4,
+            -34.5
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.2,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -68,
+            6.5,
+            -34.5
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            13,
+            0.7,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -68,
+            12.2,
+            -34.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.4,
+            0.4,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            48,
+            92,
+            150
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            -68,
+            8.6,
+            -34.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            6.4,
+            0.2
+          ]
+        },
+        {
+          "Color": [
+            236,
+            184,
+            56
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -68,
+            13.4,
+            -34.5
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.2,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -52,
+            6.5,
+            -34.5
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            13,
+            0.7,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -52,
+            12.2,
+            -34.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.4,
+            0.4,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            48,
+            92,
+            150
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            -52,
+            8.6,
+            -34.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            6.4,
+            0.2
+          ]
+        },
+        {
+          "Color": [
+            236,
+            184,
+            56
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -52,
+            13.4,
+            -34.5
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.2,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -36,
+            6.5,
+            -34.5
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            13,
+            0.7,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -36,
+            12.2,
+            -34.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.4,
+            0.4,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            190,
+            48,
+            42
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            -36,
+            8.6,
+            -34.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            6.4,
+            0.2
+          ]
+        },
+        {
+          "Color": [
+            236,
+            184,
+            56
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -36,
+            13.4,
+            -34.5
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.2,
+            1.2,
+            1.2
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A log sauna hut with a turf roof, a stone chimney and clouds of steam.",
+      "Id": "Sauna",
+      "Name": "Turf Sauna",
+      "Pad": [
+        47,
+        10
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            86,
+            90,
+            96
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            47,
+            0.25,
+            22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            13,
+            0.5,
+            11
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            47,
+            3,
+            22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10,
+            5.4,
+            8
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            47,
+            2.4,
+            26.1
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            4.4,
+            0.3
+          ]
+        },
+        {
+          "Color": [
+            86,
+            132,
+            62
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            47,
+            7.4,
+            24.2
+          ],
+          "Rotation": [
+            30,
+            0,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            11.4,
+            0.7,
+            5.8
+          ]
+        },
+        {
+          "Color": [
+            86,
+            132,
+            62
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            47,
+            7.4,
+            19.8
+          ],
+          "Rotation": [
+            -30,
+            0,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            11.4,
+            0.7,
+            5.8
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            47,
+            9.7,
+            22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            11.4,
+            0.7,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            130,
+            132,
+            130
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            51.5,
+            6.5,
+            20
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            11,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            236,
+            228,
+            208
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            51.5,
+            13.4,
+            20
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.6,
+            2,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            236,
+            228,
+            208
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            52.6,
+            15.6,
+            19.6
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3.4,
+            2.4,
+            3.4
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            47,
+            1,
+            27.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            7,
+            0.8,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            43,
+            1.1,
+            27.6
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.6,
+            1.6,
+            1.6
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A carved wooden throne with horns on a stone dais, guarded by two fire bowls.",
+      "Id": "Throne",
+      "Name": "Chieftain Throne",
+      "Pad": [
+        -44,
+        34
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            130,
+            132,
+            130
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            -44,
+            1.2,
+            24
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10,
+            2.4,
+            10
+          ]
+        },
+        {
+          "Color": [
+            86,
+            90,
+            96
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            -44,
+            0.5,
+            29.8
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8,
+            1,
+            2
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -44,
+            3.5,
+            23
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.8,
+            2.2,
+            3.8
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -44,
+            7,
+            21.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.8,
+            6.4,
+            1
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -46.2,
+            4.6,
+            23
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.7,
+            1.4,
+            3.6
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -41.8,
+            4.6,
+            23
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.7,
+            1.4,
+            3.6
+          ]
+        },
+        {
+          "Color": [
+            236,
+            228,
+            208
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -45.2,
+            11,
+            21.6
+          ],
+          "Rotation": [
+            0,
+            0,
+            110
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3.4,
+            0.8,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            236,
+            228,
+            208
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -42.8,
+            11,
+            21.6
+          ],
+          "Rotation": [
+            0,
+            0,
+            70
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3.4,
+            0.8,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            54,
+            56,
+            62
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -48.2,
+            3.4,
+            20.2
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2,
+            2.6,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            54,
+            56,
+            62
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -39.8,
+            3.4,
+            20.2
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2,
+            2.6,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            130,
+            40
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -48.2,
+            4.8,
+            20.2
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.6,
+            1,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            130,
+            40
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -39.8,
+            4.8,
+            20.2
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.6,
+            1,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            150,
+            118,
+            88
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            -44,
+            2.65,
+            26.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5,
+            0.3,
+            3.4
+          ]
+        }
+      ],
+      "RewardMult": 1.3
+    },
+    {
+      "Description": "A carved totem pole of faces with a big black raven on top.",
+      "Id": "Totem",
+      "Name": "Raven Totem",
+      "Pad": [
+        10,
+        37
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            130,
+            132,
+            130
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            10,
+            0.8,
+            46
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5,
+            1.6,
+            5
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            10,
+            3.6,
+            46
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            4,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            190,
+            48,
+            42
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            10,
+            7.4,
+            46
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.8,
+            3.6,
+            2.8
+          ]
+        },
+        {
+          "Color": [
+            48,
+            92,
+            150
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            10,
+            11,
+            46
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.8,
+            3.6,
+            2.8
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            10,
+            14.8,
+            46
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            4,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            54,
+            56,
+            62
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            10,
+            18.2,
+            46
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3.2,
+            3,
+            4.4
+          ]
+        },
+        {
+          "Color": [
+            54,
+            56,
+            62
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            10,
+            19.8,
+            47.6
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.8,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            236,
+            184,
+            56
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            10,
+            19.4,
+            49
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.7,
+            0.7,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            54,
+            56,
+            62
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            10,
+            18.8,
+            46
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9,
+            0.6,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            54,
+            56,
+            62
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            10,
+            17.6,
+            43.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.6,
+            1.4,
+            2.4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A fenced paddock with a stable shed, hay bales and a sturdy shaggy pony.",
+      "Id": "Stables",
+      "Name": "Horse Paddock",
+      "Pad": [
+        62,
+        48
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            76,
+            1.5,
+            51.3
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            28,
+            2,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            62.3,
+            1.5,
+            56.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.6,
+            2,
+            10.4
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            89.7,
+            1.5,
+            56.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.6,
+            2,
+            10.4
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            66,
+            1.5,
+            61.7
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            7.6,
+            2,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            83,
+            1.5,
+            61.7
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            13.6,
+            2,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            84.6,
+            3,
+            54
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8,
+            6,
+            5
+          ]
+        },
+        {
+          "Color": [
+            86,
+            132,
+            62
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            84.6,
+            7.1,
+            54
+          ],
+          "Rotation": [
+            0,
+            0,
+            8
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9.4,
+            0.8,
+            6.4
+          ]
+        },
+        {
+          "Color": [
+            214,
+            196,
+            150
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            79,
+            0.9,
+            58.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            1.8,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            71,
+            0.5,
+            52.8
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4,
+            1,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            150,
+            118,
+            88
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            72,
+            3,
+            57
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.6,
+            2.2,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            70.4,
+            1.1,
+            57
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.8,
+            2.2,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            73.6,
+            1.1,
+            57
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.8,
+            2.2,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            150,
+            118,
+            88
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            69.4,
+            4.2,
+            57
+          ],
+          "Rotation": [
+            0,
+            0,
+            25
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.6,
+            2.6,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            150,
+            118,
+            88
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            68.2,
+            5.2,
+            57
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.8,
+            1.2,
+            1.2
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A rocky cave full of gold coins, a treasure chest and shiny crowns.",
+      "Id": "Hoard",
+      "Name": "Dragon Hoard",
+      "Pad": [
+        -58,
+        50
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            86,
+            90,
+            96
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            -58,
+            3,
+            37.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            15,
+            6,
+            4
+          ]
+        },
+        {
+          "Color": [
+            130,
+            132,
+            130
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            -64.5,
+            2.4,
+            41
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4,
+            4.8,
+            6
+          ]
+        },
+        {
+          "Color": [
+            130,
+            132,
+            130
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            -51.5,
+            2.4,
+            41
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4,
+            4.8,
+            6
+          ]
+        },
+        {
+          "Color": [
+            130,
+            132,
+            130
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            -58,
+            5.6,
+            41
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9.6,
+            1.4,
+            5
+          ]
+        },
+        {
+          "Color": [
+            110,
+            76,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -58,
+            1.1,
+            40.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.6,
+            2.2,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            72,
+            50,
+            36
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -58,
+            2.5,
+            40.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.8,
+            0.8,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            236,
+            184,
+            56
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -61.8,
+            1,
+            42.6
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3.6,
+            2,
+            3.6
+          ]
+        },
+        {
+          "Color": [
+            236,
+            184,
+            56
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -54.4,
+            1,
+            42.8
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            4,
+            2.2,
+            3.6
+          ]
+        },
+        {
+          "Color": [
+            236,
+            184,
+            56
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -58,
+            0.9,
+            43.4
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3,
+            1.8,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            236,
+            184,
+            56
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -56.6,
+            3.4,
+            41
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.4,
+            0.9,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            190,
+            48,
+            42
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -60,
+            3.4,
+            41
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.2,
+            0.8,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            176,
+            182,
+            192
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -66.4,
+            4.8,
+            43.8
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3,
+            0.4,
+            0.4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "The showpiece: a giant horned helmet of steel and gold on a stone plinth.",
+      "Id": "Helmet",
+      "Name": "Giant Horned Helmet",
+      "Pad": [
+        -2,
+        -34
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            130,
+            132,
+            130
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            -2,
+            1,
+            -45
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14,
+            2,
+            14
+          ]
+        },
+        {
+          "Color": [
+            86,
+            90,
+            96
+          ],
+          "Material": "Material.Rock",
+          "Offset": [
+            -2,
+            2.6,
+            -45
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10.4,
+            1.2,
+            10.4
+          ]
+        },
+        {
+          "Color": [
+            176,
+            182,
+            192
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -2,
+            10.2,
+            -45
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            12,
+            11,
+            12
+          ]
+        },
+        {
+          "Color": [
+            236,
+            184,
+            56
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -2,
+            6.6,
+            -45
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.2,
+            12.8,
+            12.8
+          ]
+        },
+        {
+          "Color": [
+            176,
+            182,
+            192
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -2,
+            8,
+            -39.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.4,
+            6,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            236,
+            184,
+            56
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -2,
+            12.2,
+            -45
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.4,
+            1.2,
+            12.4
+          ]
+        },
+        {
+          "Color": [
+            236,
+            228,
+            208
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -8,
+            14.6,
+            -45
+          ],
+          "Rotation": [
+            0,
+            0,
+            115
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            8.4,
+            2.2,
+            2.2
+          ]
+        },
+        {
+          "Color": [
+            236,
+            228,
+            208
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            4,
+            14.6,
+            -45
+          ],
+          "Rotation": [
+            0,
+            0,
+            65
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            8.4,
+            2.2,
+            2.2
+          ]
+        },
+        {
+          "Color": [
+            236,
+            228,
+            208
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -10.2,
+            19.4,
+            -45
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.8,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            236,
+            228,
+            208
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            6.2,
+            19.4,
+            -45
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.8,
+            1.8,
+            1.8
+          ]
+        }
+      ],
+      "RewardMult": 2
+    }
+  ],
+  "Path": [
+    [
+      0,
+      65
+    ],
+    [
+      52,
+      46
+    ],
+    [
+      0,
+      26
+    ],
+    [
+      -60,
+      -2
+    ],
+    [
+      -6,
+      -26
+    ],
+    [
+      48,
+      -42
+    ],
+    [
+      0,
+      -65
+    ]
+  ],
+  "Shiba": {
+    "Facing": 270,
+    "Position": [
+      -60,
+      -26
+    ]
+  }
+}

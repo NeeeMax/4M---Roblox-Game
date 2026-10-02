@@ -3,5 +3,5 @@
 -- Bump the label with every change that should be visible in a playtest.
 
 return {
-	Label = "2026-10-02 #60: street: offline payout on join + Ascend pad (Shiba 10, 12, 14 ...), economy retune, milestones, update board",
+	Label = "2026-10-02 #61: decor themes + models for Shibas 6-10 (Police, Saloon, Pirate Ship, Dojo, Longhouse)",
 }

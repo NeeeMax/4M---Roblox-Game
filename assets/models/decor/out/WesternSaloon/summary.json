@@ -1,0 +1,62 @@
+{
+ "Floor": {
+  "tris": 1184,
+  "meshes": 1
+ },
+ "Saloon": {
+  "tris": 1468,
+  "meshes": 1
+ },
+ "Gate": {
+  "tris": 522,
+  "meshes": 1
+ },
+ "Jail": {
+  "tris": 552,
+  "meshes": 1
+ },
+ "Horses": {
+  "tris": 792,
+  "meshes": 1
+ },
+ "Well": {
+  "tris": 277,
+  "meshes": 1
+ },
+ "Wagon": {
+  "tris": 931,
+  "meshes": 1
+ },
+ "Bank": {
+  "tris": 596,
+  "meshes": 1
+ },
+ "Cacti": {
+  "tris": 1156,
+  "meshes": 1
+ },
+ "WaterTower": {
+  "tris": 478,
+  "meshes": 1
+ },
+ "Windmill": {
+  "tris": 692,
+  "meshes": 1
+ },
+ "Mine": {
+  "tris": 1124,
+  "meshes": 1
+ },
+ "Train": {
+  "tris": 948,
+  "meshes": 1
+ },
+ "Camp": {
+  "tris": 720,
+  "meshes": 1
+ },
+ "Mesa": {
+  "tris": 1040,
+  "meshes": 1
+ }
+}

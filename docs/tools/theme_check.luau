@@ -5,7 +5,7 @@
 -- Color3.fromRGB, Enum.<x>.<y>, math/string/table and `require(script.Parent.DecorTypes)` (it is stubbed).
 --
 -- Rules (all positions in the stage frame: +X right, -Z deeper, +Z toward the road):
---  * schema: Key, Name, Area (X, Y <= 190), part count (10 for bays 1-3, 15 for 4-8), unique alphanumeric ids, prices not
+--  * schema: Key, Name, Area (X, Y <= 190), part count (10 for bays 1-3, 15 for 4-8, 20 for 9-14, 25 for 15-21, 30 for 22-30), unique alphanumeric ids, prices not
 --    dropping, 1-16 pieces per part, every Part has Pad, the theme has Shiba, Path, BayPad, AutoPad
 --  * Path: starts at (0, Area.Y/2), ends at (0, -Area.Y/2), every waypoint inside the Area, segments >= 8 long
 --  * every piece inside the Area (rotated bounding boxes)
@@ -78,7 +78,7 @@ if type(theme) ~= "table" then
 end
 
 -- ---- schema
-local expectParts = if bay <= 3 then 10 else 15
+local expectParts = if bay <= 3 then 10 elseif bay <= 8 then 15 elseif bay <= 14 then 20 elseif bay <= 21 then 25 else 30
 if not (theme.Key and string.match(theme.Key, "^%w+$")) then
 	err("Key must be letters and digits")
 end
