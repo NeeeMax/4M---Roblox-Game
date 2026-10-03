@@ -1,0 +1,7205 @@
+{
+  "Area": [
+    160,
+    115
+  ],
+  "AutoPad": [
+    4,
+    -19
+  ],
+  "BayPad": [
+    4,
+    -9
+  ],
+  "Key": "CloudTemple",
+  "Name": "Cloud Temple",
+  "Parts": [
+    {
+      "Description": "Soft pale cloud floor with white drifts, a sky-blue patch and a gold-ringed marble plaza under the Angel Shiba.",
+      "Id": "Ground",
+      "Name": "Cloud Plaza",
+      "Pad": [
+        -10,
+        53
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            216,
+            228,
+            246
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            0,
+            0.15,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            160,
+            0.3,
+            115
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            20,
+            0.4,
+            -14
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            26,
+            0.2,
+            26
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            20,
+            0.48,
+            -14
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            17,
+            0.2,
+            17
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -48,
+            0.3,
+            26
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            34,
+            0.5,
+            20
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            56,
+            0.3,
+            -30
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            30,
+            0.5,
+            18
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -30,
+            0.3,
+            -40
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            28,
+            0.5,
+            14
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            36,
+            0.3,
+            44
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            26,
+            0.5,
+            12
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -10,
+            0.3,
+            5
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            20,
+            0.5,
+            10
+          ]
+        },
+        {
+          "Color": [
+            140,
+            196,
+            242
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            62,
+            0.3,
+            6
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            16,
+            0.5,
+            10
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -62,
+            0.3,
+            -10
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            22,
+            0.5,
+            14
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -62,
+            0.4,
+            -4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            20,
+            0.2,
+            20
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Two marble pillars with gold caps and a lintel stand across the walkway, with the gold gate swung open on cloud puffs.",
+      "Id": "PearlyGate",
+      "Name": "Pearly Gate",
+      "Pad": [
+        -18,
+        46
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -2,
+            0.9,
+            24
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.2,
+            1.8,
+            4.2
+          ]
+        },
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -2,
+            0.9,
+            45
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.2,
+            1.8,
+            4.2
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -2,
+            8,
+            24
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            12.4,
+            3.2,
+            3.2
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -2,
+            8,
+            45
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            12.4,
+            3.2,
+            3.2
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -2,
+            14.6,
+            24
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.4,
+            1.2,
+            4.4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -2,
+            14.6,
+            45
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.4,
+            1.2,
+            4.4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -2,
+            16.2,
+            34.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.2,
+            2.2,
+            26
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -2,
+            18.6,
+            24
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.4,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -2,
+            18.6,
+            45
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.4,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -2,
+            1.2,
+            21
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            6,
+            2.4,
+            4.4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -4.2,
+            5.5,
+            25.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.8,
+            9,
+            0.5
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            0.2,
+            5.5,
+            43.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.8,
+            9,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A sky-blue signboard in a gold frame on two marble posts, welcoming everybody to Heaven.",
+      "Id": "HeavenSign",
+      "Name": "Heaven Signpost",
+      "Pad": [
+        -30,
+        38
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -37,
+            0.7,
+            32
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            13,
+            1.4,
+            5
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -41,
+            4,
+            32
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            7,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -33,
+            4,
+            32
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            7,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            140,
+            196,
+            242
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -37,
+            7.4,
+            32
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            11,
+            4,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -37,
+            7.4,
+            31.55
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            11.8,
+            4.8,
+            0.5
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -41,
+            8.4,
+            32
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.6,
+            1.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -33,
+            8.4,
+            32
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.6,
+            1.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            248,
+            196,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -34.5,
+            3.4,
+            32.7
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5,
+            1.6,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A heap of fluffy cloud mounds of different sizes, soft enough to bounce on.",
+      "Id": "CloudMounds",
+      "Name": "Cloud Mounds",
+      "Pad": [
+        19,
+        35
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            20,
+            2.6,
+            47
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            10,
+            5.2,
+            8.5
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            27,
+            3.6,
+            45
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            13,
+            7.2,
+            10
+          ]
+        },
+        {
+          "Color": [
+            216,
+            228,
+            246
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            34,
+            2.2,
+            48
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            8.5,
+            4.4,
+            7
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            29,
+            1.6,
+            52
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            7,
+            3.2,
+            6
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            25,
+            6.6,
+            45
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            6,
+            4,
+            5
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Three golden lamp posts with warm yellow lanterns scattered through the meadow.",
+      "Id": "GoldenLamps",
+      "Name": "Golden Lamps",
+      "Pad": [
+        -12,
+        4
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -6,
+            0.5,
+            10
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1,
+            2.2,
+            2.2
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -6,
+            4.5,
+            10
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            8,
+            0.7,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            255,
+            226,
+            120
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -6,
+            9.4,
+            10
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.6,
+            2.6,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -18,
+            0.5,
+            6.5
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1,
+            2.2,
+            2.2
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -18,
+            4.5,
+            6.5
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            8,
+            0.7,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            255,
+            226,
+            120
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -18,
+            9.4,
+            6.5
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.6,
+            2.6,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -30,
+            0.5,
+            -19
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1,
+            2.2,
+            2.2
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -30,
+            4.5,
+            -19
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            8,
+            0.7,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            255,
+            226,
+            120
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -30,
+            9.4,
+            -19
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.6,
+            2.6,
+            2.6
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A marble wishing well with sky water, two posts and a little pink roof, sitting on cloud puffs.",
+      "Id": "WishingWell",
+      "Name": "Wishing Well",
+      "Pad": [
+        -12,
+        11
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -16,
+            1.3,
+            16
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2.6,
+            6.6,
+            6.6
+          ]
+        },
+        {
+          "Color": [
+            140,
+            196,
+            242
+          ],
+          "Material": "Material.Glass",
+          "Offset": [
+            -16,
+            2.65,
+            16
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.3,
+            4.8,
+            4.8
+          ]
+        },
+        {
+          "Color": [
+            176,
+            130,
+            90
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -18.4,
+            5.2,
+            16
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.8,
+            5.2,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            176,
+            130,
+            90
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -13.6,
+            5.2,
+            16
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.8,
+            5.2,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            248,
+            196,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -16,
+            8.2,
+            16
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            7.4,
+            0.7,
+            5.4
+          ]
+        },
+        {
+          "Color": [
+            248,
+            196,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -16,
+            9,
+            16
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4,
+            0.8,
+            3.2
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -16,
+            10,
+            16
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.4,
+            1.4,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -19.5,
+            0.9,
+            18
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            4,
+            1.8,
+            3
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -12.5,
+            0.8,
+            13.5
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3.6,
+            1.6,
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Three tilted garden beds full of pink, gold and lavender blossoms.",
+      "Id": "FlowerBeds",
+      "Name": "Flower Beds",
+      "Pad": [
+        -30,
+        12
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            120,
+            190,
+            130
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            -42,
+            0.8,
+            12
+          ],
+          "Rotation": [
+            0,
+            20,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8,
+            1.6,
+            3.2
+          ]
+        },
+        {
+          "Color": [
+            120,
+            190,
+            130
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            -35,
+            0.8,
+            8
+          ],
+          "Rotation": [
+            0,
+            -15,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            7,
+            1.6,
+            3
+          ]
+        },
+        {
+          "Color": [
+            120,
+            190,
+            130
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            -39,
+            0.8,
+            4
+          ],
+          "Rotation": [
+            0,
+            30,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            6,
+            1.6,
+            2.8
+          ]
+        },
+        {
+          "Color": [
+            248,
+            196,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -44,
+            2.3,
+            12.5
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.8,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            186,
+            172,
+            226
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -41.5,
+            2.4,
+            11.5
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.8,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            255,
+            226,
+            120
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -39.8,
+            2.3,
+            12.8
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.8,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            232,
+            130,
+            150
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -36.8,
+            2.3,
+            8.4
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.8,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            255,
+            226,
+            120
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -34.8,
+            2.4,
+            7.8
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.8,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            248,
+            196,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -33.4,
+            2.3,
+            8.6
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.8,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            186,
+            172,
+            226
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -40.6,
+            2.3,
+            4.2
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.8,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            232,
+            130,
+            150
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -38.8,
+            2.4,
+            3.6
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.8,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            255,
+            226,
+            120
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -37.4,
+            2.3,
+            4.6
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.8,
+            1.8,
+            1.8
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A two-tier marble fountain with sky-blue water and a gold ball on top, floating on a cloud.",
+      "Id": "CloudFountain",
+      "Name": "Cloud Fountain",
+      "Pad": [
+        50,
+        44
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            60,
+            1,
+            38
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            18,
+            2,
+            18
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            60,
+            2.2,
+            38
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2.4,
+            13,
+            13
+          ]
+        },
+        {
+          "Color": [
+            140,
+            196,
+            242
+          ],
+          "Material": "Material.Glass",
+          "Offset": [
+            60,
+            3.5,
+            38
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.3,
+            11.4,
+            11.4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            60,
+            5.5,
+            38
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4,
+            3,
+            3
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            60,
+            8,
+            38
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.2,
+            7,
+            7
+          ]
+        },
+        {
+          "Color": [
+            140,
+            196,
+            242
+          ],
+          "Material": "Material.Glass",
+          "Offset": [
+            60,
+            8.7,
+            38
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.2,
+            6,
+            6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            60,
+            10,
+            38
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2.4,
+            1.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            60,
+            12,
+            38
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.6,
+            2.6,
+            2.6
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Three round-crowned trees in mint and blossom pink on slim trunks.",
+      "Id": "CloudTrees",
+      "Name": "Cloud Trees",
+      "Pad": [
+        -38,
+        20
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            176,
+            130,
+            90
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -46,
+            3.5,
+            24
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            7,
+            1.4,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            168,
+            222,
+            198
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            -46,
+            9,
+            24
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            9,
+            8,
+            9
+          ]
+        },
+        {
+          "Color": [
+            168,
+            222,
+            198
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            -48,
+            7.5,
+            26
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            6,
+            5,
+            6
+          ]
+        },
+        {
+          "Color": [
+            176,
+            130,
+            90
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -52,
+            2.6,
+            30
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            5.2,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            248,
+            196,
+            210
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            -52,
+            7,
+            30
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            7,
+            6.4,
+            7
+          ]
+        },
+        {
+          "Color": [
+            176,
+            130,
+            90
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -40,
+            2.3,
+            20
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4.6,
+            1.1,
+            1.1
+          ]
+        },
+        {
+          "Color": [
+            168,
+            222,
+            198
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            -40,
+            6.6,
+            20
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            6.4,
+            5.6,
+            6.4
+          ]
+        },
+        {
+          "Color": [
+            248,
+            196,
+            210
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            -42,
+            5.4,
+            22
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            4,
+            3.4,
+            4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Two marble benches and a small round table, turned toward the walkway.",
+      "Id": "Benches",
+      "Name": "Cloud Benches",
+      "Pad": [
+        58,
+        18
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            66.5,
+            2.2,
+            14
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.2,
+            0.7,
+            6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            68.2,
+            3.6,
+            14
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.7,
+            2.6,
+            6
+          ]
+        },
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            66.5,
+            1,
+            12
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.8,
+            1.4,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            66.5,
+            1,
+            16
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.8,
+            1.4,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            64,
+            2.2,
+            24
+          ],
+          "Rotation": [
+            0,
+            15,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.2,
+            0.7,
+            6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            65.7,
+            3.6,
+            24
+          ],
+          "Rotation": [
+            0,
+            15,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.7,
+            2.6,
+            6
+          ]
+        },
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            64,
+            1,
+            22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.8,
+            1.4,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            64,
+            1,
+            26
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.8,
+            1.4,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            61,
+            1.3,
+            19
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2.6,
+            3,
+            3
+          ]
+        },
+        {
+          "Color": [
+            248,
+            196,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            61,
+            2.7,
+            19
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.3,
+            4,
+            4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A small family of marble angels on pedestals, a tall one, a smaller one and a kneeling one.",
+      "Id": "AngelStatues",
+      "Name": "Angel Statues",
+      "Pad": [
+        -54,
+        -4
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -62,
+            1.2,
+            -10
+          ],
+          "Rotation": [
+            0,
+            25,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.4,
+            2.4,
+            4.4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -62,
+            5.4,
+            -10
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6,
+            2.8,
+            2.8
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -62,
+            9.4,
+            -10
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.4,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -63.6,
+            7.4,
+            -11.6
+          ],
+          "Rotation": [
+            0,
+            0,
+            18
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            4.6,
+            0.5
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -60.4,
+            7.4,
+            -11.6
+          ],
+          "Rotation": [
+            0,
+            0,
+            -18
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            4.6,
+            0.5
+          ]
+        },
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -67,
+            1,
+            -2
+          ],
+          "Rotation": [
+            0,
+            -20,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.6,
+            2,
+            3.6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -67,
+            4.4,
+            -2
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4.8,
+            2.3,
+            2.3
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -67,
+            7.6,
+            -2
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -68.3,
+            6,
+            -3.3
+          ],
+          "Rotation": [
+            0,
+            0,
+            18
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            3.8,
+            0.45
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -65.7,
+            6,
+            -3.3
+          ],
+          "Rotation": [
+            0,
+            0,
+            -18
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            3.8,
+            0.45
+          ]
+        },
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -58,
+            0.8,
+            -3
+          ],
+          "Rotation": [
+            0,
+            35,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            1.6,
+            3
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -58,
+            3,
+            -3
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2.8,
+            2,
+            2
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -58,
+            5,
+            -3
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.7,
+            1.7,
+            1.7
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -58,
+            3.6,
+            -4.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.2,
+            3,
+            0.4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A golden harp taller than the Shiba, standing on a marble base with white strings.",
+      "Id": "HarpGarden",
+      "Name": "Giant Harp",
+      "Pad": [
+        -22,
+        28
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -28,
+            0.6,
+            22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8,
+            1.2,
+            4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -31.2,
+            7,
+            22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.2,
+            12,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -24.8,
+            6,
+            22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.8,
+            10,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -28,
+            12.6,
+            22
+          ],
+          "Rotation": [
+            0,
+            0,
+            -12
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -30,
+            6.5,
+            22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.15,
+            9,
+            0.15
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -29,
+            6.5,
+            22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.15,
+            8.4,
+            0.15
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -28,
+            6.5,
+            22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.15,
+            7.8,
+            0.15
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -27,
+            6.5,
+            22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.15,
+            7.2,
+            0.15
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -26,
+            6.5,
+            22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.15,
+            6.6,
+            0.15
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -32.5,
+            1.2,
+            24
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            5,
+            2.4,
+            4
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -23.5,
+            1,
+            20
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            4.4,
+            2,
+            3.6
+          ]
+        }
+      ],
+      "RewardMult": 1.25
+    },
+    {
+      "Description": "A cosy cream cottage with a stacked pink roof, a gold door and a little chimney, floating on a big cloud.",
+      "Id": "CloudCottage",
+      "Name": "Cloud Cottage",
+      "Pad": [
+        -52,
+        40
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -64,
+            1.4,
+            38
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            24,
+            2.8,
+            20
+          ]
+        },
+        {
+          "Color": [
+            250,
+            240,
+            214
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -64,
+            6.5,
+            38
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            13,
+            10,
+            10
+          ]
+        },
+        {
+          "Color": [
+            232,
+            130,
+            150
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -64,
+            12.5,
+            38
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            15.6,
+            2,
+            12
+          ]
+        },
+        {
+          "Color": [
+            232,
+            130,
+            150
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -64,
+            14.5,
+            38
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            11.4,
+            2,
+            8.6
+          ]
+        },
+        {
+          "Color": [
+            232,
+            130,
+            150
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -64,
+            16.5,
+            38
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            6.4,
+            2,
+            5.6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -64,
+            18.2,
+            38
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -64,
+            4.6,
+            43.1
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.8,
+            4.4,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            140,
+            196,
+            242
+          ],
+          "Material": "Material.Glass",
+          "Offset": [
+            -68.4,
+            7.4,
+            43.1
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            2,
+            0.3
+          ]
+        },
+        {
+          "Color": [
+            140,
+            196,
+            242
+          ],
+          "Material": "Material.Glass",
+          "Offset": [
+            -59.6,
+            7.4,
+            43.1
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            2,
+            0.3
+          ]
+        },
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -60,
+            15.4,
+            36
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.6,
+            3,
+            1.6
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "An open round pavilion with six slim marble columns and a layered rose roof.",
+      "Id": "Pavilion",
+      "Name": "Garden Pavilion",
+      "Pad": [
+        -49,
+        6
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -58,
+            0.5,
+            16
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1,
+            13,
+            13
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -58,
+            5.2,
+            21.2
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            8.4,
+            1.1,
+            1.1
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -53.5,
+            5.2,
+            18.6
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            8.4,
+            1.1,
+            1.1
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -53.5,
+            5.2,
+            13.4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            8.4,
+            1.1,
+            1.1
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -58,
+            5.2,
+            10.8
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            8.4,
+            1.1,
+            1.1
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -62.5,
+            5.2,
+            13.4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            8.4,
+            1.1,
+            1.1
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -62.5,
+            5.2,
+            18.6
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            8.4,
+            1.1,
+            1.1
+          ]
+        },
+        {
+          "Color": [
+            232,
+            130,
+            150
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -58,
+            10.4,
+            16
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1,
+            13.5,
+            13.5
+          ]
+        },
+        {
+          "Color": [
+            232,
+            130,
+            150
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -58,
+            11.5,
+            16
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.2,
+            8,
+            8
+          ]
+        },
+        {
+          "Color": [
+            232,
+            130,
+            150
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -58,
+            12.6,
+            16
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1,
+            3,
+            3
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -58,
+            13.8,
+            16
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.6,
+            1.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -58,
+            1.6,
+            16
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.2,
+            2.4,
+            2.4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Broken marble columns of different heights, a fallen one and a weathered lintel on two tall columns.",
+      "Id": "RuinColumns",
+      "Name": "Marble Ruins",
+      "Pad": [
+        54,
+        6
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            62,
+            0.4,
+            -4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            15,
+            0.8,
+            9
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            55,
+            6.6,
+            -4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            12.4,
+            2.2,
+            2.2
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            63,
+            6.6,
+            -4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            12.4,
+            2.2,
+            2.2
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            59,
+            13.4,
+            -4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            11,
+            1.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            67,
+            3.8,
+            -2
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6.6,
+            2.2,
+            2.2
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            70,
+            2.6,
+            -6
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4.2,
+            2.2,
+            2.2
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            60,
+            1.6,
+            0
+          ],
+          "Rotation": [
+            0,
+            25,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            9,
+            2.2,
+            2.2
+          ]
+        },
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            69,
+            1.1,
+            1
+          ],
+          "Rotation": [
+            0,
+            30,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            1.6,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            54,
+            1,
+            -8
+          ],
+          "Rotation": [
+            0,
+            -20,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            1.4,
+            2.4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A round sky-blue pond with cloud rocks, floating lily pads and a little marble arch bridge.",
+      "Id": "CloudPond",
+      "Name": "Sky Pond",
+      "Pad": [
+        24,
+        18
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            140,
+            196,
+            242
+          ],
+          "Material": "Material.Glass",
+          "Offset": [
+            6,
+            0.45,
+            15
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            16,
+            0.3,
+            16
+          ]
+        },
+        {
+          "Color": [
+            140,
+            196,
+            242
+          ],
+          "Material": "Material.Glass",
+          "Offset": [
+            7,
+            0.45,
+            15
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            12,
+            0.3,
+            19
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -0.5,
+            1,
+            15
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            4,
+            2,
+            3.6
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            6,
+            1,
+            22
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            4.4,
+            2,
+            3.4
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            12.5,
+            1,
+            14
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3.8,
+            2,
+            3.6
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            4,
+            1,
+            8.5
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3.6,
+            1.8,
+            3.2
+          ]
+        },
+        {
+          "Color": [
+            168,
+            222,
+            198
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            3,
+            0.55,
+            12
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            0.15,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            168,
+            222,
+            198
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            9,
+            0.55,
+            17.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            0.15,
+            2
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            6,
+            2.6,
+            15
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            12,
+            0.8,
+            3.2
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            1,
+            1.3,
+            15
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            2.6,
+            3.2
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            11,
+            1.3,
+            15
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            2.6,
+            3.2
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            6,
+            3.7,
+            13.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            12,
+            0.7,
+            0.5
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            6,
+            3.7,
+            16.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            12,
+            0.7,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Three tall banner poles with flags in sky blue, gold and pink, flying at different angles.",
+      "Id": "Banners",
+      "Name": "Heaven Banners",
+      "Pad": [
+        33,
+        29
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            29,
+            0.5,
+            36
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1,
+            2.2,
+            2.2
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            29,
+            6.5,
+            36
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            12,
+            0.6,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            140,
+            196,
+            242
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            31.6,
+            10.2,
+            36
+          ],
+          "Rotation": [
+            0,
+            20,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.6,
+            3,
+            0.3
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            29,
+            12.9,
+            36
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.2,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            36,
+            0.5,
+            33
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1,
+            2.2,
+            2.2
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            36,
+            5.5,
+            33
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            10,
+            0.6,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            38.6,
+            8.4,
+            33
+          ],
+          "Rotation": [
+            0,
+            -22,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.6,
+            3,
+            0.3
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            36,
+            10.9,
+            33
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.2,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            43,
+            0.5,
+            27
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1,
+            2.2,
+            2.2
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            43,
+            6,
+            27
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            11,
+            0.6,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            248,
+            196,
+            210
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            45.6,
+            9.4,
+            27
+          ],
+          "Rotation": [
+            0,
+            14,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.6,
+            3,
+            0.3
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            43,
+            11.9,
+            27
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.2,
+            1.2,
+            1.2
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A tall rainbow arch standing across the walkway on two striped pillars with cloud puffs at their feet.",
+      "Id": "RainbowArch",
+      "Name": "Rainbow Arch",
+      "Pad": [
+        -30,
+        -48
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            236,
+            100,
+            108
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -49.6,
+            4.5,
+            -43
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.2,
+            9,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            250,
+            220,
+            90
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -48.4,
+            4.5,
+            -43
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.2,
+            9,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            130,
+            210,
+            150
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -47.2,
+            4.5,
+            -43
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.2,
+            9,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            110,
+            170,
+            235
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -46,
+            4.5,
+            -43
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.2,
+            9,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            110,
+            170,
+            235
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -28,
+            4.5,
+            -43
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.2,
+            9,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            130,
+            210,
+            150
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -26.8,
+            4.5,
+            -43
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.2,
+            9,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            250,
+            220,
+            90
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -25.6,
+            4.5,
+            -43
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.2,
+            9,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            236,
+            100,
+            108
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -24.4,
+            4.5,
+            -43
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.2,
+            9,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            110,
+            170,
+            235
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -37,
+            9.6,
+            -43
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            19.2,
+            1.2,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            130,
+            210,
+            150
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -37,
+            10.8,
+            -43
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            21.6,
+            1.2,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            250,
+            220,
+            90
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -37,
+            12,
+            -43
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            24,
+            1.2,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            236,
+            100,
+            108
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -37,
+            13.2,
+            -43
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            26.4,
+            1.2,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -48.5,
+            1.1,
+            -43
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            5,
+            2.2,
+            4
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -25.5,
+            1.1,
+            -43
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            5,
+            2.2,
+            4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A pair of big white feathered wings spread behind the Angel Shiba on a golden shaft with a halo.",
+      "Id": "WingsBackdrop",
+      "Name": "Angel Wings Backdrop",
+      "Pad": [
+        34,
+        -22
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            216,
+            228,
+            246
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            20,
+            0.5,
+            -26
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            22,
+            1,
+            3.4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            20,
+            5.5,
+            -26
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            9,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            20,
+            12.4,
+            -26
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.6,
+            4.4,
+            4.4
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            25,
+            9.6,
+            -26
+          ],
+          "Rotation": [
+            0,
+            0,
+            28
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            7,
+            1.4,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            26.4,
+            7.4,
+            -26
+          ],
+          "Rotation": [
+            0,
+            0,
+            18
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8.6,
+            1.4,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            27.4,
+            5.4,
+            -26
+          ],
+          "Rotation": [
+            0,
+            0,
+            9
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9.4,
+            1.4,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            27.4,
+            3.4,
+            -26
+          ],
+          "Rotation": [
+            0,
+            0,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8.6,
+            1.4,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            15,
+            9.6,
+            -26
+          ],
+          "Rotation": [
+            0,
+            0,
+            -28
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            7,
+            1.4,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            13.6,
+            7.4,
+            -26
+          ],
+          "Rotation": [
+            0,
+            0,
+            -18
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8.6,
+            1.4,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            12.6,
+            5.4,
+            -26
+          ],
+          "Rotation": [
+            0,
+            0,
+            -9
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9.4,
+            1.4,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            12.6,
+            3.4,
+            -26
+          ],
+          "Rotation": [
+            0,
+            0,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8.6,
+            1.4,
+            0.9
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "The marble Cloud Temple behind the Shiba: six columns, a stepped golden pediment and a cella with a gold door.",
+      "Id": "SkyTemple",
+      "Name": "Sky Temple",
+      "Pad": [
+        38,
+        -26
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            26,
+            1,
+            -42
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            36,
+            2,
+            22
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            12,
+            8,
+            -34
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            12,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            17.6,
+            8,
+            -34
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            12,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            23.2,
+            8,
+            -34
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            12,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            28.8,
+            8,
+            -34
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            12,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            34.4,
+            8,
+            -34
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            12,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            40,
+            8,
+            -34
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            12,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            26,
+            14.8,
+            -36
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            32,
+            1.6,
+            10
+          ]
+        },
+        {
+          "Color": [
+            248,
+            196,
+            210
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            26,
+            16.4,
+            -36
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            30,
+            1.6,
+            9
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            26,
+            18,
+            -36
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            22,
+            1.6,
+            7
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            26,
+            19.6,
+            -36
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            12,
+            1.6,
+            5
+          ]
+        },
+        {
+          "Color": [
+            250,
+            240,
+            214
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            26,
+            8.2,
+            -47
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            26,
+            12.4,
+            10
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            26,
+            15.2,
+            -47
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            28,
+            2,
+            12
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            26,
+            5.2,
+            -41.8
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5,
+            6.4,
+            0.5
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            26,
+            21.8,
+            -36
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.6,
+            2.6,
+            2.6
+          ]
+        }
+      ],
+      "RewardMult": 1.4
+    },
+    {
+      "Description": "Three tall posts with star-shaped golden lanterns, each a different height, standing beside the temple.",
+      "Id": "StarLanterns",
+      "Name": "Star Lanterns",
+      "Pad": [
+        51,
+        -38
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            53,
+            0.6,
+            -52
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.2,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            53,
+            7,
+            -52
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            12,
+            0.8,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            53,
+            13.4,
+            -52
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.6,
+            0.7,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            255,
+            226,
+            120
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            53,
+            15.2,
+            -52
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3,
+            3,
+            3
+          ]
+        },
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            60,
+            0.6,
+            -46
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.2,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            60,
+            5.4,
+            -46
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            9,
+            0.8,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            60,
+            10.6,
+            -46
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            0.7,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            255,
+            226,
+            120
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            60,
+            12.4,
+            -46
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3,
+            3,
+            3
+          ]
+        },
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            49,
+            0.6,
+            -42
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.2,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            49,
+            4.8,
+            -42
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            8,
+            0.8,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            49,
+            9.2,
+            -42
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.2,
+            0.7,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            255,
+            226,
+            120
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            49,
+            10.9,
+            -42
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.8,
+            2.8,
+            2.8
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A golden gong hanging in a white frame, with a little mallet beside it.",
+      "Id": "DawnGong",
+      "Name": "Gong of Dawn",
+      "Pad": [
+        40,
+        -2
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            42,
+            0.6,
+            -8
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            1.2,
+            3
+          ]
+        },
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            50,
+            0.6,
+            -8
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            1.2,
+            3
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            42,
+            6.4,
+            -8
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            10.4,
+            1.1,
+            1.1
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            50,
+            6.4,
+            -8
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            10.4,
+            1.1,
+            1.1
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            46,
+            11.6,
+            -8
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10,
+            1,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            46,
+            7.2,
+            -8
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.6,
+            6.6,
+            6.6
+          ]
+        },
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            46,
+            7.2,
+            -8.4
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.4,
+            7.6,
+            7.6
+          ]
+        },
+        {
+          "Color": [
+            255,
+            226,
+            120
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            46,
+            7.2,
+            -7.6
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.4,
+            3,
+            3
+          ]
+        },
+        {
+          "Color": [
+            176,
+            130,
+            90
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            51.4,
+            1.6,
+            -5
+          ],
+          "Rotation": [
+            0,
+            0,
+            20
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.5,
+            3.2,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Three little cherubs perched on cloud puffs, each a different height and facing a different way.",
+      "Id": "CherubPerches",
+      "Name": "Cherub Perches",
+      "Pad": [
+        -12,
+        -12
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -18,
+            1.2,
+            -18
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            6,
+            2.4,
+            5
+          ]
+        },
+        {
+          "Color": [
+            252,
+            218,
+            196
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -18,
+            3.6,
+            -18
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.6,
+            3,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            252,
+            218,
+            196
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -18,
+            5.8,
+            -18
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.2,
+            2.2,
+            2.2
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -19.3,
+            4.6,
+            -18.9
+          ],
+          "Rotation": [
+            0,
+            0,
+            20
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.8,
+            2.6,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -16.7,
+            4.6,
+            -18.9
+          ],
+          "Rotation": [
+            0,
+            0,
+            -20
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.8,
+            2.6,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -25,
+            2.2,
+            -22
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            6.4,
+            3.4,
+            5.4
+          ]
+        },
+        {
+          "Color": [
+            252,
+            218,
+            196
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -25,
+            5.4,
+            -22
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.8,
+            3.2,
+            2.8
+          ]
+        },
+        {
+          "Color": [
+            252,
+            218,
+            196
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -25,
+            7.6,
+            -22
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.3,
+            2.3,
+            2.3
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -26.4,
+            6.6,
+            -22.9
+          ],
+          "Rotation": [
+            0,
+            0,
+            20
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            2.8,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -23.6,
+            6.6,
+            -22.9
+          ],
+          "Rotation": [
+            0,
+            0,
+            -20
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            2.8,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -11,
+            1,
+            -25
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            5,
+            2,
+            4.4
+          ]
+        },
+        {
+          "Color": [
+            252,
+            218,
+            196
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -11,
+            3,
+            -25
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.3,
+            2.6,
+            2.3
+          ]
+        },
+        {
+          "Color": [
+            252,
+            218,
+            196
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -11,
+            4.9,
+            -25
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -12.2,
+            4,
+            -25.8
+          ],
+          "Rotation": [
+            0,
+            0,
+            20
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.6,
+            2.2,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -9.8,
+            4,
+            -25.8
+          ],
+          "Rotation": [
+            0,
+            0,
+            -20
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.6,
+            2.2,
+            0.4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A tall marble stele carrying a big golden halo ring with four little gems.",
+      "Id": "HaloMonument",
+      "Name": "Halo Monument",
+      "Pad": [
+        -36,
+        -21
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -30,
+            1,
+            -30
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9,
+            2,
+            6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -30,
+            3,
+            -30
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            6,
+            2,
+            4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -30,
+            10,
+            -30
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            12,
+            3,
+            3
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -30,
+            19,
+            -30
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.2,
+            13,
+            13
+          ]
+        },
+        {
+          "Color": [
+            140,
+            196,
+            242
+          ],
+          "Material": "Material.Glass",
+          "Offset": [
+            -30,
+            19,
+            -29.6
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.4,
+            9.6,
+            9.6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -30,
+            25.6,
+            -30
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.6,
+            1.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            232,
+            130,
+            150
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -30,
+            13.9,
+            -29.2
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.4,
+            1.4,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            232,
+            130,
+            150
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -23.9,
+            19,
+            -29.2
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.4,
+            1.4,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            232,
+            130,
+            150
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -36.1,
+            19,
+            -29.2
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.4,
+            1.4,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            232,
+            130,
+            150
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -30,
+            24.1,
+            -29.2
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.4,
+            1.4,
+            1.4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A round white observatory with a gold band, a rose dome and a telescope poking out of the slit.",
+      "Id": "Observatory",
+      "Name": "Star Observatory",
+      "Pad": [
+        64,
+        -32
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            68,
+            0.5,
+            -42
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1,
+            17,
+            17
+          ]
+        },
+        {
+          "Color": [
+            250,
+            240,
+            214
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            68,
+            5,
+            -42
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            8,
+            13,
+            13
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            68,
+            9.4,
+            -42
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1,
+            14,
+            14
+          ]
+        },
+        {
+          "Color": [
+            232,
+            130,
+            150
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            68,
+            9.5,
+            -42
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            13.4,
+            11,
+            13.4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            68,
+            5,
+            -35.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            5,
+            0.5
+          ]
+        },
+        {
+          "Color": [
+            140,
+            196,
+            242
+          ],
+          "Material": "Material.Glass",
+          "Offset": [
+            68,
+            11.5,
+            -36.2
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.6,
+            6,
+            1
+          ]
+        },
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            70,
+            14,
+            -37.6
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            8,
+            1.4,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            68,
+            15.6,
+            -42
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.6,
+            1.6,
+            1.6
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Three marble risers with a row of little singing angels and a golden music stand in front.",
+      "Id": "ChoirRiser",
+      "Name": "Choir Risers",
+      "Pad": [
+        -2,
+        -22
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            0,
+            0.6,
+            -30
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14,
+            1.2,
+            8
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            0,
+            1.8,
+            -32
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            11,
+            1.2,
+            5.5
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            0,
+            3,
+            -33.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8,
+            1.2,
+            3
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            -4,
+            4,
+            -31
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3.2,
+            2,
+            2
+          ]
+        },
+        {
+          "Color": [
+            252,
+            218,
+            196
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -4,
+            6.2,
+            -31
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.8,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            -0.6,
+            4,
+            -32
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3.2,
+            2,
+            2
+          ]
+        },
+        {
+          "Color": [
+            252,
+            218,
+            196
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -0.6,
+            6.2,
+            -32
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.8,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            2.8,
+            4,
+            -31
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3.2,
+            2,
+            2
+          ]
+        },
+        {
+          "Color": [
+            252,
+            218,
+            196
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            2.8,
+            6.2,
+            -31
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.8,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            -2,
+            6,
+            -33.5
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3.2,
+            2,
+            2
+          ]
+        },
+        {
+          "Color": [
+            252,
+            218,
+            196
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -2,
+            8.2,
+            -33.5
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.8,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            1,
+            2.6,
+            -27
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.2,
+            2.4,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            1,
+            3.9,
+            -27
+          ],
+          "Rotation": [
+            -25,
+            0,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            0.3,
+            1.4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A golden bell hanging in a white open frame under a little pink roof.",
+      "Id": "HeavenBell",
+      "Name": "Heaven Bell",
+      "Pad": [
+        -8,
+        -43
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -14,
+            0.5,
+            -37
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10,
+            1,
+            5
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -17.4,
+            6,
+            -37
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            10,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -10.6,
+            6,
+            -37
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            10,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            232,
+            130,
+            150
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -14,
+            11.2,
+            -37
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10.6,
+            1,
+            3.6
+          ]
+        },
+        {
+          "Color": [
+            232,
+            130,
+            150
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -14,
+            12.4,
+            -37
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            6,
+            1.2,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -14,
+            6.4,
+            -37
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3.4,
+            4.4,
+            4.4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -14,
+            8.4,
+            -37
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1,
+            2.8,
+            2.8
+          ]
+        },
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -14,
+            4.3,
+            -37
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.4,
+            1.4,
+            1.4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A golden throne with white wings and a rose cushion on a two-tier cloud dais.",
+      "Id": "CloudThrone",
+      "Name": "Cloud Throne",
+      "Pad": [
+        50,
+        -35
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            52,
+            0.8,
+            -25
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.6,
+            11,
+            11
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            52,
+            2.1,
+            -25
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1,
+            8,
+            8
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            52,
+            3.9,
+            -25
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5,
+            2.6,
+            4.6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            52,
+            8,
+            -27
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5.4,
+            8,
+            1
+          ]
+        },
+        {
+          "Color": [
+            232,
+            130,
+            150
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            52,
+            5,
+            -25
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4,
+            0.9,
+            3.6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            49.3,
+            5,
+            -25
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.7,
+            2,
+            4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            54.7,
+            5,
+            -25
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.7,
+            2,
+            4
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            48.2,
+            9,
+            -27.6
+          ],
+          "Rotation": [
+            0,
+            0,
+            22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            6.6,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            55.8,
+            9,
+            -27.6
+          ],
+          "Rotation": [
+            0,
+            0,
+            -22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            6.6,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            52,
+            12.6,
+            -27
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.8,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            46.6,
+            1.2,
+            -23
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            5,
+            2.4,
+            4
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            57.6,
+            1,
+            -28
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            4.6,
+            2,
+            4
+          ]
+        }
+      ],
+      "RewardMult": 1.5
+    },
+    {
+      "Description": "The tall bell spire of the heavens: a stepped marble tower with gold bands, a belfry and a golden needle.",
+      "Id": "SkySpire",
+      "Name": "Sky Spire",
+      "Pad": [
+        -56,
+        -22
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            196,
+            190,
+            184
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -66,
+            1.2,
+            -22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            15,
+            2.4,
+            15
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -66,
+            8.4,
+            -22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            11.4,
+            12,
+            11.4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -66,
+            15,
+            -22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            13,
+            1.2,
+            13
+          ]
+        },
+        {
+          "Color": [
+            250,
+            240,
+            214
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -66,
+            26,
+            -22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8.8,
+            20,
+            8.8
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -66,
+            36.4,
+            -22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            12,
+            1.6,
+            12
+          ]
+        },
+        {
+          "Color": [
+            216,
+            228,
+            246
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            -66,
+            41.8,
+            -22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            7.6,
+            9.2,
+            7.6
+          ]
+        },
+        {
+          "Color": [
+            232,
+            130,
+            150
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -66,
+            47,
+            -22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10,
+            1.2,
+            10
+          ]
+        },
+        {
+          "Color": [
+            232,
+            130,
+            150
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -66,
+            49.4,
+            -22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            6.4,
+            3.6,
+            6.4
+          ]
+        },
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -66,
+            53.1,
+            -22
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3.8,
+            1,
+            1
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -70,
+            1.4,
+            -17
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            6,
+            2.8,
+            5
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -61.5,
+            1.2,
+            -27
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            5,
+            2.4,
+            4.4
+          ]
+        }
+      ],
+      "RewardMult": 1.5
+    },
+    {
+      "Description": "A spiral of floating marble steps winding around a golden pole up into the sky.",
+      "Id": "Stairway",
+      "Name": "Stairway to Heaven",
+      "Pad": [
+        62,
+        -14
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            238,
+            190,
+            64
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            70,
+            11,
+            -22
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            22,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            72.8,
+            1.6,
+            -22
+          ],
+          "Rotation": [
+            0,
+            0,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.6,
+            0.9,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            72.2,
+            3.4,
+            -19.4
+          ],
+          "Rotation": [
+            0,
+            60,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.6,
+            0.9,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            70,
+            5.2,
+            -17.8
+          ],
+          "Rotation": [
+            0,
+            120,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.6,
+            0.9,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            67.4,
+            7,
+            -17.8
+          ],
+          "Rotation": [
+            0,
+            180,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.6,
+            0.9,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            65.2,
+            8.8,
+            -19.4
+          ],
+          "Rotation": [
+            0,
+            240,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.6,
+            0.9,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            64.4,
+            10.6,
+            -22
+          ],
+          "Rotation": [
+            0,
+            300,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.6,
+            0.9,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            65.2,
+            12.4,
+            -24.6
+          ],
+          "Rotation": [
+            0,
+            0,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.6,
+            0.9,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            67.4,
+            14.2,
+            -26.2
+          ],
+          "Rotation": [
+            0,
+            60,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.6,
+            0.9,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            70,
+            16,
+            -26.2
+          ],
+          "Rotation": [
+            0,
+            120,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.6,
+            0.9,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            238,
+            232,
+            220
+          ],
+          "Material": "Material.Marble",
+          "Offset": [
+            72.2,
+            17.8,
+            -24.6
+          ],
+          "Rotation": [
+            0,
+            180,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.6,
+            0.9,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            70,
+            1.2,
+            -22
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            9,
+            2.4,
+            8
+          ]
+        },
+        {
+          "Color": [
+            246,
+            248,
+            253
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            70,
+            23.4,
+            -22
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            5,
+            3.4,
+            5
+          ]
+        }
+      ],
+      "RewardMult": 1.5
+    }
+  ],
+  "Path": [
+    [
+      0,
+      57.5
+    ],
+    [
+      -32,
+      44
+    ],
+    [
+      12,
+      30
+    ],
+    [
+      50,
+      14
+    ],
+    [
+      16,
+      0
+    ],
+    [
+      -36,
+      -8
+    ],
+    [
+      -50,
+      -38
+    ],
+    [
+      0,
+      -57.5
+    ]
+  ],
+  "Shiba": {
+    "Facing": 270,
+    "Position": [
+      20,
+      -14
+    ]
+  }
+}
