@@ -112,7 +112,22 @@ local function rebuildOuterWall()
 	local thick = walls.OuterWallThickness
 	local edge = plotEdge()
 
+	-- One wall block. Roblox clamps a part to 2048 studs per side and the side walls of a deep plot are several thousand studs
+	-- long (the back wall of Shiba 30 is 4500 studs from the road), so a block longer than GROUND_SEGMENT is cut into equal
+	-- pieces that touch end to end; otherwise the wall stops short and leaves a hole into the void.
 	local function piece(size: Vector3, center: Vector3)
+		for _, axis in { Vector3.xAxis, Vector3.yAxis, Vector3.zAxis } do
+			local length = size:Dot(axis)
+			if length > GROUND_SEGMENT then
+				local count = math.ceil(length / GROUND_SEGMENT)
+				local step = length / count
+				local partSize = size - axis * (length - step)
+				for index = 1, count do
+					piece(partSize, center + axis * (step * (index - 0.5) - length / 2))
+				end
+				return
+			end
+		end
 		local part = newPart("OuterWall", size, CFrame.new(center), walls.WallColor, folder, true)
 		part.Material = walls.WallMaterial
 	end
