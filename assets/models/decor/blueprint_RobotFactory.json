@@ -1,0 +1,4007 @@
+{
+  "Area": [
+    190,
+    130
+  ],
+  "AutoPad": [
+    8,
+    -14
+  ],
+  "BayPad": [
+    -16,
+    -14
+  ],
+  "Key": "RobotFactory",
+  "Name": "Robot Factory",
+  "Parts": [
+    {
+      "Description": "Dark concrete with hazard lines, steel plates and a big round turntable for the Robot Shiba.",
+      "Id": "Floor",
+      "Name": "Factory Floor",
+      "Pad": [
+        -30,
+        58
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            86,
+            90,
+            98
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            0,
+            0.15,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            190,
+            0.3,
+            130
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -4,
+            0.36,
+            -14
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            26,
+            0.12,
+            26
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -4,
+            0.48,
+            -14
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            17,
+            0.12,
+            17
+          ]
+        },
+        {
+          "Color": [
+            108,
+            112,
+            120
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            60,
+            0.36,
+            -40
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            56,
+            0.12,
+            40
+          ]
+        },
+        {
+          "Color": [
+            108,
+            112,
+            120
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            20,
+            0.36,
+            -34
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            26,
+            0.12,
+            22
+          ]
+        },
+        {
+          "Color": [
+            108,
+            112,
+            120
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -76,
+            0.36,
+            -12
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            30,
+            0.12,
+            30
+          ]
+        },
+        {
+          "Color": [
+            104,
+            88,
+            70
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -58,
+            0.36,
+            10
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            28,
+            0.12,
+            22
+          ]
+        },
+        {
+          "Color": [
+            108,
+            112,
+            120
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            76,
+            0.36,
+            20
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            24,
+            0.12,
+            24
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A big steel hall with a saw-tooth roof, glass skylights and a wide roller door.",
+      "Id": "Hall",
+      "Name": "Assembly Hall",
+      "Pad": [
+        60,
+        -22
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            60,
+            7,
+            -55.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            46,
+            14,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            37.6,
+            7,
+            -42
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.2,
+            14,
+            28
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            82.4,
+            7,
+            -42
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.2,
+            14,
+            28
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            43.5,
+            7,
+            -28.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            13,
+            14,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            74.5,
+            7,
+            -28.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            17,
+            14,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            58,
+            12,
+            -28.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            16,
+            4,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            60,
+            14.4,
+            -42
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            46.8,
+            0.8,
+            28.8
+          ]
+        },
+        {
+          "Color": [
+            150,
+            210,
+            232
+          ],
+          "Material": "Material.Glass",
+          "Offset": [
+            46,
+            16.2,
+            -42
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10,
+            3.6,
+            26
+          ]
+        },
+        {
+          "Color": [
+            150,
+            210,
+            232
+          ],
+          "Material": "Material.Glass",
+          "Offset": [
+            60,
+            16.2,
+            -42
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10,
+            3.6,
+            26
+          ]
+        },
+        {
+          "Color": [
+            150,
+            210,
+            232
+          ],
+          "Material": "Material.Glass",
+          "Offset": [
+            74,
+            16.2,
+            -42
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10,
+            3.6,
+            26
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            80,
+            16.4,
+            -52
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.6,
+            4,
+            3.6
+          ]
+        }
+      ],
+      "RewardMult": 1.3
+    },
+    {
+      "Description": "A giant dark billboard with bright BONK letters, standing on two steel legs.",
+      "Id": "Sign",
+      "Name": "Get Bonked Sign",
+      "Pad": [
+        -60,
+        58
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            122,
+            124,
+            130
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -72.5,
+            0.5,
+            50
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            1,
+            3
+          ]
+        },
+        {
+          "Color": [
+            122,
+            124,
+            130
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -47.5,
+            0.5,
+            50
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            1,
+            3
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -72.5,
+            5.5,
+            50
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            9,
+            1.4,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -47.5,
+            5.5,
+            50
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            9,
+            1.4,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.DiamondPlate",
+          "Offset": [
+            -60,
+            8.6,
+            50
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            28,
+            0.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -60,
+            13.5,
+            50
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            30,
+            9,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -60,
+            18.4,
+            50
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            31,
+            0.8,
+            1.6
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A long belt with yellow rails that carries crates and little robots away from the hall.",
+      "Id": "Conveyor",
+      "Name": "Conveyor Line",
+      "Pad": [
+        44,
+        4
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            44,
+            1.3,
+            -8
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            36,
+            0.8,
+            4
+          ]
+        },
+        {
+          "Color": [
+            108,
+            112,
+            120
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            44,
+            1.8,
+            -8
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            36,
+            0.3,
+            3.2
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            44,
+            2.4,
+            -6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            36,
+            0.7,
+            0.5
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            44,
+            2.4,
+            -10
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            36,
+            0.7,
+            0.5
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            28.5,
+            0.5,
+            -8
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.2,
+            1,
+            3.6
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            44,
+            0.5,
+            -8
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.2,
+            1,
+            3.6
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            59.5,
+            0.5,
+            -8
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.2,
+            1,
+            3.6
+          ]
+        },
+        {
+          "Color": [
+            196,
+            154,
+            92
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            33,
+            3.4,
+            -8
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            2.6,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            255,
+            120,
+            30
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            39,
+            3.4,
+            -8
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            2.6,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            50,
+            3.5,
+            -8
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            2.8,
+            2
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            56,
+            3.5,
+            -8
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            2.8,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A yellow robot arm inside a safety cage, welding sparks off a steel table.",
+      "Id": "Welder",
+      "Name": "Robot Arm Cell",
+      "Pad": [
+        64,
+        22
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.DiamondPlate",
+          "Offset": [
+            76,
+            0.2,
+            20
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14,
+            0.4,
+            14
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            69.3,
+            4.5,
+            13.3
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            9,
+            0.7,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            82.7,
+            4.5,
+            13.3
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            9,
+            0.7,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            69.3,
+            4.5,
+            26.7
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            9,
+            0.7,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            82.7,
+            4.5,
+            26.7
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            9,
+            0.7,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            76,
+            9.3,
+            13.3
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14,
+            0.6,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            76,
+            9.3,
+            26.7
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14,
+            0.6,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            69.3,
+            9.3,
+            20
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.6,
+            0.6,
+            14
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            82.7,
+            9.3,
+            20
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.6,
+            0.6,
+            14
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            76,
+            1.4,
+            17
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2.4,
+            4,
+            4
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            76,
+            4,
+            17
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3.6,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            76,
+            6.4,
+            18.4
+          ],
+          "Rotation": [
+            -35,
+            0,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.3,
+            1.3,
+            5
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            76,
+            7.2,
+            21.6
+          ],
+          "Rotation": [
+            25,
+            0,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.1,
+            1.1,
+            4
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            76,
+            2.2,
+            23.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5,
+            3.6,
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A tall brick chimney with white and red bands puffing grey smoke.",
+      "Id": "Smokestack",
+      "Name": "Smokestack",
+      "Pad": [
+        31,
+        -53
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            122,
+            124,
+            130
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            18,
+            1.5,
+            -54
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10,
+            3,
+            10
+          ]
+        },
+        {
+          "Color": [
+            150,
+            82,
+            62
+          ],
+          "Material": "Material.Brick",
+          "Offset": [
+            18,
+            16.5,
+            -54
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            27,
+            5,
+            5
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            18,
+            30.4,
+            -54
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.2,
+            6.4,
+            6.4
+          ]
+        },
+        {
+          "Color": [
+            170,
+            172,
+            178
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            18,
+            34,
+            -54
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            6,
+            5,
+            6
+          ]
+        },
+        {
+          "Color": [
+            190,
+            192,
+            198
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            20,
+            39,
+            -54
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            7,
+            5.6,
+            7
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Two tall tanks with hazard bands, a ladder walkway and a round gas sphere on legs.",
+      "Id": "Silos",
+      "Name": "Storage Tanks",
+      "Pad": [
+        -76,
+        6
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -82,
+            7.5,
+            -5
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            15,
+            7,
+            7
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -82,
+            7.5,
+            -19
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            15,
+            7,
+            7
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.DiamondPlate",
+          "Offset": [
+            -82,
+            15.4,
+            -12
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1,
+            0.5,
+            14
+          ]
+        },
+        {
+          "Color": [
+            226,
+            230,
+            238
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -69,
+            9,
+            -12
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            10,
+            10,
+            10
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -72.2,
+            2.2,
+            -15.2
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4.4,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -65.8,
+            2.2,
+            -15.2
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4.4,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -72.2,
+            2.2,
+            -8.8
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4.4,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -65.8,
+            2.2,
+            -8.8
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4.4,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            255,
+            120,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -75,
+            7.5,
+            -12
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            15,
+            0.8,
+            0.8
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A glass booth on stilts where the foreman watches the line, with a little staircase.",
+      "Id": "Booth",
+      "Name": "Control Booth",
+      "Pad": [
+        -76,
+        34
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -83,
+            2,
+            20
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4,
+            1,
+            1
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -73,
+            2,
+            20
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4,
+            1,
+            1
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -83,
+            2,
+            28
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4,
+            1,
+            1
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -73,
+            2,
+            28
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4,
+            1,
+            1
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.DiamondPlate",
+          "Offset": [
+            -78,
+            4.25,
+            24
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            12,
+            0.5,
+            10
+          ]
+        },
+        {
+          "Color": [
+            150,
+            210,
+            232
+          ],
+          "Material": "Material.Glass",
+          "Offset": [
+            -78,
+            6.8,
+            24
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10,
+            4.6,
+            8
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -78,
+            9.4,
+            24
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            11.4,
+            0.6,
+            9.4
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -80,
+            11.5,
+            24
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3.4,
+            0.4,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -70.6,
+            2.3,
+            24
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.8,
+            4.6,
+            4
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -69.6,
+            1.5,
+            24
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.8,
+            3,
+            4
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -68.6,
+            0.7,
+            24
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.8,
+            1.4,
+            4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Two huge meshing cogwheels standing on a concrete plinth, turning slowly for show.",
+      "Id": "Gears",
+      "Name": "Giant Cogwheels",
+      "Pad": [
+        -36,
+        42
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            122,
+            124,
+            130
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -36,
+            1,
+            32
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            24,
+            2,
+            6
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -40,
+            5,
+            32
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            6,
+            3
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -29,
+            5,
+            32
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            6,
+            3
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -40,
+            9.8,
+            32
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2,
+            14.4,
+            14.4
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -28.5,
+            7.4,
+            32
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2,
+            8.4,
+            8.4
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -40,
+            9.8,
+            33.4
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1,
+            3,
+            3
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -28.5,
+            7.4,
+            33.4
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1,
+            2,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A friendly steel robot waving from its plinth in front of the factory.",
+      "Id": "Statue",
+      "Name": "Robot Statue",
+      "Pad": [
+        6,
+        53
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            122,
+            124,
+            130
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            12,
+            1.5,
+            44
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10,
+            3,
+            10
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            10,
+            5.5,
+            44
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            5,
+            3.2
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            14,
+            5.5,
+            44
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            5,
+            3.2
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            12,
+            11.4,
+            44
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8,
+            6.8,
+            5
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            12,
+            17.2,
+            44
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5,
+            4.4,
+            4.4
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            6.8,
+            11.6,
+            44
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            6.2,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            17.2,
+            13,
+            44
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            6.2,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            12,
+            21,
+            44
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3,
+            0.5,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Three humming generator towers topped with big shiny spheres and a control box.",
+      "Id": "Generator",
+      "Name": "Tesla Coil Yard",
+      "Pad": [
+        50,
+        34
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.DiamondPlate",
+          "Offset": [
+            50,
+            0.6,
+            24
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14,
+            1.2,
+            10
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            45,
+            5,
+            24
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            8,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            50,
+            7,
+            24
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            12,
+            2.8,
+            2.8
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            55,
+            5,
+            24
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            8,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            110,
+            215,
+            240
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            45,
+            10.4,
+            24
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            4.4,
+            4.4,
+            4.4
+          ]
+        },
+        {
+          "Color": [
+            110,
+            215,
+            240
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            50,
+            14.4,
+            24
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            5.4,
+            5.4,
+            5.4
+          ]
+        },
+        {
+          "Color": [
+            110,
+            215,
+            240
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            55,
+            10.4,
+            24
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            4.4,
+            4.4,
+            4.4
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            55.8,
+            2.7,
+            27
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            3,
+            2.4
+          ]
+        }
+      ],
+      "RewardMult": 1.5
+    },
+    {
+      "Description": "A yellow forklift with a loaded pallet, a stack of crates and some oil drums.",
+      "Id": "Forklift",
+      "Name": "Forklift Depot",
+      "Pad": [
+        -10,
+        52
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -14,
+            2.4,
+            38
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            6,
+            2.6,
+            3.6
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -15,
+            6.4,
+            38
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.6,
+            0.4,
+            3.4
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -16.4,
+            4.4,
+            36.4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3.6,
+            0.4,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -16.4,
+            4.4,
+            39.6
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3.6,
+            0.4,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -10.6,
+            4.6,
+            38
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.8,
+            9.2,
+            3
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -9,
+            0.7,
+            38
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.2,
+            0.5,
+            3
+          ]
+        },
+        {
+          "Color": [
+            196,
+            154,
+            92
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            -8.4,
+            2.2,
+            38
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            196,
+            154,
+            92
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            -3,
+            1.2,
+            33.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            2.4,
+            3
+          ]
+        },
+        {
+          "Color": [
+            255,
+            120,
+            30
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            -3,
+            3.6,
+            33.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            2.4,
+            3
+          ]
+        },
+        {
+          "Color": [
+            196,
+            154,
+            92
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            -3.5,
+            1.2,
+            42.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            214,
+            60,
+            52
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -17.5,
+            1.6,
+            33
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3.2,
+            2.2,
+            2.2
+          ]
+        },
+        {
+          "Color": [
+            214,
+            60,
+            52
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -15,
+            1.6,
+            32.4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3.2,
+            2.2,
+            2.2
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A great pipe bridge arching over the walkway on two steel legs, with valve wheels.",
+      "Id": "Pipes",
+      "Name": "Pipe Gateway",
+      "Pad": [
+        -26,
+        -30
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -49,
+            7,
+            -31
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            14,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -29,
+            7,
+            -31
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            14,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            122,
+            124,
+            130
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -49,
+            0.5,
+            -31
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            1,
+            3.4
+          ]
+        },
+        {
+          "Color": [
+            122,
+            124,
+            130
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            -29,
+            0.5,
+            -31
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            1,
+            3.4
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -39,
+            14.4,
+            -31
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            22,
+            1.4,
+            2.8
+          ]
+        },
+        {
+          "Color": [
+            255,
+            120,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -39,
+            11.4,
+            -32.4
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            22,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -39,
+            11.4,
+            -29.6
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            22,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -39,
+            9,
+            -31
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            22,
+            1.2,
+            1.2
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A tall gantry crane on four legs lifting a red container with a swinging hook.",
+      "Id": "Crane",
+      "Name": "Gantry Crane",
+      "Pad": [
+        80,
+        5.5
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            72.8,
+            9,
+            -20
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.6,
+            18,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            87.2,
+            9,
+            -20
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.6,
+            18,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            72.8,
+            9,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.6,
+            18,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            87.2,
+            9,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.6,
+            18,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            72.8,
+            18.6,
+            -10
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.6,
+            1.6,
+            22
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            87.2,
+            18.6,
+            -10
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.6,
+            1.6,
+            22
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            80,
+            19.2,
+            -10
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            16,
+            1.4,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            80,
+            17.8,
+            -6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            1.6,
+            3
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            80,
+            13,
+            -6
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            9,
+            0.3,
+            0.3
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            80,
+            7.4,
+            -6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.6,
+            1.4,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            214,
+            60,
+            52
+          ],
+          "Material": "Material.CorrodedMetal",
+          "Offset": [
+            80,
+            4,
+            -6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            6,
+            3,
+            4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Three little robots resting in their charging stalls under a shared roof.",
+      "Id": "Charging",
+      "Name": "Robot Charging Bay",
+      "Pad": [
+        70,
+        48
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            61.5,
+            4,
+            37.5
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            8,
+            0.8,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            78.5,
+            4,
+            37.5
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            8,
+            0.8,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            70,
+            8.3,
+            38.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            19,
+            0.6,
+            5
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            63.5,
+            3.2,
+            37.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.4,
+            6.4,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            70,
+            3.2,
+            37.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.4,
+            6.4,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            76.5,
+            3.2,
+            37.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.4,
+            6.4,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            63.5,
+            1.7,
+            40.2
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            3.4,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            70,
+            1.7,
+            40.2
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            3.4,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            76.5,
+            1.7,
+            40.2
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            3.4,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            63.5,
+            4.2,
+            40.2
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.2,
+            1.6,
+            2
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            70,
+            4.2,
+            40.2
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.2,
+            1.6,
+            2
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            76.5,
+            4.2,
+            40.2
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.2,
+            1.6,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A mighty orange press that stamps steel plates, with a stack of finished sheets.",
+      "Id": "Press",
+      "Name": "Hydraulic Press",
+      "Pad": [
+        24,
+        -22
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.DiamondPlate",
+          "Offset": [
+            20,
+            1.5,
+            -34
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14,
+            3,
+            10
+          ]
+        },
+        {
+          "Color": [
+            255,
+            120,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            14.5,
+            9.5,
+            -34
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            14,
+            6
+          ]
+        },
+        {
+          "Color": [
+            255,
+            120,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            25.5,
+            9.5,
+            -34
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            14,
+            6
+          ]
+        },
+        {
+          "Color": [
+            255,
+            120,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            20,
+            17,
+            -34
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14,
+            3,
+            8
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            20,
+            13.5,
+            -34
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4,
+            4,
+            4
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            20,
+            9.5,
+            -34
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4.4,
+            2,
+            2
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            20,
+            6.6,
+            -34
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8,
+            1.4,
+            5
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            20,
+            3.9,
+            -34
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8,
+            1.8,
+            5
+          ]
+        },
+        {
+          "Color": [
+            108,
+            112,
+            120
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            28.6,
+            1.2,
+            -29.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            2.4,
+            2.4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A tall landing mast with a round platform where four little drones perch.",
+      "Id": "Drones",
+      "Name": "Drone Dock",
+      "Pad": [
+        84,
+        45
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            122,
+            124,
+            130
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            84,
+            1,
+            56
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2,
+            8,
+            8
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            84,
+            7,
+            56
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            12,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            84,
+            13.3,
+            56
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.7,
+            10,
+            10
+          ]
+        },
+        {
+          "Color": [
+            226,
+            230,
+            238
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            81.5,
+            14.7,
+            54.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            1,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            226,
+            230,
+            238
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            86.5,
+            14.7,
+            54.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            1,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            226,
+            230,
+            238
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            81.5,
+            14.7,
+            57.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            1,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            226,
+            230,
+            238
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            86.5,
+            14.7,
+            57.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            1,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            84,
+            15.9,
+            56
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3,
+            0.4,
+            0.4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A rusty mountain of scrapped robot parts with a magnet crane and a crushed cube.",
+      "Id": "Scrap",
+      "Name": "Scrap Heap",
+      "Pad": [
+        -56,
+        24
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            150,
+            92,
+            56
+          ],
+          "Material": "Material.CorrodedMetal",
+          "Offset": [
+            -58,
+            3.4,
+            10
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            18,
+            7,
+            12
+          ]
+        },
+        {
+          "Color": [
+            104,
+            88,
+            70
+          ],
+          "Material": "Material.CorrodedMetal",
+          "Offset": [
+            -63,
+            4.4,
+            8
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            10,
+            8.4,
+            9
+          ]
+        },
+        {
+          "Color": [
+            150,
+            92,
+            56
+          ],
+          "Material": "Material.CorrodedMetal",
+          "Offset": [
+            -53,
+            3.2,
+            12
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            9,
+            6,
+            8
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.CorrodedMetal",
+          "Offset": [
+            -66,
+            2.2,
+            14
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.4,
+            4.4,
+            4.4
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -60,
+            5.4,
+            7
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            3,
+            3
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -70,
+            6.5,
+            4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            13,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -65.4,
+            13.2,
+            4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10.4,
+            0.9,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -61,
+            9.8,
+            4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            5,
+            0.2,
+            0.2
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -61,
+            7,
+            4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.8,
+            3,
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A glass dome on a steel ring with a glowing artificial brain floating inside.",
+      "Id": "Lab",
+      "Name": "Brain Lab",
+      "Pad": [
+        0,
+        -27
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            122,
+            124,
+            130
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            0,
+            0.8,
+            -40
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.6,
+            19,
+            19
+          ]
+        },
+        {
+          "Color": [
+            150,
+            210,
+            232
+          ],
+          "Material": "Material.Glass",
+          "Offset": [
+            0,
+            6.5,
+            -40
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            17.4,
+            13,
+            17.4
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            0,
+            2.4,
+            -40
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4.8,
+            5,
+            5
+          ]
+        }
+      ],
+      "RewardMult": 1.5
+    },
+    {
+      "Description": "The showpiece: a huge steel guardian with glowing eyes, big fists and a chest light.",
+      "Id": "GiantRobot",
+      "Name": "Giant Robot",
+      "Pad": [
+        -72,
+        -30
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -76.5,
+            1.5,
+            -44
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            6.4,
+            3,
+            9.4
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -67.5,
+            1.5,
+            -44
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            6.4,
+            3,
+            9.4
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -76.5,
+            8.5,
+            -44
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.6,
+            10,
+            4.4
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -67.5,
+            8.5,
+            -44
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.6,
+            10,
+            4.4
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -72,
+            15,
+            -44
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            15,
+            3.4,
+            7
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -72,
+            23,
+            -44
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            17,
+            12.6,
+            9
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -72,
+            31.5,
+            -44
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8,
+            5.4,
+            6.4
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -83.4,
+            22,
+            -44
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.6,
+            12,
+            5
+          ]
+        },
+        {
+          "Color": [
+            150,
+            160,
+            176
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -60.6,
+            22,
+            -44
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.6,
+            12,
+            5
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -83.4,
+            14.4,
+            -44
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5.4,
+            4.4,
+            5.4
+          ]
+        },
+        {
+          "Color": [
+            255,
+            200,
+            30
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -60.6,
+            14.4,
+            -44
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5.4,
+            4.4,
+            5.4
+          ]
+        },
+        {
+          "Color": [
+            52,
+            58,
+            70
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -72,
+            36,
+            -44
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3.6,
+            0.7,
+            0.7
+          ]
+        }
+      ],
+      "RewardMult": 2
+    }
+  ],
+  "Path": [
+    [
+      0,
+      65
+    ],
+    [
+      52,
+      46
+    ],
+    [
+      6,
+      14
+    ],
+    [
+      -44,
+      -14
+    ],
+    [
+      -34,
+      -48
+    ],
+    [
+      0,
+      -65
+    ]
+  ],
+  "Shiba": {
+    "Facing": 270,
+    "Position": [
+      -4,
+      -14
+    ]
+  }
+}
