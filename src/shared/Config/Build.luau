@@ -3,5 +3,5 @@
 -- Bump the label with every change that should be visible in a playtest.
 
 return {
-	Label = "2026-10-03 #69: decor themes for Shibas 11-20 (castle, shrine, factory, launch pad, hero HQ, vault, tower, crypt, pyramid, ice palace)",
+	Label = "2026-10-03 #70: fix props spawning huge (pop-in waits for all parts of a model first)",
 }

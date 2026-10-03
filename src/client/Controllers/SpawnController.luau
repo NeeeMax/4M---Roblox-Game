@@ -18,8 +18,12 @@ local START_SCALE = 0.03
 local OVERSHOOT = 1.9
 -- A model marked longer ago than this (it streamed in late) just appears.
 local MAX_AGE = 3
--- Seconds to wait before the pop, so the parts of the model have arrived.
-local ARRIVAL_WAIT = 0.06
+-- The pop starts when the model's parts have all arrived: the number of parts must stay the same for SETTLE_SECONDS (checked every
+-- CHECK_INTERVAL), at most ARRIVAL_TIMEOUT. A part that arrives while the model is scaled down would be scaled up by the
+-- whole remaining factor at the end of the pop (the 'really big' props), so the model must be complete before it starts.
+local CHECK_INTERVAL = 0.05
+local SETTLE_SECONDS = 0.2
+local ARRIVAL_TIMEOUT = 3
 
 local played: { [Instance]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 
@@ -29,6 +33,16 @@ local SpawnController = {}
 local function easeOutBack(t: number): number
 	local c3 = OVERSHOOT + 1
 	return 1 + c3 * (t - 1) ^ 3 + OVERSHOOT * (t - 1) ^ 2
+end
+
+local function partCount(model: Model): number
+	local count = 0
+	for _, descendant in model:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			count += 1
+		end
+	end
+	return count
 end
 
 local function play(model: Model)
@@ -43,8 +57,18 @@ local function play(model: Model)
 	model:ScaleTo(base * START_SCALE)
 	local started = os.clock()
 	local connection: RBXScriptConnection? = nil
+	-- A part that still arrives during the pop comes in at full size: bring it to the model's current scale, like its siblings.
+	local late = model.DescendantAdded:Connect(function(descendant)
+		if descendant:IsA("BasePart") then
+			local factor = model:GetScale() / base
+			local pivot = model.WorldPivot.Position
+			descendant.Size *= factor
+			descendant.CFrame = CFrame.new(pivot + (descendant.Position - pivot) * factor) * descendant.CFrame.Rotation
+		end
+	end)
 	connection = RunService.RenderStepped:Connect(function()
 		if not model.Parent then
+			late:Disconnect()
 			if connection then
 				connection:Disconnect()
 			end
@@ -52,6 +76,7 @@ local function play(model: Model)
 		end
 		local alpha = math.min((os.clock() - started) / DURATION, 1)
 		if alpha >= 1 then
+			late:Disconnect()
 			model:ScaleTo(base)
 			model:SetAttribute("Spawning", nil)
 			if connection then
@@ -61,6 +86,26 @@ local function play(model: Model)
 		end
 		model:ScaleTo(base * math.max(easeOutBack(alpha), START_SCALE))
 	end)
+end
+
+-- Waits until no more parts of the model arrive, then plays the pop.
+local function playWhenComplete(model: Model)
+	local started = os.clock()
+	local last = -1
+	local stableSince = started
+	while model.Parent and os.clock() - started < ARRIVAL_TIMEOUT do
+		local count = partCount(model)
+		if count ~= last then
+			last = count
+			stableSince = os.clock()
+		elseif os.clock() - stableSince >= SETTLE_SECONDS then
+			break
+		end
+		task.wait(CHECK_INTERVAL)
+	end
+	if model.Parent then
+		play(model)
+	end
 end
 
 local function consider(model: Model)
@@ -75,7 +120,7 @@ local function consider(model: Model)
 	if Workspace:GetServerTimeNow() - at > MAX_AGE then
 		return
 	end
-	task.delay(ARRIVAL_WAIT, play, model)
+	task.spawn(playWhenComplete, model)
 end
 
 local function watch(instance: Instance)
