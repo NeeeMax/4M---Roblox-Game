@@ -1,0 +1,4451 @@
+{
+  "Area": [
+    190,
+    130
+  ],
+  "AutoPad": [
+    -60,
+    16
+  ],
+  "BayPad": [
+    -71,
+    4
+  ],
+  "Key": "VampireCrypt",
+  "Name": "Vampire Crypt",
+  "Parts": [
+    {
+      "Description": "Dark grass under a pale moon, a cobbled court before the crypt, a red carpet and muddy graves.",
+      "Id": "Ground",
+      "Name": "Moonlit Graveyard",
+      "Pad": [
+        -12,
+        57
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            44,
+            64,
+            58
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            0,
+            0.15,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            190,
+            0.3,
+            130
+          ]
+        },
+        {
+          "Color": [
+            96,
+            94,
+            110
+          ],
+          "Material": "Material.Cobblestone",
+          "Offset": [
+            60,
+            0.3,
+            -42
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            44,
+            0.4,
+            30
+          ]
+        },
+        {
+          "Color": [
+            160,
+            26,
+            46
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            60,
+            0.3,
+            -16
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5,
+            0.3,
+            30
+          ]
+        },
+        {
+          "Color": [
+            96,
+            94,
+            110
+          ],
+          "Material": "Material.Cobblestone",
+          "Offset": [
+            -60,
+            0.3,
+            4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            28,
+            0.4,
+            28
+          ]
+        },
+        {
+          "Color": [
+            78,
+            60,
+            50
+          ],
+          "Material": "Material.Pebble",
+          "Offset": [
+            -66,
+            0.3,
+            40
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            34,
+            0.4,
+            22
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A tall gothic arch of black stone with gargoyles, open iron gates and a crescent moon on top.",
+      "Id": "Gate",
+      "Name": "Moon Gate",
+      "Pad": [
+        -80,
+        27
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -82,
+            9,
+            -8.2
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4,
+            18,
+            4
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -82,
+            9,
+            16.2
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4,
+            18,
+            4
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -82,
+            20,
+            4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            3,
+            24.4
+          ]
+        },
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -82,
+            24.5,
+            4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            5,
+            3
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "The vampire's black stone hall: a pillared porch, a red door and a pointed roof with a spire.",
+      "Id": "Crypt",
+      "Name": "Crypt Hall",
+      "Pad": [
+        60,
+        -24
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            36,
+            34,
+            46
+          ],
+          "Material": "Material.Cobblestone",
+          "Offset": [
+            60,
+            5,
+            -55
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            36,
+            10,
+            2
+          ]
+        },
+        {
+          "Color": [
+            36,
+            34,
+            46
+          ],
+          "Material": "Material.Cobblestone",
+          "Offset": [
+            43,
+            5,
+            -45
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            10,
+            22
+          ]
+        },
+        {
+          "Color": [
+            36,
+            34,
+            46
+          ],
+          "Material": "Material.Cobblestone",
+          "Offset": [
+            77,
+            5,
+            -45
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            10,
+            22
+          ]
+        },
+        {
+          "Color": [
+            36,
+            34,
+            46
+          ],
+          "Material": "Material.Cobblestone",
+          "Offset": [
+            41,
+            4,
+            -45
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            8,
+            5
+          ]
+        },
+        {
+          "Color": [
+            36,
+            34,
+            46
+          ],
+          "Material": "Material.Cobblestone",
+          "Offset": [
+            79,
+            4,
+            -45
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            8,
+            5
+          ]
+        },
+        {
+          "Color": [
+            36,
+            34,
+            46
+          ],
+          "Material": "Material.Cobblestone",
+          "Offset": [
+            49.5,
+            5,
+            -35
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            15,
+            10,
+            2
+          ]
+        },
+        {
+          "Color": [
+            36,
+            34,
+            46
+          ],
+          "Material": "Material.Cobblestone",
+          "Offset": [
+            70.5,
+            5,
+            -35
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            15,
+            10,
+            2
+          ]
+        },
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            60,
+            9,
+            -35
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            6,
+            2,
+            2
+          ]
+        },
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            60,
+            13,
+            -50.5
+          ],
+          "Rotation": [
+            -26.6,
+            0,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            38,
+            0.8,
+            11.2
+          ]
+        },
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            60,
+            13,
+            -39.5
+          ],
+          "Rotation": [
+            26.6,
+            0,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            38,
+            0.8,
+            11.2
+          ]
+        },
+        {
+          "Color": [
+            36,
+            34,
+            46
+          ],
+          "Material": "Material.Cobblestone",
+          "Offset": [
+            60,
+            18.5,
+            -45
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            6,
+            5,
+            6
+          ]
+        },
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            60,
+            23,
+            -45
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            6,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            54,
+            4.5,
+            -31
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.8,
+            9,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            66,
+            4.5,
+            -31
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.8,
+            9,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            60,
+            9.8,
+            -32.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            16,
+            0.8,
+            5.4
+          ]
+        }
+      ],
+      "RewardMult": 1.25
+    },
+    {
+      "Description": "Crooked tombstones, crosses and a weeping angel on a muddy graveyard plot.",
+      "Id": "Graves",
+      "Name": "Tombstone Field",
+      "Pad": [
+        -58,
+        24
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -78.6,
+            2,
+            34
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.2,
+            4,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -72,
+            3,
+            38
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            6,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -65,
+            1.8,
+            35
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.2,
+            3.6,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -58,
+            2.6,
+            34.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            5.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -53.1,
+            2,
+            38
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.2,
+            4,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -76,
+            1.6,
+            44
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.2,
+            3.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -68,
+            3.6,
+            45
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            7.2,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -60,
+            2,
+            43.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            4,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -54.4,
+            1.8,
+            46
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.2,
+            3.6,
+            1.2
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Three tall iron lamps that glow a ghostly green along the road to the crypt.",
+      "Id": "Lamps",
+      "Name": "Gas Lamps",
+      "Pad": [
+        50,
+        46
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            34,
+            5.6,
+            57
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.7,
+            11.2,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            120,
+            200,
+            120
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            34,
+            11.8,
+            57
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            2.4,
+            2
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            34,
+            0.6,
+            57
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            1.2,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            50,
+            5.6,
+            53
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.7,
+            11.2,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            120,
+            200,
+            120
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            50,
+            11.8,
+            53
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            2.4,
+            2
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            50,
+            0.6,
+            53
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            1.2,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            66,
+            5.6,
+            57
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.7,
+            11.2,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            120,
+            200,
+            120
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            66,
+            11.8,
+            57
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            2.4,
+            2
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            66,
+            0.6,
+            57
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            1.2,
+            2.4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A gnarled leafless tree with long claw-like branches, a crow and hanging bats.",
+      "Id": "Tree",
+      "Name": "Haunted Dead Tree",
+      "Pad": [
+        30,
+        -38
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            30,
+            1,
+            -52
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2,
+            5,
+            5
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            30,
+            6,
+            -52
+          ],
+          "Rotation": [
+            0,
+            0,
+            6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            8,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            26.4,
+            11,
+            -52
+          ],
+          "Rotation": [
+            0,
+            0,
+            25
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            34.8,
+            12.2,
+            -52
+          ],
+          "Rotation": [
+            0,
+            0,
+            -30
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            30.6,
+            12.6,
+            -55.6
+          ],
+          "Rotation": [
+            25,
+            0,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.9,
+            0.9,
+            8
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            30.4,
+            13.4,
+            -48.6
+          ],
+          "Rotation": [
+            -25,
+            0,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.9,
+            0.9,
+            7
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            29.4,
+            15.2,
+            -52
+          ],
+          "Rotation": [
+            0,
+            0,
+            35
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            0.8,
+            0.8
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A black coffin with a red velvet bed and a gold cross, the lid leaning open on a stone dais.",
+      "Id": "Coffin",
+      "Name": "Open Coffin",
+      "Pad": [
+        34,
+        22
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            34,
+            0.6,
+            12
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14,
+            1.2,
+            9
+          ]
+        },
+        {
+          "Color": [
+            36,
+            34,
+            46
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            34,
+            2.4,
+            12
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10,
+            2.4,
+            4
+          ]
+        },
+        {
+          "Color": [
+            36,
+            34,
+            46
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            34,
+            3.8,
+            8.9
+          ],
+          "Rotation": [
+            -62,
+            0,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9,
+            0.5,
+            4
+          ]
+        },
+        {
+          "Color": [
+            232,
+            224,
+            206
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            28.2,
+            2.4,
+            15.6
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2.4,
+            0.8,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            232,
+            224,
+            206
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            39.8,
+            2.4,
+            15.6
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2.4,
+            0.8,
+            0.8
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A three-tier stone fountain, brimming with deep red blood, with a bat on top.",
+      "Id": "Fountain",
+      "Name": "Blood Fountain",
+      "Pad": [
+        62,
+        10
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            66,
+            0.8,
+            -4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.6,
+            16,
+            16
+          ]
+        },
+        {
+          "Color": [
+            200,
+            34,
+            54
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            66,
+            1.7,
+            -4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.5,
+            14,
+            14
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            66,
+            3.6,
+            -4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.2,
+            9,
+            9
+          ]
+        },
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            66,
+            5.2,
+            -4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4,
+            2.6,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            66,
+            8,
+            -4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.8,
+            5,
+            5
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            66,
+            10.4,
+            -4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.4,
+            3.6,
+            1.4
+          ]
+        }
+      ],
+      "RewardMult": 1.4
+    },
+    {
+      "Description": "Three stone gargoyles with bat wings crouching on pedestals, watching everyone who passes.",
+      "Id": "Gargoyles",
+      "Name": "Gargoyle Perches",
+      "Pad": [
+        18,
+        44
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            10,
+            2,
+            58
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.2,
+            4,
+            3.2
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            10,
+            5.4,
+            58
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            2.8,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            36,
+            34,
+            46
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            10,
+            6.4,
+            58
+          ],
+          "Rotation": [
+            0,
+            0,
+            18
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5.6,
+            0.7,
+            1
+          ]
+        },
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            20,
+            3,
+            52
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.2,
+            6,
+            3.2
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            20,
+            7.4,
+            52
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            2.8,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            36,
+            34,
+            46
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            20,
+            8.4,
+            52
+          ],
+          "Rotation": [
+            0,
+            0,
+            -18
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5.6,
+            0.7,
+            1
+          ]
+        },
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            28,
+            1.5,
+            59
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.2,
+            3,
+            3.2
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            28,
+            4.4,
+            59
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            2.8,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            36,
+            34,
+            46
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            28,
+            5.4,
+            59
+          ],
+          "Rotation": [
+            0,
+            0,
+            18
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5.6,
+            0.7,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A black hearse carriage with a canopy, a coffin, green lanterns and big spoked wheels.",
+      "Id": "Hearse",
+      "Name": "Funeral Carriage",
+      "Pad": [
+        66,
+        20
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            36,
+            34,
+            46
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            65,
+            2.6,
+            36
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            16,
+            1,
+            5.4
+          ]
+        },
+        {
+          "Color": [
+            88,
+            58,
+            44
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            64,
+            4.6,
+            36
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            12,
+            3,
+            4
+          ]
+        },
+        {
+          "Color": [
+            36,
+            34,
+            46
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            64,
+            9.2,
+            36
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14,
+            0.8,
+            6.4
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            58.2,
+            6.4,
+            33.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.7,
+            6,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            58.2,
+            6.4,
+            38.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.7,
+            6,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            69.8,
+            6.4,
+            33.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.7,
+            6,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            69.8,
+            6.4,
+            38.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.7,
+            6,
+            0.7
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            59,
+            2.8,
+            31.2
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.8,
+            5.6,
+            5.6
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            59,
+            2.8,
+            40.8
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.8,
+            5.6,
+            5.6
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            70,
+            2.2,
+            31.2
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.8,
+            4.4,
+            4.4
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            70,
+            2.2,
+            40.8
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.8,
+            4.4,
+            4.4
+          ]
+        },
+        {
+          "Color": [
+            88,
+            58,
+            44
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            74.6,
+            2.6,
+            36
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            6.8,
+            0.5,
+            0.5
+          ]
+        },
+        {
+          "Color": [
+            120,
+            200,
+            120
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            71.4,
+            7,
+            36
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.8,
+            1.6,
+            0.8
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Four tall iron candelabras around a stone altar with a skull and an old book.",
+      "Id": "Candles",
+      "Name": "Candelabra Circle",
+      "Pad": [
+        9,
+        10
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            3,
+            4.5,
+            6
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            9,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            214,
+            172,
+            66
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            3,
+            9.4,
+            6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            0.5,
+            0.5
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            14.6,
+            4.5,
+            5.4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            9,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            214,
+            172,
+            66
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            14.6,
+            9.4,
+            5.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            0.5,
+            0.5
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            3.4,
+            4.5,
+            11.6
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            9,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            214,
+            172,
+            66
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            3.4,
+            9.4,
+            11.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            0.5,
+            0.5
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            15,
+            4.5,
+            12
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            9,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            214,
+            172,
+            66
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            15,
+            9.4,
+            12
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            0.5,
+            0.5
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            9,
+            0.9,
+            10
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5,
+            1.8,
+            3.4
+          ]
+        },
+        {
+          "Color": [
+            232,
+            224,
+            206
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            9.4,
+            2.4,
+            10
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.4,
+            1.3,
+            1.4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A crumbling chapel front with a pointed doorway, a broken gable and fallen stones.",
+      "Id": "Chapel",
+      "Name": "Ruined Chapel",
+      "Pad": [
+        -52,
+        -26
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -68,
+            6,
+            -40
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10,
+            12,
+            2
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -52,
+            5,
+            -40
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10,
+            10,
+            2
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -60,
+            10.5,
+            -40
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            6,
+            3,
+            2
+          ]
+        },
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -60,
+            14.2,
+            -40
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10,
+            4.4,
+            2
+          ]
+        },
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -72.5,
+            5,
+            -37
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.2,
+            10,
+            4
+          ]
+        },
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -47.5,
+            4,
+            -37
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.2,
+            8,
+            4
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -74,
+            3.5,
+            -43
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.8,
+            7,
+            8
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -46.4,
+            2,
+            -43
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.8,
+            4,
+            8
+          ]
+        },
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -56,
+            0.8,
+            -36.4
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3,
+            1.6,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -65,
+            0.7,
+            -36.4
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.4,
+            1.4,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Big oak barrels, a bottle rack and a table with goblets of the vampire's favourite red drink.",
+      "Id": "Cellar",
+      "Name": "Blood Wine Cellar",
+      "Pad": [
+        -22,
+        39
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            88,
+            58,
+            44
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -27,
+            2,
+            24.6
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4,
+            3.4,
+            3.4
+          ]
+        },
+        {
+          "Color": [
+            88,
+            58,
+            44
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -23.4,
+            2,
+            25.4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4,
+            3.4,
+            3.4
+          ]
+        },
+        {
+          "Color": [
+            88,
+            58,
+            44
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -25.4,
+            2,
+            29
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4,
+            3.4,
+            3.4
+          ]
+        },
+        {
+          "Color": [
+            88,
+            58,
+            44
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -25.4,
+            4.9,
+            29
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.8,
+            3,
+            3
+          ]
+        },
+        {
+          "Color": [
+            88,
+            58,
+            44
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -20,
+            2.6,
+            30.4
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6,
+            5,
+            5
+          ]
+        },
+        {
+          "Color": [
+            88,
+            58,
+            44
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -15.6,
+            2.5,
+            25.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            5,
+            6.4
+          ]
+        },
+        {
+          "Color": [
+            88,
+            58,
+            44
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -19,
+            2.3,
+            24
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4,
+            0.4,
+            2.6
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A tall gothic mirror with a black carved frame. Vampires have no reflection, so it shows nothing!",
+      "Id": "Mirror",
+      "Name": "Mirror of No Reflection",
+      "Pad": [
+        6,
+        -6
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            36,
+            34,
+            46
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            4,
+            7.5,
+            -16
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8,
+            15,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            36,
+            34,
+            46
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            4,
+            0.7,
+            -16
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            6,
+            1.4,
+            3.6
+          ]
+        },
+        {
+          "Color": [
+            214,
+            172,
+            66
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            4,
+            15.6,
+            -16
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            1.6,
+            1.4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A big iron cauldron of bubbling green brew over a fire, with a ladle and a pile of bones.",
+      "Id": "Cauldron",
+      "Name": "Brew Cauldron",
+      "Pad": [
+        -44,
+        38
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -44,
+            4.2,
+            28
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            8,
+            6,
+            8
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -44,
+            6.9,
+            28
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.8,
+            8.4,
+            8.4
+          ]
+        },
+        {
+          "Color": [
+            120,
+            200,
+            120
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -44,
+            7.1,
+            28
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.5,
+            6.8,
+            6.8
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -47.6,
+            2,
+            28
+          ],
+          "Rotation": [
+            0,
+            0,
+            25
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.8,
+            4.2,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -40.4,
+            2,
+            28
+          ],
+          "Rotation": [
+            0,
+            0,
+            -25
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.8,
+            4.2,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -44,
+            2,
+            31.6
+          ],
+          "Rotation": [
+            -25,
+            0,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.8,
+            4.2,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            88,
+            58,
+            44
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -44,
+            0.8,
+            24.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            6,
+            1.4,
+            2
+          ]
+        },
+        {
+          "Color": [
+            88,
+            58,
+            44
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -39.4,
+            3,
+            32.4
+          ],
+          "Rotation": [
+            0,
+            0,
+            15
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.5,
+            6,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A vampire hunter's cart piled with sharp wooden stakes, garlic and a crossbow. Brave, or silly?",
+      "Id": "Hunter",
+      "Name": "Hunter's Handcart",
+      "Pad": [
+        -58,
+        56
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            88,
+            58,
+            44
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -73,
+            3.6,
+            57
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9,
+            0.8,
+            5
+          ]
+        },
+        {
+          "Color": [
+            88,
+            58,
+            44
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -73,
+            4.9,
+            54.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9,
+            1.8,
+            0.5
+          ]
+        },
+        {
+          "Color": [
+            88,
+            58,
+            44
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -73,
+            4.9,
+            59.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9,
+            1.8,
+            0.5
+          ]
+        },
+        {
+          "Color": [
+            88,
+            58,
+            44
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -77.6,
+            4.9,
+            57
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.5,
+            1.8,
+            5
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -75,
+            2.2,
+            53.6
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.6,
+            4.4,
+            4.4
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -75,
+            2.2,
+            60.4
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.6,
+            4.4,
+            4.4
+          ]
+        },
+        {
+          "Color": [
+            88,
+            58,
+            44
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -66.4,
+            3.2,
+            57
+          ],
+          "Rotation": [
+            0,
+            0,
+            -12
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            7.6,
+            0.4,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            88,
+            58,
+            44
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -73,
+            6.6,
+            57
+          ],
+          "Rotation": [
+            0,
+            0,
+            28
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.4,
+            4.8,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            88,
+            58,
+            44
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -75.6,
+            6.4,
+            57.4
+          ],
+          "Rotation": [
+            0,
+            0,
+            -20
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.4,
+            4.4,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            232,
+            224,
+            206
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            -70,
+            5.4,
+            57
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.4,
+            1.8,
+            2.4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A wall of stacked skulls and bones with a dark alcove, bone columns and little candles.",
+      "Id": "Ossuary",
+      "Name": "Skull Ossuary",
+      "Pad": [
+        -24,
+        -44
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -24,
+            4,
+            -56.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            20,
+            8,
+            2
+          ]
+        },
+        {
+          "Color": [
+            232,
+            224,
+            206
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -33,
+            3.5,
+            -54.2
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            7,
+            2
+          ]
+        },
+        {
+          "Color": [
+            232,
+            224,
+            206
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -15,
+            3.5,
+            -54.2
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            7,
+            2
+          ]
+        },
+        {
+          "Color": [
+            36,
+            34,
+            46
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -24,
+            2.8,
+            -54.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            6,
+            5.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            232,
+            224,
+            206
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -29.6,
+            0.9,
+            -53.2
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.8,
+            1.8,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            232,
+            224,
+            206
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -18.6,
+            0.9,
+            -53
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3,
+            1.8,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            232,
+            224,
+            206
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -24,
+            0.8,
+            -52.8
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.4,
+            1.6,
+            1.6
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A tall dark bell tower with a golden bell, a purple spire and bats hanging all around.",
+      "Id": "Belfry",
+      "Name": "Bat Belfry",
+      "Pad": [
+        -86,
+        -34
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Cobblestone",
+          "Offset": [
+            -86,
+            7,
+            -52
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9,
+            14,
+            9
+          ]
+        },
+        {
+          "Color": [
+            36,
+            34,
+            46
+          ],
+          "Material": "Material.Cobblestone",
+          "Offset": [
+            -86,
+            17,
+            -52
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            7,
+            6,
+            7
+          ]
+        },
+        {
+          "Color": [
+            214,
+            172,
+            66
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -86,
+            17,
+            -52
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3,
+            3.6,
+            3
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -86,
+            20.4,
+            -52
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9,
+            0.8,
+            9
+          ]
+        },
+        {
+          "Color": [
+            86,
+            58,
+            122
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -86,
+            25,
+            -52
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5.2,
+            8.4,
+            5.2
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -86,
+            31.5,
+            -52
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.8,
+            5,
+            1.8
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Dark green hedge walls trimmed into pointed towers, with a bat cut out of the hedge.",
+      "Id": "Hedge",
+      "Name": "Bat Topiary Garden",
+      "Pad": [
+        73,
+        -24
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            36,
+            74,
+            54
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            82.5,
+            2.5,
+            -14
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            5,
+            24
+          ]
+        },
+        {
+          "Color": [
+            36,
+            74,
+            54
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            90.5,
+            2.5,
+            -14
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            5,
+            24
+          ]
+        },
+        {
+          "Color": [
+            36,
+            74,
+            54
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            86.5,
+            2.5,
+            -25.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10.4,
+            5,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            36,
+            74,
+            54
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            82.5,
+            6.4,
+            -25.6
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3.4,
+            2.6,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            36,
+            74,
+            54
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            90.5,
+            6.4,
+            -25.6
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3.4,
+            2.6,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            36,
+            74,
+            54
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            86.5,
+            6.8,
+            -25.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.6,
+            4,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            86.5,
+            1.2,
+            -9
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            2.4,
+            2.4,
+            2.4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A little family tomb of grey stone with urns and a weeping angel keeping watch on its roof.",
+      "Id": "Tomb",
+      "Name": "Angel Tomb",
+      "Pad": [
+        12,
+        -38
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            10,
+            4,
+            -51
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8,
+            8,
+            6
+          ]
+        },
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            10,
+            8.6,
+            -51
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9.4,
+            1,
+            7.4
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            10,
+            0.6,
+            -46.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            6,
+            1.2,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            232,
+            224,
+            206
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            10,
+            11.4,
+            -51
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            4.4,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            232,
+            224,
+            206
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            10,
+            12,
+            -51
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5.6,
+            3,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            5,
+            1.6,
+            -47
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3.2,
+            2,
+            2
+          ]
+        },
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            15,
+            1.6,
+            -47
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3.2,
+            2,
+            2
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A great pale moon in an iron ring on two tall posts, crowned with spikes.",
+      "Id": "Moon",
+      "Name": "Blood Moon Totem",
+      "Pad": [
+        -40,
+        -54
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -50.6,
+            6,
+            -57
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.2,
+            12,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -41.4,
+            6,
+            -57
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.2,
+            12,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            240,
+            236,
+            208
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -46,
+            15.5,
+            -57
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.2,
+            10,
+            10
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -46,
+            15.5,
+            -57
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.8,
+            11.6,
+            11.6
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -46,
+            21.8,
+            -57
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.8,
+            2.4,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -46,
+            0.4,
+            -57
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            12,
+            0.8,
+            2.8
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A huge pipe organ with seven gleaming pipes, a black console, a bench and two flickering candles.",
+      "Id": "Organ",
+      "Name": "Gothic Organ",
+      "Pad": [
+        84,
+        42
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            36,
+            34,
+            46
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            86,
+            2.5,
+            54
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14,
+            5,
+            4
+          ]
+        },
+        {
+          "Color": [
+            214,
+            172,
+            66
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            80,
+            8,
+            51.5
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            12,
+            1.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            214,
+            172,
+            66
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            82.2,
+            9,
+            51.5
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            14,
+            1.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            214,
+            172,
+            66
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            84.4,
+            10,
+            51.5
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            16,
+            1.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            214,
+            172,
+            66
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            86.6,
+            10.5,
+            51.5
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            17,
+            1.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            214,
+            172,
+            66
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            88.8,
+            10,
+            51.5
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            16,
+            1.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            214,
+            172,
+            66
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            91,
+            9,
+            51.5
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            14,
+            1.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            214,
+            172,
+            66
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            93.2,
+            8,
+            51.5
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            12,
+            1.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            88,
+            58,
+            44
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            86,
+            1.2,
+            57
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5,
+            1.2,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            86,
+            5.4,
+            54
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            15,
+            0.8,
+            4.4
+          ]
+        }
+      ],
+      "RewardMult": 1.3
+    },
+    {
+      "Description": "A tall black throne with bat wings and a red velvet seat on a stone dais, between two torches.",
+      "Id": "Throne",
+      "Name": "Vampire Throne",
+      "Pad": [
+        -38,
+        -12
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -38,
+            0.6,
+            -24
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14,
+            1.2,
+            12
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -38,
+            1.8,
+            -25
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8,
+            1.2,
+            8
+          ]
+        },
+        {
+          "Color": [
+            160,
+            26,
+            46
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            -38,
+            3.6,
+            -25
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.6,
+            2.4,
+            3.4
+          ]
+        },
+        {
+          "Color": [
+            36,
+            34,
+            46
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -38,
+            9.5,
+            -27.2
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4,
+            11,
+            1
+          ]
+        },
+        {
+          "Color": [
+            86,
+            58,
+            122
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            -41.8,
+            12,
+            -27.2
+          ],
+          "Rotation": [
+            0,
+            0,
+            25
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            5,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            86,
+            58,
+            122
+          ],
+          "Material": "Material.Fabric",
+          "Offset": [
+            -34.2,
+            12,
+            -27.2
+          ],
+          "Rotation": [
+            0,
+            0,
+            -25
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            5,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            36,
+            34,
+            46
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -40.3,
+            4.6,
+            -25
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.8,
+            1.6,
+            3.4
+          ]
+        },
+        {
+          "Color": [
+            36,
+            34,
+            46
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -35.7,
+            4.6,
+            -25
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.8,
+            1.6,
+            3.4
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -44,
+            3.6,
+            -20
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6.4,
+            0.8,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            200,
+            34,
+            54
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -44,
+            7.2,
+            -20
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.6,
+            1.4,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -32,
+            3.6,
+            -20
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6.4,
+            0.8,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            200,
+            34,
+            54
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -32,
+            7.2,
+            -20
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.6,
+            1.4,
+            1.6
+          ]
+        }
+      ],
+      "RewardMult": 1.4
+    },
+    {
+      "Description": "A gallows frame with two iron cages on chains, a skeleton inside and a crow keeping watch.",
+      "Id": "Gibbet",
+      "Name": "Hanging Cages",
+      "Pad": [
+        86,
+        -34
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            88,
+            58,
+            44
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            91,
+            7,
+            -48
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.4,
+            14,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            88,
+            58,
+            44
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            87.5,
+            13.4,
+            -48
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8.6,
+            0.8,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            88,
+            58,
+            44
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            88.4,
+            10.8,
+            -48
+          ],
+          "Rotation": [
+            0,
+            0,
+            45
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            0.6,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            84.8,
+            8.8,
+            -48
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            5,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            40,
+            40,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            89,
+            8.4,
+            -48
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            5,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            78,
+            60,
+            50
+          ],
+          "Material": "Material.Pebble",
+          "Offset": [
+            87.5,
+            0.25,
+            -46
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9.5,
+            0.5,
+            9
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "The showpiece: a huge stone bat-demon with spread wings and red eyes crouching on a plinth.",
+      "Id": "Statue",
+      "Name": "Giant Bat Statue",
+      "Pad": [
+        -68,
+        -6
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            64,
+            62,
+            78
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -70,
+            1.4,
+            -18
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            12,
+            2.8,
+            12
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -70,
+            3.4,
+            -18
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9,
+            1.2,
+            9
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -70,
+            8.4,
+            -18
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5,
+            8.6,
+            4
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -70,
+            14,
+            -18
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3.8,
+            3.4,
+            3.4
+          ]
+        },
+        {
+          "Color": [
+            36,
+            34,
+            46
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -75.6,
+            17,
+            -18
+          ],
+          "Rotation": [
+            0,
+            0,
+            35
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10,
+            0.8,
+            5
+          ]
+        },
+        {
+          "Color": [
+            36,
+            34,
+            46
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -64.4,
+            17,
+            -18
+          ],
+          "Rotation": [
+            0,
+            0,
+            -35
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10,
+            0.8,
+            5
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -71.4,
+            17,
+            -18
+          ],
+          "Rotation": [
+            0,
+            0,
+            20
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.8,
+            3,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            116,
+            114,
+            130
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -68.6,
+            17,
+            -18
+          ],
+          "Rotation": [
+            0,
+            0,
+            -20
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.8,
+            3,
+            0.8
+          ]
+        }
+      ],
+      "RewardMult": 2
+    }
+  ],
+  "Path": [
+    [
+      0,
+      65
+    ],
+    [
+      -34,
+      46
+    ],
+    [
+      30,
+      30
+    ],
+    [
+      -32,
+      6
+    ],
+    [
+      44,
+      -12
+    ],
+    [
+      -12,
+      -36
+    ],
+    [
+      0,
+      -65
+    ]
+  ],
+  "Shiba": {
+    "Facing": 0,
+    "Position": [
+      -60,
+      4
+    ]
+  }
+}
