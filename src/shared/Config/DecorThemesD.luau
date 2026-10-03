@@ -1,5 +1,5 @@
 --!strict
--- The newer themes (Config/DecorTheme01 … 20: winding walkway, Shiba spots and pads where the props stand). A theme that is
+-- The newer themes (Config/DecorTheme01 … 25: winding walkway, Shiba spots and pads where the props stand). A theme that is
 -- false is not written yet; the older one of the same bay (DecorThemesA/B/C) stays. Keyed by the bay number.
 
 local DecorTypes = require(script.Parent.DecorTypes)
@@ -25,6 +25,11 @@ local candidates: { [number]: DecorTypes.Theme | boolean } = {
 	require(script.Parent.DecorTheme18),
 	require(script.Parent.DecorTheme19),
 	require(script.Parent.DecorTheme20),
+	require(script.Parent.DecorTheme21),
+	require(script.Parent.DecorTheme22),
+	require(script.Parent.DecorTheme23),
+	require(script.Parent.DecorTheme24),
+	require(script.Parent.DecorTheme25),
 }
 
 local themes: { [number]: DecorTypes.Theme } = {}
