@@ -1,0 +1,6624 @@
+{
+  "Area": [
+    190,
+    190
+  ],
+  "AutoPad": [
+    -2,
+    -34
+  ],
+  "BayPad": [
+    -2,
+    -22
+  ],
+  "Key": "VoidPortal",
+  "Name": "Void Portal",
+  "Parts": [
+    {
+      "Description": "Black void stone with flagstones along the path and a violet rune ring under the Void Shiba.",
+      "Id": "Ground",
+      "Name": "Dark Platform",
+      "Pad": [
+        -9,
+        80
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            18,
+            14,
+            28
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            0,
+            0.15,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            190,
+            0.3,
+            190
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -26,
+            0.4,
+            -30
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            32,
+            0.2,
+            32
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -26,
+            0.52,
+            -30
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            24,
+            0.08,
+            24
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -26,
+            0.55,
+            -30
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            17,
+            0.06,
+            17
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            66,
+            0.35,
+            70
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            34,
+            0.3,
+            16
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -70,
+            0.35,
+            -40
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            30,
+            0.3,
+            18
+          ]
+        },
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            0,
+            0.36,
+            83
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8,
+            0.12,
+            24
+          ]
+        },
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            0,
+            0.36,
+            -88
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8,
+            0.12,
+            14
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Two obsidian pylons with cyan orbs guard the entrance, a floating arch of shards between them.",
+      "Id": "Gate",
+      "Name": "Obsidian Gate",
+      "Pad": [
+        7,
+        82
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -15,
+            0.9,
+            90
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            7,
+            1.8,
+            7
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -15,
+            8,
+            90
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.6,
+            12.4,
+            4.6
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -15,
+            14.8,
+            90
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            6,
+            1.2,
+            6
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -15,
+            18,
+            90
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3.2,
+            3.2,
+            3.2
+          ]
+        },
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            15,
+            0.9,
+            90
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            7,
+            1.8,
+            7
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            15,
+            8,
+            90
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.6,
+            12.4,
+            4.6
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            15,
+            14.8,
+            90
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            6,
+            1.2,
+            6
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            15,
+            18,
+            90
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3.2,
+            3.2,
+            3.2
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            0,
+            17,
+            90
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            22,
+            1.4,
+            2.2
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A black board with violet trim that reads THE VOID, with a cyan orb on each end.",
+      "Id": "Sign",
+      "Name": "Void Sign",
+      "Pad": [
+        -20,
+        76
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -26,
+            3.8,
+            84
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            22,
+            6.4,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -35,
+            1.8,
+            84
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.8,
+            3.6,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -17,
+            1.8,
+            84
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.8,
+            3.6,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -26,
+            7.8,
+            84
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            23,
+            1.2,
+            2.2
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -37.5,
+            8.6,
+            84
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.6,
+            2.6,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -14.5,
+            8.6,
+            84
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.6,
+            2.6,
+            2.6
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Six leaning stones around a violet rune disc, a cyan orb hovering in the middle.",
+      "Id": "RuneStones",
+      "Name": "Rune Stones",
+      "Pad": [
+        -64,
+        78
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -64,
+            0.35,
+            78
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            13,
+            0.2,
+            13
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -64,
+            10,
+            78
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3.4,
+            3.4,
+            3.4
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -54.5,
+            3.5,
+            78
+          ],
+          "Rotation": [
+            0,
+            -90,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            7,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -59.25,
+            3.5,
+            86.22724133595217
+          ],
+          "Rotation": [
+            0,
+            -150,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            7,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -68.75,
+            3.5,
+            86.22724133595217
+          ],
+          "Rotation": [
+            0,
+            -210,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            7,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -73.5,
+            3.5,
+            78
+          ],
+          "Rotation": [
+            0,
+            -270,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            7,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -68.75,
+            3.5,
+            69.77275866404784
+          ],
+          "Rotation": [
+            0,
+            -330,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            7,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -59.25,
+            3.5,
+            69.77275866404783
+          ],
+          "Rotation": [
+            0,
+            -390,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            7,
+            1.6
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Three stone braziers burning with tall purple flames.",
+      "Id": "Braziers",
+      "Name": "Purple Braziers",
+      "Pad": [
+        40,
+        72
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            28,
+            0.9,
+            86
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.6,
+            1.8,
+            3.6
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            28,
+            2.1,
+            86
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.2,
+            4.6,
+            4.6
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            28,
+            4.4,
+            86
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.8,
+            4.4,
+            2.8
+          ]
+        },
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            40,
+            0.9,
+            81
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.6,
+            1.8,
+            3.6
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            40,
+            2.1,
+            81
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.2,
+            4.6,
+            4.6
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            40,
+            4.4,
+            81
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.8,
+            4.4,
+            2.8
+          ]
+        },
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            52,
+            0.9,
+            86
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.6,
+            1.8,
+            3.6
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            52,
+            2.1,
+            86
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.2,
+            4.6,
+            4.6
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            52,
+            4.4,
+            86
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.8,
+            4.4,
+            2.8
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A field of tall violet, magenta and cyan crystals growing from a black rock bed.",
+      "Id": "Crystals",
+      "Name": "Void Crystals",
+      "Pad": [
+        62,
+        78
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            76,
+            0.5,
+            84
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            20,
+            1.2,
+            16
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            76,
+            9,
+            84
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.6,
+            16,
+            4.6
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            70.5,
+            6,
+            85.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.6,
+            10.4,
+            3.6
+          ]
+        },
+        {
+          "Color": [
+            226,
+            84,
+            236
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            81.5,
+            5.5,
+            82.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            10,
+            3.4
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            73,
+            3.5,
+            80
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            6,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            79,
+            3,
+            87.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            5.6,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            83.5,
+            2.6,
+            86
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            4.8,
+            2
+          ]
+        },
+        {
+          "Color": [
+            28,
+            150,
+            190
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            68,
+            2.8,
+            82.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.2,
+            5,
+            2.2
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A field of black glass spikes of all heights.",
+      "Id": "Spikes",
+      "Name": "Obsidian Spikes",
+      "Pad": [
+        -66,
+        18
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -80,
+            0.4,
+            18
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            26,
+            0.8,
+            22
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -80,
+            5.5,
+            18
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            11,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -74,
+            4,
+            12
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            8,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -86,
+            3.5,
+            12
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            7,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -72,
+            4.5,
+            24
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            9,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -86,
+            5,
+            24
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            10,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -79,
+            3,
+            27
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            6,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -79,
+            2.75,
+            8
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            5.5,
+            2.6
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A branching crack in the floor shining purple, pebbles drifting up out of it.",
+      "Id": "Rift",
+      "Name": "Glowing Rift",
+      "Pad": [
+        16,
+        24
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            22,
+            0.2,
+            30
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            36,
+            0.4,
+            3.6
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            10,
+            0.2,
+            36
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            0.4,
+            14
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            34,
+            0.2,
+            24
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            0.4,
+            14
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            28,
+            0.2,
+            38
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14,
+            0.4,
+            2.2
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            14,
+            9,
+            33
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.2,
+            2.2,
+            2.2
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            24,
+            11.5,
+            28
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.8,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            30,
+            8.5,
+            36
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.4,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            19,
+            13,
+            25
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.6,
+            1.6,
+            1.6
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Four dark lamp posts with floating cyan orbs.",
+      "Id": "Lanterns",
+      "Name": "Void Lanterns",
+      "Pad": [
+        14,
+        44
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            2,
+            4,
+            46
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            8,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            28,
+            150,
+            190
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            2,
+            8.8,
+            46
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            1.6,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            2,
+            11.2,
+            46
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.4,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            34,
+            4,
+            40
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            8,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            28,
+            150,
+            190
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            34,
+            8.8,
+            40
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            1.6,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            34,
+            11.2,
+            40
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.4,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            38,
+            4,
+            32
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            8,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            28,
+            150,
+            190
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            38,
+            8.8,
+            32
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            1.6,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            38,
+            11.2,
+            32
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.4,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            4,
+            4,
+            20
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            8,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            28,
+            150,
+            190
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            4,
+            8.8,
+            20
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.6,
+            1.6,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            4,
+            11.2,
+            20
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.4,
+            2.4,
+            2.4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Three bare black trees carrying clouds of purple leaves.",
+      "Id": "VoidTrees",
+      "Name": "Dead Trees",
+      "Pad": [
+        -22,
+        36
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -26,
+            5.5,
+            44
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            11,
+            1.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -24,
+            8.8,
+            44
+          ],
+          "Rotation": [
+            0,
+            0,
+            35
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -28,
+            9.35,
+            44
+          ],
+          "Rotation": [
+            0,
+            0,
+            -35
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -26,
+            12.5,
+            44
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            7,
+            4.4,
+            7
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -37,
+            4.5,
+            52
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            9,
+            1.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -35,
+            7.2,
+            52
+          ],
+          "Rotation": [
+            0,
+            0,
+            35
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -39,
+            7.6499999999999995,
+            52
+          ],
+          "Rotation": [
+            0,
+            0,
+            -35
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -37,
+            10.5,
+            52
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            7,
+            4.4,
+            7
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -19,
+            4,
+            57
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            8,
+            1.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -17,
+            6.4,
+            57
+          ],
+          "Rotation": [
+            0,
+            0,
+            35
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -21,
+            6.8,
+            57
+          ],
+          "Rotation": [
+            0,
+            0,
+            -35
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5,
+            0.9,
+            0.9
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -19,
+            9.5,
+            57
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            7,
+            4.4,
+            7
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A stepped black altar with cyan pillars and a purple orb floating over it.",
+      "Id": "Altar",
+      "Name": "Void Altar",
+      "Pad": [
+        72,
+        -28
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            86,
+            0.7,
+            -28
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            13,
+            1.4,
+            13
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            86,
+            2.1,
+            -28
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9,
+            1.4,
+            9
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            86,
+            4.5,
+            -28
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5,
+            3.4,
+            5
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            86,
+            6.5,
+            -28
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            6.4,
+            0.8,
+            6.4
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            86,
+            11,
+            -28
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            4.4,
+            4.4,
+            4.4
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            81,
+            1.8,
+            -28
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.4,
+            3.6,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            91,
+            1.8,
+            -28
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.4,
+            3.6,
+            1.4
+          ]
+        }
+      ],
+      "RewardMult": 1.25
+    },
+    {
+      "Description": "Three giant mushrooms with pale stems and bright purple caps.",
+      "Id": "Shrooms",
+      "Name": "Glow Mushrooms",
+      "Pad": [
+        -30,
+        62
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            226,
+            214,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -44,
+            4.5,
+            72
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            9,
+            2.2,
+            2.2
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -44,
+            9.5,
+            72
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            12,
+            6.6000000000000005,
+            12
+          ]
+        },
+        {
+          "Color": [
+            226,
+            214,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -35,
+            3,
+            68
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6,
+            2.2,
+            2.2
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -35,
+            6.5,
+            68
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            8,
+            4.4,
+            8
+          ]
+        },
+        {
+          "Color": [
+            226,
+            214,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -37,
+            3.75,
+            78
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            7.5,
+            2.2,
+            2.2
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -37,
+            8,
+            78
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            9,
+            4.95,
+            9
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Three hooded knights of black stone with glowing cyan swords, standing in a half circle.",
+      "Id": "Statues",
+      "Name": "Void Knights",
+      "Pad": [
+        -44,
+        -78
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -52,
+            1,
+            -86
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5,
+            2,
+            5
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -52,
+            6,
+            -86
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            8,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -52,
+            11,
+            -86
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3,
+            3.4,
+            3
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -52,
+            7.5,
+            -84.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.6,
+            5,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -44,
+            1,
+            -90
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5,
+            2,
+            5
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -44,
+            6,
+            -90
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            8,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -44,
+            11,
+            -90
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3,
+            3.4,
+            3
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -44,
+            7.5,
+            -88.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.6,
+            5,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -36,
+            1,
+            -86
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5,
+            2,
+            5
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -36,
+            6,
+            -86
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            8,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -36,
+            11,
+            -86
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3,
+            3.4,
+            3
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -36,
+            7.5,
+            -84.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            0.6,
+            5,
+            0.6
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A square pool of glowing purple liquid inside a black rim, cyan lilies on top.",
+      "Id": "Pool",
+      "Name": "Void Pool",
+      "Pad": [
+        70,
+        52
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            84,
+            0.3,
+            40
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            20,
+            0.6,
+            20
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            84,
+            0.55,
+            40
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            17,
+            0.2,
+            17
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            84,
+            0.9,
+            30
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            22,
+            1.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            84,
+            0.9,
+            50
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            22,
+            1.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            74,
+            0.9,
+            40
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            1.4,
+            18
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            92,
+            0.9,
+            40
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2.4,
+            1.4,
+            18
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            80,
+            1,
+            38
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            4,
+            0.5,
+            4
+          ]
+        },
+        {
+          "Color": [
+            226,
+            84,
+            236
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            88,
+            1,
+            43
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3.2,
+            0.5,
+            3.2
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Broken stone columns whose capitals have drifted up and hang above them.",
+      "Id": "Ruins",
+      "Name": "Floating Ruins",
+      "Pad": [
+        -46,
+        -22
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -60,
+            0.6,
+            -12
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.4,
+            1.2,
+            4.4
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Granite",
+          "Offset": [
+            -60,
+            7,
+            -12
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            12,
+            3,
+            3
+          ]
+        },
+        {
+          "Color": [
+            112,
+            100,
+            142
+          ],
+          "Material": "Material.Granite",
+          "Offset": [
+            -60,
+            17,
+            -12
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.6,
+            1.4,
+            4.6
+          ]
+        },
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -52,
+            0.6,
+            -4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.4,
+            1.2,
+            4.4
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Granite",
+          "Offset": [
+            -52,
+            5.5,
+            -4
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            9,
+            3,
+            3
+          ]
+        },
+        {
+          "Color": [
+            112,
+            100,
+            142
+          ],
+          "Material": "Material.Granite",
+          "Offset": [
+            -52,
+            14,
+            -4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.6,
+            1.4,
+            4.6
+          ]
+        },
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -44,
+            0.6,
+            -12
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.4,
+            1.2,
+            4.4
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Granite",
+          "Offset": [
+            -44,
+            8,
+            -12
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            14,
+            3,
+            3
+          ]
+        },
+        {
+          "Color": [
+            112,
+            100,
+            142
+          ],
+          "Material": "Material.Granite",
+          "Offset": [
+            -44,
+            19,
+            -12
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.6,
+            1.4,
+            4.6
+          ]
+        },
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -37,
+            0.6,
+            -5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.4,
+            1.2,
+            4.4
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Granite",
+          "Offset": [
+            -37,
+            4,
+            -5
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6,
+            3,
+            3
+          ]
+        },
+        {
+          "Color": [
+            112,
+            100,
+            142
+          ],
+          "Material": "Material.Granite",
+          "Offset": [
+            -37,
+            11,
+            -5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.6,
+            1.4,
+            4.6
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Three black tentacles with violet tips rising out of the floor and curling over.",
+      "Id": "Tentacles",
+      "Name": "Shadow Tentacles",
+      "Pad": [
+        14,
+        -48
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            24,
+            3,
+            -50
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6,
+            5,
+            5
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            25.5,
+            8,
+            -50
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6,
+            3.8,
+            3.8
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            27.5,
+            13,
+            -50
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6,
+            2.8,
+            2.8
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            29.8,
+            17.5,
+            -50
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.6,
+            4.4,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            36,
+            3,
+            -56
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6,
+            5,
+            5
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            34.5,
+            8,
+            -56
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6,
+            3.8,
+            3.8
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            32.5,
+            13,
+            -56
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6,
+            2.8,
+            2.8
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            30.2,
+            17.5,
+            -56
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.6,
+            4.4,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            30,
+            3,
+            -46
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6,
+            5,
+            5
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            31.5,
+            8,
+            -46
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6,
+            3.8,
+            3.8
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            33.5,
+            13,
+            -46
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6,
+            2.8,
+            2.8
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            35.8,
+            17.5,
+            -46
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.6,
+            4.4,
+            2.6
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Three black obelisks with cyan tips, a purple rune ring floating around each.",
+      "Id": "Obelisks",
+      "Name": "Rune Obelisks",
+      "Pad": [
+        82,
+        16
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            88,
+            0.6,
+            22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5.6,
+            1.2,
+            5.6
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            88,
+            11,
+            22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.2,
+            20,
+            3.2
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            88,
+            22.6,
+            22
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.6,
+            3.6,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            88,
+            14.4,
+            22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            7,
+            0.5,
+            7
+          ]
+        },
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            88,
+            0.6,
+            10
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5.6,
+            1.2,
+            5.6
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            88,
+            8.5,
+            10
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.2,
+            15,
+            3.2
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            88,
+            17.6,
+            10
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.6,
+            3.6,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            88,
+            11.3,
+            10
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            7,
+            0.5,
+            7
+          ]
+        },
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            76,
+            0.6,
+            15
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5.6,
+            1.2,
+            5.6
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            76,
+            13,
+            15
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.2,
+            24,
+            3.2
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            76,
+            26.6,
+            15
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.6,
+            3.6,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            76,
+            16.88,
+            15
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            7,
+            0.5,
+            7
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A tall black throne on a stepped dais, a crown of purple spikes and a cyan ring floating above it.",
+      "Id": "Throne",
+      "Name": "Void Throne",
+      "Pad": [
+        20,
+        -22
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            34,
+            0.8,
+            -26
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            16,
+            1.6,
+            14
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            34,
+            2.2,
+            -26
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            12,
+            1.2,
+            10
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            34,
+            4,
+            -26
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5.6,
+            2.4,
+            5
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            34,
+            9,
+            -28.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            6.4,
+            12,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            30.4,
+            5.5,
+            -26
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.2,
+            3.6,
+            5
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            37.6,
+            5.5,
+            -26
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.2,
+            3.6,
+            5
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            31,
+            16.4,
+            -28.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.6,
+            4,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            37,
+            16.4,
+            -28.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.6,
+            4,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            34,
+            17.8,
+            -28.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.6,
+            6.4,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            34,
+            21,
+            -26
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            7,
+            1.2,
+            7
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A black tower with glowing cyan windows and a purple flame burning on top.",
+      "Id": "Watchtower",
+      "Name": "Dark Watchtower",
+      "Pad": [
+        -74,
+        -32
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -86,
+            1,
+            -46
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14,
+            2,
+            14
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -86,
+            12,
+            -46
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9,
+            20,
+            9
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -86,
+            23.5,
+            -46
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            12,
+            3,
+            12
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -86,
+            28.5,
+            -46
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8,
+            7,
+            8
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -86,
+            33.2,
+            -46
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10.4,
+            2.4,
+            10.4
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -86,
+            36.5,
+            -46
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            4,
+            5,
+            4
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -86,
+            14,
+            -41.2
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            5,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -86,
+            28.5,
+            -41.6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            3.4,
+            0.6
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "Nine big crystal shards drift in a ring high above the glowing rift.",
+      "Id": "Shards",
+      "Name": "Floating Shards",
+      "Pad": [
+        22,
+        30
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            37,
+            15,
+            30
+          ],
+          "Rotation": [
+            0,
+            0,
+            -14
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            9,
+            3
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            28.894399988070802,
+            22,
+            35.785088487178854
+          ],
+          "Rotation": [
+            0,
+            40,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            10.6,
+            3
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            24.604722665003955,
+            29,
+            44.772116295183125
+          ],
+          "Rotation": [
+            0,
+            80,
+            14
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            12.2,
+            3
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            17.5,
+            18.5,
+            37.79422863405995
+          ],
+          "Rotation": [
+            0,
+            120,
+            -14
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            9,
+            3
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            7.904610688211376,
+            25.5,
+            35.13030214988503
+          ],
+          "Rotation": [
+            0,
+            160,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            10.6,
+            3
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            13.542766412926824,
+            15,
+            26.921818710068983
+          ],
+          "Rotation": [
+            0,
+            200,
+            14
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            12.2,
+            3
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            14.499999999999993,
+            22,
+            17.009618943233423
+          ],
+          "Rotation": [
+            0,
+            240,
+            -14
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            9,
+            3
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            23.56283359900237,
+            29,
+            21.136730222890126
+          ],
+          "Rotation": [
+            0,
+            280,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            10.6,
+            3
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            33.49066664678467,
+            18.5,
+            20.358185854701908
+          ],
+          "Rotation": [
+            0,
+            320,
+            14
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            12.2,
+            3
+          ]
+        }
+      ],
+      "RewardMult": 1.3
+    },
+    {
+      "Description": "A purple sun held by a stone stand, with glowing rings and little planets turning around it.",
+      "Id": "Orrery",
+      "Name": "Void Orrery",
+      "Pad": [
+        -22,
+        12
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -32,
+            0.7,
+            18
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            12,
+            1.4,
+            12
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -32,
+            3.4,
+            18
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            4,
+            3.4,
+            3.4
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -32,
+            11,
+            18
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            5,
+            5,
+            5
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -32,
+            11,
+            18
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            17,
+            0.6,
+            17
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -32,
+            11,
+            18
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            12,
+            0.6,
+            12
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -23.8,
+            11,
+            18
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.2,
+            2.2,
+            2.2
+          ]
+        },
+        {
+          "Color": [
+            226,
+            84,
+            236
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -35,
+            11,
+            24.4
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.8,
+            1.8,
+            1.8
+          ]
+        },
+        {
+          "Color": [
+            226,
+            214,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -38.6,
+            11,
+            13
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            1.6,
+            1.6,
+            1.6
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A colossal guardian of black stone with a purple gem in its chest and a floating cyan sword.",
+      "Id": "Sentinel",
+      "Name": "Void Sentinel",
+      "Pad": [
+        64,
+        66
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            80,
+            1.2,
+            66
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            20,
+            2.4,
+            20
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            76,
+            9,
+            66
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5.6,
+            14,
+            6
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            84,
+            9,
+            66
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5.6,
+            14,
+            6
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            80,
+            20,
+            66
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            15,
+            8,
+            9
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            80,
+            28.5,
+            66
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            13,
+            10,
+            8
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            71,
+            26,
+            66
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.6,
+            14,
+            5
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            89,
+            26,
+            66
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.6,
+            14,
+            5
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            80,
+            37.5,
+            66
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            8,
+            8,
+            8
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            76.4,
+            38,
+            70.2
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            1.2,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            83.6,
+            38,
+            70.2
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            1.2,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            80,
+            30,
+            70.2
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.6,
+            3.6,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            91.5,
+            27,
+            66
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            1.2,
+            22,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            91.5,
+            17,
+            66
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4,
+            1.2,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            80,
+            48,
+            66
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            7,
+            7,
+            7
+          ]
+        }
+      ],
+      "RewardMult": 1.4
+    },
+    {
+      "Description": "A huge ring of black and grey stone arcs on a plinth, a violet keystone on top.",
+      "Id": "PortalFrame",
+      "Name": "Portal Frame",
+      "Pad": [
+        50,
+        0
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            66,
+            3.5,
+            -4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14,
+            7,
+            6
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            66,
+            7.4,
+            -4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9,
+            0.8,
+            5
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            81.70595205269187,
+            30.505618350206525,
+            -4
+          ],
+          "Rotation": [
+            0,
+            0,
+            112.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14.211236700413052,
+            3.4,
+            4.6
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            72.50561835020653,
+            39.70595205269187,
+            -4
+          ],
+          "Rotation": [
+            0,
+            0,
+            157.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14.211236700413052,
+            3.4,
+            4.6
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            59.494381649793475,
+            39.70595205269187,
+            -4
+          ],
+          "Rotation": [
+            0,
+            0,
+            202.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14.211236700413052,
+            3.4,
+            4.6
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            50.29404794730813,
+            30.50561835020653,
+            -4
+          ],
+          "Rotation": [
+            0,
+            0,
+            247.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14.211236700413052,
+            3.4,
+            4.6
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            50.29404794730812,
+            17.494381649793475,
+            -4
+          ],
+          "Rotation": [
+            0,
+            0,
+            292.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14.211236700413052,
+            3.4,
+            4.6
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            59.49438164979348,
+            8.294047947308124,
+            -4
+          ],
+          "Rotation": [
+            0,
+            0,
+            337.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14.211236700413052,
+            3.4,
+            4.6
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            72.50561835020653,
+            8.294047947308128,
+            -4
+          ],
+          "Rotation": [
+            0,
+            0,
+            382.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14.211236700413052,
+            3.4,
+            4.6
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            81.70595205269187,
+            17.49438164979348,
+            -4
+          ],
+          "Rotation": [
+            0,
+            0,
+            427.5
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14.211236700413052,
+            3.4,
+            4.6
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            66,
+            41.6,
+            -4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4,
+            2.4,
+            5
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "The ring fills with a swirling gate of violet, purple, magenta and cyan.",
+      "Id": "PortalSwirl",
+      "Name": "Portal Swirl",
+      "Pad": [
+        66,
+        4
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            66,
+            24,
+            -4
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1,
+            30,
+            30
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            66,
+            24,
+            -3.4
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1,
+            24,
+            24
+          ]
+        },
+        {
+          "Color": [
+            226,
+            84,
+            236
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            66,
+            24,
+            -2.8
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1,
+            17,
+            17
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            66,
+            24,
+            -2.2
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1,
+            10,
+            10
+          ]
+        },
+        {
+          "Color": [
+            226,
+            214,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            66,
+            24,
+            -1.6
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1,
+            4,
+            4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A black fortress with four round towers, a glowing great hall and a purple spire.",
+      "Id": "Citadel",
+      "Name": "Void Citadel",
+      "Pad": [
+        -34,
+        40
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -62,
+            1.2,
+            50
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            42,
+            2.4,
+            30
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -62,
+            11,
+            50
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            22,
+            17,
+            16
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -62,
+            21,
+            50
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            24,
+            3,
+            18
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -62,
+            29,
+            50
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            12,
+            13,
+            10
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -62,
+            37,
+            50
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14,
+            3,
+            12
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -62,
+            45,
+            50
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5,
+            14,
+            5
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -62,
+            7,
+            58.2
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8,
+            9,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -80,
+            13,
+            38
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            7,
+            22,
+            7
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -80,
+            25.5,
+            38
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            8,
+            6.4,
+            8
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -44,
+            13,
+            38
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            7,
+            22,
+            7
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -44,
+            25.5,
+            38
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            8,
+            6.4,
+            8
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -80,
+            13,
+            62
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            7,
+            22,
+            7
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -80,
+            25.5,
+            62
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            8,
+            6.4,
+            8
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -44,
+            13,
+            62
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            7,
+            22,
+            7
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -44,
+            25.5,
+            62
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            8,
+            6.4,
+            8
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -62,
+            3,
+            63.4
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10,
+            1,
+            2
+          ]
+        }
+      ],
+      "RewardMult": 1.5
+    },
+    {
+      "Description": "Five comets in purple, cyan and magenta streak across the sky over the entrance.",
+      "Id": "Comets",
+      "Name": "Comet Swarm",
+      "Pad": [
+        -10,
+        56
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -20,
+            40,
+            52
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            5,
+            5,
+            5
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -27,
+            43.4,
+            54
+          ],
+          "Rotation": [
+            0,
+            12,
+            -22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14,
+            1.6,
+            2
+          ]
+        },
+        {
+          "Color": [
+            226,
+            214,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -25,
+            42.2,
+            49.4
+          ],
+          "Rotation": [
+            0,
+            12,
+            -22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9,
+            1.2,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            0,
+            30,
+            60
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            5,
+            5,
+            5
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -7,
+            33.4,
+            62
+          ],
+          "Rotation": [
+            0,
+            12,
+            -22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14,
+            1.6,
+            2
+          ]
+        },
+        {
+          "Color": [
+            226,
+            214,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -5,
+            32.2,
+            57.4
+          ],
+          "Rotation": [
+            0,
+            12,
+            -22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9,
+            1.2,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            226,
+            84,
+            236
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            24,
+            44,
+            48
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            5,
+            5,
+            5
+          ]
+        },
+        {
+          "Color": [
+            226,
+            84,
+            236
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            17,
+            47.4,
+            50
+          ],
+          "Rotation": [
+            0,
+            12,
+            -22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14,
+            1.6,
+            2
+          ]
+        },
+        {
+          "Color": [
+            226,
+            214,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            19,
+            46.2,
+            45.4
+          ],
+          "Rotation": [
+            0,
+            12,
+            -22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9,
+            1.2,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -40,
+            28,
+            40
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            5,
+            5,
+            5
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -47,
+            31.4,
+            42
+          ],
+          "Rotation": [
+            0,
+            12,
+            -22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14,
+            1.6,
+            2
+          ]
+        },
+        {
+          "Color": [
+            226,
+            214,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -45,
+            30.2,
+            37.4
+          ],
+          "Rotation": [
+            0,
+            12,
+            -22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9,
+            1.2,
+            1.4
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            8,
+            52,
+            70
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            5,
+            5,
+            5
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            1,
+            55.4,
+            72
+          ],
+          "Rotation": [
+            0,
+            12,
+            -22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14,
+            1.6,
+            2
+          ]
+        },
+        {
+          "Color": [
+            226,
+            214,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            3,
+            54.2,
+            67.4
+          ],
+          "Rotation": [
+            0,
+            12,
+            -22
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9,
+            1.2,
+            1.4
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A rock island floats above the plot with a ruined temple, a crystal and a purple waterfall.",
+      "Id": "Island",
+      "Name": "Flying Island",
+      "Pad": [
+        -40,
+        8
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Granite",
+          "Offset": [
+            -58,
+            22,
+            6
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            46,
+            20,
+            46
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -58,
+            16.5,
+            6
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            24,
+            14,
+            24
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Granite",
+          "Offset": [
+            -58,
+            32.4,
+            6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            52,
+            3.6,
+            52
+          ]
+        },
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -58,
+            34.4,
+            6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            46,
+            1,
+            46
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -58,
+            41,
+            6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            16,
+            11,
+            12
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -58,
+            48,
+            6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            18,
+            3,
+            14
+          ]
+        },
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -48,
+            40,
+            14
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            10,
+            3
+          ]
+        },
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -68,
+            40,
+            14
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            10,
+            3
+          ]
+        },
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -70,
+            38.5,
+            -6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            7,
+            3
+          ]
+        },
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -44,
+            38,
+            -6
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3,
+            6,
+            3
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -58,
+            43,
+            -12
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4,
+            12,
+            4
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -82,
+            22,
+            10
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            2,
+            22,
+            5
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -58,
+            53,
+            6
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            4,
+            5,
+            4
+          ]
+        }
+      ],
+      "RewardMult": 1.5
+    },
+    {
+      "Description": "Black tiers twist on top of each other up to a violet crown, a cyan ring floating high above.",
+      "Id": "Spire",
+      "Name": "Twisted Spire",
+      "Pad": [
+        -64,
+        -66
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -80,
+            1.5,
+            -78
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            22,
+            3,
+            22
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -80,
+            5,
+            -78
+          ],
+          "Rotation": [
+            0,
+            8,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            17,
+            4,
+            17
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -80,
+            12,
+            -78
+          ],
+          "Rotation": [
+            0,
+            0,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            12,
+            10,
+            12
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -80,
+            22,
+            -78
+          ],
+          "Rotation": [
+            0,
+            14,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            10.7,
+            10,
+            10.7
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -80,
+            32,
+            -78
+          ],
+          "Rotation": [
+            0,
+            28,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9.4,
+            10,
+            9.4
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -80,
+            42,
+            -78
+          ],
+          "Rotation": [
+            0,
+            42,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            8.1,
+            10,
+            8.1
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -80,
+            52,
+            -78
+          ],
+          "Rotation": [
+            0,
+            56,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            6.8,
+            10,
+            6.8
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -80,
+            62,
+            -78
+          ],
+          "Rotation": [
+            0,
+            70,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5.5,
+            10,
+            5.5
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            -80,
+            72,
+            -78
+          ],
+          "Rotation": [
+            0,
+            84,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4.199999999999999,
+            10,
+            4.199999999999999
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -80,
+            80,
+            -78
+          ],
+          "Rotation": [
+            0,
+            20,
+            0
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            4,
+            6,
+            4
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -80,
+            86,
+            -78
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            4.4,
+            8,
+            4.4
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -80,
+            52,
+            -78
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            26,
+            0.8,
+            26
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A pitch black core hangs over the floor inside a glowing disc, jets of cyan light shoot up and down.",
+      "Id": "BlackHole",
+      "Name": "Black Hole Core",
+      "Pad": [
+        66,
+        -48
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            66,
+            0.25,
+            -64
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            12,
+            0.5,
+            12
+          ]
+        },
+        {
+          "Color": [
+            18,
+            14,
+            28
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            66,
+            28,
+            -64
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            18,
+            18,
+            18
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            66,
+            28,
+            -64
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            52,
+            1.2,
+            52
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            66,
+            28.3,
+            -64
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            40,
+            1.2,
+            40
+          ]
+        },
+        {
+          "Color": [
+            226,
+            84,
+            236
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            66,
+            28.6,
+            -64
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            29,
+            1.2,
+            29
+          ]
+        },
+        {
+          "Color": [
+            226,
+            214,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            66,
+            28.9,
+            -64
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            22,
+            1.2,
+            22
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            66,
+            44,
+            -64
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            20,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            66,
+            12,
+            -64
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            16,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            50,
+            36,
+            -50
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3,
+            3,
+            3
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            82,
+            20,
+            -78
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3.4,
+            3.4,
+            3.4
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            78,
+            38,
+            -50
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.4,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            226,
+            84,
+            236
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            54,
+            17,
+            -76
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.6,
+            2.6,
+            2.6
+          ]
+        }
+      ],
+      "RewardMult": 1.5
+    },
+    {
+      "Description": "A giant eye with a purple and cyan iris stares down from a black spire over the exit.",
+      "Id": "VoidEye",
+      "Name": "Void Eye",
+      "Pad": [
+        10,
+        -76
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            80,
+            70,
+            104
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            24,
+            1.2,
+            -86
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            14,
+            2.4,
+            10
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            24,
+            14,
+            -86
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            6,
+            24,
+            5
+          ]
+        },
+        {
+          "Color": [
+            54,
+            46,
+            74
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            24,
+            30,
+            -86
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            9,
+            8,
+            7
+          ]
+        },
+        {
+          "Color": [
+            226,
+            214,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            24,
+            48,
+            -86
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            46,
+            28,
+            12
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            24,
+            48,
+            -80.6
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.8,
+            19,
+            19
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            24,
+            48,
+            -79.4
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.4,
+            12,
+            12
+          ]
+        },
+        {
+          "Color": [
+            18,
+            14,
+            28
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            24,
+            48,
+            -78.4
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.2,
+            6,
+            6
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            24,
+            63,
+            -86
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            44,
+            3,
+            8
+          ]
+        },
+        {
+          "Color": [
+            34,
+            28,
+            48
+          ],
+          "Material": "Material.Basalt",
+          "Offset": [
+            24,
+            33.2,
+            -86
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            40,
+            2.4,
+            8
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            5,
+            55,
+            -86
+          ],
+          "Rotation": [
+            0,
+            0,
+            20
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            12,
+            3
+          ]
+        },
+        {
+          "Color": [
+            120,
+            56,
+            210
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            43,
+            55,
+            -86
+          ],
+          "Rotation": [
+            0,
+            0,
+            -20
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            12,
+            3
+          ]
+        },
+        {
+          "Color": [
+            160,
+            80,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            24,
+            70,
+            -86
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            5,
+            12,
+            5
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            12,
+            68,
+            -86
+          ],
+          "Rotation": [
+            0,
+            0,
+            25
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            10,
+            3
+          ]
+        },
+        {
+          "Color": [
+            72,
+            228,
+            255
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            36,
+            68,
+            -86
+          ],
+          "Rotation": [
+            0,
+            0,
+            -25
+          ],
+          "Shape": "PartType.Block",
+          "Size": [
+            3.4,
+            10,
+            3
+          ]
+        }
+      ]
+    }
+  ],
+  "Path": [
+    [
+      0,
+      95
+    ],
+    [
+      -6,
+      72
+    ],
+    [
+      40,
+      56
+    ],
+    [
+      62,
+      24
+    ],
+    [
+      24,
+      6
+    ],
+    [
+      -8,
+      -18
+    ],
+    [
+      -12,
+      -42
+    ],
+    [
+      -56,
+      -58
+    ],
+    [
+      -22,
+      -78
+    ],
+    [
+      0,
+      -95
+    ]
+  ],
+  "Shiba": {
+    "Facing": 0,
+    "Position": [
+      -26,
+      -30
+    ]
+  }
+}

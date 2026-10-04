@@ -26,3 +26,6 @@ street_factors.json
 # Regenerable decor previews
 assets/models/decor/out/*/preview_*.png
 assets/models/decor/__pycache__/
+
+# Regenerable decor stage overviews
+assets/models/decor/out/*/stage_*.png
