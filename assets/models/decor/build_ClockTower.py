@@ -338,7 +338,7 @@ def gear(p, c, axis, R, depth, n, thick, col, hole=0.0, jit=0.04, phase=0.0):
         for k in range(m):
             k2 = (k + 1) % m
             faces.append((k, k2, 2 * m + k2, 2 * m + k))
-            faces.append((m + k, m + 2 * m + k, m + 2 * m + k2, m + k2) if False else (m + k2, m + k, 3 * m + k, 3 * m + k2))
+            faces.append((m + k2, m + k, 3 * m + k, 3 * m + k2))
             faces.append((k, m + k, m + k2, k2))
             faces.append((2 * m + k, 2 * m + k2, 3 * m + k2, 3 * m + k))
         _ = (base_o, base_h)
@@ -518,6 +518,8 @@ def lamp(p, x, z):
     lathe(p, x, z, [(0.45, 9.4), (1.3, 9.9), (1.55, 10.8), (1.15, 11.7)], [GOLD, STARW, STARW], verts=8)
     vcyl(p, x, 11.7, 12.7, z, 1.45, GOLD, verts=8, top_r=0.15)
     ball(p, (x, 12.95, z), 0.4, GOLD)
+    ring3(p, (x, 10.8, z), 1.95, 0.1, (0, 0, 1), GOLD, segs=10, sides=4)
+    star_poly(p, (x, 6.6, z + 0.5), 'xy', 0.5, 0.22, 0.1, STARW, n=4)
     for k in range(4):
         a = math.radians(90 * k + 45)
         vcyl(p, x + 1.0 * math.cos(a), 10.1, 11.5, z + 1.0 * math.sin(a), 0.1, GOLD, verts=4, jit=0.02)
@@ -552,17 +554,17 @@ def build_TimeSign(p):
 
 # ---- 4. CogGarden ---------------------------------------------------------------------------------------------------------
 def build_CogGarden(p):
-    gears = [(-66, 50, 5.0, BRASS, 1.8, 14, 2.4), (-58, 47, 3.5, DBRASS, 1.6, 12, 2.2), (-60, 54, 3.0, GOLD, 1.4, 10, 1.8),
-             (-71, 44, 3.5, COPPER, 1.6, 12, 2.2)]
+    gears = [(-66, 50, 5.0, BRASS, 1.8, 10, 2.4), (-58, 47, 3.5, DBRASS, 1.6, 9, 2.2), (-60, 54, 3.0, GOLD, 1.4, 8, 1.8),
+             (-71, 44, 3.5, COPPER, 1.6, 9, 2.2)]
     for (x, z, R, col, th, n, hub) in gears:
-        ball(p, (x, 0.1, z), R + 0.5, DSTONE, scale=(1, 0.22, 1), subdiv=1, jit=0.06)
+        vcyl(p, x, 0, 0.4, z, R + 0.7, DSTONE, verts=10, top_r=R + 0.2, jit=0.06)
         gear(p, (x, th / 2, z), 'y', R, max(0.5, R * 0.14), n, th, col, hole=R * 0.28)
         vcyl(p, x, 0.2, hub, z, R * 0.3, GOLD, verts=10)
         vcyl(p, x, hub - 0.15, hub, z, R * 0.12, STARW, verts=8)
     vcyl(p, -61.5, 0, 1.2, 49.2, 1.7, STONE, verts=10)
     vcyl(p, -61.5, 1.2, 1.4, 49.2, 1.2, GOLD, verts=10)
     for (x, z, r) in ((-64, 44.6, 0.7), (-54.6, 51, 0.6), (-69.5, 51.2, 0.8), (-63.4, 55.5, 0.6)):
-        ball(p, (x, 0.4, z), r, STONE, scale=(1, 0.6, 1), subdiv=1, jit=0.08)
+        ball(p, (x, 0.45, z), r, STONE, scale=(1, 0.6, 1), subdiv=0, jit=0.08)
 
 
 # ---- 5. SandBenches -------------------------------------------------------------------------------------------------------
@@ -609,8 +611,8 @@ def build_HourStones(p):
 # ---- 7. SandTimers --------------------------------------------------------------------------------------------------------
 def build_SandTimers(p):
     for (x, z) in ((42, 38), (50, 34), (58, 40)):
-        lathe(p, x, z, [(1.9, 0), (1.9, 0.5), (1.45, 0.9), (1.45, 1.9), (1.8, 2.2), (1.8, 2.4)], [STONE, STONE, STONE, GOLD, GOLD], verts=10)
-        hourglass(p, x, 2.4, z, 1.0, 5.8, plate_r=1.5, post_r=1.2, verts=10)
+        lathe(p, x, z, [(1.9, 0), (1.9, 0.5), (1.45, 0.9), (1.45, 1.9), (1.8, 2.2), (1.8, 2.4)], [STONE, STONE, STONE, GOLD, GOLD], verts=8)
+        hourglass(p, x, 2.4, z, 1.0, 5.8, plate_r=1.5, post_r=1.2, verts=8)
 
 
 # ---- 8. Pendulum ----------------------------------------------------------------------------------------------------------
@@ -622,7 +624,7 @@ def build_Pendulum(p):
         bx(p, (x - 0.7, x + 0.7), (1.3, 2.0), (19.2, 20.8), GOLD, 0.03)
         ball(p, (x, 13.2, 20), 0.8, GOLD, subdiv=1)
         sgn = -1 if x < 14 else 1
-        bar(p, (x + sgn * -0.1, 7, 20), (x + sgn * 2.2, 1.3, 20), 0.45, DBRASS)
+        bar(p, (x + sgn * -0.1, 7, 20), (x - sgn * 2.2, 1.3, 20), 0.45, DBRASS)
     bx(p, (8.5, 19.5), (11.9, 12.9), (19.2, 20.8), GOLD, 0.03)
     bx(p, (13.3, 14.7), (10.9, 11.9), (19.5, 20.5), BRASS, 0.03)
     ball(p, (14, 11.5, 20), 0.6, GOLD, subdiv=1)
@@ -667,7 +669,7 @@ def gclock(p, x, z, h):
     bx(p, (x - 0.07, x + 0.07), (2.5, h - 4.3), (z + 1.3, z + 1.4), GOLD, 0.02)
     zcyl(p, x, 3.2, z + 1.3, z + 1.55, 0.6, GOLD, verts=10)
     bx(p, (x - 2.3, x + 2.3), (h - 2.4, h - 0.1), (z - 1.6, z + 1.6), GOLD, 0.03)
-    clock(p, '+z', (x, h - 1.25, z + 1.6), 1.0, s=0.3, bez=BRASS, verts=14)
+    clock(p, '+z', (x, h - 1.25, z + 1.6), 1.0, s=0.3, bez=BRASS, verts=10)
     hands(p, '+z', (x, h - 1.25, z + 1.6), 0.3, 0.45, lh=0.55, lm=0.8, tail=0.2, wh=0.12, wm=0.1, hub_r=0.12)
     dk.prism(p, (x, h - 0.1, z), 3.8, 3.0, 1.3, BRASS, ridge='x')
     ball(p, (x, h + 1.3, z), 0.3, GOLD, subdiv=1)
@@ -703,16 +705,16 @@ def build_StarObelisks(p):
 # ---- 12. GearFountain -----------------------------------------------------------------------------------------------------
 def build_GearFountain(p):
     cx, cz = 40, 2
-    lathe(p, cx, cz, [(7.0, 0), (7.0, 1.7), (6.5, 2.0)], [STONE, PEARL], verts=20)
-    torus(p, (cx, 1.8, cz), 6.7, 0.3, GOLD, segs=24, sides=4)
-    vcyl(p, cx, 1.7, 2.05, cz, 6.1, CYAN, verts=20)
+    lathe(p, cx, cz, [(7.0, 0), (7.0, 1.7), (6.5, 2.0)], [STONE, PEARL], verts=14)
+    torus(p, (cx, 1.8, cz), 6.7, 0.3, GOLD, segs=16, sides=4)
+    vcyl(p, cx, 1.7, 2.05, cz, 6.1, CYAN, verts=14)
     lathe(p, cx, cz, [(1.5, 2.05), (0.95, 2.6), (0.95, 6.6), (1.5, 7.0)], BRASS, verts=10)
-    gear(p, (cx, 7.4, cz), 'y', 4.5, 0.65, 12, 0.8, GOLD, hole=0.9)
+    gear(p, (cx, 7.4, cz), 'y', 4.5, 0.65, 9, 0.8, GOLD, hole=0.9)
     vcyl(p, cx, 7.8, 8.2, cz, 3.0, CYAN, verts=14)
     lathe(p, cx, cz, [(1.0, 8.2), (0.7, 8.7), (0.7, 10.6), (1.0, 11.0)], BRASS, verts=8)
     ball(p, (cx, 11.9, cz), 1.1, GOLD, subdiv=1)
     for sx in (-6, 6):
-        gear(p, (cx + sx, 4.0, cz), 'z', 2.5, 0.5, 10, 0.8, BRASS, hole=0.5)
+        gear(p, (cx + sx, 4.0, cz), 'z', 2.5, 0.5, 7, 0.8, BRASS, hole=0.5)
         zcyl(p, cx + sx, 4.0, cz - 0.7, cz + 0.7, 0.6, GOLD, verts=8)
     for k in range(6):
         a = math.radians(60 * k + 20)
@@ -723,7 +725,7 @@ def build_GearFountain(p):
 
 # ---- 13. TimeBanners ------------------------------------------------------------------------------------------------------
 def banner(p, x, z):
-    vcyl(p, x, 0, 0.5, z, 1.0, DBRASS, verts=8)
+    vcyl(p, x, 0, 0.5, z, 0.5, DBRASS, verts=8)
     vcyl(p, x, 0.5, 14.2, z, 0.35, GOLD, verts=8)
     ball(p, (x, 14.6, z), 0.4, GOLD, subdiv=1)
     bx(p, (x - 0.3, x + 0.3), (14.3, 14.9), (z - 2.6, z + 2.6), GOLD, 0.03)
@@ -736,7 +738,7 @@ def banner(p, x, z):
     bx(p, (x + 0.05, x + 0.4), (8.0, 13.6), (z + 1.8, z + 2.0), GOLD, 0.02)
     prism_x(p, [(8.0, z - 2.0), (8.0, z - 1.8), (6.4, z - 0.1)], x + 0.05, x + 0.4, GOLD, 0.02)
     prism_x(p, [(8.0, z + 2.0), (8.0, z + 1.8), (6.4, z + 0.1)], x + 0.05, x + 0.4, GOLD, 0.02)
-    clock(p, '+x', (x + 0.35, 10.6, z), 1.35, s=0.2, verts=14)
+    clock(p, '+x', (x + 0.35, 10.6, z), 1.35, s=0.2, verts=10, ticks=False)
     hands(p, '+x', (x + 0.35, 10.6, z), 0.2, 0.3, lh=0.7, lm=1.0, tail=0.25, wh=0.14, wm=0.1, hub_r=0.16)
 
 
@@ -752,14 +754,6 @@ def build_CuckooHouse(p):
     prism_z(p, [(-48, 7), (-40, 7), (-44, 10.2)], 46.6, 53.4, WOOD, 0.05)
     for sx in (-1, 1):
         B(p, -44 + sx * 2.3, 8.5, 50, 5.6, 0.8, 8.6, GOLD, rot=(0, 0, -sx * 36), jit=0.04)
-        for k in range(3):
-            t = -1.6 + 1.6 * k
-            B(p, -44 + sx * (2.3 + t * 0.809 * 0.0 + 0.0) + sx * t * 0.809 * 0 + 0, 8.5, 50, 0.01, 0.01, 0.01, GOLD, jit=0.0) if False else None
-        for k in range(3):
-            off = -1.5 + 1.5 * k
-            dx = off * math.cos(math.radians(36)) * sx
-            dy = -off * math.sin(math.radians(36)) * sx * sx * (-1 if sx < 0 else 1) * -1
-            B(p, -44 + sx * 2.3 + dx + sx * 0.0, 8.5 + 0.0 + (0.588 * off) + 0.44 * 0.0, 50, 0.3, 0.9, 8.7, DBRASS, rot=(0, 0, -sx * 36), jit=0.03) if False else None
     bx(p, (-44.25, -43.75), (10.1, 10.5), (45.7, 54.3), DBRASS, 0.03)
     clock(p, '+z', (-44, 8.0, 53.5), 1.45, s=0.4, verts=14)
     hands(p, '+z', (-44, 8.0, 53.5), 0.4, 0.55, lh=0.75, lm=1.1, tail=0.3, wh=0.16, wm=0.12, hub_r=0.18)
@@ -865,7 +859,7 @@ def build_CogGate(p):
         bx(p, (cx - 0.12, cx + 0.12), (10.6, 11.3), (z + s * 1.3, z + s * 1.9), GOLD, 0.02)
     bx(p, (cx - 1.2, cx + 1.2), (16.1, 18.3), (16.2, 41.2), GOLD, 0.03)
     bx(p, (cx - 1.0, cx + 1.0), (18.3, 18.7), (18.2, 39.2), DBRASS, 0.02)
-    gear(p, (cx, 22, cz), 'x', 6.0, 1.1, 14, 1.5, BRASS, hole=2.0)
+    gear(p, (cx, 22, cz), 'x', 6.0, 1.1, 11, 1.5, BRASS, hole=2.0)
     ring3(p, (cx, 22, cz), 3.6, 0.3, (1, 0, 0), GOLD, segs=16, sides=4)
     xcyl(p, cx - 1.1, cx + 1.1, 22, cz, 1.7, GOLD, verts=10)
     xcyl(p, cx - 1.15, cx + 1.15, 22, cz, 0.7, STARW, verts=8)
@@ -906,10 +900,10 @@ def build_Sentinel(p):
     bx(p, (65.4, 70.6), (5.0, 5.8), (-19.0, -17.0), DBRASS, 0.03)
     frustum(p, x0, 5.8, 10.6, z0, 5.0, 3.4, 5.4, 3.6, BRASS, 0.04)
     bx(p, (66.3, 69.7), (6.4, 10.2), (-16.35, -16.2), DBRASS, 0.03)
-    clock(p, '+z', (x0, 8.4, -16.2), 1.6, s=0.3, verts=14)
+    clock(p, '+z', (x0, 8.4, -16.2), 1.6, s=0.3, verts=10, ticks=False)
     hands(p, '+z', (x0, 8.4, -16.2), 0.3, 0.45, lh=0.8, lm=1.15, tail=0.25, wh=0.14, wm=0.1, hub_r=0.15)
     for sx in (-1, 1):
-        gear(p, (x0 + sx * 3.0, 9.8, z0), 'x', 1.3, 0.3, 8, 0.7, GOLD, hole=0.3)
+        gear(p, (x0 + sx * 3.0, 9.8, z0), 'x', 1.3, 0.3, 6, 0.7, GOLD, hole=0.3)
         bx(p, (x0 + sx * 3.0 - 0.7, x0 + sx * 3.0 + 0.7), (6.2, 9.0), (-18.8, -17.2), BRASS, 0.04)
         bx(p, (x0 + sx * 3.0 - 0.75, x0 + sx * 3.0 + 0.75), (8.2, 8.5), (-18.85, -17.15), GOLD, 0.03)
         ball(p, (x0 + sx * 3.0, 6.4, z0), 0.7, DBRASS, subdiv=1)
@@ -920,7 +914,7 @@ def build_Sentinel(p):
         xcyl(p, x0 + sx * 1.8, x0 + sx * 2.1, 12.4, z0, 0.7, GOLD, verts=8)
     vcyl(p, x0, 14.2, 15.0, z0, 0.2, GOLD, verts=6)
     star_poly(p, (x0, 15.3, z0), 'xy', 0.6, 0.25, 0.1, STARW, n=4)
-    gear(p, (x0, 8.6, -20.0), 'z', 2.5, 0.5, 10, 0.8, GOLD, hole=0.5)
+    gear(p, (x0, 8.6, -20.0), 'z', 2.5, 0.5, 8, 0.8, GOLD, hole=0.5)
     zcyl(p, x0, 8.6, -20.4, -19.6, 0.7, DBRASS, verts=8)
 
 
@@ -945,12 +939,12 @@ def build_GiantSundial(p):
 # ---- 22. TimeThrone -------------------------------------------------------------------------------------------------------
 def build_TimeThrone(p):
     cx, cz = 68, -42
-    vcyl(p, cx, 0, 1.6, cz, 9.0, PEARL, verts=20)
-    vcyl(p, cx, 1.6, 3.2, cz, 6.5, STARW, verts=20)
+    vcyl(p, cx, 0, 1.6, cz, 9.0, PEARL, verts=16)
+    vcyl(p, cx, 1.6, 3.2, cz, 6.5, STARW, verts=16)
     vcyl(p, cx, 3.2, 4.8, cz, 4.0, PEARL, verts=16)
     torus(p, (cx, 1.6, cz), 8.7, 0.22, GOLD, segs=24, sides=4)
     torus(p, (cx, 3.2, cz), 6.3, 0.2, GOLD, segs=20, sides=4)
-    star_poly(p, (cx, 1.63, cz), 'xz', 7.6, 5.6, 0.04, GOLD, n=12)
+    star_poly(p, (cx, 1.63, cz), 'xz', 7.6, 5.6, 0.04, GOLD, n=8)
     bx(p, (65.7, 70.3), (4.8, 6.2), (-45.2, -40.8), GOLD, 0.03)
     bx(p, (66.2, 69.8), (6.2, 6.8), (-44.8, -41.2), VIOLET, 0.05)
     for sx in (65.3, 70.7):
@@ -959,8 +953,8 @@ def build_TimeThrone(p):
     bx(p, (65.5, 70.5), (5.8, 13.2), (-45.8, -44.6), GOLD, 0.03)
     bx(p, (66.2, 69.8), (6.6, 12.6), (-44.65, -44.55), INDIGO, 0.04)
     frustum(p, cx, 13.2, 14.2, -45.2, 5.0, 1.2, 1.2, 1.2, GOLD, 0.03)
-    clock(p, '+z', (cx, 12.6, -46.4), 3.7, s=0.5, verts=18)
-    ring3(p, (cx, 12.6, -46.2), 4.2, 0.4, (0, 0, 1), GOLD, segs=24, sides=6)
+    clock(p, '+z', (cx, 12.6, -46.4), 3.7, s=0.5, verts=14)
+    ring3(p, (cx, 12.6, -46.2), 4.2, 0.4, (0, 0, 1), GOLD, segs=18, sides=4)
     hands(p, '+z', (cx, 12.6, -46.4), 0.5, 0.65, lh=1.9, lm=2.7, tail=0.6, wh=0.3, wm=0.22, hub_r=0.35)
     for sx in (59.4, 76.6):
         lathe(p, sx, cz, [(1.1, 0), (1.1, 0.7), (0.55, 0.9), (0.55, 11.4)], [STONE, STONE, GOLD], verts=8)
@@ -978,15 +972,11 @@ def build_Orrery(p):
     torus(p, (cx, 9.4, cz), 3.9, 0.22, BRASS, segs=20, sides=4)
     ring3(p, (cx, 8.8, cz), 5.0, 0.2, (0.3, 1, 0.2), PEARL, segs=22, sides=4)
     ball(p, (cx, 8.6, cz), 2.2, GOLD, subdiv=2)
-    for k in range(8):
-        a = math.radians(45 * k)
-        vcyl(p, cx + 2.2 * math.cos(a), 8.5, 8.6 + 1.0, cz + 2.2 * math.sin(a), 0.3, LGOLD, verts=4, jit=0.02) if False else None
     planets = [((-12.6, 9, -37.5), 0.9, VIOLET), ((-22.6, 9, -34), 0.75, CYAN), ((-15, 9.8, -42), 0.65, STARW),
                ((-24, 9.8, -39), 0.8, COPPER), ((-18, 10.2, -33), 0.6, PEARL)]
     for (pos, r, col) in planets:
         bar(p, (cx, 8.6, cz), pos, 0.14, DBRASS)
         ball(p, pos, r, col, subdiv=1)
-    ball(p, (-12.6 - 0.1, 9.2, -37.5), 0.3, GOLD, subdiv=0) if False else None
 
 
 # ---- 24. Engine -----------------------------------------------------------------------------------------------------------
@@ -1002,7 +992,7 @@ def build_Engine(p):
             fbox(p, c, (-16 + sx * 6, 6.5, z), -1.0, 1.0, -1.6, 1.6, 0, 0.1, GOLD, 0.02)
             fbox(p, c, (-16 + sx * 6, 6.5, z), -0.8, 0.8, -1.4, 1.4, 0.1, 0.18, STARW, 0.02)
     pyramid(p, -16, 10.8, 12.2, -22, 4.0, 4.0, GOLD)
-    for (cx_, y, col, R, n, hub) in ((-18.4, 6.4, BRASS, 4.0, 12, 1.2), (-12.2, 8.4, GOLD, 2.5, 9, 0.8), (-12.2, 4.0, COPPER, 2.0, 8, 0.6)):
+    for (cx_, y, col, R, n, hub) in ((-18.4, 6.4, BRASS, 4.0, 9, 1.2), (-12.2, 8.4, GOLD, 2.5, 7, 0.8), (-12.2, 4.0, COPPER, 2.0, 6, 0.6)):
         gear(p, (cx_, y, -17.2), 'z', R, R * 0.2, n, 1.0, col, hole=R * 0.3)
         zcyl(p, cx_, y, -17.4, -16.6 if hub < 1 else -15.8, hub, GOLD if col != GOLD else DBRASS, verts=10)
     lathe(p, -20.4, -24, [(1.2, 10.4), (1.2, 15.2), (1.5, 15.4), (1.5, 16.2)], [COPPER, COPPER, GOLD], verts=10)
@@ -1070,7 +1060,6 @@ def build_TowerShaft(p):
             fbox(p, f, cc, -0.07, 0.07, -1.9, 1.7, 0.5, 0.55, GOLD, 0.02)
         for u in (-3.2, 3.2):
             fbox(p, f, (c[0], 25, c[2]), u - 0.08, u + 0.08, -8.6, 8.6, 0, 0.06, NAVY, 0.02)
-        star_poly(p, face_pt(f, (c[0], 25, c[2]), 0, 0, 0.0), 'xy' if f[1] == 'z' else 'yz', 0.01, 0.005, 0.01, GOLD, n=4) if False else None
 
 
 # ---- 27. ClockFace --------------------------------------------------------------------------------------------------------
@@ -1101,12 +1090,12 @@ def build_ClockHands(p):
 # ---- 29. GearRing ---------------------------------------------------------------------------------------------------------
 def build_GearRing(p):
     cx, cz = -50, -34
-    gear(p, (cx, 24, cz), 'y', 17.5, 1.5, 20, 1.4, BRASS, hole=11.0, jit=0.05)
+    gear(p, (cx, 24, cz), 'y', 17.5, 1.5, 16, 1.4, BRASS, hole=11.0, jit=0.05)
     for k in range(8):
         a = math.radians(45 * k + 22.5)
         B(p, cx + 14.0 * math.cos(a), 24.7, cz + 14.0 * math.sin(a), 1.6, 0.1, 1.6, STARW, rot=(0, 45 - 45 * k, 0), jit=0.02)
     for (dx, dz) in ((-10.4, 0), (10.4, 0), (0, -10.4), (0, 10.4)):
-        gear(p, (cx + dx, 27.6, cz + dz), 'y', 4.0, 0.7, 8, 1.2, GOLD, hole=0.8)
+        gear(p, (cx + dx, 27.6, cz + dz), 'y', 4.0, 0.7, 6, 1.2, GOLD, hole=0.8)
         vcyl(p, cx + dx, 27.0, 29.0, cz + dz, 1.0, DBRASS, verts=8)
 
 
@@ -1116,10 +1105,10 @@ def build_Hourglass(p):
     hourglass(p, cx, 68.0, cz, 4.5, 22.0, plate_r=6.0, post_r=5.5, verts=14)
     vcyl(p, cx, 90.0, 91.3, cz, 0.3, GOLD, verts=6)
     ball(p, (cx, 92.4, cz), 1.1, GOLD, subdiv=1)
-    spark(p, (-58.4, 82, cz), 1.5, STARW)
-    spark(p, (-58.4, 82, cz), 1.5, STARW, plane='yz')
-    spark(p, (-41.6, 76, cz), 1.5, STARW)
-    spark(p, (-41.6, 76, cz), 1.5, STARW, plane='yz')
+    spark(p, (-58.2, 82, cz), 1.0, STARW)
+    spark(p, (-58.2, 82, cz), 1.0, STARW, plane='yz')
+    spark(p, (-41.8, 76, cz), 1.0, STARW)
+    spark(p, (-41.8, 76, cz), 1.0, STARW, plane='yz')
 
 
 PART_IDS = ["Ground", "StarLamps", "TimeSign", "CogGarden", "SandBenches", "HourStones", "SandTimers", "Pendulum", "Astrolabe",
@@ -1128,10 +1117,10 @@ PART_IDS = ["Ground", "StarLamps", "TimeSign", "CogGarden", "SandBenches", "Hour
             "TowerShaft", "ClockFace", "ClockHands", "GearRing", "Hourglass"]
 PARTS = [(pid, globals()["build_" + pid]) for pid in PART_IDS if ("build_" + pid) in globals()]
 
-AZ = {"CogGate": 100, "ClockHands": 165}
+AZ = {"CogGate": 100, "ClockHands": 165, "TimeBanners": 60}
 ELEV = {}
-MULT = {"Ground": 1.7, "ClockBase": 2.2, "TowerShaft": 2.4, "ClockFace": 2.4, "ClockHands": 2.4, "GearRing": 2.6, "Hourglass": 2.6,
-        "StarPond": 2.0, "CogGarden": 2.0}
+MULT = {"Ground": 1.7, "ClockBase": 2.2, "TowerShaft": 3.4, "ClockFace": 3.6, "ClockHands": 3.6, "GearRing": 2.6, "Hourglass": 3.4,
+        "StarPond": 2.0, "CogGarden": 2.0, "TimeBanners": 1.8}
 SHIBA_AT = {"Ground": (-30, -6, 0, 0)}
 
 
