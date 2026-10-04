@@ -448,8 +448,8 @@ def build_Sign(p):
         crystal(p, cx + dx, 8.4, cz, 0.55, 1.5 + (0.5 if dx == 0 else 0), PURPLE, sides=4)
     for sx in (-1, 1):
         px = cx + sx * 9.0
-        frustum(p, px, 0, 3.6, cz, 2.6, 2.6, 1.8, 1.8, STONE)
-        B(p, px, 0.3, cz, 3.2, 0.6, 2.4, DSTONE)
+        frustum(p, px, 0, 3.6, cz - 0.9, 2.2, 1.0, 1.6, 0.8, STONE)
+        B(p, px, 0.3, cz - 0.3, 3.2, 0.6, 2.0, LSTONE)
         ex = cx + sx * 12.5                                         # orb on a little crystal cradle at the end of the bar
         for k in range(4):
             a = math.radians(45 + 90 * k)
@@ -486,7 +486,7 @@ def build_RuneStones(p):
 # ---- 5. Braziers ------------------------------------------------------------------------------------------------------------
 def build_Braziers(p):
     for (x, z) in ((28, 86), (40, 81), (52, 86)):
-        frustum(p, x, 0, 1.8, z, 3.6, 3.6, 3.0, 3.0, STONE)
+        frustum(p, x, 0, 1.8, z, 3.6, 3.6, 3.0, 3.0, LSTONE)
         lathe(p, x, z, [(1.1, 1.8), (1.4, 2.1), (2.3, 2.5), (2.3, 2.7), (1.8, 2.7), (1.8, 2.45), (0, 2.4)], OBS, verts=8, jit=0.08)
         lathe(p, x, z, [(2.3, 2.62), (2.3, 2.75), (1.85, 2.75), (1.85, 2.62)], VIOLET, verts=8, jit=0.0)
         lathe(p, x, z, [(1.55, 2.6), (1.3, 3.5), (0.95, 4.7), (0.45, 5.9), (0, 6.6)], PURPLE, verts=8, jit=0.12)
@@ -520,15 +520,15 @@ def build_Crystals(p):
 
 # ---- 7. Spikes --------------------------------------------------------------------------------------------------------------
 def build_Spikes(p):
-    lathe(p, -80, 18, [(13, 0.0), (13, 0.4), (10, 0.8), (0, 0.8)], OBS, verts=14, sz=0.85, jit=0.2)
+    lathe(p, -80, 18, [(13, 0.0), (13, 0.4), (10, 0.8), (0, 0.8)], DSTONE, verts=14, sz=0.85, jit=0.2)
     big = [(-80, 18, 11.0, (0.4, 0.3)), (-74, 12, 8.0, (0.6, -0.4)), (-86, 12, 7.0, (-0.6, -0.3)), (-72, 24, 9.0, (0.5, 0.5)),
            (-86, 24, 10.0, (-0.6, 0.4)), (-79, 27, 6.0, (0.0, 0.6)), (-79, 8, 5.5, (0.1, -0.6))]
     for (x, z, h, lean) in big:
-        lathe(p, x, z, [(1.6, 0.0), (1.15, 0.3 * h), (0.55, 0.7 * h), (0, h)], OBS, verts=5, jit=0.18, shear=(lean[0] / h, lean[1] / h))
+        lathe(p, x, z, [(1.6, 0.0), (1.15, 0.3 * h), (0.55, 0.7 * h), (0, h)], MSTONE, verts=5, jit=0.3, shear=(lean[0] / h, lean[1] / h))
         crystal(p, x + 1.5, 0.3, z - 0.6, 0.45, 1.8 + 0.1 * h, VIOLET, sides=4, lean=(0.3, 0.0), jit=0.1)
         orb(p, (x + lean[0], h + 0.25, z + lean[1]), 0.28, CYAN, subdiv=0)
     for (x, z, h) in ((-77, 15, 3.5), (-83, 15, 3.0), (-83, 21, 4.2), (-76, 19, 2.8), (-89, 18, 3.6), (-69, 18, 2.4), (-80, 12, 2.5), (-89, 9, 2.2)):
-        lathe(p, x, z, [(0.85, 0.0), (0, h)], OBS, verts=4, jit=0.18, shear=(0.1, 0.1))
+        lathe(p, x, z, [(0.85, 0.0), (0, h)], MSTONE, verts=4, jit=0.3, shear=(0.1, 0.1))
     for (x, z, h, col) in ((-75, 28, 1.8, PURPLE), (-90, 17, 1.4, CYAN), (-70, 12, 1.5, MAGENTA)):
         crystal(p, x, 0.3, z, 0.4, h, col, sides=4, jit=0.1)
 
@@ -553,7 +553,6 @@ def build_Rift(p):
                   DSTONE, rot=(0, RND.uniform(0, 90), 0), jit=0.25)
     for (x, y, z, r, col) in ((14, 9, 33, 1.1, DSTONE), (24, 11.5, 28, 0.9, CYAN), (30, 8.5, 36, 1.2, DSTONE), (19, 13, 25, 0.8, PURPLE)):
         ball(p, (x, y, z), r, col, subdiv=1, jit=0.12)
-        spiky(p, x, 0.3, z, 0.55, y - 1.0, VIOLET, sides=4, jit=0.0) if col != DSTONE else None   # thin wisps of light up to the pebbles
     for (x, z, h) in ((7, 33, 3.2), (33, 23, 3.0), (26, 38.2, 2.4), (16, 30.2, 2.0)):
         spiky(p, x, 0.3, z, 0.4, h, LPURPLE, sides=4, jit=0.0)
 
@@ -591,7 +590,7 @@ def dead_tree(p, x, z, h, seed):
         b = [(x, y0, z), (x + sgn * 1.6, y0 + 1.0, z + 0.4), (x + sgn * 3.4, y0 + 1.8, z - 0.2), (x + sgn * 4.4, y0 + 3.0, z)]
         tube(p, b, [0.38, 0.3, 0.22, 0.12], OBS, sides=5, jit=0.1, tip=True)
     cols = [VIOLET, PURPLE, MAGENTA]
-    for k, (dx, dy, dz, r) in enumerate(((0, h + 1.6, 0, 3.0), (-1.7, h + 0.5, 1.1, 2.0), (1.9, h + 0.8, -0.9, 2.2), (0.3, h + 2.7, -1.2, 1.7))):
+    for k, (dx, dy, dz, r) in enumerate(((0, h + 1.6, 0, 3.0), (-1.7, h + 0.5, 1.1, 2.0), (1.9, h + 0.8, -0.9, 2.2))):
         ball(p, (x + dx, dy, z + dz), r, cols[k % 3], scale=(1.1, 0.75, 1.1), subdiv=1, jit=0.12)
     for k in range(3):                                             # glowing fruits under the leaves
         a = math.radians(120 * k + 60 + seed)
@@ -637,9 +636,9 @@ def shroom(p, x, z, h, diam, capcol, seed):
     cy = h + 0.5
     lathe(p, x, z, [(1.25, 0), (0.95, 0.25 * h), (0.85, 0.6 * h), (1.15, h)], PALE, verts=8, jit=0.06)
     lathe(p, x, z, [(R * 0.35, cy - 0.5 * R), (R * 0.9, cy - 0.45 * R), (R, cy - 0.25 * R), (R * 0.88, cy + 0.12 * R), (R * 0.55, cy + 0.42 * R),
-                    (0, cy + 0.55 * R)], capcol, verts=12, jit=0.1)
-    lathe(p, x, z, [(0, cy - 0.5 * R), (R * 0.9, cy - 0.45 * R)], DVIOLET, verts=12, jit=0.0, caps=False)
-    for k in range(5):                                             # pale spots
+                    (0, cy + 0.55 * R)], capcol, verts=9, jit=0.1)
+    lathe(p, x, z, [(0, cy - 0.5 * R), (R * 0.9, cy - 0.45 * R)], DVIOLET, verts=9, jit=0.0, caps=False)
+    for k in range(4):
         a = math.radians(72 * k + seed * 20)
         rr = R * (0.45 + 0.1 * (k % 2))
         yy = cy + 0.55 * R * math.sqrt(max(0.05, 1 - (rr / R) ** 2)) * 0.92
@@ -650,7 +649,7 @@ def build_Shrooms(p):
     shroom(p, -44, 72, 9, 12, PURPLE, 1)
     shroom(p, -35, 68, 6, 8, MAGENTA, 2)
     shroom(p, -37, 78, 7.5, 9, VIOLET, 3)
-    for (x, z, h, d, col) in ((-48.5, 69, 2.4, 3.0, CYAN), (-40, 74.5, 2.0, 2.6, PURPLE), (-31.5, 71, 1.8, 2.4, LPURPLE), (-41.5, 66, 1.6, 2.2, MAGENTA)):
+    for (x, z, h, d, col) in ((-48.5, 69, 2.4, 3.0, CYAN), (-40, 74.5, 2.0, 2.6, PURPLE)):
         shroom(p, x, z, h, d, col, 5)
 
 
@@ -666,12 +665,14 @@ def knight(p, x, z, yaw):
     B(p, x - 0.4, 10.9, z + 1.2, 0.4, 0.22, 0.2, CYAN, jit=0.0)
     B(p, x + 0.4, 10.9, z + 1.2, 0.4, 0.22, 0.2, CYAN, jit=0.0)
     B(p, x, 5.6, z - 1.35, 3.0, 6.2, 0.4, DVIOLET, jit=0.08)         # cape
-    B(p, x, 7.2, z + 1.05, 1.8, 0.6, 0.6, DSTONE, jit=0.05)          # hands on the hilt
-    B(p, x, 5.0 + 3.6, z + 1.45, 0.5, 7.0, 0.14, CYAN, jit=0.0)      # blade
-    B(p, x, 5.0 + 3.6, z + 1.45, 0.16, 6.6, 0.2, LCYAN, jit=0.0)
-    spiky(p, x, 8.6 + 1.0, z + 1.45, 0.25, 0.9, CYAN, sides=4, jit=0.0)
-    B(p, x, 6.6, z + 1.45, 1.8, 0.35, 0.4, PURPLE, jit=0.0)          # crossguard
-    orb(p, (x, 5.0, z + 1.45), 0.3, PALE, subdiv=0)
+    B(p, x - 1.9, 6.6, z + 0.5, 1.0, 3.4, 1.3, OBS, jit=0.05)        # left arm
+    B(p, x + 1.9, 6.6, z + 0.7, 1.1, 3.0, 1.3, OBS, jit=0.05)        # right arm holding the sword upright beside the body
+    B(p, x + 2.1, 5.2, z + 1.3, 1.0, 0.9, 1.0, DSTONE, jit=0.05)     # fist
+    B(p, x + 2.1, 8.6, z + 1.3, 0.55, 6.0, 0.16, CYAN, jit=0.0)      # blade
+    B(p, x + 2.1, 8.6, z + 1.3, 0.18, 5.6, 0.22, LCYAN, jit=0.0)
+    spiky(p, x + 2.1, 11.55, z + 1.3, 0.3, 0.9, CYAN, sides=4, jit=0.0)
+    B(p, x + 2.1, 5.9, z + 1.3, 1.9, 0.35, 0.45, PURPLE, jit=0.0)    # crossguard
+    orb(p, (x + 2.1, 4.6, z + 1.3), 0.3, PALE, subdiv=0)
     xf(p, i0, pivot=(x, 0, z), rot=(0, yaw, 0))
 
 
@@ -686,11 +687,9 @@ def build_Pool(p):
     x, z = 84, 40
     B(p, x, 0.3, z, 20, 0.6, 20, STONE, jit=0.12)
     B(p, x, 0.55, z, 17, 0.2, 17, VIOLET, jit=0.0)
+    star_poly(p, (x, 0.68, z), "xz", 6.4, 3.0, 0.1, LPURPLE, n=6, rot0=30)
     for R, col in ((3.0, LPURPLE), (5.2, PURPLE), (7.4, MAGENTA)):    # ripples
         torus(p, (x, 0.7, z), R, 0.18, col, segs=18, sides=4, scale_y=0.8)
-    for k in range(5):                                             # swirl of light
-        a = math.radians(72 * k)
-        seg(p, (x + 1.4 * math.cos(a), z + 1.4 * math.sin(a)), (x + 6.8 * math.cos(a + 1.0), z + 6.8 * math.sin(a + 1.0)), 0.5, 0.65, 0.78, LCYAN, jit=0.0)
     for (cx, cz, sx, sz) in ((84, 30, 22, 2.4), (84, 50, 22, 2.4), (74, 40, 2.4, 18), (92, 40, 2.4, 18)):   # rim blocks
         n = 5
         for i in range(n):
@@ -699,7 +698,8 @@ def build_Pool(p):
             else:
                 bxx, bzz, bw, bd = cx, cz - sz / 2 + sz * (i + 0.5) / n, sx, sz / n * 0.93
             hh = 1.0 + 0.6 * ((i * 7 + int(cx)) % 3) / 2
-            B(p, bxx, 0.3 + hh / 2, bzz, bw, hh, bd, OBS if i % 2 == 0 else DSTONE, jit=0.15)
+            B(p, bxx, 0.3 + hh / 2, bzz, bw, hh, bd, LSTONE if i % 2 == 0 else STONE, jit=0.15)
+            B(p, bxx, 0.3 + hh + 0.05, bzz, 0.5, 0.12, 0.5, CYAN, jit=0.0)
     for (lx, lz, r) in ((80, 38, 2.0), (88, 43, 1.6), (84, 46, 1.2)):  # cyan lilies
         lathe(p, lx, lz, [(r, 0.62), (r * 0.9, 0.82), (0, 0.9)], CYAN, verts=7, jit=0.05)
         lathe(p, lx, lz, [(r * 0.3, 0.85), (0, 1.1)], PALE, verts=5, jit=0.0)
@@ -713,12 +713,12 @@ def build_Ruins(p):
         rr = random.Random(seed)
         frustum(p, x, 0, 1.2, z, 4.4, 4.4, 3.8, 3.8, STONE, jit=0.1)
         top = h + 1.0
-        lathe(p, x, z, [(1.55, 1.2), (1.45, 2.0), (1.45, top - 2.6)], DSTONE, verts=8, jit=0.12, caps=False)
+        lathe(p, x, z, [(1.55, 1.2), (1.45, 2.0), (1.45, top - 2.6)], STONE, verts=8, jit=0.12, caps=False)
         for k in range(8):                                         # jagged broken top: separate stumps of different height
             a = math.radians(45 * k + 22)
             hh = top - 2.6 + rr.uniform(0.6, 2.4)
-            lathe(p, x + 0.75 * math.cos(a), z + 0.75 * math.sin(a), [(0.65, top - 2.7), (0.5, hh)], DSTONE, verts=4, jit=0.15)
-        bx(p, (x - 0.15, x + 0.15), (1.2, top - 2.5), (z + 1.4, z + 1.7), DVIOLET, 0.0)    # a crack of violet light
+            lathe(p, x + 0.75 * math.cos(a), z + 0.75 * math.sin(a), [(0.65, top - 2.7), (0.5, hh)], STONE, verts=4, jit=0.15)
+        bx(p, (x - 0.15, x + 0.15), (1.2, top - 2.5), (z + 1.4, z + 1.7), PURPLE, 0.0)    # a crack of violet light
         for k in range(3):                                         # fallen chunks
             a = math.radians(120 * k + seed * 40)
             B(p, x + 3.0 * math.cos(a), 0.5, z + 3.0 * math.sin(a), rr.uniform(0.9, 1.5), 0.8, rr.uniform(0.9, 1.4), DSTONE, rot=(0, 30 * k, 0), jit=0.2)
@@ -743,7 +743,7 @@ def tentacle(p, x, z, s, h, reach, seed):
         t = i / n
         pts.append((x + s * reach * t ** 2 + 0.6 * math.sin(t * 5 + seed), h * t * 0.97, z + 0.8 * math.sin(t * 4 + seed * 2)))
         rad.append(2.4 * (1 - t) ** 0.8 + 0.4)
-    tube(p, pts, rad, OBS, sides=6, jit=0.12, tip=True)
+    tube(p, pts, rad, DSTONE, sides=6, jit=0.12, tip=True)
     for i in (2, 4, 6):                                            # glowing bands
         c = pts[i]
         lathe(p, c[0], c[2], [(rad[i] * 1.06, c[1] - 0.25), (rad[i] * 1.06, c[1] + 0.25)], VIOLET, verts=6, jit=0.0, caps=False)
@@ -902,30 +902,30 @@ def build_Sentinel(p):
     for sx in (-1, 1):
         lx = x + sx * 4.0
         B(p, lx, 3.2, z + 0.8, 6.0, 1.6, 7.6, DSTONE, jit=0.08)                       # boot
-        frustum(p, lx, 4.0, 15.0, z, 5.8, 6.0, 4.8, 5.2, MSTONE, jit=0.08)             # greave
+        frustum(p, lx, 4.0, 15.0, z, 5.8, 6.0, 4.8, 5.2, LSTONE, jit=0.08)             # greave
         B(p, lx, 9.0, z + 3.05, 3.4, 0.5, 0.3, CYAN, jit=0.0)
         ball(p, (lx, 15.6, z), 2.7, DSTONE, scale=(1, 0.8, 1), subdiv=1, jit=0.1)
         spiky(p, lx, 15.4, z + 2.2, 0.9, 2.2, PURPLE, sides=4, lean=(0, 1.0))
     frustum(p, x, 16.0, 24.0, z, 15.6, 9.6, 14.0, 8.6, DSTONE, jit=0.08)               # tassets
     for k in range(5):
         px = x - 5.6 + 2.8 * k
-        B(p, px, 17.4, z + 4.5, 2.5, 3.2, 0.5, MSTONE if k % 2 == 0 else OBS, jit=0.08)
+        B(p, px, 17.4, z + 4.5, 2.5, 3.2, 0.5, LSTONE if k % 2 == 0 else OBS, jit=0.08)
     B(p, x, 23.6, z, 14.0, 1.4, 9.0, VIOLET)                                          # belt
     B(p, x, 23.6, z + 4.55, 2.6, 2.0, 0.5, CYAN)
-    frustum(p, x, 24.0, 34.0, z, 12.6, 8.0, 15.6, 9.0, MSTONE, jit=0.08)               # chest
+    frustum(p, x, 24.0, 34.0, z, 12.6, 8.0, 15.6, 9.0, LSTONE, jit=0.08)               # chest
     B(p, x, 30.0, z + 4.4, 3.2, 3.2, 0.9, PURPLE, rot=(0, 0, 45), jit=0.0)
     halo(p, (x, 30.0, z + 4.5), 2.5, 0.22, CYAN, segs=14, sides=4)
     for sx in (-1, 1):
         px = x + sx * 8.5
-        ball(p, (px, 33.2, z), 3.5, MSTONE, scale=(1.15, 0.75, 1.1), subdiv=1, jit=0.1)       # pauldron
+        ball(p, (px, 33.2, z), 3.5, LSTONE, scale=(1.15, 0.75, 1.1), subdiv=1, jit=0.1)       # pauldron
         for j in range(3):
             spiky(p, px + sx * (-0.8 + 0.9 * j), 34.5, z, 0.6, 2.4 + 0.3 * j, PURPLE, sides=4, lean=(sx * 0.4 * j, 0))
         frustum(p, px, 27.6, 32.0, z, 4.6, 5.0, 4.2, 4.6, DSTONE, jit=0.08)             # upper arm
-        ball(p, (px, 27.2, z), 2.0, MSTONE, subdiv=1, jit=0.1)
-        frustum(p, px, 19.0, 26.8, z, 4.0, 4.4, 4.8, 5.0, MSTONE, jit=0.08)             # forearm
+        ball(p, (px, 27.2, z), 2.0, LSTONE, subdiv=1, jit=0.1)
+        frustum(p, px, 19.0, 26.8, z, 4.0, 4.4, 4.8, 5.0, LSTONE, jit=0.08)             # forearm
         B(p, px, 19.2, z, 4.2, 1.6, 4.6, DSTONE, jit=0.08)                              # fist
         B(p, px, 23.0, z + 2.4, 2.4, 0.4, 0.3, CYAN, jit=0.0)
-    lathe(p, x, z, [(1.5, 32.0), (2.2, 33.2), (3.6, 35.0), (4.0, 37.6), (3.2, 40.0), (0, 41.6)], MSTONE, verts=10, jit=0.1)     # helmet
+    lathe(p, x, z, [(1.5, 32.0), (2.2, 33.2), (3.6, 35.0), (4.0, 37.6), (3.2, 40.0), (0, 41.6)], LSTONE, verts=10, jit=0.1)     # helmet
     B(p, x, 37.8, z + 3.65, 6.2, 1.1, 0.6, BLACK, jit=0.0)
     for sx in (-1, 1):
         B(p, x + sx * 1.9, 37.9, z + 4.0, 1.8, 0.5, 0.3, CYAN, jit=0.0)
@@ -950,10 +950,11 @@ def build_Sentinel(p):
 # ---- 23. PortalFrame --------------------------------------------------------------------------------------------------------
 def build_PortalFrame(p):
     cx, cy, cz = 66, 24, -4
-    halo(p, (cx, cy, cz), 17.0, 2.4, MSTONE, segs=16, sides=4, jit=0.15, sq=1.35)
+    halo(p, (cx, cy, cz), 17.0, 2.4, LSTONE, segs=16, sides=4, jit=0.15, sq=1.35)
+    halo(p, (cx, cy, cz + 0.3), 15.2, 0.3, CYAN, segs=32, sides=4, sq=3.0)
     for k in range(8):
         a = math.radians(45 * k + 22.5)
-        B(p, cx + 17.0 * math.cos(a), cy + 17.0 * math.sin(a), cz, 3.2, 4.2, 5.2, OBS if k % 2 else DSTONE,
+        B(p, cx + 17.0 * math.cos(a), cy + 17.0 * math.sin(a), cz, 3.2, 4.2, 5.2, OBS if k % 2 else MSTONE,
           rot=(0, 0, 45 * k + 22.5 + 90), jit=0.1)
     for k in (0, 2, 4, 6):                                             # runes between the joints
         a = math.radians(45 * k)
@@ -1003,7 +1004,7 @@ def build_PortalSwirl(p):
 
 # ---- 25. Citadel ------------------------------------------------------------------------------------------------------------
 def citadel_tower(p, x, z):
-    lathe(p, x, z, [(3.9, 2.4), (3.5, 4.0), (3.3, 20.5), (4.2, 21.3), (4.2, 23.2), (3.4, 23.4)], MSTONE, verts=8, jit=0.1)
+    lathe(p, x, z, [(3.9, 2.4), (3.5, 4.0), (3.3, 20.5), (4.2, 21.3), (4.2, 23.2), (3.4, 23.4)], LSTONE, verts=8, jit=0.1)
     lathe(p, x, z, [(4.6, 23.2), (3.8, 24.6), (0, 28.7)], VIOLET, verts=8, jit=0.1)
     for y in (9.0, 15.0):
         B(p, x, y, z + 3.3, 0.7, 2.4, 0.3, CYAN, jit=0.0)
@@ -1011,6 +1012,8 @@ def citadel_tower(p, x, z):
         a = math.radians(90 * k + 45)
         B(p, x + 3.9 * math.cos(a), 22.4, z + 3.9 * math.sin(a), 0.9, 0.9, 0.9, DSTONE, jit=0.05)
     crystal(p, x, 28.0, z, 0.35, 0.9, CYAN, sides=4, jit=0.0)
+    B(p, x + 0.9, 27.0, z, 1.8, 1.0, 0.1, MAGENTA, jit=0.0)
+    B(p, x + 0.9, 26.0, z, 1.4, 0.8, 0.1, PURPLE, jit=0.0)
 
 
 def build_Citadel(p):
@@ -1023,7 +1026,7 @@ def build_Citadel(p):
         n = max(2, int(max(abs(x1 - x0), abs(z1 - z0)) // 7))
         cx, cz = (x0 + x1) / 2, (z0 + z1) / 2
         sx, sz = max(abs(x1 - x0), 2.2), max(abs(z1 - z0), 2.2)
-        B(p, cx, 6.9, cz, sx, 9.0, sz, DSTONE, jit=0.08)
+        B(p, cx, 6.9, cz, sx, 9.0, sz, MSTONE, jit=0.08)
         for i in range(n):
             f = (i + 0.5) / n
             mx, mz = x0 + (x1 - x0) * f, z0 + (z1 - z0) * f
@@ -1039,7 +1042,7 @@ def build_Citadel(p):
     B(p, -62, 6.6, 61.2, 6.4, 8.4, 0.4, CYAN, jit=0.0)
     B(p, -62, 6.6, 61.3, 0.4, 8.4, 0.3, DSTONE, jit=0.0)
     # great hall, cornice, keep, roof, spire
-    B(p, -62, 11, 50, 22, 17, 16, OBS, jit=0.06)
+    B(p, -62, 11, 50, 22, 17, 16, MSTONE, jit=0.06)
     for sx in (-10.6, 10.6):
         B(p, -62 + sx, 10.5, 58.3, 1.6, 16, 1.2, MSTONE)
     B(p, -62, 7, 58.2, 8, 9, 0.6, CYAN, jit=0.0)
@@ -1090,27 +1093,27 @@ def dspike(p, cx, ytop, cz, r, h, col, sides=5, lean=(0, 0)):
 def build_Island(p):
     cx, cz = -58, 6
     # underside: a ragged hanging rock
-    lathe(p, cx, cz, [(0, 9.5), (3.0, 12.0), (7.0, 16.5), (13.0, 21.5), (19.0, 26.5), (24.0, 30.8)], DSTONE, verts=11, jit=0.18, caps=False)
-    lathe(p, cx, cz, [(0, 9.5), (2.2, 13.0), (4.5, 18.0), (7.0, 23.0)], OBS, verts=7, jit=0.15, caps=False, rot0=0.3)
+    lathe(p, cx, cz, [(0, 9.5), (3.0, 12.0), (7.0, 16.5), (13.0, 21.5), (19.0, 26.5), (24.0, 30.8)], STONE, verts=9, jit=0.18, caps=False)
+    lathe(p, cx, cz, [(0, 9.5), (2.2, 13.0), (4.5, 18.0), (7.0, 23.0)], DSTONE, verts=7, jit=0.15, caps=False, rot0=0.3)
     for k in range(7):
         a = math.radians(360 / 7 * k + 20)
         rr = 17 + 4 * math.sin(k * 2.3)
-        dspike(p, cx + rr * math.cos(a), 29.0 - (k % 3) * 2.0, cz + rr * math.sin(a), 1.6, 6.5 + (k % 3) * 2.2, DSTONE, lean=(0.4 * math.cos(a), 0.4 * math.sin(a)))
+        dspike(p, cx + rr * math.cos(a), 29.0 - (k % 3) * 2.0, cz + rr * math.sin(a), 1.6, 6.5 + (k % 3) * 2.2, VIOLET, lean=(0.4 * math.cos(a), 0.4 * math.sin(a)))
     # the top disc
-    lathe(p, cx, cz, [(24.2, 30.6), (26.0, 31.6), (26.0, 33.6), (24.5, 34.2), (0, 34.2)], OBS, verts=22, jit=0.1)
-    lathe(p, cx, cz, [(0, 34.1), (23.0, 34.1), (23.0, 34.9), (0, 34.9)], MSTONE, verts=22, jit=0.12, caps=False)
-    lathe(p, cx, cz, [(23.0, 34.9), (24.4, 34.9), (24.4, 34.1)], PURPLE, verts=22, jit=0.05, caps=False)
+    lathe(p, cx, cz, [(24.2, 30.6), (26.0, 31.6), (26.0, 33.6), (24.5, 34.2), (0, 34.2)], STONE, verts=16, jit=0.1)
+    lathe(p, cx, cz, [(0, 34.1), (23.0, 34.1), (23.0, 34.9), (0, 34.9)], LSTONE, verts=16, jit=0.12, caps=False)
+    lathe(p, cx, cz, [(23.0, 34.9), (24.4, 34.9), (24.4, 34.1)], PURPLE, verts=16, jit=0.05, caps=False)
     # ruined temple
     B(p, -58, 35.4, 6, 17, 1.0, 13, DSTONE, jit=0.08)
-    B(p, -58, 41, 0.5, 16, 11, 1.4, MSTONE, jit=0.1)                    # back wall
+    B(p, -58, 41, 0.5, 16, 11, 1.4, LSTONE, jit=0.1)                    # back wall
     B(p, -58, 43.6, 0.5, 10, 4.2, 0.3, OBS, jit=0.0)
     for k, x in enumerate((-65, -61, -55, -51)):
         h = 10.6 if k != 2 else 6.5
-        lathe(p, x, 11.4, [(1.2, 35.9), (1.05, 36.4), (1.05, 35.9 + h - 0.6), (1.2, 35.9 + h)], STONE, verts=6, jit=0.1)
-    B(p, -61, 47.9, 11.4, 9.5, 1.5, 2.6, OBS, jit=0.08)                  # broken beam
-    B(p, -52.5, 48.6, 10.6, 5, 1.6, 2.6, OBS, rot=(0, 0, -12), jit=0.08)
+        lathe(p, x, 11.4, [(1.2, 35.9), (1.05, 36.4), (1.05, 35.9 + h - 0.6), (1.2, 35.9 + h)], LSTONE, verts=6, jit=0.1)
+    B(p, -61, 47.9, 11.4, 9.5, 1.5, 2.6, DSTONE, jit=0.08)                  # broken beam
+    B(p, -52.5, 48.6, 10.6, 5, 1.6, 2.6, DSTONE, rot=(0, 0, -12), jit=0.08)
     for dx, dy in ((-6, 0), (6, 0)):
-        B(p, -58 + dx, 48.0, 1.0, 5.6, 3.0, 1.6, OBS, jit=0.08)
+        B(p, -58 + dx, 48.0, 1.0, 5.6, 3.0, 1.6, DSTONE, jit=0.08)
     B(p, -58, 46.8, 0.5, 5, 0.6, 1.9, VIOLET)
     for (x, z, h) in ((-48, 14, 10), (-68, 14, 10), (-70, -6, 7), (-44, -6, 6)):
         lathe(p, x, z, [(1.5, 35.0), (1.3, 35.6), (1.3, 35.0 + h - 0.8), (1.5, 35.0 + h)], STONE, verts=6, jit=0.1)
@@ -1119,6 +1122,15 @@ def build_Island(p):
     crystal(p, -58, 36.9, -12, 2.4, 12.0, PURPLE, sides=6, lean=(0.6, 0.0))
     crystal(p, -61.5, 36.0, -10.5, 1.3, 6.5, VIOLET, sides=5, lean=(-0.5, 0.0))
     crystal(p, -54.8, 36.0, -10.0, 1.1, 5.5, CYAN, sides=5, lean=(0.4, 0.0))
+    for k in range(16):                                                # purple grass tufts and cyan blooms on the top
+        a = math.radians(360 / 16 * k + 7)
+        rr = 17 + 4 * math.sin(k * 1.7)
+        crystal(p, cx + rr * math.cos(a), 34.8, cz + rr * math.sin(a), 0.4, 1.6 + 0.6 * (k % 3), (PURPLE, CYAN, MAGENTA)[k % 3], sides=4, lean=(0.2, 0.1))
+    B(p, -58, 38.8, 1.35, 4.4, 5.6, 0.3, CYAN, jit=0.0)
+    B(p, -58, 38.8, 1.45, 0.4, 5.6, 0.3, LSTONE, jit=0.0)
+    for k, x in enumerate((-65, -61, -55, -51)):
+        B(p, x, 36.6, 11.4 + 1.25, 1.5, 0.35, 0.3, VIOLET, jit=0.0)
+    B(p, -81.2, 17.0, 10, 2.6, 6.0, 5.6, LCYAN, jit=0.0)
     # waterfall off the west rim
     B(p, -82, 22.0, 10, 1.6, 22.0, 4.4, VIOLET, jit=0.04)
     B(p, -82.4, 22.5, 10, 0.8, 21.0, 3.0, PURPLE, jit=0.0)
@@ -1142,7 +1154,7 @@ def build_Spire(p):
     for k in range(7):
         w = 12 - 1.3 * k
         yaw = 14 * k
-        frustum(p, x, y, y + 10, z, w, w, w - 1.0, w - 1.0, MSTONE if k % 2 == 0 else DSTONE, jit=0.1, yaw=yaw)
+        frustum(p, x, y, y + 10, z, w, w, w - 1.0, w - 1.0, LSTONE if k % 2 == 0 else MSTONE, jit=0.1, yaw=yaw)
         frustum(p, x, y + 9.6, y + 10.4, z, w + 0.5, w + 0.5, w + 0.5, w + 0.5, VIOLET, jit=0.0, yaw=yaw)
         for sgn in (-1, 1):
             a = math.radians(-yaw) + (0 if k % 2 == 0 else math.pi / 2)
@@ -1170,9 +1182,11 @@ def build_BlackHole(p):
     lathe(p, x, z, [(1.5, 36.5), (0.9, 44.0), (0, 54.0)], CYAN, verts=6, jit=0.05, caps=False)         # upper jet
     lathe(p, x, z, [(0.7, 37.0), (0.45, 44.0), (0, 51.0)], LCYAN, verts=4, jit=0.0, caps=False)
     ball(p, (x, 28, z), 9.0, BLACK, subdiv=2, jit=0.05)
-    torus(p, (x, 28.4, z), 9.8, 0.4, LCYAN, segs=26, sides=4, scale_y=0.8)
+    halo(p, (x, 28, z), 12.5, 0.3, CYAN, segs=16, sides=4, rot=(0, 40, 0))
+    halo(p, (x, 28, z), 14.5, 0.3, LPURPLE, segs=16, sides=4, rot=(0, -35, 0))
+    torus(p, (x, 28.4, z), 9.8, 0.4, LCYAN, segs=20, sides=4, scale_y=0.8)
     for (r0, r1, y0, y1, col) in ((11.0, 15.0, 28.3, 29.5, PALE), (15.0, 20.0, 28.0, 29.0, MAGENTA), (20.0, 26.0, 27.4, 28.4, PURPLE)):
-        lathe(p, x, z, [(r0, y0), (r1, y0), (r1, y1), (r0, y1)], col, verts=26, jit=0.06, caps=False, loop=True)
+        lathe(p, x, z, [(r0, y0), (r1, y0), (r1, y1), (r0, y1)], col, verts=20, jit=0.06, caps=False, loop=True)
     for a in range(3):                                                 # bright spiral arms riding on the disc
         th0 = a * 2 * math.pi / 3
         pts = []
@@ -1209,17 +1223,17 @@ def build_VoidEye(p):
         rune(p, x + sx * 0.0, 15 + sx * 1.0, z + 2.0, 1.8, CYAN, seed=60 + sx) if sx == 1 else None
     frustum(p, x, 26, 34, z, 4.4, 4.0, 9.0, 7.0, DSTONE, jit=0.1)
     # lower eyelid: a crescent of blocks, upper lid: heavy arc with a crown of lashes
-    for i in range(11):
-        t = -1 + 2 * i / 10
+    for i in range(7):
+        t = -1 + 2 * i / 6
         bx_ = x + 19.0 * t
         by_ = 33.2 + 1.8 * (1 - t * t) * 0.0 + 1.2 * t * t
-        B(p, bx_, by_, z, 4.0, 2.4, 8.0, OBS, rot=(0, 0, -10 * t), jit=0.08)
-    for i in range(11):
-        t = -1 + 2 * i / 10
+        B(p, bx_, by_, z, 6.0, 2.4, 8.0, OBS, rot=(0, 0, -10 * t), jit=0.08)
+    for i in range(7):
+        t = -1 + 2 * i / 6
         bx_ = x + 21.0 * t
         by_ = 62.6 - 3.0 * t * t
-        B(p, bx_, by_, z, 4.4, 3.0, 8.0, OBS, rot=(0, 0, 14 * t), jit=0.08)
-        B(p, bx_, by_ - 1.45, z + 3.6, 4.0, 0.4, 0.5, VIOLET, rot=(0, 0, 14 * t), jit=0.0)
+        B(p, bx_, by_, z, 6.6, 3.0, 8.0, OBS, rot=(0, 0, 14 * t), jit=0.08)
+        B(p, bx_, by_ - 1.45, z + 3.6, 6.0, 0.4, 0.5, VIOLET, rot=(0, 0, 14 * t), jit=0.0)
     for (px, py, hh, col, lean) in ((5, 55, 12, VIOLET, -3.6), (43, 55, 12, VIOLET, 3.6), (12, 62, 10, CYAN, -4.0), (36, 62, 10, CYAN, 4.0),
                                     (24, 64, 12, PURPLE, 0.0), (18, 63.5, 8, MAGENTA, -1.5), (30, 63.5, 8, MAGENTA, 1.5)):
         crystal(p, px, py - 5 if px in (5, 43) else py, z, 1.6, hh, col, sides=5, lean=(lean, 0))
@@ -1238,13 +1252,13 @@ def build_VoidEye(p):
             tube(p, pts, [0.28, 0.24, 0.2, 0.16, 0.12][:len(pts)], VIOLET, sides=3, jit=0.0, cap_start=False, tip=True)
     zcyl(p, x, 48, -81.5, -79.7, 9.5, DVIOLET, verts=20, jit=0.04)
     zcyl(p, x, 48, -81.5, -79.5, 7.6, PURPLE, verts=18, jit=0.06)
-    for k in range(14):                                                # spokes of the iris
-        a = math.radians(360 / 14 * k)
+    for k in range(10):
+        a = math.radians(360 / 10 * k)
         B(p, x + 5.6 * math.cos(a), 48 + 5.6 * math.sin(a), -79.45, 3.0, 0.5, 0.3, CYAN if k % 2 == 0 else LPURPLE, rot=(0, 0, math.degrees(a)), jit=0.0)
     zcyl(p, x, 48, -81.5, -79.3, 3.6, CYAN, verts=14, jit=0.0)
     ball(p, (x, 48, -78.8), 1.0, BLACK, scale=(1.5, 3.4, 0.6), subdiv=2, jit=0.0)
     orb(p, (x + 2.6, 51.0, -78.6), 0.7, PALE, subdiv=0)
-    halo(p, (x, 48, -91.2), 21.0, 0.8, PURPLE, segs=28, sides=4)                      # ring mount behind the eye
+    halo(p, (x, 48, -91.2), 21.0, 0.8, PURPLE, segs=20, sides=4)  # ring mount behind the eye
     for k in range(8):
         a = math.radians(45 * k)
         B(p, x + 21.0 * math.cos(a), 48 + 21.0 * math.sin(a), -91.2, 1.6, 1.6, 1.6, CYAN, rot=(0, 0, 45 * k), jit=0.0)
@@ -1259,7 +1273,7 @@ AZ = {"Sign": 175, "Statues": 175, "Sentinel": 150, "VoidEye": 175, "PortalSwirl
       "Ground": 160, "Citadel": 170, "Island": 170}
 ELEV = {"Ground": 40, "Island": 20, "VoidEye": 18, "Comets": 14, "BlackHole": 22, "Spire": 14, "PortalFrame": 18,
         "PortalSwirl": 18, "Sentinel": 18, "Citadel": 22}
-MULT = {"Ground": 1.9, "Sentinel": 2.4, "Island": 2.4, "Spire": 2.6, "VoidEye": 2.4, "BlackHole": 2.3, "Citadel": 2.3,
+MULT = {"Ground": 1.9, "Sentinel": 2.4, "Island": 2.4, "Spire": 3.4, "VoidEye": 2.4, "BlackHole": 2.3, "Citadel": 2.3,
         "Comets": 2.6, "PortalFrame": 2.5, "PortalSwirl": 2.5, "Watchtower": 2.5}
 # Shiba for scale: (x, z, facing, lift); default next to the part
 SHIBA_AT = {"Ground": (-26, -30, 0, 0)}
