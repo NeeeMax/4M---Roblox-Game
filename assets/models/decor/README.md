@@ -16,3 +16,6 @@ colliders); without the asset the plain primitive pieces are built.
    `ReplicatedStorage/Assets`. Or import single files from `out/<Key>/` and name them exactly like the file.
 2. Check one asymmetric part (sign lettering): if it appears mirrored, rebuild with the theme script's mirror option
    (`--mirror-x` in `build_LittleHouse.py`) or fix the x mapping in `decorkit.py` and rebuild all three.
+
+`Decor_11_20.fbx`, `Decor_21_25.fbx` and `Decor_26_30.fbx` bundle the models of those bays (one Import 3D each, then the same
+Studio snippet). Rebuild a bundle with `combine_for_import.py -- <out.fbx> <Decor_Key_Part> ...`.
