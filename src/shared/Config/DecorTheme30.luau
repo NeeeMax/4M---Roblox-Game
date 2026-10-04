@@ -280,7 +280,7 @@ local function shrooms(): Pieces
 			{ -37, 78, 7.5, 9 },
 		}
 	do
-		table.insert(pieces, Cy(m[1], m[3] / 2 - 0.5, m[2], 2.2, m[3], PALE, Plastic))
+		table.insert(pieces, Cy(m[1], m[3] / 2, m[2], 2.2, m[3], PALE, Plastic))
 		table.insert(pieces, Ball(m[1], m[3] + 0.5, m[2], m[4], m[4] * 0.55, m[4], PURPLE, Plastic))
 	end
 	return pieces
