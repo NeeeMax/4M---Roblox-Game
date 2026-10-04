@@ -976,8 +976,10 @@ def build_Cow(p):
     blob(p, -9.2, 6.0, Z - 2.6, 3.4, 3.0, 1.2, COWBROWN, sub=2, jit=0.04)
     blob(p, -8, 3.8, Z, 2.4, 1.5, 2.4, PINK, sub=2, jit=0.03)
     blob(p, -1.0, 7.4, Z, 3.6, 3.8, 3.8, CREAM, sub=2, jit=0.03)
-    bx(p, (-0.4, 3.2), (5.9, 9.3), (Z - 1.7, Z + 1.7), CREAM, 0.03)
-    bx(p, (0.1, 1.9), (8.2, 9.3), (Z - 1.75, Z + 0.5), COWBROWN, 0.03)
+    hexa(p, [(-0.4, 5.9, Z - 1.7), (3.2, 6.1, Z - 1.2), (3.2, 6.1, Z + 1.2), (-0.4, 5.9, Z + 1.7),
+             (-0.4, 9.3, Z - 1.7), (3.2, 8.0, Z - 1.2), (3.2, 8.0, Z + 1.2), (-0.4, 9.3, Z + 1.7)], CREAM, 0.03)
+    hexa(p, [(0.1, 8.6, Z - 1.72), (1.9, 8.1, Z - 1.3), (1.9, 8.1, Z + 0.4), (0.1, 8.6, Z + 0.4),
+             (0.1, 9.32, Z - 1.72), (1.9, 8.35, Z - 1.3), (1.9, 8.35, Z + 0.4), (0.1, 9.32, Z + 0.4)], COWBROWN, 0.03)
     bx(p, (2.7, 4.1), (5.9, 7.7), (Z - 1.3, Z + 1.3), PINK, 0.03)
     for dz in (-0.5, 0.5):
         bx(p, (4.0, 4.14), (6.8, 7.1), (Z + dz - 0.12, Z + dz + 0.12), (150, 90, 90), 0.02)
@@ -991,7 +993,7 @@ def build_Cow(p):
     ball(p, (-0.7, 5.5, Z), 0.5, GOLD, subdiv=1)
     for lx in (-10.2, -1.8):
         for lz in (-2.4, 2.4):
-            dk.cyl(p, (lx, 2.6, Z + lz), 0.78, 4.4, CREAM, axis='y', verts=6, top_radius=0.65, jitter=0.03)
+            dk.cyl(p, (lx, 2.6, Z + lz), 0.98, 4.4, CREAM, axis='y', verts=6, top_radius=0.8, jitter=0.03)
             bx(p, (lx - 0.7, lx + 0.7), (0.0, 0.7), (Z + lz - 0.7, Z + lz + 0.7), (70, 60, 56), 0.03)
     tube(p, [(-11.4, 8.4, Z), (-12.0, 7.6, Z), (-12.2, 5.4, Z), (-12.0, 3.8, Z)], [0.3, 0.25, 0.22, 0.2], COWBROWN, sides=4)
     blob(p, -12.0, 3.4, Z, 0.9, 1.5, 0.9, (90, 60, 40), sub=1, jit=0.03)
@@ -1089,26 +1091,31 @@ def build_Scarecrow(p):
 
 # ---- 15. Boots ------------------------------------------------------------------------------------------------------------
 def boot(p, cx, z):
+    LB = (122, 80, 52)
+    # sole and heel
     bx(p, (cx - 6.8, cx + 6.8), (0, 1.0), (z - 3.1, z + 3.1), DWOOD, 0.04)
-    bx(p, (cx - 6.8, cx - 4.2), (0, 1.7), (z - 2.9, z + 2.9), (84, 56, 36), 0.03)
-    bx(p, (cx - 6.5, cx + 3.5), (1.0, 5.7), (z - 2.9, z + 2.9), BROWN, 0.04)
-    blob(p, cx + 4.0, 3.1, z, 5.0, 5.2, 5.8, BROWN, sub=2, jit=0.04)
-    blob(p, cx + 4.7, 1.9, z, 3.4, 1.8, 5.4, (120, 78, 50), sub=1, jit=0.03)
-    lo = [(cx - 6.0, 5.6, z - 2.7), (cx + 0.0, 5.6, z - 2.7), (cx + 0.0, 5.6, z + 2.7), (cx - 6.0, 5.6, z + 2.7)]
-    top = [(cx - 6.2, 14.4, z - 2.8), (cx + 0.2, 14.4, z - 2.8), (cx + 0.2, 14.4, z + 2.8), (cx - 6.2, 14.4, z + 2.8)]
-    hexa(p, lo + top, BROWN, 0.04)
-    bx(p, (cx - 6.4, cx + 0.4), (14.2, 15.7), (z - 3.1, z + 3.1), LWOOD, 0.04)
-    bx(p, (cx - 6.0, cx - 0.2), (15.5, 15.7), (z - 2.7, z + 2.7), (60, 40, 30), 0.02)
-    bx(p, (cx + 0.15, cx + 0.5), (5.2, 14.2), (z - 0.7, z + 0.7), LWOOD, 0.03)
+    bx(p, (cx - 6.8, cx - 4.0), (0, 1.8), (z - 2.9, z + 2.9), (78, 52, 34), 0.03)
+    # rounded foot: long ellipsoid plus a toe cap
+    blob(p, cx - 0.2, 3.3, z, 13.0, 5.4, 5.8, BROWN, sub=2, jit=0.04)
+    blob(p, cx + 4.6, 2.9, z, 4.0, 3.6, 5.2, LB, sub=2, jit=0.04)
+    # tapered round shaft
+    lathe(p, cx - 3.0, z, [(0, 4.5), (3.0, 4.5), (2.9, 8.0), (2.85, 12.0), (3.05, 14.4), (0, 14.4)], BROWN, segs=10, jit=0.05, sz=0.92)
+    # folded cuff with dark opening
+    lathe(p, cx - 3.0, z, [(0, 14.2), (3.5, 14.2), (3.5, 15.7), (2.7, 15.7), (2.6, 15.1), (0, 15.1)], LWOOD, segs=10, jit=0.04, sz=0.92)
+    lathe(p, cx - 3.0, z, [(0, 15.05), (2.55, 15.05), (2.55, 15.2), (0, 15.2)], (50, 34, 26), segs=10, jit=0.02, sz=0.92)
+    # tongue and laces down the front of the shaft
+    bx(p, (cx - 0.25, cx + 0.35), (5.0, 14.4), (z - 0.8, z + 0.8), LWOOD, 0.03)
     for k in range(6):
-        y = 6.4 + k * 1.3
-        dk.box(p, (cx + 0.38, y, z), (0.2, 0.25, 2.6), TAN, rot=(0, 0, 0), jitter=0.02)
-        for sz in (-1.3, 1.3):
-            bx(p, (cx + 0.25, cx + 0.45), (y - 0.1, y + 0.1), (z + sz - 0.1, z + sz + 0.1), IRON, 0.02)
-    for zz in (z - 2.6, z + 2.6):
-        bx(p, (cx - 6.0, cx + 0.1), (6.0, 14.0), (zz - 0.12, zz + 0.12), (100, 66, 42), 0.02)
-    blob(p, cx + 5.8, 1.1, z + 2.9, 1.8, 0.8, 0.6, (96, 72, 50), sub=1, jit=0.03)
-    blob(p, cx - 5.6, 3.0, z - 3.0, 1.6, 1.4, 0.6, (96, 72, 50), sub=1, jit=0.03)
+        y = 6.0 + k * 1.4
+        bx(p, (cx - 0.1, cx + 0.5), (y - 0.1, y + 0.1), (z - 1.4, z + 1.4), TAN, 0.02)
+        for sz in (-1.4, 1.4):
+            bx(p, (cx - 0.1, cx + 0.5), (y - 0.18, y + 0.18), (z + sz - 0.18, z + sz + 0.18), IRON, 0.02)
+    # seam stitching and mud splashes
+    for zz in (z - 2.5, z + 2.5):
+        bx(p, (cx - 3.1, cx - 2.9), (6.0, 14.0), (zz - 0.1, zz + 0.1), (92, 60, 40), 0.02)
+    blob(p, cx + 5.8, 1.1, z + 2.7, 1.8, 0.8, 0.8, (96, 72, 50), sub=1, jit=0.03)
+    blob(p, cx - 5.6, 3.0, z - 2.8, 1.6, 1.4, 0.8, (96, 72, 50), sub=1, jit=0.03)
+    blob(p, cx + 1.0, 0.7, z + 3.0, 2.2, 0.8, 0.9, (96, 72, 50), sub=1, jit=0.03)
 
 
 def build_Boots(p):
@@ -1129,10 +1136,11 @@ def build_Cauldron(p):
         lx, lz = X + 4.9 * math.cos(a), Z + 4.9 * math.sin(a)
         dk.cyl(p, (lx, 0.8, lz), 0.95, 1.6, IRON, axis='y', verts=6, top_radius=0.55, jitter=0.04)
     # flames licking round the belly
-    for k, (c, r, hgt) in enumerate(((ORANGE, 1.1, 3.4), (FLAME, 0.9, 2.6), (RED, 1.2, 3.0), (ORANGE, 1.0, 2.4), (FLAME, 0.8, 3.0), (RED, 1.0, 2.0),
-                                      (ORANGE, 0.9, 2.8))):
+    for k, (c, r) in enumerate(((ORANGE, 1.3), (FLAME, 1.0), (RED, 1.2), (ORANGE, 1.0), (FLAME, 0.9), (RED, 1.1), (ORANGE, 0.9))):
         a = math.radians(40 + 52 * k)
-        cone(p, (X + 5.7 * math.cos(a), 0.9, Z + 5.5 * math.sin(a)), r, hgt, c, verts=5, jitter=0.05)
+        blob(p, X + 3.2 * math.cos(a), 0.6, Z + 3.0 * math.sin(a), r * 2, 0.9, r * 2, c, sub=1, jit=0.05)
+    for (dx, dz, h, c) in ((0.0, 5.4, 1.4, FLAME), (-1.2, 5.6, 1.0, ORANGE), (1.3, 5.5, 1.1, ORANGE)):
+        cone(p, (X + dx, 0.3, Z + dz), 0.7, h, c, verts=4, jitter=0.05)
     prof = [(0, 1.5), (3.0, 1.5), (5.2, 2.3), (6.4, 4.4), (6.5, 6.4), (5.9, 8.6), (6.4, 9.3), (6.4, 9.9), (5.5, 9.9), (5.5, 9.15), (0, 9.15)]
     lathe(p, X, Z, prof, IRON, segs=14, jit=0.04)
     vcyl(p, X, 9.2, 9.9, Z, 6.45, (62, 66, 76), verts=14, jit=0.03) if False else None
@@ -1205,7 +1213,7 @@ def build_GoldHoard(p):
     blob(p, 79, 2.0, 2, 8, 4, 7, LGOLD, sub=2, jit=0.1)
     blob(p, 86, 1.8, 9, 7, 3.6, 6, GOLD, sub=2, jit=0.1)
     rng = random.Random(8)
-    for k in range(18):
+    for k in range(9):
         x, z = 77.5 + rng.random() * 9.5, 0.8 + rng.random() * 10
         y = 3.2 + rng.random() * 2.2 if 79 < x < 85 and 2 < z < 10 else 2.2 + rng.random() * 1.2
         c = (GOLD, LGOLD, DGOLD)[k % 3]
@@ -1230,10 +1238,12 @@ def build_GoldHoard(p):
     gem(p, 79.4, 5.1, 8.6, 1.0, 0.9, 0.8, WATER)
     gem(p, 82.4, 5.3, 6.0, 1.0, 0.9, 0.8, LBEAN)
     lathe(p, 81, 7.3, [(0, 4.9), (1.5, 4.9), (1.6, 6.0), (1.4, 6.0), (0, 5.8)], DGOLD, segs=8, jit=0.03) if False else None
-    vcyl(p, 80.8, 5.2, 6.4, 8.0, 1.35, GOLD, verts=8, jit=0.03)
-    for k in range(5):
-        a = 2 * math.pi * k / 5
-        cone(p, (80.8 + 1.15 * math.cos(a), 6.4, 8.0 + 1.15 * math.sin(a)), 0.4, 1.0, LGOLD, verts=4, jitter=0.03)
+    vcyl(p, 81.6, 4.6, 6.0, 7.4, 1.6, DGOLD, verts=8, jit=0.03)
+    vcyl(p, 81.6, 4.7, 5.9, 7.4, 1.7, GOLD, verts=8, jit=0.03)
+    for k in range(6):
+        a = 2 * math.pi * k / 6
+        cone(p, (81.6 + 1.45 * math.cos(a), 5.9, 7.4 + 1.45 * math.sin(a)), 0.55, 1.5, GOLD, verts=4, jitter=0.03)
+        ball(p, (81.6 + 1.45 * math.cos(a), 7.5, 7.4 + 1.45 * math.sin(a)), 0.22, RED, subdiv=1)
     ingot(p, 86.6, 0, 3.0, 2.6, 1.0, 1.3, GOLD, yaw=8)
     ingot(p, 86.4, 0, 4.6, 2.6, 1.0, 1.3, LGOLD, yaw=-6)
     ingot(p, 86.5, 1.0, 3.8, 2.6, 1.0, 1.3, GOLD, yaw=2)
@@ -1244,11 +1254,20 @@ def build_Dolmen(p):
     for i in range(2):
         for j in range(2):
             bx(p, (27 + i * 9 + 0.1, 36 + i * 9 - 0.1), (0.1, 0.6), (48 + j * 6 + 0.1, 54 + j * 6 - 0.1), DSTONE if (i + j) % 2 else (124, 126, 134), 0.05)
-    stone(p, 30, 0, 54, 3.6, 11.6, 5.6, STONE, seed=3, taper=0.85, rough=0.08)
-    stone(p, 42, 0, 54, 3.6, 11.6, 5.6, STONE, seed=4, taper=0.85, rough=0.08)
-    stone(p, 36, 0, 56.6, 8, 9.2, 2.6, DSTONE, seed=5, taper=0.88, rough=0.06)
-    stone(p, 36, 11.3, 54, 16, 3.0, 8.4, LSTONE, seed=6, taper=0.92, rough=0.05)
+    stone(p, 30, 0, 54, 3.6, 11.6, 5.6, STONE, seed=3, jit=0.13, taper=0.85, rough=0.2)
+    stone(p, 42, 0, 54, 3.6, 11.6, 5.6, STONE, seed=4, jit=0.13, taper=0.85, rough=0.2)
+    stone(p, 36, 0, 56.6, 8, 9.2, 2.6, DSTONE, seed=5, jit=0.13, taper=0.8, rough=0.2)
+    stone(p, 36, 11.3, 54, 16, 3.0, 8.4, LSTONE, seed=6, jit=0.13, taper=0.85, rough=0.14)
     blob(p, 36, 14.45, 54, 9, 0.6, 5, LMOSS, sub=2, jit=0.07)
+    tube(p, [(40.6, 0.3, 57.0), (41.3, 3, 57.0), (40.8, 6, 57.0), (41.6, 9, 57.0), (41.0, 11.4, 57.0)], [0.26, 0.24, 0.22, 0.2, 0.16], LBEAN, sides=4)
+    blade(p, (41.3, 3.2, 57.0), 340, 2.2, 1.2, 20, BEAN, None, n=4, droop=0.3)
+    blade(p, (40.8, 6.2, 57.0), 200, 2.2, 1.2, 20, BEAN, None, n=4, droop=0.3)
+    blade(p, (41.6, 9.2, 57.0), 350, 2.0, 1.1, 20, BEAN, None, n=4, droop=0.3)
+    for (x, y, z, sx, sy) in ((33.4, 5.0, 57.95, 1.6, 1.0), (38.6, 7.4, 57.95, 1.4, 0.8), (36, 3.2, 57.95, 2.4, 1.0), (34.5, 8.2, 57.95, 1.2, 0.7)):
+        blob(p, x, y, z, sx, sy, 0.3, (186, 192, 120), sub=1, jit=0.06)
+    for y in (2.5, 4.5, 6.5, 8.0):
+        bx(p, (33.0, 36.4 + 0.3 * (y % 3)), (y, y + 0.2), (57.85, 58.05), (80, 82, 92), 0.02)
+    bx(p, (36.8, 37.0), (3.0, 8.0), (57.85, 58.05), (80, 82, 92), 0.02)
     stone(p, 26.4, 0, 50.4, 2.4, 3.2, 2.2, STONE, seed=7, taper=0.8)
     stone(p, 45.6, 0, 57.6, 2.4, 2.4, 2.2, STONE, seed=8, taper=0.8)
     for x in (30, 42):
@@ -1271,7 +1290,7 @@ def build_Obelisk(p):
     y0, y1, w0, w1 = 3.2, 26.8, 2.5, 1.7
     pts = [(X - w0, y0, Z - w0), (X + w0, y0, Z - w0), (X + w0, y0, Z + w0), (X - w0, y0, Z + w0),
            (X - w1, y1, Z - w1), (X + w1, y1, Z - w1), (X + w1, y1, Z + w1), (X - w1, y1, Z + w1)]
-    hexa(p, pts, DSTONE, 0.05)
+    hexa(p, pts, (138, 140, 150), 0.05)
 
     def hw(y):
         return w0 + (w1 - w0) * (y - y0) / (y1 - y0)
@@ -1280,17 +1299,34 @@ def build_Obelisk(p):
         bx(p, (X - h, X + h), (y - 0.3, y + 0.3), (Z - h, Z + h), c, 0.03)
     # carved runes on the four faces, pale blue
     RUNE = (150, 212, 252)
+
+    def mark(face, ym, u, wu, hy, ang, nrm):
+        if face in (0, 2):
+            dk.box(p, (X + u, ym, Z + (nrm if face == 0 else -nrm)), (wu, hy, 0.26), RUNE, rot=(0, 0, ang), jitter=0.02)
+        else:
+            dk.box(p, (X + (nrm if face == 1 else -nrm), ym, Z + u), (0.26, hy, wu), RUNE, rot=(ang, 0, 0), jitter=0.02)
     for face in range(4):
-        for (ya, yb) in ((5.0, 7.2), (9.5, 12.5), (15.5, 19.0), (21.0, 25.0)):
+        for k, (ya, yb) in enumerate(((5.0, 7.2), (9.5, 12.5), (15.5, 19.0), (21.0, 25.0))):
             ym = (ya + yb) / 2
-            h = hw(ym) + 0.05
-            for (u, hh, wd) in ((-0.7, yb - ya, 0.18), (0.5, (yb - ya) * 0.6, 0.18)):
-                ex, ez = ((u, h), (h, -u), (-u, -h), (-h, u))[face]
-                sx, sz = ((wd, 0.12), (0.12, wd), (wd, 0.12), (0.12, wd))[face]
-                bx(p, (X + ex - sx, X + ex + sx), (ym - hh / 2, ym + hh / 2), (Z + ez - sz, Z + ez + sz), RUNE, 0.02)
-            ex, ez = ((0.0, h), (h, 0.0), (0.0, -h), (-h, 0.0))[face]
-            sx, sz = ((0.7, 0.12), (0.12, 0.7), (0.7, 0.12), (0.12, 0.7))[face]
-            bx(p, (X + ex - sx, X + ex + sx), (ym - 0.12, ym + 0.12), (Z + ez - sz, Z + ez + sz), RUNE, 0.02)
+            nrm = hw(ym) + 0.02
+            ln = yb - ya
+            kind = (face + k) % 4
+            if kind == 0:      # H
+                mark(face, ym, -0.7, 0.2, ln, 0, nrm)
+                mark(face, ym, 0.7, 0.2, ln, 0, nrm)
+                mark(face, ym, 0.0, 1.5, 0.2, 0, nrm)
+            elif kind == 1:    # X
+                mark(face, ym, 0.0, 0.2, ln * 1.15, 32, nrm)
+                mark(face, ym, 0.0, 0.2, ln * 1.15, -32, nrm)
+            elif kind == 2:    # bar with three dots
+                mark(face, ym, 0.0, 0.22, ln, 0, nrm)
+                for d in (-0.9, 0.0, 0.9):
+                    mark(face, ym + d * ln * 0.3, 0.8, 0.35, 0.35, 0, nrm)
+                    mark(face, ym + d * ln * 0.3, -0.8, 0.35, 0.35, 0, nrm)
+            else:              # Y shape
+                mark(face, ym - ln * 0.2, 0.0, 0.22, ln * 0.6, 0, nrm)
+                mark(face, ym + ln * 0.22, -0.4, 0.2, ln * 0.55, 28, nrm)
+                mark(face, ym + ln * 0.22, 0.4, 0.2, ln * 0.55, -28, nrm)
     dk.cyl(p, (X, 26.8 + 1.4, Z), 2.45, 2.8, GOLD, axis='y', verts=4, top_radius=0.02, rot=(0, 45, 0), jitter=0.04)
     for (dx, dz, s) in ((-4.2, -4.2, 1.6), (4.2, 3.8, 1.3), (4.4, -4.0, 1.0), (-4.0, 4.2, 1.2)):
         blob(p, X + dx, 0.9, Z + dz, s * 1.6, 1.2, s * 1.6, MOSS, sub=1, jit=0.05)
@@ -1445,14 +1481,22 @@ def build_Roots(p):
         a = math.radians(40 * k + 10)
         blob(p, SX + 7.0 * math.cos(a), 1.5, SZ - 7.0 * math.sin(a), 2.4, 1.6, 2.2, DDIRT, sub=1, jit=0.06)
     lathe(p, SX, SZ, [(0, 0.0), (3.6, 0.3), (5.0, 3.0), (5.0, 5.5), (3.6, 7.8), (1.6, 8.8), (0, 8.8)], BEAN, segs=10, jit=0.06)
-    for y, r in ((2.2, 5.1), (4.6, 5.15), (6.6, 4.4)):
-        lathe(p, SX, SZ, [(0, y), (r, y), (r, y + 0.45), (0, y + 0.45)], DBEAN, segs=10, jit=0.04)
+    for k in range(5):
+        a = math.radians(72 * k + 20)
+        blob(p, SX + 3.9 * math.cos(a), 5.2, SZ - 3.9 * math.sin(a), 2.0, 5.0, 2.0, LBEAN, sub=2, jit=0.05, rot=(0, 72 * k + 20, 0))
+    blob(p, SX, 8.4, SZ, 2.6, 1.4, 2.6, LBEAN, sub=2, jit=0.05)
     for k in range(6):
         a = math.radians(15 + 60 * k)
         c, s = math.cos(a), -math.sin(a)
-        pts = [(SX + 3.6 * c, 3.8, SZ + 3.6 * s), (SX + 6.5 * c, 4.2, SZ + 6.5 * s), (SX + 9.5 * c, 2.6, SZ + 9.5 * s),
-               (SX + 12.5 * c, 1.0, SZ + 12.5 * s), (SX + 14.4 * c, 0.2, SZ + 14.4 * s)]
-        tube(p, pts, [1.9, 1.5, 1.1, 0.7, 0.3], DBEAN if k % 2 else (72, 150, 66), sides=6, rib=0.12, ribs=3)
+        pts, rr = [], []
+        for i in range(9):
+            t = i / 8
+            ang = a + 0.22 * math.sin(t * 6 + k)
+            rad = 3.4 + 11.0 * t
+            pts.append((SX + rad * math.cos(ang), 0.5 + 4.0 * (1 - t) ** 1.3 + 0.7 * math.sin(t * 9 + k) * (1 - t), SZ - rad * math.sin(ang)))
+            rr.append(2.9 * (1 - t) ** 0.8 + 0.6)
+        tube(p, pts, rr, (112, 92, 58) if k % 2 else (92, 120, 62), sides=7, rib=0.16, ribs=3)
+        blob(p, SX + 4.4 * c, 3.5, SZ + 4.4 * s, 3.8, 3.2, 3.8, (98, 112, 60), sub=1, jit=0.05)
         a2 = a + 0.5
         c2, s2 = math.cos(a2), -math.sin(a2)
         tube(p, [(SX + 7.5 * c, 3.0, SZ + 7.5 * s), (SX + 9.5 * c2, 1.2, SZ + 9.5 * s2), (SX + 11.0 * c2, 0.2, SZ + 11.0 * s2)], [0.6, 0.4, 0.2],
@@ -1689,8 +1733,8 @@ PARTS = [(pid, globals()["build_" + pid]) for pid in PART_IDS if ("build_" + pid
 
 AZ = {}
 ELEV = {}
-MULT = {"Ground": 1.7}
-SHIBA_AT = {"Ground": (28, -24, 270, 0)}
+MULT = {"Ground": 1.7, "Stem": 3.0, "Leaves": 3.0, "CloudCastle": 2.6, "Nest": 3.0}
+SHIBA_AT = {"Ground": (28, -24, 270, 0), "Nest": (84, -41, 270, 73.5), "CloudCastle": (46, -48, 270, 49.0)}
 
 # ---- previews ----------------------------------------------------------------------------------------------------------
 def shiba_for(x, z, facing, lift):
@@ -1777,7 +1821,7 @@ def main():
     shm = [o for o in sbs if o.type == 'MESH']
     snap(allm, shm, "stage_3q.png", 165, 40, 2.8, (1800, 1000))
     snap(allm, shm, "stage_top.png", 180, 89, 2.1, (1800, 1000), top=True)
-    combine(os.path.join(OUT, "stage_3q.png"), os.path.join(OUT, "stage_top.png"), os.path.join(OUT, "stage_CloudTemple.png"))
+    combine(os.path.join(OUT, "stage_3q.png"), os.path.join(OUT, "stage_top.png"), os.path.join(OUT, "stage_Beanstalk.png"))
     for f in ("stage_3q.png", "stage_top.png"):
         try:
             os.remove(os.path.join(OUT, f))

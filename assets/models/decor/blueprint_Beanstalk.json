@@ -1315,7 +1315,7 @@
       ]
     },
     {
-      "Description": "A small cream cottage with a thatched roof, a round window and a smoking chimney.",
+      "Description": "A small cream cottage with a thatched roof, green shutters and a stone chimney.",
       "Id": "Cottage",
       "Name": "Jack's Cottage",
       "Pad": [
@@ -3767,7 +3767,7 @@
       ]
     },
     {
-      "Description": "A tall tapering obelisk carved with glowing blue runes and a golden tip.",
+      "Description": "A tall tapering obelisk carved with pale blue runes and a golden tip.",
       "Id": "Obelisk",
       "Name": "Rune Obelisk",
       "Pad": [

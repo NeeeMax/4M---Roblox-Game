@@ -306,7 +306,7 @@ local theme: DecorTypes.Theme = {
 		{
 			Id = "Cottage",
 			Name = "Jack's Cottage",
-			Description = "A small cream cottage with a thatched roof, a round window and a smoking chimney.",
+			Description = "A small cream cottage with a thatched roof, green shutters and a stone chimney.",
 			Pad = Vector2.new(-72, 6),
 			PriceSeconds = 165,
 			Pieces = {
@@ -541,7 +541,7 @@ local theme: DecorTypes.Theme = {
 		{
 			Id = "Obelisk",
 			Name = "Rune Obelisk",
-			Description = "A tall tapering obelisk carved with glowing blue runes and a golden tip.",
+			Description = "A tall tapering obelisk carved with pale blue runes and a golden tip.",
 			Pad = Vector2.new(-38, 14),
 			PriceSeconds = 882,
 			Pieces = {
