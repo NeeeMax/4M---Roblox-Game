@@ -1,7 +1,8 @@
 --!strict
 -- Shows each player's trophies (Config/Shop → Trophies) on their island: a row of lit pedestals behind the field,
 -- opposite the bridge, visible to everyone. Rebuilt whenever the owned set changes. Models: Trophy_<Id>
--- (PropService placeholders until Marco builds them).
+-- (PropService placeholders until Marco builds them). The Party trophy's sign counts the Bonk Parties finished
+-- ("Bonk Party ×3").
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -38,7 +39,8 @@ local function rebuild(player: Player)
 			table.insert(owned, trophy)
 		end
 	end
-	local key = ""
+	-- The party count is part of the key: a new party trophy renames the sign.
+	local key = `{state.Party.Count};`
 	for _, trophy in owned do
 		key ..= trophy.Id .. ","
 	end
@@ -71,14 +73,14 @@ local function rebuild(player: Player)
 		glow.Range = 10
 		glow.Brightness = 2
 		glow.Parent = pedestal
-		PropService.Place(
-			`Trophy_{trophy.Id}`,
-			facing * CFrame.new(0, 2, 0),
-			4,
-			PropService.TrophyBuilder(trophy.Color),
-			folder
-		)
-		Signs.Billboard(pedestal, trophy.DisplayName, trophy.Color, Vector2.new(160, 24), 5.8, 60)
+		local builder = if trophy.Id == "BonkBuddies"
+			then PropService.BuddiesTrophyBuilder(trophy.Color)
+			else PropService.TrophyBuilder(trophy.Color)
+		PropService.Place(`Trophy_{trophy.Id}`, facing * CFrame.new(0, 2, 0), 4, builder, folder)
+		local title = if trophy.Id == "Party" and state.Party.Count > 1
+			then `{trophy.DisplayName} ×{state.Party.Count}`
+			else trophy.DisplayName
+		Signs.Billboard(pedestal, title, trophy.Color, Vector2.new(160, 24), 5.8, 60)
 	end
 	folder.Parent = island.Model
 end

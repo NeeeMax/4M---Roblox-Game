@@ -23,6 +23,7 @@ local RateLimiter = require(ReplicatedStorage.Shared.Util.RateLimiter)
 local Shop = require(ReplicatedStorage.Shared.Config.Shop)
 local Stations = require(ReplicatedStorage.Shared.Config.Stations)
 local Upgrades = require(ReplicatedStorage.Shared.Config.Upgrades)
+local Features = require(ReplicatedStorage.Shared.Config.Features)
 
 local DataService = require(script.Parent.DataService)
 local IslandService = require(script.Parent.IslandService)
@@ -197,8 +198,7 @@ local function onStandPressed(owner: Player, player: Player, upgradeId: string)
 	if (state.UpgradeLevels.ShooterTier or 0) < (EconomyConfig.UnlockAtShibaTier[upgradeId] or 0) then
 		return
 	end
-	local count = if state.Passes.StackUpgrade then Stations.StackMax else 1
-	UpgradeService.TryPurchase(player, upgradeId, count)
+	UpgradeService.TryPurchase(player, upgradeId, 1)
 end
 
 local function onRebirthTriggered(owner: Player, player: Player)
@@ -454,6 +454,10 @@ local function build(player: Player)
 end
 
 function StationService.Start()
+	-- The tycoon (TycoonService) replaces the old loop.
+	if Features.Tycoon then
+		return
+	end
 	-- Built once the save is loaded (it decides the pad's place); again after an admin reset.
 	DataService.OnLoaded(function(player)
 		build(player)

@@ -21,3 +21,11 @@ desktop.ini
 # Local Claude Code settings (shared rules live in CLAUDE.md)
 .claude/settings.local.json
 CLAUDE.local.md
+street_factors.json
+
+# Regenerable decor previews
+assets/models/decor/out/*/preview_*.png
+assets/models/decor/__pycache__/
+
+# Regenerable decor stage overviews
+assets/models/decor/out/*/stage_*.png

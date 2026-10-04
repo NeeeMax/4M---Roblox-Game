@@ -82,6 +82,91 @@ export type SettingsState = {
 	Hints: boolean,
 }
 
+-- ==== Social + Bonk Party (feat/social-party) ====================================================================
+
+-- Friend Boost + invite rewards (EconomyConfig.Social, docs/GAME_DESIGN.md → Friends and invites).
+export type SocialState = {
+	-- This player already got the "joined through a friend's invite" reward (once per account).
+	ReferralRewarded: boolean,
+	-- Week (days since 1970 // 7, UTC) that InviteRewardsThisWeek counts.
+	InviteRewardsWeek: number,
+	-- Inviter rewards granted in InviteRewardsWeek (capped at EconomyConfig.Social.MaxInviteRewardsPerWeek).
+	InviteRewardsThisWeek: number,
+	-- Inviter rewards earned (a friend joined through your invite) but not granted yet: while you were offline, or
+	-- over the weekly cap. Granted on your next join / next week.
+	PendingInviteRewards: number,
+}
+
+-- Weekend Bonk Party quest (Config/Events → Party, docs/GAME_DESIGN.md → Weekend Bonk Party).
+export type PartyState = {
+	-- Unix start time of the party the fields below belong to (a new party resets Catches and Claimed).
+	Id: number,
+	-- Sticks caught with your hands during that party.
+	Catches: number,
+	-- That party's quest reward claimed.
+	Claimed: boolean,
+	-- Party quests completed ever (the Party trophy shows "×Count").
+	Count: number,
+}
+
+-- ==== end Social + Bonk Party ===================================================================================
+
+-- ==== Tycoon "Shiba Workers" (contract phase 0, docs/decisions/0006) ============================================
+
+-- One Shiba the player owns (hatched from an egg). Identified by a string id ("s1", "s2" … from Tycoon.NextShibaId)
+-- because the table crosses the network and the DataStore.
+export type OwnedShiba = {
+	-- Index into EconomyConfig.Shibas (0-based, 0 = first Shiba of the list).
+	Tier: number,
+	-- Own level, 1 … the current level cap (Config/Tycoon). Levels are NEVER shared between Shibas.
+	Level: number,
+	Variant: VariantId,
+	-- Bought automation: the Shiba swings by itself and pays its lane rate without clicks. nil = false. Reset by Ascension.
+	Automated: boolean?,
+}
+
+-- One hatched Shiba, sent to the client for the reveal animation (visual only).
+export type HatchResult = {
+	ShibaId: string,
+	Tier: number,
+	Variant: VariantId,
+	-- The hatch produced a duplicate of a type/variant the player already owns.
+	Duplicate: boolean,
+}
+
+export type TycoonState = {
+	-- Mirrors Config/Features.Tycoon for the client; the server decides. False = the old throw-and-catch loop runs.
+	Enabled: boolean,
+	-- Shiba id → owned Shiba.
+	Shibas: { [string]: OwnedShiba },
+	-- Number for the next Shiba id ("s<n>").
+	NextShibaId: number,
+	-- Equip slot ("1" … "10", ring position) → Shiba id. Missing = empty slot.
+	Equipped: { [string]: string },
+	-- Equip slots the player has bought/unlocked (starts at 3, max 10).
+	EquipSlots: number,
+	-- Lane upgrades: equip slot → number of arches built (0 … 2).
+	Arches: { [string]: number },
+	-- Purchase pad id (Config/Tycoon) → bought (Mill rings, vault upgrades, egg stands …).
+	Pads: { [string]: boolean },
+	-- Unlocked zone (0 = first zone); each zone has its own egg tier.
+	Zone: number,
+	-- Eggs hatched per egg id (pity and stats).
+	EggsHatched: { [string]: number },
+	-- Money waiting in the vault (collected by walking to it; also fills while offline).
+	VaultStored: number,
+	-- Ascensions done (the tycoon's rebirth, replaces state.Rebirths once the tycoon is the default).
+	Ascensions: number,
+	-- Street mode (Config/Features.Street, docs/GAME_DESIGN.md → Street, plots and buttons): mirrors the flag for the client,
+	-- like Enabled. nil = false (the island tycoon).
+	Street: boolean?,
+	-- Street mode: the floor pads (Config/TycoonSteps ids) the player has bought; the walkthrough and the plot's growth are
+	-- derived from it. nil = none.
+	Steps: { [string]: boolean }?,
+}
+
+-- ==== end Tycoon =================================================================================================
+
 -- Everything saved per player. Created by DataService and sent to the owning client as a copy (StateChanged).
 export type PlayerState = {
 	BonkPoints: number,
@@ -116,6 +201,28 @@ export type PlayerState = {
 	-- Rebirths done (Config/EconomyConfig → Rebirth): each one raises the income multiplier for good.
 	Rebirths: number,
 	Tutorial: TutorialState,
+	-- Social + Bonk Party (feat/social-party).
+	Social: SocialState,
+	Party: PartyState,
+	-- ===== Shiba Variants (save v3, VariantService) =====
+	Variants: VariantState,
+	-- ===== end Shiba Variants =====
+	-- Tycoon (phase 0: optional so DataService keeps compiling; phase 1 makes it required and fills the default).
+	Tycoon: TycoonState?,
 }
+
+-- ===== Shiba Variants (VariantService, EconomyConfig.Variants, docs/GAME_DESIGN.md → Shiba Variants) =====
+export type VariantId = "Normal" | "Shiny" | "Rainbow" | "Huge"
+
+export type VariantState = {
+	-- Ring slot ("1" … "10", string keys for the DataStore and the network) → variant. Missing = "Normal".
+	-- Kept through evolutions and rebirths; never goes down.
+	Slots: { [string]: VariantId },
+	-- Rolls since the player last gained a Rainbow-or-better slot / a Huge slot (pity, EconomyConfig.Variants.Pity).
+	RollsSinceRainbow: number,
+	RollsSinceHuge: number,
+	TotalRolls: number,
+}
+-- ===== end Shiba Variants =====
 
 return {}

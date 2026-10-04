@@ -1,10 +1,14 @@
 --!strict
--- Always-on HUD, kept uncluttered (docs/GAME_DESIGN.md → UI). Top centre: menu button (opens a small list: SHOP,
--- GIFTS, QUESTS, SPIN, INDEX, SETTINGS, ADMIN), clipboard button (MANAGE: the upgrade menu with the Manage pass,
--- else the shop to buy it) and the Bonk Dollars counter ("260.8K", counts up). Below it: running boosts. No "!" badges:
--- the top bar stays clean.
+-- Always-on HUD, kept uncluttered (docs/GAME_DESIGN.md → UI). Top centre: the money pill (drawn cash icon + the
+-- plain number "260.8K", counts up, the icon bounces when it rises) with a green income-per-second line under it
+-- (only while an estimate is set, HudController.SetIncome). Left side: a 2-column grid of big colourful tiles:
+-- MENU (folds the other tiles away), MANAGE (the upgrade menu with the Manage pass, else the shop to buy it), SHOP,
+-- GIFTS, QUESTS, SPIN, INDEX, INVITE, SETTINGS, ADMIN. A tile can show a red notification dot
+-- (HudController.SetTileDot) and a "Limited!" tag. Below the pill: running boosts.
 -- Also: the Bonk Rain button, short server messages (Notify), and opening hub menus from their ProximityPrompts.
 -- After the first rebirth a small pill under the menu buttons shows the rebirths and the income multiplier.
+-- Friend Boost (SocialController): "FRIENDS +20%" joins the boost pill while Roblox friends are on the server; the
+-- INVITE menu entry opens Roblox's invite dialog.
 
 local Players = game:GetService("Players")
 local ProximityPromptService = game:GetService("ProximityPromptService")
@@ -14,44 +18,75 @@ local Workspace = game:GetService("Workspace")
 
 local Admin = require(ReplicatedStorage.Shared.Config.Admin)
 local EconomyConfig = require(ReplicatedStorage.Shared.Config.EconomyConfig)
+local Features = require(ReplicatedStorage.Shared.Config.Features)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Icons = require(ReplicatedStorage.Shared.Config.Icons)
 local Net = require(ReplicatedStorage.Shared.Net)
 
+local SocialController = require(script.Parent.SocialController)
+local TycoonController = require(script.Parent.TycoonController)
 local UpgradeController = require(script.Parent.UpgradeController)
 local State = require(script.Parent.Parent.UI.State)
 local Theme = require(script.Parent.Parent.UI.Theme)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
 
-local BUTTON = 64
-local GAP = 8
-local MONEY_WIDTH = 300
-local ENTRY_HEIGHT = 52
+local PILL_WIDTH = 340
+local PILL_HEIGHT = 64
+local ICON_SIZE = 64
+local INCOME_HEIGHT = 20
+-- Left tile grid: distance from the screen edge and from the top (clear of Roblox's top bar and the thumbstick).
+local GRID_LEFT = 12
+local GRID_TOP = 96
+local GRID_COLUMNS = 2
 
 type Entry = {
 	Text: string,
 	Panel: string,
 	Icon: Icons.IconName,
 	Color: Color3,
+	-- Done instead of opening `Panel`: "Invite" opens Roblox's invite dialog.
+	Action: ("Invite" | "Collection")?,
+	-- Shows the red "Limited!" tag (limited-time features, e.g. the Weekend Bonk Party).
+	Limited: boolean?,
 }
 
 -- The menu list, top to bottom. ADMIN is added for admins.
 local ENTRIES: { Entry } = {
+	-- Tycoon only (the tile is hidden while state.Tycoon is disabled): the Shiba collection and equip panel.
+	{ Text = "SHIBAS", Panel = "", Icon = "Paw", Color = Color3.fromRGB(255, 120, 60), Action = "Collection" },
 	{ Text = "SHOP", Panel = "Shop", Icon = "Shop", Color = Color3.fromRGB(60, 200, 90) },
 	{ Text = "GIFTS", Panel = "Gifts", Icon = "Gift", Color = Color3.fromRGB(255, 110, 150) },
 	{ Text = "QUESTS", Panel = "Quests", Icon = "Quest", Color = Color3.fromRGB(70, 170, 235) },
 	{ Text = "SPIN", Panel = "DailySpin", Icon = "Spin", Color = Color3.fromRGB(255, 190, 40) },
 	{ Text = "INDEX", Panel = "Index", Icon = "Index", Color = Color3.fromRGB(160, 110, 255) },
+	{
+		Text = "INVITE",
+		Panel = "",
+		Icon = "Paw",
+		Color = Color3.fromRGB(255, 150, 60),
+		Action = "Invite",
+	},
 	{ Text = "SETTINGS", Panel = "Settings", Icon = "Settings", Color = Color3.fromRGB(150, 150, 160) },
 }
 
 local player = Players.LocalPlayer
 
+-- The street tycoon replaces the old loop: these tiles (and MANAGE) belong to the old game and are not built.
+local STREET_MODE = Features.Tycoon and Features.Street
+local OLD_GAME_TILES: { [string]: boolean } = { SHIBAS = true, GIFTS = true, QUESTS = true, SPIN = true, INDEX = true }
+
 local pointsLabel: TextLabel
+local moneyIcon: Frame
+local incomeLabel: TextLabel
+local tileGrid: Frame
+local tiles: { [string]: TextButton } = {}
+-- Tiles that fold away with the MENU tile (everything but MENU and MANAGE).
+local foldTiles: { TextButton } = {}
+local tilesOpen = true
+local lastPoints = -1
 local boostLabel: TextLabel
 local rebirthLabel: TextLabel
 local toastHolder: Frame
-local menuList: Frame
 local rainButton: TextButton
 local rainLabel: TextLabel
 local rainBanner: TextLabel
@@ -61,52 +96,82 @@ local countVersion = 0
 
 local HudController = {}
 
+-- MENU folds the tile grid: only MENU and MANAGE stay while it is closed.
 local function setMenuOpen(open: boolean)
-	menuList.Visible = open
+	tilesOpen = open
+	for _, tile in foldTiles do
+		tile.Visible = open
+	end
 end
 
-local function buildMenu(parent: Instance)
+local function buildTiles(gui: ScreenGui)
 	local entries = table.clone(ENTRIES)
 	if Admin.IsAdmin(player.UserId) then
 		table.insert(entries, { Text = "ADMIN", Panel = "Admin", Icon = "Settings", Color = Theme.Admin })
 	end
 
-	menuList = Instance.new("Frame")
-	menuList.Name = "MenuList"
-	menuList.Position = UDim2.fromOffset(0, BUTTON + 10)
-	menuList.Size = UDim2.fromOffset(236, 16 + #entries * (ENTRY_HEIGHT + 8))
-	menuList.BackgroundColor3 = Theme.Panel
-	menuList.Visible = false
-	menuList.ZIndex = 10
-	menuList.Parent = parent
-	Widgets.Corner(menuList, 16)
-	Widgets.Stroke(menuList, 5, Theme.BorderGreen)
-	local padding = Instance.new("UIPadding")
-	padding.PaddingTop = UDim.new(0, 10)
-	padding.PaddingLeft = UDim.new(0, 10)
-	padding.PaddingRight = UDim.new(0, 10)
-	padding.Parent = menuList
-	local layout = Instance.new("UIListLayout")
-	layout.Padding = UDim.new(0, 8)
+	tileGrid = Instance.new("Frame")
+	tileGrid.Name = "Tiles"
+	tileGrid.Position = UDim2.fromOffset(GRID_LEFT, GRID_TOP)
+	tileGrid.Size = UDim2.fromOffset(GRID_COLUMNS * (Theme.TileSize + Theme.TileGap), 0)
+	tileGrid.AutomaticSize = Enum.AutomaticSize.Y
+	tileGrid.BackgroundTransparency = 1
+	tileGrid.Parent = gui
+	local layout = Instance.new("UIGridLayout")
+	layout.CellSize = UDim2.fromOffset(Theme.TileSize, Theme.TileSize)
+	layout.CellPadding = UDim2.fromOffset(Theme.TileGap, Theme.TileGap)
+	layout.FillDirection = Enum.FillDirection.Horizontal
+	layout.FillDirectionMaxCells = GRID_COLUMNS
 	layout.SortOrder = Enum.SortOrder.LayoutOrder
-	layout.Parent = menuList
+	layout.Parent = tileGrid
 
-	for index, entry in entries do
-		local button = Widgets.Button(menuList, entry.Text, entry.Color, 24)
-		button.LayoutOrder = index
-		button.Size = UDim2.new(1, 0, 0, ENTRY_HEIGHT)
-		button.TextXAlignment = Enum.TextXAlignment.Left
-		button.ZIndex = 11
-		local textPadding = Instance.new("UIPadding")
-		textPadding.PaddingLeft = UDim.new(0, 58)
-		textPadding.Parent = button
-		local icon = Widgets.Icon(button, entry.Icon, 38)
-		icon.AnchorPoint = Vector2.new(0, 0.5)
-		icon.Position = UDim2.new(0, -50, 0.5, 0)
-		icon.ZIndex = 12
-		button.Activated:Connect(function()
-			setMenuOpen(false)
-			if Widgets.HasPanel(entry.Panel) then
+	local order = 0
+	local function addTile(text: string, icon: Icons.IconName, color: Color3, folds: boolean): TextButton
+		order += 1
+		local tile = Widgets.HudTile(tileGrid, text, icon, color, Theme.TileSize)
+		tile.LayoutOrder = order
+		tiles[text] = tile
+		if folds then
+			table.insert(foldTiles, tile)
+		end
+		return tile
+	end
+
+	local menuTile = addTile("MENU", "Menu", Theme.MenuButton, false)
+	menuTile.Activated:Connect(function()
+		setMenuOpen(not tilesOpen)
+	end)
+
+	if not STREET_MODE then
+		local manageTile = addTile("MANAGE", "Clipboard", Theme.ManageButton, false)
+		manageTile.Activated:Connect(function()
+			if Widgets.IsOpen("Upgrades") then
+				Widgets.CloseAll()
+			else
+				UpgradeController.OpenManage()
+			end
+		end)
+	end
+
+	for _, entry in entries do
+		if STREET_MODE and OLD_GAME_TILES[entry.Text] then
+			continue
+		end
+		local tile = addTile(entry.Text, entry.Icon, entry.Color, true)
+		if entry.Limited then
+			Widgets.LimitedTag(tile)
+		end
+		tile.Activated:Connect(function()
+			if entry.Action == "Collection" then
+				TycoonController.OpenCollection()
+			elseif entry.Action == "Invite" then
+				task.spawn(function()
+					local ok, message = SocialController.PromptInvite()
+					if not ok and message then
+						HudController.Toast(message, "Info")
+					end
+				end)
+			elseif Widgets.HasPanel(entry.Panel) then
 				Widgets.Toggle(entry.Panel)
 			else
 				HudController.Toast(`{entry.Text} is coming soon!`, "Info")
@@ -118,50 +183,33 @@ end
 local function build()
 	local gui = Widgets.Screen("Hud")
 
-	-- Top centre: [menu] [manage] [ money ].
+	-- Top centre: the money pill.
 	local top = Instance.new("Frame")
 	top.Name = "TopBar"
 	top.AnchorPoint = Vector2.new(0.5, 0)
 	top.Position = UDim2.new(0.5, 0, 0, 6)
-	top.Size = UDim2.fromOffset(BUTTON * 2 + GAP * 2 + MONEY_WIDTH, BUTTON)
+	top.Size = UDim2.fromOffset(PILL_WIDTH, PILL_HEIGHT)
 	top.BackgroundTransparency = 1
 	top.Parent = gui
 
-	local menuButton = Widgets.IconButton(top, "Menu", Theme.MenuButton, BUTTON)
-	menuButton.Name = "Menu"
-	menuButton.Activated:Connect(function()
-		setMenuOpen(not menuList.Visible)
-	end)
-
-	local manageButton = Widgets.IconButton(top, "Clipboard", Theme.ManageButton, BUTTON)
-	manageButton.Name = "Manage"
-	manageButton.Position = UDim2.fromOffset(BUTTON + GAP, 0)
-	manageButton.Activated:Connect(function()
-		setMenuOpen(false)
-		if Widgets.IsOpen("Upgrades") then
-			Widgets.CloseAll()
-		else
-			UpgradeController.OpenManage()
-		end
-	end)
-
 	local money = Instance.new("Frame")
 	money.Name = "Money"
-	money.Position = UDim2.fromOffset((BUTTON + GAP) * 2, 0)
-	money.Size = UDim2.fromOffset(MONEY_WIDTH, BUTTON)
-	money.BackgroundColor3 = Theme.Background
-	money.BackgroundTransparency = 0.12
-	money.ClipsDescendants = true
+	money.Size = UDim2.fromScale(1, 1)
+	money.BackgroundColor3 = Theme.MoneyPillFill
+	money.BackgroundTransparency = 0.25
 	money.Parent = top
-	Widgets.Corner(money, 12)
-	-- The Bonk Dollars symbol in front of the amount.
-	local symbol = Widgets.MoneySymbol(money, 44, Theme.Money, { Outline = 3, Font = Theme.Font })
-	symbol.AnchorPoint = Vector2.new(0.5, 0.5)
-	symbol.Position = UDim2.new(0, 34, 0.5, 0)
-	pointsLabel = Widgets.Label(money, "0", 44, Theme.Money)
+	Widgets.Corner(money, PILL_HEIGHT // 2)
+	Widgets.Stroke(money, 5, Theme.MoneyPillStroke)
+	-- The drawn cash icon is the only currency mark; the number next to it is plain.
+	moneyIcon = Widgets.MoneyIcon(ICON_SIZE, money)
+	moneyIcon.AnchorPoint = Vector2.new(0.5, 0.5)
+	moneyIcon.Position = UDim2.new(0, 38, 0.5, 0)
+	moneyIcon.ZIndex = 3
+	pointsLabel = Widgets.Label(money, "0", 44, Theme.Text)
 	pointsLabel.Name = "Points"
-	pointsLabel.Position = UDim2.fromOffset(62, 4)
-	pointsLabel.Size = UDim2.new(1, -76, 1, -8)
+	pointsLabel.Font = Theme.TitleFont
+	pointsLabel.Position = UDim2.fromOffset(76, 4)
+	pointsLabel.Size = UDim2.new(1, -98, 1, -8)
 	pointsLabel.TextXAlignment = Enum.TextXAlignment.Center
 	pointsLabel.TextStrokeTransparency = 1
 	pointsLabel.TextScaled = true
@@ -170,10 +218,21 @@ local function build()
 	maxSize.Parent = pointsLabel
 	Widgets.Outline(pointsLabel, 3)
 
+	-- Income per second: a small green line under the pill (hidden without an estimate).
+	incomeLabel = Widgets.Label(top, "", 18, Theme.Income)
+	incomeLabel.Name = "Income"
+	incomeLabel.Font = Theme.TitleFont
+	incomeLabel.Position = UDim2.fromOffset(0, PILL_HEIGHT + 4)
+	incomeLabel.Size = UDim2.fromOffset(PILL_WIDTH, INCOME_HEIGHT)
+	incomeLabel.TextXAlignment = Enum.TextXAlignment.Center
+	incomeLabel.TextStrokeTransparency = 1
+	incomeLabel.Visible = false
+	Widgets.Outline(incomeLabel, 2)
+
 	-- Rebirths and their income multiplier: a small pink pill under the menu buttons (only after the first rebirth).
 	rebirthLabel = Widgets.Label(top, "", 16, Color3.fromRGB(255, 150, 215))
 	rebirthLabel.Name = "Rebirths"
-	rebirthLabel.Position = UDim2.fromOffset(0, BUTTON + 14)
+	rebirthLabel.Position = UDim2.fromOffset(0, PILL_HEIGHT + 14)
 	rebirthLabel.Size = UDim2.fromOffset(0, 28)
 	rebirthLabel.AutomaticSize = Enum.AutomaticSize.X
 	rebirthLabel.BackgroundColor3 = Theme.Background
@@ -185,13 +244,13 @@ local function build()
 	rebirthPadding.PaddingRight = UDim.new(0, 12)
 	rebirthPadding.Parent = rebirthLabel
 
-	buildMenu(top)
+	buildTiles(gui)
 
 	-- Running boosts, a small pill under the bar.
 	boostLabel = Widgets.Label(gui, "", 20, Theme.Accent)
 	boostLabel.Name = "Boosts"
 	boostLabel.AnchorPoint = Vector2.new(0.5, 0)
-	boostLabel.Position = UDim2.new(0.5, 0, 0, BUTTON + 14)
+	boostLabel.Position = UDim2.new(0.5, 0, 0, PILL_HEIGHT + 14)
 	boostLabel.Size = UDim2.fromOffset(0, 32)
 	boostLabel.AutomaticSize = Enum.AutomaticSize.X
 	boostLabel.TextXAlignment = Enum.TextXAlignment.Center
@@ -226,7 +285,7 @@ local function build()
 
 	rainBanner = Widgets.Title(gui, "", 44, Color3.fromRGB(120, 210, 255))
 	rainBanner.AnchorPoint = Vector2.new(0.5, 0)
-	rainBanner.Position = UDim2.new(0.5, 0, 0, BUTTON + 56)
+	rainBanner.Position = UDim2.new(0.5, 0, 0, PILL_HEIGHT + 56)
 	rainBanner.Size = UDim2.fromOffset(640, 52)
 	rainBanner.Visible = false
 
@@ -249,7 +308,7 @@ local toastCount = 0
 function HudController.Toast(message: string, kind: string)
 	toastCount += 1
 	local color = if kind == "Good" then Theme.Good elseif kind == "Bad" then Theme.Bad else Theme.Info
-	-- A frame sized to its text; amounts ("B$ 1,234" from the server) show the Bonk Dollars symbol.
+	-- A frame sized to its text; server messages carry plain numbers ("+1.2K"), no currency text.
 	local toast = Instance.new("Frame")
 	toast.Name = "Toast"
 	toast.Size = UDim2.fromOffset(0, 40)
@@ -297,6 +356,10 @@ local function refresh()
 	-- Count up to the new value instead of jumping.
 	local target = state.BonkPoints
 	local start = shownPoints
+	if lastPoints >= 0 and target > lastPoints then
+		Widgets.PopMoneyIcon(moneyIcon)
+	end
+	lastPoints = target
 	local started = os.clock()
 	countVersion += 1
 	local version = countVersion
@@ -312,6 +375,21 @@ local function refresh()
 			pointsLabel.Text = Format.Short(target)
 		end
 	end)
+
+	-- Tycoon: the SHIBAS tile and the income line only exist while the tycoon is on.
+	local tycoonOn = state.Tycoon ~= nil and state.Tycoon.Enabled
+	-- Street mode has no collection panel (an expansion spawns its Shiba) and no old upgrade menu: levels and the automation
+	-- are on the Shibas and the floor pads. The old MANAGE menu is for the old loop only.
+	local streetOn = tycoonOn and state.Tycoon ~= nil and state.Tycoon.Street == true
+	local shibasTile = tiles["SHIBAS"]
+	if shibasTile then
+		shibasTile.Visible = tycoonOn and not streetOn
+	end
+	local manageTile = tiles["MANAGE"]
+	if manageTile then
+		manageTile.Visible = not tycoonOn
+	end
+	HudController.SetIncome(if tycoonOn then TycoonController.GetIncomePerSecond() else nil)
 
 	rainButton.Visible = state.BonkRains > 0
 	rainLabel.Text = `BONK RAIN ×{state.BonkRains}`
@@ -352,8 +430,32 @@ local function tick()
 	if magnetLeft > 0 then
 		table.insert(parts, `MAGNET {Widgets.Duration(magnetLeft)}`)
 	end
+	local _, friendMultiplier = SocialController.GetBoost()
+	if friendMultiplier > 1 then
+		table.insert(parts, `FRIENDS +{math.round((friendMultiplier - 1) * 100)}%`)
+	end
 	boostLabel.Text = table.concat(parts, "   ·   ")
 	boostLabel.Visible = #parts > 0
+end
+
+-- Income per second under the money pill; nil hides the line. The current game has no income estimate in the
+-- HUD, so nothing sets it yet (the tycoon controller can call this with TycoonMath.TotalIncome).
+function HudController.SetIncome(perSecond: number?)
+	if perSecond and perSecond > 0 then
+		incomeLabel.Text = `+{Format.Short(perSecond)}/s`
+		incomeLabel.Visible = true
+	else
+		incomeLabel.Visible = false
+	end
+	boostLabel.Position = UDim2.new(0.5, 0, 0, PILL_HEIGHT + (if incomeLabel.Visible then 14 + INCOME_HEIGHT else 14))
+end
+
+-- Red notification dot on a tile ("SHOP", "GIFTS", "QUESTS", "SPIN", "INDEX", "INVITE", "SETTINGS", "MANAGE" …).
+function HudController.SetTileDot(name: string, visible: boolean)
+	local tile = tiles[name]
+	if tile then
+		Widgets.SetTileDot(tile, visible)
+	end
 end
 
 function HudController.Init()
@@ -370,7 +472,6 @@ function HudController.Start()
 	Net.Get(Net.BonkRainStarted).OnClientEvent:Connect(showRain)
 	-- Hub stations: each prompt is named after the menu it opens.
 	ProximityPromptService.PromptTriggered:Connect(function(prompt: ProximityPrompt)
-		setMenuOpen(false)
 		Widgets.Open(prompt.Name)
 	end)
 	task.spawn(function()

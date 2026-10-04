@@ -1,7 +1,7 @@
 --!strict
 -- Automation look, purely visual (the catching and paying is AutomationService on the server).
 -- * AutomationCatch "Basket": the caught stick is taken over from ProjectileController and flies in an arc from where
---   it lay into the basket's opening; sparkles pop there and a "+B$ X" coin popup rises above the basket.
+--   it lay into the basket's opening; sparkles pop there and a "+X" coin popup rises above the basket.
 -- * AutomationCatch "Intern": the intern gets bonked: it tips over and wobbles back up, stars burst from its head,
 --   the stick bounces off and fades, a speech bubble says a random line and the coin popup rises.
 -- * Every client animates every intern's walk (swinging arms and legs by its speed); the server only moves the root.
@@ -17,6 +17,7 @@ local Automation = require(ReplicatedStorage.Shared.Config.Automation)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local Net = require(ReplicatedStorage.Shared.Net)
+local Features = require(ReplicatedStorage.Shared.Config.Features)
 
 local ProjectileController = require(script.Parent.ProjectileController)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
@@ -111,7 +112,7 @@ local function burst(parent: Attachment, color: Color3, count: number, size: num
 	emitter:Emit(count)
 end
 
--- "+B$ X" rising from `adornee` (seen only by this player).
+-- "+X" rising from `adornee` (seen only by this player).
 local function coinPopup(adornee: Instance, reward: number, offsetY: number)
 	local billboard = Instance.new("BillboardGui")
 	billboard.Adornee = adornee
@@ -409,6 +410,10 @@ local function update(dt: number)
 end
 
 function AutomationController.Start()
+	-- The tycoon (TycoonService) replaces the old loop.
+	if Features.Tycoon then
+		return
+	end
 	Net.Get(Net.AutomationCatch).OnClientEvent:Connect(onAutomationCatch)
 	-- Joint transforms are set before each physics step (no Animator overrides them).
 	RunService.PreSimulation:Connect(update)

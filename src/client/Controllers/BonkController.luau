@@ -21,6 +21,7 @@ local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Projectiles = require(ReplicatedStorage.Shared.Config.Projectiles)
 local ShibaEffects = require(ReplicatedStorage.Shared.Config.ShibaEffects)
+local Features = require(ReplicatedStorage.Shared.Config.Features)
 
 local ProjectileController = require(script.Parent.ProjectileController)
 local Widgets = require(script.Parent.Parent.UI.Widgets)
@@ -115,7 +116,7 @@ local function showPopup(reward: number, quality: Economy.HitQualityDef, juice: 
 	-- "BONK" / "AIR BONK" / "PERFECT BONK"; head hits say HEADBONK.
 	local name = if onHead then (string.gsub(quality.Label, "BONK", "HEADBONK")) else quality.Label
 	local prefix = if golden then "GOLDEN " else ""
-	-- The amount shows the Bonk Dollars symbol.
+	-- The amount is a plain number (billboard text has no room for the icon).
 	Widgets.SetMoneyText(label, `{prefix}{name}{juice.Punctuation} +{Format.Money(reward)}`)
 	-- In PlayerGui so only this player sees it.
 	billboard.Parent = player:WaitForChild("PlayerGui")
@@ -572,6 +573,10 @@ function BonkController.SetVolumeScale(scale: number)
 end
 
 function BonkController.Init()
+	-- The tycoon (TycoonService) replaces the old loop.
+	if Features.Tycoon then
+		return
+	end
 	sound = Instance.new("Sound")
 	sound.Name = "Bonk"
 	sound.SoundId = BONK.SoundId
@@ -594,6 +599,10 @@ function BonkController.WasReported(marker: BasePart): boolean
 end
 
 function BonkController.Start()
+	-- The tycoon (TycoonService) replaces the old loop.
+	if Features.Tycoon then
+		return
+	end
 	Net.Get(Net.BonkHit).OnClientEvent:Connect(onBonkHit)
 
 	task.spawn(function()

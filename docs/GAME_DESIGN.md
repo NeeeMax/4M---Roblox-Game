@@ -9,6 +9,8 @@ NPCs lob silly objects at your personal floating island — run and jump **into*
 
 ## Core loop
 
+> *Replaced once the tycoon is the default (see **Tycoon: Shiba Workers**). Stays valid while `Features.Tycoon` is false.*
+
 - **Every 5 seconds:** an NPC aims at a random spot on your island and fires. You read the arc, run there and try to take the hit (ideally running and jumping into it for a better hit quality).
 - **Every 1–5 minutes:** spend Bonk Dollars on one of 5 upgrades.
 - **Every session:** push upgrade levels higher; progress is saved.
@@ -47,7 +49,8 @@ Casual Roblox players, roughly 8–14. Understandable in under 10 seconds withou
 |-------|-------|
 | Layout | a big **hub island** (radius 70) in the middle, **5 player islands** (radius 80) around it at 280 studs, each joined to the hub by a plank bridge with rails and lamps (tycoon style). Config: `Config/World` |
 | Hub | stations between the bridges: Daily Spin, Coin Flip, Shop, Daily Quests, Top Bonkers leaderboard; Shiba statue with "GET BONKED" in the middle; how-to-play board in front of the hub spawn. Menus open via ProximityPrompt |
-| Player island | grass island; in the middle the **field** (sand, radius 30, low white border with a gap toward the bridge) where sticks land; Shibas stand on the island around it; trophies on lit pedestals behind the field; the Bonk Basket and the Bonk Intern once bought (see Automation); shop stalls, zone signs and a path on the outer ring (see Island layout); trees and flowers in a grove between the rebirth shrine and the bridge; owner name on a sign where the bridge arrives |
+| Player island | grass island; in the middle the **field** (sand, radius 30, rope border with gaps toward the bridge and the basket, see Field look) where sticks land; Shibas stand on the island around it; trophies on lit pedestals behind the field; the Bonk Basket and the Bonk Intern once bought (see Automation); shop stalls, zone signs and a path on the outer ring (see Island layout); trees and flowers in a grove between the rebirth shrine and the bridge; owner name on a sign where the bridge arrives |
+| Field look | `Config/FieldDecor`, built once per plot (`World/FieldDecor`, called by IslandService); everything visual only (no collisions, queries or touches), about 80 parts per island with placeholder props. **Paint** on a SurfaceGui on an invisible plate 0.04 above the sand (no stacked parts, so nothing flickers; the landing ring floats 0.16 above the island surface, over it): soft mint band 12–20, teal target lines at 6.2 / 12 / 20 / 27.6, orange edge curb at 29.1, teal bullseye (r 6.2) with a cream paw print, "GET BONKED" (bridge side) and "BONK ZONE" (far side) in orange, both upright for someone in the centre looking outward; darker and lighter sand patches and pebbles, seeded per plot. Colours are chosen so brown sticks and every landing-ring colour (warm, white, pink, gold) stand out from the paint. **Border** at radius 31: wooden posts with coloured ball caps (a soft PointLight in every 3rd cap), a sagging rope (Beam) and two pennants per span, arcs 15°–138° and 162°–345° (gaps: bridge, basket); mini signs BONK! / BONK ZONE / CATCH! on three posts facing the field. **Beach props** just outside the rope (PropService, placeholders until imported): sandcastle 55°, beach ball 98°, beach umbrella with towel 114°, bucket and spade 243°, bone toys 28° and 300°, grass tufts 78°, 255°, 327° (nothing in the bridge gap, at the basket/intern 150° or the trophy row 180° ± 25°). A faint sand glitter (ParticleEmitter) rises from the field. Preview: `assets/models/props/FieldDecor_preview.jpg` |
 | Island layout | themed zones on the outer ring (`Config/Stations`, checked by `lune run docs/economy/layout_check`, details in `docs/economy/LAYOUT.md`). Angles clockwise from the bridge, stalls at radius 74 facing the field, a wooden zone sign behind each zone (radius 78, board above the stall billboards, title in the zone colour): **Speed Gym** Move Speed 30°; **Shiba Shop** Shiba Tier 62°, More Shibas 118° (the new-player spawn at 90° is between them); **Throwables** Projectile Tier 150°; **Automation** Bonk Basket 185°, Bonk Intern 220°; **Rebirth** shrine 270°. Walking clockwise from the spawn = later in the game. A sandy cobblestone path (radius 70, 4 wide, visual only, no collisions) runs from the bridge clockwise to the rebirth shrine; stalls stand ≥ 30 studs apart, outside the Shibas' reach (radius 67), trees ≥ 10 studs from any stall, sign, spawn or path |
 | Islands | one per player, assigned on join (first free plot), freed on leave; more than 5 players = the extra ones stay on the hub. **Max Players must be 5** (Creator Hub → Configure → Places) |
 | Target area | disc radius 28 inside the field; bounces can continue anywhere on the island |
@@ -61,15 +64,20 @@ Casual Roblox players, roughly 8–14. Understandable in under 10 seconds withou
 
 ## NPC shooters
 
-- **Golden sticks:** 5 % of all projectiles are golden (15 % with the Lucky Sticks pass): gold outline and trail, pay ×5.
+> *Replaced once the tycoon is the default (see **Tycoon: Shiba Workers**). Stays valid while `Features.Tycoon` is false.*
+
+- **Golden sticks:** 5 % of all projectiles are golden: gold outline and trail, pay ×5.
 - Shooters **never aim at the player**. Each shot picks a random target point, uniformly distributed in the target area.
 - **Anti-farm rule:** the projectile's whole path (flight, bounces, settling hops and resting point) must stay at least `projectile radius + 6` studs away from the player's position at fire time; otherwise pick again (max 30 tries, then skip the turn). Standing still therefore earns 0 points.
 - **Spread:** the random target point is the spread; additionally the launch speed varies ±10 % per shot.
 - **Telegraph:** the shooter turns (smoothly) toward its target 0.5 s before firing and winds up its throwing arm.
-- Fire interval: set by the Shiba tier (5.0 s → 1.3 s, see Upgrades), halved by the 2× fire-rate boost. Shooters only fire while their owner is within 45 studs of their island centre (not on the hub). **Shooters take turns:** with n shooters one of them fires every `interval / n` seconds, never two at once.
+- Fire interval: set by the Shiba tier (5.0 s → 1.2 s, see Upgrades), halved by the 2× fire-rate boost (and by the Stick Storm event). Shooters only fire while their owner is within 45 studs of their island centre (not on the hub). **Shooters take turns:** with n shooters one of them fires every `interval / n` seconds, never two at once.
+- **Stick density cap** (`Gameplay.Shooters.MaxThrowsPerSecond` = `EconomyConfig.StickDensity.MaxThrowsPerSecond` = **1.4**): the whole ring never throws more than 1.4 sticks per second, so the player can follow every stick. When the natural rate (n / interval, boost and events included) is higher, the ring throws at the cap (each Shiba every n / 1.4 s) and every stick carries a **ValueMultiplier** = natural ÷ capped rate: Bonk Dollars per second stay exactly the same, in fewer, more valuable sticks. The cap first bites around the 8th Shiba with 5 Shibas; at the end of a run (8 Shibas at 1.2 s) each stick is worth ×4.8, with the Shiba Slots pass ×6, with the 2× Fire Rate boost ×9.5–11.9. During a Stick Storm the cap is ×1.5 (2.1 sticks/s) so the storm still looks like one. Every payout uses it (bonk, golden ×5, Mega Stick, basket, intern, and through them the offline bank); Bonk Rain sticks are extra sticks with their own rate and carry no multiplier. Clients show it on the stick: a small "×N" tag above it and a wider, longer trail (`Gameplay.Projectiles.ValueTag`). The anti-farm rule is unchanged (every stick is still planned and checked the same way). Code: `EconomyConfig.ThrowRate`, `UpgradeService.GetThrowRate`, `NPCShooterService`.
 - A shooter model may contain a part named `Stick` (replaced by the current projectile's model, which is hidden for 0.4 s after each throw; without a projectile model the stick itself is) and an Attachment `Muzzle` (where the throw starts). Throws start from the Shiba's standing height on its platform.
 
 ## Projectiles
+
+> *Replaced once the tycoon is the default (see **Tycoon: Shiba Workers**). Stays valid while `Features.Tycoon` is false.*
 
 Projectile tiers (upgrade `ProjectileTier`): **Stick** (BaseReward 10) → **Newspaper** (13) → **Baguette** (16) → **Rolling Pin** (20) → **Baseball Bat** (25) → **Giant Bone** (32) → **Squeaky Hammer** (40) → **BONK Sign** (50) → **Neon Stick** (63) → **Legendary Stick** (80). They fly the same; look, reward and the impact burst on a catch differ (Feedback). Models `ReplicatedStorage/Assets/Stick`, `Bone`, `GoldenStick`, `DiamondStick`; a missing model uses the next lower tier's model, tiers above Stick draw a trail in their colour, no model at all = coloured sphere. Hits use an invisible sphere of the projectile's diameter; the model is scaled so its longest side equals that diameter and spins in flight.
 
@@ -85,9 +93,13 @@ Projectile tiers (upgrade `ProjectileTier`): **Stick** (BaseReward 10) → **New
 
 **Landing ring:** the owner's client draws a ring on the ground at the first landing point (`ProjectilePath.GetFirstLandingPosition`), in the tier colour, shrinking until the landing and gold during the Perfect window; it disappears at the landing or when the projectile is caught (details under Hits → Catch quality). Other players' projectiles get no ring.
 
-**Lifetime / cleanup:** after its last settling hop it lies still and **fades out over 0.6 s** (`LandingFadeTime`), then each client stops drawing it (all on the synced server clock). It **can be collected during flight, bounces and settling hops, not while it fades** (`CollectableWhileFading = false`; the client check and the server validation both follow this setting). A projectile that falls off the island edge has no fade: it vanishes 20 studs below the island. The server destroys its marker 0.5 s after the fade ends (`DespawnDelay`), 15 s after launch at the latest, and validates hit reports until 2 s (`ReportGracePeriod`) after the collectable window ended (network delay). Max 60 live projectiles per island; the oldest is destroyed first. All projectiles of a player are destroyed when they leave.
+**Lifetime / cleanup:** after its last settling hop it lies still and **fades out over 0.6 s** (`LandingFadeTime`), then each client stops drawing it (all on the synced server clock). It **can be collected during flight, bounces and settling hops, not while it fades** (`CollectableWhileFading = false`; the client check and the server validation both follow this setting). A projectile that falls off the island edge has no fade: it vanishes 20 studs below the island. The server destroys its marker 0.5 s after the fade ends (`DespawnDelay`), 15 s after launch at the latest, and validates hit reports until 2 s (`ReportGracePeriod`) after the collectable window ended (network delay). Max 60 live projectiles per island; the oldest is destroyed first (with the stick density cap only a Bonk Rain comes near it).
+
+**Value tag:** a stick worth several throws (stick density cap, NPC shooters) carries its multiplier in the marker attribute `ValueMultiplier`; from ×1.05 on every client draws "×N" (one decimal, gold text with a dark outline, in world space so it doesn't spin) above it and an extra trail in the tier colour (gold for golden sticks) that grows from 1.2× to 2.2× the diameter wide and 0.25 → 0.45 s long between ×1 and ×6. Tag and trail fade with the paid look and the landing fade. All projectiles of a player are destroyed when they leave.
 
 ## Hits (server decides)
+
+> *Replaced once the tycoon is the default (see **Tycoon: Shiba Workers**). Stays valid while `Features.Tycoon` is false.*
 
 - The owner's client detects the touch (what the player sees on screen) and reports the projectile id. See `docs/decisions/0003-client-reports-hits-server-validates.md`.
 - The **server alone decides** and awards points. A report counts only if: the projectile belongs to the player, hasn't paid yet, the player is alive and not immune, and the projectile's path so far (flight, bounces, settling hops) passed within `projectile radius + 2 + 6` studs of the character's root on the server, and the report arrives at most 2 s after the projectile stopped being collectable. Max 10 reports/s.
@@ -142,7 +154,7 @@ its flight, `ProjectilePath.GetFirstLandingTime`). See `docs/decisions/0005-catc
 - **Head hit (×2):** the client reports whether the projectile touched the head; the server accepts it if the path also
   passed within projectile radius + 2 (pickup padding) + 4 studs of the server-side head.
 - **Combo:** every hit within the combo window of the previous hit adds 0.1 to the multiplier (max ×3 at 21 hits).
-  Window = 2 s + 1.5 × time between two shots (interval / active shooters), so it stays fair with more or faster shooters.
+  Window = 2 s + 1.5 × time between two shots (1 / real throws per second, after the stick density cap), so it stays fair with more or faster shooters.
   The HUD shows `COMBO xN ×M` with a bar that runs out when the window ends, plus a tier name in its colour from
   ×1.5 `ON FIRE`, ×2 `BONKTASTIC`, ×3 `MAX BONK` (`Gameplay.Bonk.ComboTiers`); the meter punches when a new tier is reached.
 
@@ -168,6 +180,8 @@ All tunable in `Config/Gameplay` → `Bonk` (per quality: `Bonk.Qualities`).
 
 ## Upgrades
 
+> *Replaced once the tycoon is the default (see **Tycoon: Shiba Workers**). Stays valid while `Features.Tycoon` is false.*
+
 Prices are **derived** from a target pace in `Config/EconomyConfig` (single source of truth, see **Pacing** and
 `docs/economy/BALANCING.md`); `Config/Upgrades` only has names, effects and colours. Six upgrades (projectile size and
 fire rate were removed on 2026-09-24: projectiles always have the same size, the fire rate comes with the Shiba tier).
@@ -175,7 +189,7 @@ fire rate were removed on 2026-09-24: projectiles always have the same size, the
 | Id | Menu name | Effect per level | Level 0 | Max level | Unlocks with |
 |----|-----------|-----------------|---------|-----------|--------------|
 | `Shooters` | More Shibas | +1 Shiba | 1 | 7 (8 Shibas; 9 with the pass) | start (the first purchase, B$ 10) |
-| `ShooterTier` | Shiba Tier | all Shibas evolve: new model/edition, faster throws, ×8.08 dollars | Shiba | 29 (30 Shibas) | start |
+| `ShooterTier` | Shiba Tier | all Shibas evolve: new model/edition, faster throws, ×7.87 dollars | Shiba | 29 (30 Shibas) | start |
 | `ProjectileTier` | Projectile Tier | next projectile (×2.5 BaseReward) | Stick | 9 | Shades Shiba |
 | `MoveSpeed` | Move Speed | WalkSpeed +3 | 16 | 10 (46) | Shades Shiba |
 | `Basket` | Bonk Basket | catches missed sticks, sets the offline hours | none | 6 | Gold Shiba |
@@ -183,14 +197,15 @@ fire rate were removed on 2026-09-24: projectiles always have the same size, the
 
 - **Unlocks** come from `EconomyConfig.UnlockAtShibaTier` (derived from the Route): a locked upgrade shows "Unlocks with
   <Shiba>" (menu, stand) and the server refuses it (`UpgradeService.TryPurchase`).
-- **Prices** (examples; the simulation prints all of them): Shibas 38 → 2K → 36K → 340K → … → 570B (Shiba 10) →
-  78Sx (Shiba 20) → **1Dc = 1e33** (Shiba 30). More Shibas 10 … 190T, Move Speed 75 … 1.5Oc, Basket 450M … 3.4No,
-  Intern 74B … 18No, Projectile Tier 647 … 79Oc.
+- **Prices** (examples; the simulation prints all of them): Shibas 38 → 2.1K → 35K → 330K → … → 480B (Shiba 10) →
+  80Sx (Shiba 20) → **1Dc = 1e33** (Shiba 30). More Shibas 10 … 170T, Move Speed 75 … 1.5Oc, Basket 220M … 2.2No,
+  Intern 42B … 15No, Projectile Tier 664 … 84Oc.
 
 Shiba tiers (`EconomyConfig.Shibas`, used by `Config/Gameplay → Shooters.Tiers`): 30 = the ten models (Shiba, Shades,
 Buff, Chef, Police, Ninja, Gold, Galaxy, Giant, Cheems God), then the same ten as **Shiny** and **Mythic** editions
-(same model, outline and aura in the edition colour). Throw interval 5.0 s → 1.2 s (geometric), dollars ×8.08 per
-tier (×1 → ×2e26, solved so the last Shiba costs 1e33).
+(same model, outline and aura in the edition colour). Throw interval 5.0 s → 1.2 s (geometric), dollars ×7.87 per
+tier (×1 → ×1e26, solved so the last Shiba costs 1e33). From about the 8th Shiba the stick density cap turns faster
+throws into more valuable sticks instead of more sticks (NPC shooters).
 
 - MoveSpeed exists so the player can **reach impact points in time** (not to dodge). It also raises the achievable hit quality.
 - **Active Shibas:** buying adds a Shiba; the "More Shibas" card sets how many are active (1 … owned) for free.
@@ -207,9 +222,7 @@ tier (×1 → ×2e26, solved so the last Shiba costs 1e33).
   Above each stand floats a billboard: upgrade name, current value (tier name in its colour / number), level badge
   `xN`, level bar, a big UPGRADE button look (green when affordable, grey when not, gold MAXED at the top) with the
   cost (green / grey) and an **E** key hint. Only the island owner can use their stands and sees the billboards.
-  - **E "Upgrade"** buys one level. With the **Stack Upgrade** pass one press buys as many levels as affordable, up to 10
-    (the button then says `UPGRADE ×N` with the total cost).
-  - **F "Buy with R$"** buys the next level with Robux (products `Instant<UpgradeId>` in `Config/Shop`).
+  - **E "Upgrade"** buys one level.
   - **More Shibas** also has a glowing green **NEW SHIBA** pad with its cost on the Shiba ring, where the next Shiba will
     stand (of the new ring's spots, the one farthest from the Shibas standing now). Stepping on it buys the Shiba
     (2 s cooldown). The pad disappears at the max.
@@ -229,7 +242,6 @@ tier (×1 → ×2e26, solved so the last Shiba costs 1e33).
     Onboarding). SHOW ME draws a glowing line from your character to the stand for 8 s (or until you arrive).
   - The big round **yellow arrow button** at the bottom centre does the same as SHOW ME for the cheapest affordable
     upgrade ("Nothing affordable yet" otherwise). Locked stands never count as affordable.
-- **Run Faster** pass: WalkSpeed ×1.5 on top of Move Speed.
 
 ### Pacing
 
@@ -241,20 +253,22 @@ itself within ~15 min. Full model, tables and how to retune: `docs/economy/BALAN
 ```
 target wait T(n) = 200 − 196 · e^(−n / 50) s   (4 s for the first purchase → 2.5 min for the last)
 price(n)         = Baseline income before purchase n × T(n) × PriceShare(upgrade)
-Baseline income  = stick value × (caught/s × 2 + intern catches × payout + basket catches × payout)
+sticks/s         = min(Shibas / FireInterval, 1.4)   (density cap; stick value × natural ÷ capped rate)
+Baseline income  = stick value × (caught/s × (2 + 0.05 per Move Speed) + intern catches × payout + basket catches × payout)
 caught/s         = min(sticks/s × (60 % + 3 % per Move Speed), 1 + 0.1 per Move Speed)
+intern catches   = min(missed × intern CatchShare, ExpectedCatchesPerSecond); the basket rolls on the rest
 ```
 
 A player who always buys the cheapest affordable upgrade (run 1, no rebirth, no passes):
 
 | Shiba | 1 | 2 | 5 | 9 | 10 | 20 | 21 (rebirth) | 30 (1e33) |
 |-------|---|---|---|---|----|----|--------------|-----------|
-| play time | start | 8 s | 1.7 min | 7.5 min | 9.1 min | 36.6 min | 39.0 min | 66.9 min |
-| wait for it | — | 8 s | 29 s | 64 s | 71 s | 2.1 min | 2.1 min | 2.5 min |
+| play time | start | 8 s | 1.7 min | 7.5 min | 9.0 min | 35.9 min | 38.2 min | 65.7 min |
+| wait for it | — | 8 s | 30 s | 63 s | 72 s | 2.1 min | 2.1 min | 2.5 min |
 
-Between two Shibas come quick side buys (More Shibas, Move Speed, Basket, Intern: 2–35 s each) and every few Shibas a
-projectile tier (as long as a Shiba). Active play earns ~3.7× the idle (AFK) income once the intern is hired and ~2×
-at the end of the run.
+Between two Shibas come quick side buys (More Shibas, Move Speed, Basket, Intern: 2–25 s each) and every few Shibas a
+projectile tier (as long as a Shiba). Active play earns ~3.8× the idle (AFK) income right after the intern is hired,
+~3× from about Shiba 16 and ~2.4× at the end of the run.
 
 Robux speeds this up without selling Bonk Dollars: 2× Dollars (pass or 30 min boost) halves every wait, 2× Fire Rate
 nearly does, and the instant upgrades skip one level.
@@ -265,6 +279,8 @@ nearly does, and the instant upgrades skip one level.
   button shows "!" when something unlocked is affordable.
 
 ### Rebirth
+
+> *Replaced once the tycoon is the default (see **Tycoon: Shiba Workers**). Stays valid while `Features.Tycoon` is false.*
 
 Once you own the **Mythic Shiba (Shiba 21)** you can rebirth at the rebirth shrine on your island
 (`RebirthService.TryRebirth`, `EconomyConfig.Rebirth`): Bonk Dollars back to the start amount, all six upgrades back
@@ -311,23 +327,114 @@ the server starts) one random event (equal weights) runs for everyone in the ser
 | **Golden Minute** | 60 s | every projectile is golden (pays the golden ×5) |
 | **Mega Stick** | 90 s | each player's Shibas throw ONE giant stick (3× diameter) onto their field; catching it pays ×50. Only thrown while you are on your island; a player who joins during the event gets one too |
 | **Double Dollars** | 120 s | every bonk pays ×2 (stacks with passes, boosts, golden) |
-| **Stick Storm** | 90 s | every Shiba's fire interval is halved |
+| **Stick Storm** | 90 s | every Shiba's fire interval is halved; the stick density cap rises ×1.5 (to 2.1 sticks/s) |
 
 A banner at the top of the screen shows the running event and its countdown (a big splash when it starts); between
 events a small line shows "Next event in mm:ss". Players who join mid-event see it right away. Admins can start one
 right away (`EventService.StartNow(eventId)`, hooked into the admin menu later).
 
+## Weekend Bonk Party
+
+A fixed weekly appointment (research: `docs/research/ROBLOX_PACING.md` §5.3). Every **Saturday 12:00 UTC for 24 h**
+(`Config/Events → Party`: `Weekday` 7, `StartHourUtc` 12, `DurationHours` 24). Every server computes the window from
+the UTC clock (`Events.PartyWindow`, `EventService.IsPartyActive`), so all servers agree without messaging.
+
+- **During the party:** server events come every **7 min** instead of 15 (`PartyInterval`; the next event is pulled in
+  when the party starts; weights unchanged), and **variant luck ×3** (`EventService.VariantLuckMultiplier()` returns
+  `VariantLuck` 3 during the party, 1 otherwise; the Shiba variant system multiplies its chances by it — without
+  variants it does nothing yet).
+- **Party quest:** catch **500 sticks** during the party (`QuestCatches`; sticks you catch yourself, the same catches as
+  the daily "catch sticks" quests) → **150 bonks** + the **Bonk Party** trophy (`EconomyConfig.Party`). Its own row
+  under the daily quests in the QUESTS menu; progress resets with each new party (`state.Party.Id` = the party's
+  Unix start). One trophy that counts up: the island sign reads "Bonk Party ×3" (`state.Party.Count`). A finished
+  quest can still be claimed after the party ended, until the next party starts counting.
+- **Countdown all week:** a line under the event banner ("BONK PARTY in 2d 04h"; while it runs: "BONK PARTY! Luck ×3 ·
+  events every 7 min · 11h 20m left", a splash when it starts), the party row in QUESTS, and a neon sign hanging above
+  the two hub plaza boards (`PartyService`, `Workspace/BonkPartySign`).
+- Planned updates ship on Friday so the party shows the new content.
+- **Admin:** Start party (10 min, `AdminDurationMinutes`), End party (also ends a scheduled party early, until its
+  normal end), Finish party quest.
+
+## Friends and invites
+
+Research: `docs/research/ROBLOX_PACING.md` §5.2 (co-play is a ranking signal; co-play sessions last longer).
+
+- **Friend Boost:** +10 % income per Roblox friend in the same server, at most 4 friends = +40 %
+  (`EconomyConfig.Social`: `PerFriend` 0.1, `MaxFriends` 4). Multiplier `1 + PerFriend × min(friends, MaxFriends)`
+  inside `RewardService.GetStickValue`, so it applies to everything paid per stick (hands, basket, intern, magnet)
+  but **not** to spin, quests, Index or other rewards counted in bonks. It is a bonus on top: the pacing, prices and
+  the simulation never count it. Friendship = `Player:IsFriendsWithAsync`, checked once per pair when someone joins
+  (it yields and is rate limited) and cached until one of the two leaves (`SocialService`). HUD: "FRIENDS +20%" in the
+  boost pill.
+- **INVITE** (menu entry): opens Roblox's invite dialog (`SocialService:PromptGameInvite`, only if
+  `CanSendGameInviteAsync` allows it; otherwise a short message).
+- **Invite reward:** the first time a player joins through a friend's invite (`GetJoinData().ReferredByPlayerId`, the
+  inviter must be a Roblox friend), both get **1 Bonk Rain + the Bonk Buddies trophy** (`InviteReward`). The invited
+  player gets it once per account (`state.Social.ReferralRewarded`). The inviter gets it at most **10 times per week**
+  (`MaxInviteRewardsPerWeek`, week = days since 1970 // 7); more wait until next week
+  (`state.Social.PendingInviteRewards`). If the inviter is offline, the reward waits in the `ReferralsPending`
+  DataStore (key = inviter UserId) and is granted on their next join.
+- **Bonk Buddies** trophy: shown in the Shiba-Index (300 bonks like every Exclusive trophy) but **not needed for the
+  completion bonus** (it needs a friend; `Shop.Trophy.Optional`).
+- **Admin (Studio test players are never Roblox friends):** "Pretend friend +1" cycles 0 → 4 pretend friends for the
+  boost; "Fake invite reward" plays both sides of an invite on yourself.
+- Creator Hub (optional): enable the Friend Referral banner; its reward text must match.
+
+## Shiba Variants
+
+Rare luck on top of the Shiba ladder (`VariantService`, numbers in `EconomyConfig.Variants`). Every slot on the Shiba
+ring (the 1st … 10th Shiba) has a variant: **Normal**, **Shiny** (1 in 40, sticks ×1.5, sparkles + gold-white
+outline), **Rainbow** (1 in 400, ×3, colour-cycling outline) or **Huge** (1 in 4,000, ×6, 1.6× taller with a strong
+aura).
+- A slot **rolls** when the player buys a Shiba Tier with Bonk Dollars (every owned slot rolls once per level bought)
+  or More Shibas (the new slot rolls). Robux purchases and admin levels never roll (no paid random items).
+- Variants only go **up** and stay through evolutions and rebirths. **Pity:** after 800 rolls without a new
+  Rainbow-or-better (8,000 without a Huge) the next roll that can improve a slot is guaranteed.
+- The throwing Shiba's variant multiplies its sticks' value (together with the stick-density multiplier).
+- **Weekend Bonk Party:** luck ×3 (`EventService.VariantLuckMultiplier`).
+- A new variant shows a reveal card (`VariantRolled`); a Huge is announced to everyone in the server.
+- Shiba-Index: a **VARIANTS** tab with one entry per variant × Shiba (`Variant_<Variant>_<AssetName>`, rewards
+  30 / 100 / 400 bonks) and its own progress; variants never count for the normal completion bonus.
+- Kept out of the pacing baseline (rare luck on top): `docs/economy/BALANCING.md`. Admin: Shiba Variants section
+  (force a variant on a slot, roll all, luck ×10, reset).
+
 ## Shiba-Index
 
-A collection book (INDEX menu, `Config/Index`) with one entry per Shiba tier (30: the ten originals, then the Shiny
-and Mythic editions), projectile tier (10), the golden stick and each trophy (10): 51 entries today, new tiers and
+A collection book (INDEX menu, `Config/Index`) with one entry per Shiba tier (30, each with its own model), projectile tier (10), the golden stick and each trophy (12): 53 entries today, new tiers and
 trophies are added automatically. Entry ids are saved: the ten original Shibas keep `Shiba_<Model>`, editions are
 `Shiba_<Edition><Model>` (e.g. `Shiba_ShinyShiba`). An entry is **found** when you first reach it: Shiba / projectile
 tier bought (or skipped past), first golden stick caught, trophy owned; a rebirth never un-finds anything. Unfound
 entries show as a dark "???" silhouette. Each found entry pays a one-time discovery reward you claim on its card (in
 bonks, see Hub features): Shibas 20 + 10 per tier (20 … 310), projectiles 15 + 5 per tier, golden stick 50, trophies
-by rarity (Common 25, Rare 50, Epic 100, Legendary 200, Exclusive 300). Finding all entries unlocks a completion bonus
-of 1,000 bonks. A bar on top shows the progress ("12/51 found").
+by rarity (Common 25, Rare 50, Epic 100, Legendary 200, Exclusive 300). Finding all entries that count unlocks a completion bonus
+of 1,000 bonks; Robux-only trophies (VIP, Diamond, Rainbow, Starter), optional ones and variants never count, so
+every player can finish it. A bar on top shows the progress ("12/52 found"). Optional trophies (Bonk Buddies, it needs a
+friend) show and pay their reward but are not counted for completion.
+## Update log board
+
+A board that says when the next update comes (`Config/Updates`, `UpdateBoardService`): the title UPDATE LOG, the last
+`ShownEntries` (2) updates with their date and short lines, and a footer "Next update in 2d 03h". In street mode it
+stands at the west end of the road (non-solid, 6 studs above the ground on two poles, readable from both sides); with
+`Features.Street` off it stands next to the hub plaza. Updates ship every **Friday 16:00 UTC** (`NextUpdate`, an
+open starting value: the Bonk Party on Saturday then shows the new content), so the countdown never needs editing; the
+developers only add a new entry at the top of `Entries` with every update (that is the whole process). Nothing is saved
+or sent over the network.
+
+## Milestones: badges and onboarding funnel
+
+`MilestoneService` reads each player's saved state every 5 seconds (`Config/Milestones`). It never changes the state, the
+economy or the network.
+
+- **Badges (Roblox):** first Shiba, 5 and 10 Shibas, 1,000,000 Bonk Dollars earned, first Ascension / rebirth, 10 Index
+  entries, 7-day streak, first Bonk Party quest, first Rainbow or Huge Shiba. When a goal is reached the server calls
+  `BadgeService:AwardBadgeAsync`. Badge ids are config (`Badges[n].BadgeId`); **0 = inert**: create the badges on the
+  Creator Hub (Monetization → Badges), paste the ids, done. The goals are display milestones, not rewards (no bonks).
+- **Onboarding funnel:** for players whose save is younger than 72 h, `AnalyticsService:LogOnboardingFunnelStepEvent`
+  logs ten steps: joined, 1 min played, first purchase, 3 min played, 3 Shibas, 10 purchases, 10 min played, 5 Shibas,
+  first Ascension, returned on day 2. In the Creator Hub (Analytics → Funnels) this shows where new players drop off
+  (Roblox counts sessions under 60 s and 180 s as bounces). Roblox keeps one event per step and player; nothing is
+  saved on our side, a rejoin may repeat a call (harmless).
+
 ## Obby (jump and run)
 
 A spiral tower of chunky green / yellow / orange platforms in the hub centre (`ObbyService`, layout in `Config/Obby`),
@@ -364,15 +471,9 @@ Roblox ids live in `Config/Shop` (0 = not created yet: free test purchase in Stu
 |------|------|-------|--------|
 | Pass | 2× Bonk Dollars | 199 | every bonk ×2 |
 | Pass | VIP | 299 | +25 % points, golden VIP tag, VIP trophy, 2 daily spins |
-| Pass | Lucky Sticks | 149 | golden chance 5 % → 15 % |
-| Pass | +2 Shiba Slots | 249 | More Shibas max 7 → 9 (10 Shibas) |
-| Product | Bonk Rain | 49 | +1 Bonk Rain (starts right away when on your island) |
-| Product | 2× Dollars 30 min / 2× Fire Rate 30 min | 39 each | boost |
-| Product | Magnet 15 min (`Magnet15`) | 49 | timed boost `Magnet` (it used to be the Auto-Catch pass): every 0.25 s, sticks within 10 studs of the character are collected as a Normal bonk (no head bonus, combo counts); a small magnet circles the player while it runs, the HUD shows `MAGNET mm:ss`. Admin: Boosts → Magnet 5m / Clear. AutoCatchService, MagnetController |
-| Product | Shiba Tier Skip | 99 | next Shiba tier now (blocked at the top tier) |
+| Product | 2× Dollars 30 min | 39 | boost |
 | Product | Starter Pack | 49 | once: 2× Dollars 1 h + 3 Bonk Rains + Starter trophy; offered in a popup for 48 h after the first join |
 | Product | Diamond / Rainbow trophy | 99 / 249 | exclusive trophies |
-| Product | Instant Shiba Tier / Projectile Tier / Shiba / Speed | 99 / 79 / 49 / 25 | +1 level of that upgrade now (blocked when it is maxed) |
 | Product | Double Offline Earnings | 39 | only in the "Welcome back" popup: pays 2× the pending Shiba Bank earnings |
 
 **POWERS** (first shop tab, big cards with yellow Robux price pills, "OWNED" once bought; other code opens it with
@@ -381,8 +482,6 @@ Roblox ids live in `Config/Shop` (0 = not created yet: free test purchase in Stu
 | Pass | Robux | Effect | Implemented in |
 |------|-------|--------|----------------|
 | Manage | 199 | manage all income sources from one place: the upgrade menu opens anywhere | HudController |
-| Run Faster | 99 | walk speed x1 → x1.5 | UpgradeService |
-| Stack Upgrade | 149 | buy several upgrade levels at once (x1 → x10) | UpgradeService |
 
 Trophies stand on your island for everyone to see. Bought with Bonk Dollars (`EconomyConfig.TrophyThresholds`, each
 about the price of the Shiba you buy around then): Wooden 1e4, Bronze 1e8, Silver 1e14, Golden 1e22, Galaxy 1e30,
@@ -398,7 +497,10 @@ n; only look and tuning (position, colours, timings, effects) live in `Config/Au
 everything (`AutomationService`); clients only draw (`AutomationController`, remote `AutomationCatch`).
 
 Stick value = `RewardService.GetStickValue` (projectile BaseReward × Shiba tier × rebirth × golden × passes × 2× boost
-× server events), i.e. a Normal bonk without head bonus or combo. Automation pays `floor(stick value × Payout[level])`,
+× server events × the stick's ValueMultiplier from the density cap), i.e. a Normal bonk without head bonus or combo.
+Because the density cap keeps sticks few (≤ 1.4/s), the helpers can't count on a flood of missed sticks: the pricing
+model gives the intern a share of what the player leaves (`CatchShare` 50 % → 80 %, like the player's own catch rate)
+and the basket rolls on the rest (`CatchChance` 35 % → 100 %, `Payout` 45 % → 100 %); intern `Payout` 70 % → 100 %. Automation pays `floor(stick value × Payout[level])`,
 at least 1, through `EconomyService.AddAutomationPoints` (counted as earned; sampled separately for the offline bank).
 It gives no combo, quest progress or Shiba-Index discoveries. Both helpers only work while the owner is on their
 island (like the Shibas). Order: the player first, then the intern, then the basket.
@@ -456,7 +558,8 @@ Automation`, sampling in `Config/Economy → OfflineBank`):
   Shiba needed), +1 rebirth (only the multiplier), reset rebirths, with the current count and multiplier;
   reset daily spin, new quests, finish quests; 2× Dollars / 2× fire rate boost (10 min), clear boosts; teleport to hub / own
   island, all Shibas fire now; toggle each pass, +1 Bonk Rain, start a rain, all trophies, unlock gifts, show the
-  starter offer again; RESET EVERYTHING (second click confirms; keeps the leaderboard total and Robux purchases).
+  starter offer again; Bonk Party: start (10 min) / end / finish the party quest; pretend friends (0-4) and a
+  fake invite reward; RESET EVERYTHING (second click confirms; keeps the leaderboard total and Robux purchases).
 - Admins: everyone in Studio playtests, the experience owner, and the UserIds in `src/shared/Config/Admin.luau`.
 - The server checks admin rights on every request (`AdminCommand`, `AdminService`); the client check only hides the button.
 
@@ -481,7 +584,7 @@ Automation`, sampling in `Config/Economy → OfflineBank`):
   Shiba pad, shop trophy prices, coin flip bets/stakes/results/duel invites, bonk popups, spin result, obby reward,
   "Welcome back" popup, notifications.
 - Pacing target (for tuning): first purchase right away, minute rhythm from around the 9th Shiba, a whole first run
-  (Shiba 30, 1e33) in ~67 min, no purchase with a payback over ~15 min (see Upgrades → Pacing). While away, the
+  (Shiba 30, 1e33) in ~66 min, no purchase with a payback over ~15 min (see Upgrades → Pacing). While away, the
   Offline Shiba Bank pays the automation's income (+5 % of your own) for up to the basket's offline hours.
 
 ## UI (MVP)
@@ -490,7 +593,7 @@ Look and usability follow successful Roblox tycoons: few buttons on screen, big 
 
 - HUD (uncluttered), top centre: square **menu** button (list icon) + green **clipboard** button (MANAGE) + dark bar
   with the Bonk Dollars symbol and counter in big green text, abbreviated (`Format.Abbreviate`: "324.316 quadrillion", counts up).
-  - Menu button opens a small list: SHOP, GIFTS, QUESTS, SPIN, INDEX, SETTINGS (ADMIN for admins). A menu that does
+  - Menu button opens a small list: SHOP, GIFTS, QUESTS, SPIN, INDEX, INVITE, SETTINGS (ADMIN for admins). A menu that does
     not exist yet says "coming soon".
   - MANAGE: with the Manage pass the upgrade menu opens anywhere; without it the shop opens on the POWERS tab to
     buy it (upgrades are normally bought at the stands on the island).
@@ -514,6 +617,8 @@ Per player (DataStore `PlayerData_v1`, key = UserId): the whole `Types.PlayerSta
   Old Bonk Dollar amounts stay as they are (tiny next to the new prices, which is fine: they start the new curve).
 - Big numbers are plain doubles in the save (a DataStore holds them fine); only the leaderboard's OrderedDataStore
   needs the log encoding (see Hub features → Leaderboard).
+- **Save version 3** (additive only): `Social` (invite rewards) and `Party` (Bonk Party quest). Older saves get the
+  defaults; no logic depends on the version number.
 
 ## Scope of the first playable version (MVP)
 
@@ -544,6 +649,457 @@ Explicitly not in MVP:
 - Cosmetics, additional upgrade trees
 - Pets, trading, PvP, rebirths, quests, large maps
 - Monetisation
+
+## Tycoon: Shiba Workers (in development, behind Config/Features.Tycoon)
+
+The new core loop (`docs/decisions/0006`, hand-off in `docs/TYCOON_HANDOFF.md`). `Config/Features.Tycoon = false` keeps the
+old throw-and-catch loop running unchanged; the sections **Core loop**, **NPC shooters**, **Projectiles**, **Hits**,
+**Upgrades** and **Rebirth** above are *replaced once the tycoon is the default* (they stay until the cleanup phase). All
+numbers below are the starting values in `src/shared/Config/Tycoon.luau` and the formulas in `src/shared/Util/TycoonMath.luau`;
+the calibration to 70-100 hours is in `docs/economy/BALANCING.md → Tycoon`. Where this text and the config differ, the config wins.
+
+### Idea
+
+The player owns a **collection** of Shibas (the 30 types of `EconomyConfig.Shibas`), hatched from eggs. A limited number are
+**equipped** on the ring around the Bonk Mill. Each equipped Shiba is its own worker: own level, own conveyor lane into the
+Mill, own perk. Income is computed on the **server as per-second rates**; items on belts, popups and hatch animations are
+client-side and cosmetic only. Duplicates can be merged. Target: 70-100 hours to max everything.
+
+### Income (TycoonMath)
+
+- `TierIncome(tier) = BaseIncome (1) × TierGrowth (2.7) ^ tier` per second for a level-1 Shiba (tier 0 = first Shiba of the list).
+- `LevelMultiplier(L) = (1 + 0.08 × (L - 1)) × 2 ^ (milestones reached) × 1.5 ^ floor((L - 50) / 25)` (last factor only from
+  level 50 on). Milestones are levels **10, 25, 50**; each doubles the lane. Every 25 levels after 50 multiplies by 1.5.
+- Level cost L → L+1: `floor(TierIncome(tier) × 20 × 1.17 ^ (L - 1))`. Buy x1, x10 or Max (Max = as many as affordable,
+  never above the cap).
+- **Level cap** = 50 + 10 per Ascension (hard ceiling 500 for saved data).
+- **Lane income per second** = `TierIncome × LevelMultiplier × VariantMult × ArchMult × RingsMult × AscensionMult`, then
+  × own-perk factor (Burst / Chance / Rhythm; Synergy uses the rings factor a second time) and × `(1 + neighbour bonus)`.
+- **Total income** = sum of all lanes × `GlobalMultiplier`.
+- Friend Boost (+10 % per friend in the server, max 4), passes, boosts and events multiply on top, as today (`RewardService`
+  chain, `SocialService.GetFriendMultiplier`); the invite reward stays. They are applied on the server to the tycoon income
+  and are not part of `TycoonMath`.
+- Variant multipliers: Normal x1, Shiny x1.5, Rainbow x3, Huge x6 (same as `EconomyConfig.Variants.Multiplier`).
+- **Arches** (per lane, max 2, each x1.5): price = `floor(TierIncome(tier) × seconds)` with 900 s for the first and 5400 s
+  for the second.
+- **Mill rings** (pads `Sorter` 1.8e8, `Polisher` 1.3e10, `Refinery` 1.3e14): each multiplies ALL lanes by x1.25.
+- **Ascension multiplier** = `1 + 0.75 × ascensions`.
+
+### Equip slots
+
+The ring has up to 10 positions (radius 56, `Config/ShibaPlatforms`). The player starts with **3** equip slots; slot n (4 to 10)
+is a purchase pad `Slot<n>` with prices 2.2e5, 1.1e6, 3.7e8, 1.8e9, 2.5e10, 2.6e14, 2e16. Only Shibas of an **unlocked zone** (`tier // 5 <= Zone`) can be equipped; after an Ascension the zones start over, so at first only the first zone's Shibas can work (the server refuses other equips and fills empty slots with the best equippable Shibas when a zone opens). A Shiba can be on one slot only (equipping it
+moves it). Unequipped Shibas keep their level; levels are never shared between Shibas.
+
+### Zones and eggs
+
+Six zones, each with one egg that holds 5 Shiba tiers (zone z gives tiers 5z to 5z+4). Zone 0 is free. A zone (and with it its
+egg) is unlocked by a purchase pad; egg stands are on the plot.
+
+| Zone | Name | Zone price | Egg price | Shibas (tiers) |
+|------|------|-----------:|----------:|----------------|
+| 0 | Meadow | 0 | 50 | Shiba, Shades, Buff, Chef, DJ |
+| 1 | Beach | 2.2e6 | 1.1e4 | Police, Cowboy, Pirate, Ninja, Viking |
+| 2 | Forest | 3.7e9 | 1.8e7 | Knight, Samurai, Robot, Astronaut, Superhero |
+| 3 | Mountain | 2.5e11 | 1.3e9 | Gold, Wizard, Vampire, Pharaoh, Frost |
+| 4 | Space | 2.6e15 | 1.3e13 | Magma, Dragon, Mecha, Galaxy, Angel |
+| 5 | Heaven | 2e17 | 1e15 | Demon, Giant, Cheems God, Eternal, Void |
+
+- Drop table of every egg, common to rare: **60 / 25 / 10 / 4 / 1 %** for its 5 tiers. Odds are shown in the egg UI.
+- Hatch counts 1, 3 or 10 at a time (`HatchCounts`; the x10 unlock is not defined yet); the hatch animation is skippable. The
+  server rolls; the client only plays `HatchResults`.
+- **Variants** roll on hatch: Shiny 1 in 40, Rainbow 1 in 400, Huge 1 in 4000, pity kept (`EconomyConfig.Variants`). The
+  variant belongs to the owned Shiba (it is no longer keyed by ring slot).
+- The **Index** is the collection goal; entry ids are saved and never renamed.
+
+### Perks (one per Shiba tier)
+
+All perks are applied on the server as **expected average values**; the visible effect on the client is flavour only.
+
+| Kind | Effect |
+|------|--------|
+| Global | + Value to ALL lanes (added) per milestone (10 / 25 / 50) its own lane reached |
+| Neighbors | + Value income for the two lanes next to it on the ring (with 2 slots they count once) |
+| Burst | x Mult for Duration s every Period s; average `1 + (Mult - 1) × Duration / Period` |
+| Chance | each item has Chance to pay x Mult; average `1 + Chance × (Mult - 1)` |
+| Rhythm | every Every-th item pays x Mult; average `1 + (Mult - 1) / Every` |
+| Synergy | the Mill rings' multiplier counts squared on its own lane |
+
+| # | Shiba | Perk |
+|---|-------|------|
+| 1 | Shiba | Global +5 % |
+| 2 | Shades Shiba | Burst x3, 4 s every 20 s |
+| 3 | Buff Shiba | Neighbors +25 % |
+| 4 | Chef Shiba | Synergy |
+| 5 | DJ Shiba | Rhythm x5, every 10th item |
+| 6 | Police Shiba | Rhythm x5, every 10th item |
+| 7 | Cowboy Shiba | Burst x4, 2 s every 12 s |
+| 8 | Pirate Shiba | Chance 8 %, x10 |
+| 9 | Ninja Shiba | Neighbors +30 % |
+| 10 | Viking Shiba | Synergy |
+| 11 | Knight Shiba | Global +5.15 % |
+| 12 | Samurai Shiba | Rhythm x6.36, every 8th item |
+| 13 | Robot Shiba | Burst x4.36, 3 s every 12 s |
+| 14 | Astronaut Shiba | Neighbors +33.6 % |
+| 15 | Superhero Shiba | Chance 10 %, x11.5 |
+| 16 | Gold Shiba | Synergy |
+| 17 | Wizard Shiba | Global +6.05 % |
+| 18 | Vampire Shiba | Rhythm x7.44, every 8th item |
+| 19 | Pharaoh Shiba | Burst x5.08, 3 s every 12 s |
+| 20 | Frost Shiba | Neighbors +39 % |
+| 21 | Magma Shiba | Chance 10 %, x13.3 |
+| 22 | Dragon Shiba | Synergy |
+| 23 | Mecha Shiba | Global +6.95 % |
+| 24 | Galaxy Shiba | Rhythm x8.52, every 8th item |
+| 25 | Angel Shiba | Burst x5.8, 3 s every 12 s |
+| 26 | Demon Shiba | Neighbors +44.4 % |
+| 27 | Giant Shiba | Chance 10 %, x15.1 |
+| 28 | Cheems God | Synergy |
+| 29 | Eternal Shiba | Global +7.85 % |
+| 30 | Void Shiba | Rhythm x9.6, every 8th item |
+
+Tiers 11 to 30 cycle through Global, Rhythm, Burst, Neighbors, Chance, Synergy with `strength = 1 + (tier - 10) × 0.03`
+(tier here = 1-based number in the table; see `Config/Tycoon`). Values above are rounded.
+
+### Merging
+
+Two Shibas of the **same tier** (the source must not be equipped): the target gains `floor(source level × 0.5) + 1` levels
+(never above the level cap) and keeps the better variant (Normal < Shiny < Rainbow < Huge); the source is consumed.
+
+### Ascension (the tycoon's rebirth)
+
+Pad `Ascend`, available once the last zone (5) is unlocked. It **resets** money, all Shiba levels (back to 1), arches, Mill
+rings, zones (back to Meadow) and equip slots above the start count (3). It **keeps** the collection (all owned Shibas),
+variants, the Index, trophies, quests and streaks. Each Ascension adds x0.75 to the income multiplier (`1 + 0.75n`) and +10 to
+the level cap.
+
+**Street mode** (`Features.Street`): the same pad id `Ascend`, but it is a repeatable floor pad beside the plot entrance, used with a
+2 s hold prompt (never stepped on by accident). It appears when the best Shiba of the run reaches `Ascension.StreetFirstShiba +
+StreetShibaStep × ascensions` (10, 12, 14 … at most 30, `TycoonSteps.AscendRequirement`). It **resets** the whole run: every bought step
+(Shibas, decor, Interns), all Shibas and the money (back to bay 1, 0 money); it **keeps** `Ascensions` (income x(1 + 0.75n), applied to every
+lane), the cosmetic decor and passes (not in the tycoon state), the Index, trophies, quests and streaks. Saved at once. Runs take about 1.5 to
+2.3 h for the first six Ascensions (table in `docs/economy/BALANCING.md`). Open question 8 (decor as a permanent trophy) is answered "resets" for now.
+
+### Active play (never required)
+
+- **Golden Crates** appear on a belt for a short time (`CrateSpawned`, ends at a server time); the player walks to the belt and
+  collects it (`CollectCrate`); the server pays. Amounts and spawn rate are not defined yet.
+- **Boop mats**: superseded by the Bonk hit below (the `BoopLane` remote stays unused until the contract cleanup).
+
+### Swing, click and Bonk hit (Marco decided 2026-09-30: belts, arches and rings stay; Ascension resets automation; Max has not seen it yet; numbers marked "open" are starting values)
+
+Requested by Marco on 2026-09-30. It adds an *active layer on top of* the belts (the belts stay) and makes the start of the
+game manual. No projectiles, no catch quality, no head hits, no combos come back: the stick is a prop of the swing animation.
+
+**Swing.** Every equipped Shiba can *swing*: it hits a stick forward like the "Bonk" meme (wind-up, strike, short recovery).
+The swing is a client-side animation; the server decides everything.
+
+**Manual start.** A Shiba that is not automated does nothing on its own. The player **clicks or taps the Shiba** (or presses E
+next to it: one `ProximityPrompt`/`ClickDetector` per Shiba) and it swings once. One swing pays `SwingSeconds` worth of the
+lane's per-second income (`SwingSeconds` = the swing cooldown, so clicking non-stop pays exactly the lane rate, never more).
+The server enforces the cooldown per Shiba (`SwingCooldown`, open: 1.2 s) and ignores clicks during it.
+
+**Automation (per Shiba).** Each owned Shiba has a flag `Automated` (default false, saved). Buying the automation upgrade
+for that Shiba (price in money, open: `TierIncome × 60 s × 1.5 ^ (number of automated Shibas)`, so later ones cost more) makes it swing by itself
+forever, paying the same lane rate without clicking. Because click-swinging and automation pay the same rate, the economy
+simulation (`tycoon_sim`, which assumes fully automated lanes) stays valid; the automation buys convenience and being away
+from the keyboard, not extra income. A merged or re-equipped Shiba keeps `Automated`; an **Ascension resets it** (decided).
+
+**Bonk hit ("get bonked").** Every swing has a hit zone in front of the Shiba (open: 8 studs long, 90° cone, shown by a
+faint marker while the swing winds up). When the swing lands, the server checks the island owner's character position: if it is
+inside the zone, the player is launched (server-applied velocity, open: 60 studs/s away from the Shiba) and gets a **Bonk
+bonus** of `BonkBonusSeconds` (open: 10 s) of that lane's income, on top of the normal payout. Per-player cooldown
+`BonkCooldown` (open: 5 s) so standing in the zone does not farm. The risk is only the launch itself (the player may fly off the
+ring and has to walk back, or respawns on the island): **money is never lost**. Optional and never required. The hit is decided
+only by the server from positions; there is no client "I was hit" remote.
+
+**Upgrade path.** The player-facing upgrades are reduced to one path: the Shiba's **level** (x1/x10/Max, as built) and the
+**automation** unlock. The old station upgrade stands (`StationService`, `Config/Stations`, "Upgrades" billboards) and their
+upgrades do not exist while the tycoon is on. **Arches and Mill rings stay** (decided): they are multipliers bought with the
+same money, level and automation are the two things a player does to a Shiba.
+
+**Upgrades menu.** With the tycoon on, the HUD tile MANAGE opens one menu (the old upgrade menu with Shooter Tier, projectiles
+and so on does not exist then): one row per equip slot with the Shiba, its level and income, the level buttons (x1, x10, Max)
+and the automation button with its price. It is the same thing as the prompts on the level plates, in one place.
+
+**Contract impact (own PR before the code).** Clicking the Shiba (ClickDetector plus a Q prompt) is a world interaction that
+calls the server directly for the island owner, like the level prompts. Buying the automation is a prompt on the level plate
+or the client-to-server remote `BuyAutomation` (slot) from the Upgrades menu; levels use the existing `UpgradeShiba`. Server to client: `ShibaSwung` (slot, server time, automated: the
+client plays the swing animation and the hit marker, owner only) and `PlayerBonked` (slot, launch velocity: the client flings
+its own character; purely visual, the bonus is paid by the server through `TycoonPayout` with source "Bonk").
+New type field: `OwnedShiba.Automated: boolean?`. Save: `Tycoon` field gets `Automated` per owned Shiba (defaults to false; saves may
+be reset, there are no live players).
+
+**Assets.** The swing needs an animation on the Shiba rig and a stick prop. Until they exist the code falls back to a CFrame
+tween of a plain part (Marco owns assets).
+
+### Street, plots and buttons (decided by Marco 2026-09-30; replaces the island once `Config/Features.Street` is on)
+
+The game becomes a classic tycoon (reference: a Roblox tycoon Marco loaded: one button at the start, each bought button reveals
+the next ones, the plot grows). The island, the ring of platforms and the hub world are replaced by a street.
+
+**Street.** One straight road with **10 plots: 5 on the left, 5 on the right**, mirrored, facing the road. A server holds up to
+10 players. A joining player claims a free plot and spawns **on the road in front of it**; leaving frees the plot (it is reset
+visually). Everyone sees everyone's plots and Shibas. The hub features (Daily Spin, Obby, Bonk Party, Friends, Quests, Index,
+Shop) become **HUD tiles**; there is no hub world for now (the old hub code stays until the cleanup).
+
+**Plot = a corridor that grows backward.** A plot is long and narrow: the start (front) is at the street, and every section
+that is opened adds depth at the back. The six sections are the six zones (Meadow to Heaven, `Config/Tycoon → Zones`). Section 0
+is open at the start; the next section is opened by a button at the back of the open part (the zone unlock), and only then
+is it built; until then the rest of the plot is plain empty ground. Shiba slots stand left and right of a central path; the
+belts and the Mill/collector stay at the front next to the entrance, so a new section makes the belts longer (cosmetic). Which
+slot stands in which section is data in `Config/TycoonWorld` (start: slots 1 to 3 in section 0, then two per section).
+
+**Buttons (floor pads).** Everything that is *bought* is a glowing oval pad on the floor: step on it and the price is paid.
+Above it: name, one line of description and the price (plain number). Colours: **grey** = cannot afford yet, **yellow** =
+affordable, cyan = an upgrade button. A bought pad disappears and may reveal the next ones. A white arrow points at the
+current step. **At most 3 pads are visible at any time.**
+
+**Step table.** The pads come from a data table `Config/TycoonSteps` (one row per pad: id, name, description, price, the step ids
+it needs, what it does). A pad is visible when all steps it needs are bought and it is not bought itself; if more than 3 would
+be visible, only the first 3 by table order are shown. Bought steps are saved (`Tycoon.Steps`). The table IS the step-by-step
+walkthrough; the old tutorial (TutorialService/TutorialController) is not used in the street mode.
+
+| # | Pad | Price | Needs | Effect |
+|---|-----|------:|-------|--------|
+| 1 | First Shiba | 0 | - | spawns Shiba 1 (tier 1) in bay 1 |
+| 2 | Cash Register (Shiba n) | `AutomationPrice` | Shiba n spawned | automates Shiba n (it swings by itself) |
+| 3 | Expansion n (Shiba n+1) | open (grows with n) | expansion n-1 | extends the plot by one bay and spawns Shiba n+1 |
+| 4 | Arch, Mill ring, Ascension | as today | as today | as today |
+
+The level buttons are **on the Shiba itself** (like the stand of the reference game: CLICK and UPGRADE on the object), not
+floor pads: click = swing, UPGRADE = level up (x1/x10/Max), as with the level plates today. Automation is a floor pad per Shiba
+(the "Cash Register"). Amounts in the table are starting values, to be calibrated with the simulation.
+
+**What stays.** Eggs, collection, variants, levels, automation, swing and Bonk hit, arches, Mill rings, Ascension (resets the
+plot to section 0), the economy and its simulation. **What goes (after the cutover):** the island (`IslandService` ring, `Gameplay.Island`),
+the hub world, the old tutorial, the MANAGE upgrade menu (the old one; a tycoon menu is optional).
+
+**Rollout.** `Config/Features.Street = false` keeps the island tycoon running. Phases, each with CI green and playable with the
+flag off: (1) street world + plot frame + claim/spawn for 10 plots; (2) the pad system with the 3-pad limit and the first Shiba;
+(3) the step table and the walkthrough arrow; (4) sections that grow backward; (5) cutover and cleanup. Contract PRs
+(`Tycoon.Steps`, anything new on the network) come first.
+
+#### Walkthrough guide
+
+Client only, visual only (`TycoonGuideController`, street mode). A bobbing, spinning white arrow floats over the **current pad**: the first visible pad the player can afford, else the first visible one (decor pads get none). It hides while the player is closer than 6 studs. An outlined objective line under the money pill says what to do: "Step on the glowing pad: First Shiba", "Buy the Cash Register: automates <Shiba>", "Expand your plot: <name>", or, while the player cannot pay the next pad and a Shiba is not automated yet, "Click your Shiba to earn money (<price> for <name>)"; with every Shiba automated it reads "Earn <price> for: <name>". Texts come from `TycoonSteps` and the state, nothing is saved.
+
+### One Shiba per expansion (decided by Marco 2026-09-30; supersedes eggs, equip slots, merging and zones-with-eggs in street mode)
+
+Every plot expansion adds **one new Shiba**, in a fixed order with no luck: expansion n extends the plot by one bay and spawns
+Shiba n+1 (tier n+1). There are **30 expansions and 30 Shibas** (the 30 tiers of `EconomyConfig.Shibas`), five bays per
+section, six sections (Meadow to Heaven). **Eggs, the hatch animation, the equip / unequip / merge panel, equip slots and the
+collection panel do not exist in street mode.** Every spawned Shiba works; there is no 10-slot limit (30 bays). The Index stays
+as the goal: a Shiba is "found" when its expansion is bought. Variants (Shiny, Rainbow, Huge) are rolled once when a Shiba
+spawns (open: keep them, and the odds), so a collection goal remains.
+
+**Each Shiba has its own pace.** The first Shiba is the default one with the **fastest reward time** (`Swing.Cooldown`, 1.2 s).
+Every higher tier pays **more per click but takes longer**: `Timer(tier) = Swing.Cooldown × Swing.TimerGrowth ^ tier` and
+one click or swing pays `lane income per second × Timer`. Because the payout is rate × timer, the income **per second stays
+as in `TycoonMath`**; only the rhythm changes (few big payouts instead of many small ones). An automated Shiba swings
+every Timer seconds; the Bonk hit and its bonus use the same timer. The growth is **open**: with 1.35 the 30th Shiba would wait
+about two hours per click, so the starting value is gentler (1.12, tier 30 about 30 s); tune it in playtests.
+
+**Economy consequence.** All 30 Shibas now earn at once (before: at most 10 equipped), so income grows much faster than in
+`docs/economy/tycoon_sim.luau` and the prices (zone prices, expansion prices, Cash Register prices) must be calibrated again
+for the 70 to 100 hour target before the numbers are fixed. The sim has to model 30 bays, expansions as purchases and the
+per-Shiba timer. Ascension resets the plot to bay 1 and all automation, keeps the Index and the multiplier.
+
+**Save and contract (own PR first).** `Tycoon.Steps` (bought pads) and the number of bays replace `Equipped`, `EquipSlots`, `Pads`
+for slots and eggs; `OwnedShiba` stays (tier, level, variant, automated) but is created by the expansion, not by a hatch. The
+remotes `HatchEgg`, `HatchResults`, `EquipShiba`, `UnequipShiba`, `MergeShibas` are dead in street mode and removed in the cleanup PR.
+
+#### Gameplay flow (decided by Marco 2026-10-01; this REPLACES the earlier chain, the level gate and the optional decor)
+
+Marco gave full permission to change everything built before. The flow of the street mode:
+
+1. **Start:** after loading, the first thing to do is to run onto the pad that spawns the standard Shiba (free).
+2. **Earning:** the player clicks the Shiba and **stands in front of it**: the animation of the Shiba's arm with the stick **bonks the
+   player** and pays. The knockback is small (`Swing.LaunchSpeed` 18). There is no payment without a hit. The Shiba stands beside the
+   path and faces it; the hit zone is in front of it.
+3. **The Shiba's menu** (client, one clean widget, no other upgrade menus; the old plates, prompts and billboards are removed):
+   a **pill-shaped green bar** that fills when the Shiba is clicked, with the **cooldown countdown inside** ("1.0s"); under it a
+   smaller **UPGRADE button with the price written inside** (key **E** does the same). Every upgrade lowers the cooldown
+   geometrically from `BaseCooldown(tier)` to `MinCooldown` (a few milliseconds, 5 ms) at level 100 (`StreetLevelCap`) and makes
+   the next upgrade dearer.
+4. **Money per Shiba:** one hit pays `BonkPayout(tier) = TierIncome(tier) * BaseCooldown(tier)`; `BaseCooldown(tier) = 1 s + 8 s * tier`
+   (at most 240 s). Shiba 1 pays $1 per 1 s at level 1, Shiba 2 pays 9 times more per hit but waits 9 s: higher Shibas wait longer and pay more per hit. Upgrading also raises the payout of a hit by 100% of the level-1 payout per level, and the lowest cooldown a Shiba can reach grows with its tier (`MinCooldownFor`, the cooldown at level 100: 20 ms for Shiba 1, 0.05 s for Shiba 5, 0.18 s for Shiba 10, 2.2 s for Shiba 20, 26 s for Shiba 30), so a higher Shiba never gets as fast as the first one. Level costs in street mode are counted in hits (`TycoonMath.LevelCost(..., street)`): an upgrade costs `StreetLevelSeconds` (8) x 1.12^level seconds of the Shiba's own income (exponential: every level costs about 12% more, plus the income gain) times `StageFactor^0.9` of its tier (so levelling a higher Shiba stays in proportion to its price: levels 1 to 30 cost about 15 to 25 times the Shiba's purchase price; Shiba 1 only reaches about level 35 in the first two hours), so the first upgrade of the first Shiba is 8 clicks away, and every level pays +100% of the level-1 payout (`PayoutPerLevel` = 1: $1, $2, $3 ... per hit).
+5. **Decor:** after the Shiba is bought, **at least two decor pads** appear (floor, walls, a "Get Bonked" sign, ...). Decor is bought in
+   two parallel chains, so two pads are visible at once; buying one reveals the next of its chain. All decor pads of a Shiba
+   are required: **10 pads for Shibas 1 to 3, 15 for 4 to 8, 20 for 9 to 14, 25 for 15 to 21, 30 for 22 to 30**, so progress is not
+   linear and needs some grinding. The decor forms a themed surrounding (pirate: a lake, a pirate ship, crew mates, a bonk flag ...)
+   that gets bigger and cooler with the tier (Shiba 1 a garage or little house, the Pirate Shiba a fully scaled ship, the Void Shiba a
+   flying island or a black hole). Models are basic for now: gameplay and flow first.
+6. **Automation (separate from the decor, a fairly priced pad next to the Shiba, optional):** the **Bonk Intern**, a real Roblox R15 character (varied outfit, hat or headband per bay, built on the server from a HumanoidDescription, part-built fallback; `Config/InternLines`) that stands
+   in front of the Shiba and gets bonked automatically, **without knockback**; each bonk he ducks, flinches and pops back up. He idles (breathing, looking around) and says a funny line every 8-25 s in a speech bubble when the player is within 80 studs, plus a reaction line after a bonk (`InternChatController`, client only).
+7. **Next Shiba:** when ALL decor of Shiba n is bought, the last pad that appears is the one for Shiba n + 1. The loop starts again.
+   Prices are placeholders until `docs/economy/street_sim.luau` is updated.
+
+**Stage frame (for themes).** Every Shiba has a stage on the plot, one after the other away from the road. A theme is built in the
+stage frame: origin = the middle of the stage on the path's centre line, +X to the right (when facing away from the road), -Z deeper
+into the plot, +Z toward the road, Y up. The Shiba stands at (-16, 0, 0) facing +X (the path), the Intern at (-10, 0, 0), the path
+(|x| < 7) stays free. The stage is `Area.X` wide and `Area.Y` deep (the theme's own size, bigger for higher Shibas), centred on the origin.
+
+**Terraces and wall (decided by Marco 2026-10-01, hillside redesign 2026-10-02).** Stages 1 to 3 (`TycoonWorld.Street.GroupSize`) lie on the flat plot ground. From Shiba 4 on EVERY stage stands higher than the one before: the first rise is 9 studs, each further one 0.4 more (`RiseFirst`, `RiseGrowth`; Shiba 30 stands about 385 studs up, the wall and `ReachHeight` 480 cover it). No staircases and no rock blocks: before each higher stage the ground eases up over a wide grassy slope across the whole width (length = rise / `RampSlope` 0.33, eased so the steepest part is under 27 degrees), the path runs over it, and beside the walkway there are Terrain mounds, rocky outcrops, boulders and shrubs (deterministic per stage), plus rounded hills along both flanks next to the wall. The stage floor is a flat, solid grass slab at the stage's height, tinted per stage (`GrassTints`); the slope slabs are the exact walking surface, the Terrain only decorates. A stage's hillside is NOT there from the start: it is built when its Shiba becomes available (its pad appears) and its Terrain fills (about 12 per stage) are cleared with Air when the plot is destroyed or rebuilt. **Fit:** all theme coordinates (Area, Shiba spot, path, pads, piece offsets and sizes, models) are multiplied by `StageScale` (0.85) so the props sit closer together; the Shiba, its platform and barrier, the path width and the pads keep their size, and `StreetLayout` spaces the stages by the scaled Area plus `StageMargin` 8 plus the slope. There is **ONE dirt-coloured wall around all 10 plots and the road** (StreetService, `OuterWallHeight` 64), a fixed rectangle as deep as the first group (Shibas 1 to 3). When an owner expands, **only that plot's wall steps back** (its own back wall plus short side walls where its neighbours are shallower); free plots and plots that have not expanded keep the base wall. At both ends of the road the wall has a **tunnel** (`TunnelHeight`/`TunnelLength`, ends in a dark wall). The camera can zoom out only to `Street.CameraMaxZoomDistance` 64 (half of Roblox's 128; changed 2026-10-02 at Max's request). The plot ground fills the gaps between the plots. Util/StreetLayout holds the stage positions. `PlotDepth` 5400, `ReachHeight` 480.
+
+**Stage layout of the themes (Marco 2026-10-01, first 5 Shibas first).** A theme (Config/DecorTypes) may place its Shiba (`Shiba`: position and facing), give the walkway a winding shape (`Path`: waypoints), put the Shiba pad and the Intern pad where it wants (`BayPad`, `AutoPad`) and put the pad of every part where the prop will stand (`Part.Pad`), so the player buys a prop on the spot. Themes use the whole plot width (`Area.X` up to 190), the first Shiba stands inside its little house. Props taller than 0.6 studs are solid (StreetPlot sets `CanCollide`); themes keep the walkway, the zone in front of the Shiba and every pad free and reachable. `lune run docs/tools/theme_check <file> <bay>` checks all of it. **Swing animation (street mode, Marco 2026-10-01):** the Shiba swings with its OWN arm: `ThrowArm` and the stick in its paw turn around the `Shoulder` marker (overhead to `Throw.WindupDegrees`, then a fast chop down to `Throw.ReleaseDegrees`, then back), with fixed times (0.3 s wind-up, 0.2 s strike, 0.45 s recovery; they do NOT shrink with the level, a fast Shiba just swings back-to-back) while the stick in the paw is tilted 40 degrees further forward during the swing (`TycoonController.playSwing`). Only a model without an arm gets an extra stick part. **Movement (street mode):** the player walks at 22 studs/s and sprints at 36 while Left Shift is held and moving (`Gameplay.Character.StreetWalkSpeed` / `StreetSprintSpeed`, `SprintController`). **Prices (Marco 2026-10-01, rebalanced):** counted in seconds of the income a Shiba earns at level 25 (`TycoonMath.StreetReadyIncome`), times a calibrated `StageFactor` per stage; level cost = 8 s x 1.05^L of the Shiba's own income; Shiba tiers grow x4. The active player buys Shiba 2 after about 6.5 min (retention retune, docs/economy/BALANCING.md), Shiba 10 after 1.8 h and Shiba 30 after about 53 h (see docs/economy/BALANCING.md). **Decor bonuses (Marco 2026-10-01):** a part can have a `RewardMult` (1 to 2): once bought, the Shiba of the theme pays that many times more cash (house = x2); the bonuses multiply (whole theme at most x8, `TycoonMath.DecorMultiplier`, applied in `LaneIncome`), the pad text names it, and no effect is spawned for it. Not every theme has a "Get Bonked Sign" any more. Shibas stand on their tier's platform (`Config/ShibaPlatforms`, parts or `Platform_<AssetName>` model, with the barrier of the old ring); the Intern stands outside the barrier. The newer themes live in `Config/DecorTheme01 … 05` (merged by `DecorThemesD`) and replace the older ones of the same bay.
+
+**Organic stages (Marco 2026-10-02, after a Studio playtest: "all of the shiba areas look very robotic").** The walkway is a smooth curve (`World/StageScatter.PathFor`: the theme's `Path` waypoints as a centripetal Catmull-Rom curve, at most 2.8 studs off the polyline, width varying +-8%, built from short overlapping segments with round joints; the walkway width, validator and pad reachability are unchanged). A decor part may have a `Yaw` (degrees, `Config/DecorTypes`): the whole part turns about the centre of its pieces, so houses, fences and trees need not be axis-aligned (data-driven, no automatic jitter; `theme_check` rotates the part for its checks). Every reached stage gets a silent scatter (`World/StageScatter`, data in `Config/StageScatter`, a biome per bay): fence rows following the path with gaps, clusters of trees, bushes, rocks and flowers with random yaw and scale 0.8 to 1.4, tufts and small rocks along the Area border and the path edges (40 to 90 props per stage, seeded by plot slot and bay, never on the path, pads, Shiba zone, Intern spot or solid theme pieces). Props are the `Scatter_<Name>` models from `assets/models/scatter` or a primitive fallback; only trunks of big trees and boulders over 4 studs collide.
+
+**Hand tuning of stages (Marco 2026-10-03: "can I scale and turn the models myself").** A decor part may have `Scale` (0.3 to 3, uniform, about the centre of its pieces' union box), `Yaw` (degrees) and `Nudge` (a Vector3 in the stage frame, unscaled units, Y = lift), applied in that order to pieces, colliders and model alike; its pad stays where the theme puts it. `Config/StageScatter` has `Pins[bay]` (hand-placed props: `{ Name, X, Z, Yaw, Scale }` in unscaled stage units, built in addition to the random ones with no collision rejection) and `Skip[bay][index]` (random props not built; the index is the prop's place in the stage's generation order, and the random stream is unchanged by a skip, so nothing else moves). The values are found in Studio, not by guessing: in a playtest or Run mode every decor model and scatter prop carries `Tune*` attributes, the designer moves, rotates and scales the models with Studio's normal tools and runs `docs/tools/studio_tuner.luau` in the command bar, which prints the lines to paste (steps in `docs/TUNING.md`). `docs/tools/theme_check` applies Scale, Yaw and Nudge to all its geometry checks.
+
+**Old game parts switched off in street mode (Marco 2026-10-01).** With `Features.Street` on there is no hub island (HubService), no ocean, clouds or floating islands (DecorService keeps only the lighting), no obby, coin flips, party sign or server events, and no GIFTS, QUESTS, SPIN, INDEX, SHIBAS or MANAGE tiles no starter-pack and no welcome-back (offline earnings) popup. SHOP, INVITE, SETTINGS and ADMIN stay. The code stays for the flag-off game; it is deleted at the cutover when the islands are removed.
+
+##### Shiba menu (client)
+
+`ShibaPanelController` draws one `BillboardGui` (about 220x80 px, `MaxDistance` 60) on `Lane_<n>/Anchor` for each own Shiba the
+character is within 45 studs of (removed beyond 55); it exists only in street mode.
+- **Name line** "Name  Lv N", then the **pill-shaped green bar**. It is empty while idle (the text shows the full cooldown of the
+  current level: "1.00s", "42ms") and **fills from left to right** during the cooldown that starts at the click (`ClickDetector.MouseClick` for
+  instant feedback, re-synced by `ShibaSwung`), the countdown inside ("0.83s" down to "0.00s"). An automated Shiba's bar cycles
+  continuously while swings arrive; at a cooldown of 0.25 s or less it shows full with the number.
+- **UPGRADE button** under it, smaller, "UPGRADE  $1.2K" (`TycoonMath.LevelCost`, `Format.Short`); grey when too dear, "MAX" at
+  `TycoonMath.CapFor`. A tap or key **E** (nearest own Shiba within 14 studs, ignored while typing) fires `UpgradeShiba(slot, 1)`.
+- The server's old E/F level prompts are hidden on the client so nothing else competes for E.
+- **Swing animation** (`TycoonController`): wind-up and strike are scaled to `SwingCooldown` (never queued, a short blurred stroke for
+  tiny cooldowns); the red hit zone is drawn only for manual Shibas and is faint. The **Bonk Intern** (`Lane_<n>/Intern`, R15 character, attribute `StreetIntern`) ducks
+  1.2 studs and pops back within 0.2 s when the stick lands. `PlayerBonked` is a small fling (speed at most 40, no PlatformStand).
+
+#### Shiba themes and decor (implementation)
+
+Defaults chosen by the implementer (street mode, flags off); all numbers and rules below are open until the owner confirms.
+The theme list itself (which Shiba gets which theme) is written elsewhere; this is the system.
+
+- **Every Shiba can have a theme**: decoration the player has to unlock part by part. Data in `Config/TycoonDecor`
+  (`Themes` keyed by bay number, `Parts` in build order, each part a list of primitive `Pieces` or a model
+  `Decor_<Key>_<PartId>` in `ReplicatedStorage.Assets`). Adding a theme is adding one table entry. First theme: the
+  **Pirate Shiba** (bay 8) gets a pirate ship.
+- **Decor steps are normal steps** `Decor<bay>_<partId>` (Kind "Decor", saved in `Tycoon.Steps`). The first part needs the Shiba's
+  automation (`Auto<bay>`) and its level gate, every other part the previous one; the next Shiba needs the last part
+  (see "Progression chain").
+- **Limit.** Decor pads are part of the chain and count towards the 3 visible pads (see "Progression chain"); decor is required,
+  not optional, and there is no proximity rule.
+- **Look.** A part appears on the plot (built by the server) when its step is bought; parts not bought are not drawn. The theme
+  stands beside its Shiba's bay on the side away from the path, on the same row depth.
+- **Price** per part: `TierIncome(bay - 1) * PriceSeconds` (placeholders, open).
+- **Pirate ship parts** (`PriceSeconds`): Ship's Hull 30, Mast 20, Main Sail 25, Jolly Roger (flag) 10, Cannons 35, Ship's Wheel 20,
+  Treasure Chest 40 (all open).
+- **No income**: decor is purely cosmetic in this first version. Open idea for later: a small bonus when a theme is complete.
+Every Shiba has its own theme with unlockable decoration: see Shiba themes (design list).
+
+### Shiba themes (design list)
+
+Every Shiba gets its own **theme**: a set of decoration parts that stands beside its bay (on the side away from the path) and is
+unlocked piece by piece. The Pirate Shiba, for example, gets a pirate ship whose Hull, Mast, Sail, Flag, Cannons, Ship's Wheel
+and Treasure Chest are bought one after another. Decoration is **cosmetic and optional**; it never blocks progress. It is built
+from simple primitives (blocks, cylinders, wedges, colours, materials), and Marco can later replace single pieces with models
+named `Decor_<Theme>_<Part>`. The mechanics (steps `Decor<bay>_<partId>`, one decor pad at a time, shown only within about 70
+studs of the theme, not counted in the 3-pad limit) are decided above and in the decor code; this section is only the content.
+
+**Naming and size rules.**
+- Theme name = a short place or object name ("Pirate Ship", "Dojo"); part names are short nouns, unique inside the theme.
+- 3 to 7 parts per theme, ordered from the base to the finishing touch (the first part is the ground or the main body, the last
+  one is the detail that makes the theme recognisable or shiny).
+- Later Shibas have more parts and bigger themes: bays 1 to 7 have 3 to 4 parts (Pirate is the one early exception with 7, because
+  the owner asked for it), bays 9 to 15 have 4 to 5, bays 16 to 24 have 5, bay 25 to 30 have 6. Total: 144 parts.
+- The rarest and last Shibas get the most spectacular themes (lights, glow, floating pieces, bigger than the bay).
+- Part ids in data: a short PascalCase of the part name (`Hull`, `ShipsWheel`); each part is one step in the chain.
+- Prices: `TierIncome(tier) * PriceSeconds` per part, placeholders (see the pirate ship for the shape of the curve).
+
+| Bay | Shiba | Theme | Parts (in unlock order) | Look |
+|----:|-------|-------|-------------------------|------|
+| 1 | Shiba | Doghouse Garden | Doghouse, Picket Fence, Bone Sign | Orange and white wood, green grass patch, warm and simple. |
+| 2 | Shades Shiba | Beach Bar | Bar Counter, Parasol, Sunglasses Rack | Bamboo and sand tones, a striped parasol in cool grey-blue, neon shades icon. |
+| 3 | Buff Shiba | Gym | Floor Mat, Bench Press, Dumbbell Rack, Trophy Shelf | Red and black rubber and metal, chunky dumbbells, gold trophies. |
+| 4 | Chef Shiba | Food Truck | Truck Body, Serving Awning, Grill, Menu Board | White truck with red-white striped awning, steel grill, chalkboard menu. |
+| 5 | DJ Shiba | DJ Stage | Stage Platform, Speaker Stacks, Light Truss, Disco Ball | Black stage, pink and cyan neon lights, mirrored sphere that spins. |
+| 6 | Police Shiba | Police Station | Station Building, Station Sign, Patrol Car, Siren Beacon | Blue and white building, black-and-white car, flashing red/blue beacon (neon). |
+| 7 | Cowboy Shiba | Saloon | Boardwalk, Saloon Building, Swinging Doors, Water Tower | Weathered planks in warm browns, a false front, a barrel-shaped tower on legs. |
+| 8 | Pirate Shiba | Pirate Ship | Hull, Mast, Sail, Flag, Cannons, Ship's Wheel, Treasure Chest | Dark wood ship with cream sail, black flag, black cannons, gold chest (details below). |
+| 9 | Ninja Shiba | Dojo | Dojo Floor, Dojo Walls, Pagoda Roof, Training Dummies | Dark wood and paper screens, red roof trim, straw dummies, night colours. |
+| 10 | Viking Shiba | Longhouse | Longhouse Frame, Turf Roof, Shield Wall, Longship | Dark timber, grass roof, round shields in red/white/yellow, a small ship with a dragon prow. |
+| 11 | Knight Shiba | Castle | Curtain Wall, Gatehouse, Corner Towers, Banners, Keep | Light grey stone with battlements, blue-silver banners, a raised keep in the middle. |
+| 12 | Samurai Shiba | Shrine | Stone Steps, Torii Gate, Shrine Hall, Stone Lanterns | Red torii, dark roof, grey stone steps and lanterns, cherry-pink accents. |
+| 13 | Robot Shiba | Factory | Factory Hall, Conveyor Line, Robot Arm, Smokestack | Steel hall with cyan glow strips, moving belt look, a yellow robot arm, a chimney with sparks. |
+| 14 | Astronaut Shiba | Launch Pad | Launch Pad, Gantry Tower, Rocket Body, Nose Cone and Fins, Mission Control | Concrete pad, orange gantry, white rocket with red nose and fins, glass control bunker. |
+| 15 | Superhero Shiba | Hero HQ | HQ Tower, Hero Emblem, Signal Spotlight, Hero Statue | Blue-red tower, a big emblem on the front, a beam of light into the sky, a heroic statue. |
+| 16 | Gold Shiba | Vault | Vault Room, Vault Door, Gold Bar Stacks, Laser Floor, Diamond Pedestal | Steel walls, a round door, stacks of shiny gold (Metal, gold), red lasers (neon), a cyan diamond. |
+| 17 | Wizard Shiba | Wizard Tower | Tower Base, Tower Shaft, Pointed Roof, Crystal Ball, Magic Circle | Blue-purple stone tower with a star-dotted pointed roof, a glowing ball, a rune circle on the floor. |
+| 18 | Vampire Shiba | Vampire Crypt | Crypt Hall, Gothic Gate, Coffin, Bat Belfry, Blood Fountain | Black and crimson stone, pointed arches, a dark coffin, a belfry with bats, a red fountain. |
+| 19 | Pharaoh Shiba | Pyramid | Pyramid Base, Middle Tier, Golden Capstone, Sphinx, Obelisks | Sandstone steps, a gold capstone (glowing), a sphinx in front, two tall obelisks. |
+| 20 | Frost Shiba | Ice Palace | Ice Floor, Ice Walls, Ice Spires, Snowman Guards, Aurora Light | Translucent light blue Ice and Glass, white snow, spires, a green-purple aurora ribbon above. |
+| 21 | Magma Shiba | Volcano | Volcano Cone, Crater Rim, Lava Flow, Obsidian Spikes, Eruption | Dark rock cone, orange neon lava streams, black spikes, sparks and a glowing plume. |
+| 22 | Dragon Shiba | Dragon Lair | Cave Mouth, Gold Hoard, Dragon Egg Nest, Skull Gate, Fire Brazier | Green-black rock cave, a heap of gold coins, big speckled eggs, bone arch, flames. |
+| 23 | Mecha Shiba | Mecha Hangar | Hangar Hall, Gantry Crane, Launch Rails, Mecha Suit Stand, Holo Display | Grey-blue steel hall with hazard stripes, a yellow crane, a huge empty suit on a stand, a blue hologram. |
+| 24 | Galaxy Shiba | Observatory | Dome Base, Observatory Dome, Telescope, Orbiting Planets, Nebula Beam | Dark blue-violet building, a dome with a slit, a long telescope, small planets that orbit, a pink-violet beam. |
+| 25 | Angel Shiba | Cloud Temple | Cloud Base, Marble Columns, Temple Roof, Golden Harp, Halo Ring, Light Beam | White clouds (Neon, soft), marble columns, gold trim, a floating ring, a beam down from the sky. |
+| 26 | Demon Shiba | Hell Gate | Obsidian Ground, Gate Pillars, Gate Arch, Lava Moat, Demon Throne, Hellfire Portal | Black and red rock, horned pillars, glowing lava around it, a spiked throne, a swirling red portal. |
+| 27 | Giant Shiba | Beanstalk and Stone Circle | Standing Stones, Giant Stool, Giant Club, Beanstalk Stem, Beanstalk Leaves, Golden Goose Nest | Huge grey stones and a giant stool and club (scaled to a 16-stud Shiba), a tall green stalk with leaves, a golden nest at the top. |
+| 28 | Cheems God | Doge Altar | Altar Steps, Altar Table, Doge Throne, Golden Bone Pillars, Halo Arch, Holy Light | White-gold marble steps, a golden throne, pillars shaped like bones, a halo ring, a column of warm light. |
+| 29 | Eternal Shiba | Clock Tower | Clock Base, Tower Shaft, Clock Face, Clock Hands, Gear Ring, Floating Hourglass | Brass and gold gears, a big lit clock face with moving hands, turning gears, an hourglass in the air. |
+| 30 | Void Shiba | Void Portal | Dark Platform, Portal Frame, Portal Swirl, Floating Shards, Black Hole Core, Void Eye | Black stone with purple neon, a ring frame, a swirling portal, shards that float, a dark core, a big eye as the last piece. |
+
+**The pirate ship in detail (Shiba 8, theme "Pirate Ship").** The whole ship fits beside the bay: about **14 studs wide, 30
+studs long, 22 studs high**, the bow pointing away from the street, stern (back) at the bay. Seven parts, each bought from one
+pad next to the ship (the pad is always for the next part). The ship floats about 1 stud above the ground on a low sand base
+(part of the Hull). All sizes are X width, Y height, Z length in studs; all colours are hints.
+
+| # | Part id | Size (studs) and position | Colour and material | PriceSeconds (placeholder) |
+|--:|---------|---------------------------|---------------------|---------------------------:|
+| 1 | `Hull` | Main body 14 x 6 x 24 from the stern, plus a wedge bow 14 x 6 x 6 (30 long in total); deck plank 13 x 0.5 x 29 on top; a 14 x 0.5 x 32 sand base below. Top of the hull at about 7 high. | Dark wood (110, 70, 40), Material Wood; deck lighter wood (160, 110, 60); base sand (225, 205, 150). | 600 |
+| 2 | `Mast` | Cylinder 1.5 across, 15 high, standing on the deck 9 studs from the stern-side of the bow half; top at about 22 high. A short yard (horizontal cylinder 0.8 x 10) 12 high. | Brown wood (95, 60, 35), Wood. | 900 |
+| 3 | `Sail` | Thin block 10 wide x 9 high x 0.4 thick, hanging from the yard (from 12 down to 3 above the deck). | Cream cloth (240, 230, 200), Fabric; red stripe 1 stud high across the middle (170, 40, 40). | 1300 |
+| 4 | `Flag` | Block 3 x 2 x 0.2 on a 0.3 pole at the mast top (the pole reaches 22); a white skull (two small spheres and a bar) on it. | Black (25, 25, 30), Fabric; white skull (240, 240, 240). | 1800 |
+| 5 | `Cannons` | Four cannons, two per side on the deck rim: cylinder 1.3 across x 3.5 long pointing outwards, on a small wood carriage 2 x 1 x 2; slightly above 7 high. | Black Metal (30, 30, 35); carriages dark wood. | 2500 |
+| 6 | `ShipsWheel` | At the stern deck: a disc 3 across x 0.4 thick with 8 short spokes, on a post 2 high (the top at about 10 high). | Dark wood (80, 50, 30), Wood; brass hub (200, 160, 60), Metal. | 3500 |
+| 7 | `TreasureChest` | On the deck in front of the wheel: block 3 x 2 x 2 with a half-cylinder lid; a gold band and a glowing gold neon rim (small sparkle). | Chest wood (120, 75, 40); gold (255, 200, 40), Material Neon for the rim and Metal for the band. | 5000 |
+
+The part ids are suggestions for the decor steps (`Decor8_Hull`, `Decor8_Mast`, ... `Decor8_TreasureChest`). The chain is strictly
+in this order (each part needs the previous one). **All prices are placeholders:** the real value of `PriceSeconds` is data and is
+calibrated with the economy sim; the curve (600 to 5000 seconds of the Shiba's own income, roughly x1.4 per step) is only meant
+as a shape, so that the last piece costs a proper treat and the first one is cheap.
+
+**Milestone idea (OPEN, not decided).** Completing a theme (all parts bought) could give a small cosmetic bonus: an aura or light
+on the theme (for example the ship lights its lanterns, the volcano erupts every few minutes), or a small income bonus of a few
+percent for that Shiba. Whether there is a bonus at all, and whether it is cosmetic or income, is an open decision for the owner;
+until then finishing a theme has no effect beyond looking good.
+
+**Open points for the owner.**
+1. The part counts (144 parts in total) and the growth of part count with the tier: fewer, more, or the same for everyone?
+2. Milestone bonus for a finished theme: none, cosmetic only, or a small income bonus (and how large)?
+3. The Pirate Ship stays the only theme with 7 parts in the early game (as requested) or should other early Shibas get more too?
+4. Price curve: one `PriceSeconds` curve for every theme, or a per-theme list as in the pirate table? Needs the economy sim.
+5. Should themes of Shibas that are not yet bought be visible as an empty outline or hidden completely (current idea: hidden)?
+6. Giant (16 studs), Angel (11), Demon (11), Eternal (16) and Void (18) Shibas are tall: their themes may need to be larger
+   than a normal bay (for example 30 wide). Allow themes to bulge into the neighbouring plot or cap the size?
+7. Names and look are free proposals: which themes should be changed (for example Shades Shiba: Beach Bar vs. Sunglasses Shop)?
+8. After Ascension the plot resets to bay 1: decor resets with it (current idea), or decor is kept as a permanent trophy?
+9. Marco's model names `Decor_<Theme>_<Part>` use the names in this table without spaces or apostrophes (`Decor_PirateShip_ShipsWheel`): confirm.
+
+### Vault and offline
+
+The Vault stands in the centre; money in it is `VaultStored` and is collected by walking to it (`CollectVault`, auto-collect
+nearby). **Currently the vault stays empty.** Offline earnings come later: planned 40 % of the online rate, capped at 2 h,
+growing to 8 h with upgrades; the existing Offline Shiba Bank (`Bank.Pending`, "Welcome back" panel) keeps working until then.
+
+**Street mode (decided in the retention retune, implemented):** no popup and no basket. `OfflineService` pays on join, straight to the
+balance (`EconomyService.PayOffline`): 40 % of the sampled income per minute (`EconomyConfig.Automation.StreetOfflineShare`) for the time
+away, at most 1 h (`StreetOfflineSeconds`), at least 60 s away; the rate is clamped to 1.5 x what the Shibas earn now
+(`StreetSampleCap`). The player sees the toast "Welcome back! +X while you were away". `Bank.Pending` stays 0, `OfflineEarnings` /
+`ClaimOffline` / the "DoubleOffline" product are unused in this mode.
+
+### HUD rules
+
+- Money is shown as **plain numbers with the money icon**, never with a "B$" or "$" text symbol (HUD, billboards, popups, shop,
+  admin, notifications): short suffixes (1.2K, 3.42P). The icon is one reusable widget (`Widgets.MoneyIcon(size)`).
+- Money pill at the top; income per second below it in small green ("+3.2K/s"). Level plates show x1/x10/Max and a milestone hint.
+- Left: a 2-column grid of icon buttons (Shibas, Eggs, Upgrades/Crew, Shop, Spin, Quests, Rewards, Friends, Ascension, Settings)
+  with a red dot for news. Mobile safe. Settings > Hints, the tutorial highlight, notifications and the "Welcome back" panel keep working.
+
+### Plot (world)
+
+Per island: 10 ring positions, level plates in front of them, one belt per lane into the Bonk Mill in the centre, the Vault, and
+egg stands per zone. Object names are in `docs/ARCHITECTURE.md → World vs code`.
 
 ## Systems (high level)
 

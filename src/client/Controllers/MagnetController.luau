@@ -15,6 +15,7 @@ local Workspace = game:GetService("Workspace")
 
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local ProjectilePath = require(ReplicatedStorage.Shared.Util.ProjectilePath)
+local Features = require(ReplicatedStorage.Shared.Config.Features)
 
 local BonkController = require(script.Parent.BonkController)
 local ProjectileController = require(script.Parent.ProjectileController)
@@ -310,6 +311,10 @@ local function refreshActive()
 end
 
 function MagnetController.Init()
+	-- The tycoon (TycoonService) replaces the old loop.
+	if Features.Tycoon then
+		return
+	end
 	visualsFolder = Instance.new("Folder")
 	visualsFolder.Name = "MagnetVisual"
 	visualsFolder.Parent = Workspace
@@ -317,6 +322,10 @@ function MagnetController.Init()
 end
 
 function MagnetController.Start()
+	-- The tycoon (TycoonService) replaces the old loop.
+	if Features.Tycoon then
+		return
+	end
 	State.Start()
 	State.Changed:Connect(refreshActive)
 	refreshActive()

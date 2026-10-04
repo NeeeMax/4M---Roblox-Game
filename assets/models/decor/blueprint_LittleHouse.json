@@ -1,0 +1,1599 @@
+{
+  "Area": [
+    180,
+    110
+  ],
+  "AutoPad": [
+    60,
+    -37
+  ],
+  "BayPad": [
+    46,
+    -2
+  ],
+  "Key": "LittleHouse",
+  "Name": "Little House",
+  "Parts": [
+    {
+      "Description": "A flagstone patio at the gate and a warm wooden floor inside the big cottage.",
+      "Id": "Flooring",
+      "Name": "Garden Flooring",
+      "Pad": [
+        18,
+        44
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            150,
+            150,
+            156
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            18,
+            0.25,
+            47
+          ],
+          "Size": [
+            28,
+            0.4,
+            14
+          ]
+        },
+        {
+          "Color": [
+            150,
+            104,
+            62
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            67,
+            0.25,
+            -26
+          ],
+          "Size": [
+            35,
+            0.4,
+            31
+          ]
+        },
+        {
+          "Color": [
+            120,
+            120,
+            126
+          ],
+          "Material": "Material.Cobblestone",
+          "Offset": [
+            44,
+            0.25,
+            -26
+          ],
+          "Size": [
+            8,
+            0.4,
+            20
+          ]
+        },
+        {
+          "Color": [
+            150,
+            150,
+            156
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            36,
+            0.25,
+            36
+          ],
+          "Size": [
+            8,
+            0.4,
+            8
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A big cosy brick cottage with a red roof, built right around the Shiba.",
+      "Id": "LittleHouse",
+      "Name": "Little House",
+      "Pad": [
+        44,
+        -26
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            176,
+            88,
+            66
+          ],
+          "Material": "Material.Brick",
+          "Offset": [
+            85,
+            7,
+            -26
+          ],
+          "Size": [
+            1,
+            14,
+            31
+          ]
+        },
+        {
+          "Color": [
+            246,
+            232,
+            200
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            67.5,
+            7,
+            -41.5
+          ],
+          "Size": [
+            36,
+            14,
+            1
+          ]
+        },
+        {
+          "Color": [
+            246,
+            232,
+            200
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            67.5,
+            7,
+            -10.5
+          ],
+          "Size": [
+            36,
+            14,
+            1
+          ]
+        },
+        {
+          "Color": [
+            176,
+            88,
+            66
+          ],
+          "Material": "Material.Brick",
+          "Offset": [
+            50,
+            7,
+            -38
+          ],
+          "Size": [
+            1,
+            14,
+            6
+          ]
+        },
+        {
+          "Color": [
+            176,
+            88,
+            66
+          ],
+          "Material": "Material.Brick",
+          "Offset": [
+            50,
+            7,
+            -14
+          ],
+          "Size": [
+            1,
+            14,
+            6
+          ]
+        },
+        {
+          "Color": [
+            150,
+            60,
+            56
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            67,
+            14.5,
+            -26
+          ],
+          "Size": [
+            40,
+            1,
+            36
+          ]
+        },
+        {
+          "Color": [
+            150,
+            60,
+            56
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            67,
+            15.5,
+            -26
+          ],
+          "Size": [
+            34,
+            1,
+            30
+          ]
+        },
+        {
+          "Color": [
+            150,
+            60,
+            56
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            67,
+            16.5,
+            -26
+          ],
+          "Size": [
+            26,
+            1,
+            24
+          ]
+        },
+        {
+          "Color": [
+            150,
+            60,
+            56
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            67,
+            17.5,
+            -26
+          ],
+          "Size": [
+            18,
+            1,
+            16
+          ]
+        },
+        {
+          "Color": [
+            150,
+            60,
+            56
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            67,
+            18.5,
+            -26
+          ],
+          "Size": [
+            10,
+            1,
+            8
+          ]
+        },
+        {
+          "Color": [
+            176,
+            88,
+            66
+          ],
+          "Material": "Material.Brick",
+          "Offset": [
+            80,
+            11,
+            -38
+          ],
+          "Size": [
+            4,
+            22,
+            4
+          ]
+        },
+        {
+          "Color": [
+            150,
+            150,
+            156
+          ],
+          "Material": "Material.Concrete",
+          "Offset": [
+            80,
+            22.3,
+            -38
+          ],
+          "Size": [
+            5,
+            0.6,
+            5
+          ]
+        },
+        {
+          "Color": [
+            150,
+            150,
+            156
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            47.5,
+            0.3,
+            -26
+          ],
+          "Size": [
+            4,
+            0.5,
+            18
+          ]
+        }
+      ],
+      "RewardMult": 2
+    },
+    {
+      "Description": "A big yellow signboard so everybody knows what happens here.",
+      "Id": "BonkedSign",
+      "Name": "Get Bonked Sign",
+      "Pad": [
+        36,
+        35
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            150,
+            104,
+            62
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            26,
+            6,
+            28
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            12,
+            1.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            150,
+            104,
+            62
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            46,
+            6,
+            28
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            12,
+            1.6,
+            1.6
+          ]
+        },
+        {
+          "Color": [
+            250,
+            200,
+            60
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            36,
+            9.5,
+            28
+          ],
+          "Size": [
+            24,
+            9,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            150,
+            60,
+            56
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            36,
+            13.6,
+            28.7
+          ],
+          "Size": [
+            24,
+            0.9,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            150,
+            60,
+            56
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            36,
+            5.4,
+            28.7
+          ],
+          "Size": [
+            24,
+            0.9,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            245,
+            245,
+            240
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            31,
+            9.5,
+            28.7
+          ],
+          "Size": [
+            4.5,
+            1.8,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            245,
+            245,
+            240
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            41,
+            9.5,
+            28.7
+          ],
+          "Size": [
+            4.5,
+            1.8,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            245,
+            245,
+            240
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            36,
+            9.5,
+            28.7
+          ],
+          "Size": [
+            3,
+            3.6,
+            0.6
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A roomy garage with a little blue car parked inside.",
+      "Id": "Garage",
+      "Name": "Garage with Car",
+      "Pad": [
+        -68,
+        46
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            176,
+            88,
+            66
+          ],
+          "Material": "Material.Brick",
+          "Offset": [
+            -68,
+            6,
+            14
+          ],
+          "Size": [
+            36,
+            12,
+            1
+          ]
+        },
+        {
+          "Color": [
+            246,
+            232,
+            200
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -85.5,
+            6,
+            26
+          ],
+          "Size": [
+            1,
+            12,
+            25
+          ]
+        },
+        {
+          "Color": [
+            246,
+            232,
+            200
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -50.5,
+            6,
+            26
+          ],
+          "Size": [
+            1,
+            12,
+            25
+          ]
+        },
+        {
+          "Color": [
+            90,
+            90,
+            100
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -68,
+            12.5,
+            26
+          ],
+          "Size": [
+            38,
+            1,
+            27
+          ]
+        },
+        {
+          "Color": [
+            60,
+            120,
+            200
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -68,
+            3,
+            26
+          ],
+          "Size": [
+            14,
+            3,
+            6.5
+          ]
+        },
+        {
+          "Color": [
+            170,
+            210,
+            240
+          ],
+          "Material": "Material.Glass",
+          "Offset": [
+            -69,
+            5.8,
+            26
+          ],
+          "Size": [
+            7,
+            2.6,
+            6
+          ]
+        },
+        {
+          "Color": [
+            30,
+            30,
+            34
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -72.6,
+            1.7,
+            22.2
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.2,
+            3.4,
+            3.4
+          ]
+        },
+        {
+          "Color": [
+            30,
+            30,
+            34
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -63.4,
+            1.7,
+            22.2
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.2,
+            3.4,
+            3.4
+          ]
+        },
+        {
+          "Color": [
+            30,
+            30,
+            34
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -72.6,
+            1.7,
+            29.8
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.2,
+            3.4,
+            3.4
+          ]
+        },
+        {
+          "Color": [
+            30,
+            30,
+            34
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -63.4,
+            1.7,
+            29.8
+          ],
+          "Rotation": [
+            0,
+            90,
+            0
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            1.2,
+            3.4,
+            3.4
+          ]
+        }
+      ],
+      "RewardMult": 1.25
+    },
+    {
+      "Description": "A red mailbox with its little flag up. Someone wrote to the Shiba!",
+      "Id": "Mailbox",
+      "Name": "Mailbox",
+      "Pad": [
+        62,
+        50
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            150,
+            104,
+            62
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            62,
+            3,
+            44
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            6,
+            1.2,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            200,
+            50,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            62,
+            7,
+            44
+          ],
+          "Size": [
+            4,
+            2.6,
+            2.6
+          ]
+        },
+        {
+          "Color": [
+            250,
+            220,
+            60
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            64.4,
+            8.2,
+            44
+          ],
+          "Size": [
+            0.5,
+            2,
+            0.5
+          ]
+        }
+      ]
+    },
+    {
+      "Description": "A tall white fence closes off the front garden.",
+      "Id": "Fence",
+      "Name": "White Picket Fence",
+      "Pad": [
+        77,
+        46
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            245,
+            245,
+            240
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            66,
+            3.3,
+            38
+          ],
+          "Size": [
+            1.2,
+            6.6,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            245,
+            245,
+            240
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            71.5,
+            3.3,
+            38
+          ],
+          "Size": [
+            1.2,
+            6.6,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            245,
+            245,
+            240
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            77,
+            3.3,
+            38
+          ],
+          "Size": [
+            1.2,
+            6.6,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            245,
+            245,
+            240
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            82.5,
+            3.3,
+            38
+          ],
+          "Size": [
+            1.2,
+            6.6,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            245,
+            245,
+            240
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            88,
+            3.3,
+            38
+          ],
+          "Size": [
+            1.2,
+            6.6,
+            1.2
+          ]
+        },
+        {
+          "Color": [
+            245,
+            245,
+            240
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            77,
+            2.2,
+            38
+          ],
+          "Size": [
+            23,
+            0.8,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            245,
+            245,
+            240
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            77,
+            5,
+            38
+          ],
+          "Size": [
+            23,
+            0.8,
+            0.8
+          ]
+        },
+        {
+          "Color": [
+            245,
+            245,
+            240
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            77,
+            3.6,
+            38.5
+          ],
+          "Size": [
+            22,
+            4.4,
+            0.4
+          ]
+        }
+      ],
+      "RewardMult": 1.1
+    },
+    {
+      "Description": "Two long beds full of red, yellow and pink flowers.",
+      "Id": "Garden",
+      "Name": "Flower Beds",
+      "Pad": [
+        -44,
+        14
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            92,
+            64,
+            44
+          ],
+          "Material": "Material.Ground",
+          "Offset": [
+            -44,
+            0.8,
+            2
+          ],
+          "Size": [
+            22,
+            1.6,
+            7
+          ]
+        },
+        {
+          "Color": [
+            92,
+            64,
+            44
+          ],
+          "Material": "Material.Ground",
+          "Offset": [
+            -44,
+            0.8,
+            -10
+          ],
+          "Size": [
+            22,
+            1.6,
+            7
+          ]
+        },
+        {
+          "Color": [
+            230,
+            60,
+            70
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -51,
+            2.8,
+            2
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.4,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            250,
+            210,
+            60
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -47,
+            2.8,
+            2
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.4,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            240,
+            120,
+            190
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -43,
+            2.8,
+            2
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.4,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            250,
+            250,
+            250
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -39,
+            2.8,
+            2
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.4,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            250,
+            210,
+            60
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -51,
+            2.8,
+            -10
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.4,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            240,
+            120,
+            190
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -47,
+            2.8,
+            -10
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.4,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            230,
+            60,
+            70
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -43,
+            2.8,
+            -10
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.4,
+            2.4,
+            2.4
+          ]
+        },
+        {
+          "Color": [
+            150,
+            110,
+            230
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            -39,
+            2.8,
+            -10
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            2.4,
+            2.4,
+            2.4
+          ]
+        }
+      ],
+      "RewardMult": 1.2
+    },
+    {
+      "Description": "A huge oak that gives the whole yard some shade.",
+      "Id": "Tree",
+      "Name": "Big Oak Tree",
+      "Pad": [
+        -62,
+        -18
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            110,
+            76,
+            44
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            -62,
+            9,
+            -30
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            18,
+            4.5,
+            4.5
+          ]
+        },
+        {
+          "Color": [
+            70,
+            150,
+            70
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            -62,
+            26,
+            -30
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            26,
+            26,
+            26
+          ]
+        },
+        {
+          "Color": [
+            80,
+            165,
+            80
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            -72,
+            21,
+            -34
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            16,
+            16,
+            16
+          ]
+        },
+        {
+          "Color": [
+            60,
+            140,
+            66
+          ],
+          "Material": "Material.Grass",
+          "Offset": [
+            -52,
+            21,
+            -26
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            16,
+            16,
+            16
+          ]
+        }
+      ],
+      "RewardMult": 1.2
+    },
+    {
+      "Description": "A snug doghouse and a wooden bench to watch the bonking from.",
+      "Id": "DoghouseBench",
+      "Name": "Doghouse and Bench",
+      "Pad": [
+        8,
+        -12
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            190,
+            70,
+            60
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            0,
+            3,
+            -24
+          ],
+          "Size": [
+            8,
+            6,
+            8
+          ]
+        },
+        {
+          "Color": [
+            150,
+            60,
+            56
+          ],
+          "Material": "Material.Wood",
+          "Offset": [
+            0,
+            6.5,
+            -24
+          ],
+          "Size": [
+            10,
+            1,
+            10
+          ]
+        },
+        {
+          "Color": [
+            40,
+            28,
+            24
+          ],
+          "Material": "Material.SmoothPlastic",
+          "Offset": [
+            0,
+            2,
+            -19.8
+          ],
+          "Size": [
+            3.2,
+            4,
+            0.4
+          ]
+        },
+        {
+          "Color": [
+            150,
+            104,
+            62
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            18,
+            3.2,
+            -26
+          ],
+          "Size": [
+            12,
+            1,
+            3.5
+          ]
+        },
+        {
+          "Color": [
+            150,
+            104,
+            62
+          ],
+          "Material": "Material.WoodPlanks",
+          "Offset": [
+            18,
+            5.6,
+            -27.6
+          ],
+          "Size": [
+            12,
+            3.4,
+            0.6
+          ]
+        },
+        {
+          "Color": [
+            60,
+            60,
+            66
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            13,
+            1.5,
+            -26
+          ],
+          "Size": [
+            1,
+            3,
+            3
+          ]
+        },
+        {
+          "Color": [
+            60,
+            60,
+            66
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            23,
+            1.5,
+            -26
+          ],
+          "Size": [
+            1,
+            3,
+            3
+          ]
+        }
+      ],
+      "RewardMult": 1.3
+    },
+    {
+      "Description": "The showpiece: a stone fountain crowned with a shining golden bone.",
+      "Id": "Fountain",
+      "Name": "Golden Bone Fountain",
+      "Pad": [
+        -24,
+        -22
+      ],
+      "Pieces": [
+        {
+          "Color": [
+            150,
+            150,
+            156
+          ],
+          "Material": "Material.Cobblestone",
+          "Offset": [
+            -24,
+            1.5,
+            -38
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            3,
+            22,
+            22
+          ]
+        },
+        {
+          "Color": [
+            90,
+            170,
+            230
+          ],
+          "Material": "Material.Glass",
+          "Offset": [
+            -24,
+            2.8,
+            -38
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            0.4,
+            19,
+            19
+          ]
+        },
+        {
+          "Color": [
+            150,
+            150,
+            156
+          ],
+          "Material": "Material.Slate",
+          "Offset": [
+            -24,
+            4.5,
+            -38
+          ],
+          "Rotation": [
+            0,
+            0,
+            90
+          ],
+          "Shape": "PartType.Cylinder",
+          "Size": [
+            9,
+            4,
+            4
+          ]
+        },
+        {
+          "Color": [
+            240,
+            190,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -24,
+            11,
+            -38
+          ],
+          "Size": [
+            10,
+            2,
+            2
+          ]
+        },
+        {
+          "Color": [
+            240,
+            190,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -29,
+            11,
+            -39
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3,
+            3,
+            3
+          ]
+        },
+        {
+          "Color": [
+            240,
+            190,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -29,
+            11,
+            -37
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3,
+            3,
+            3
+          ]
+        },
+        {
+          "Color": [
+            240,
+            190,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -19,
+            11,
+            -39
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3,
+            3,
+            3
+          ]
+        },
+        {
+          "Color": [
+            240,
+            190,
+            50
+          ],
+          "Material": "Material.Metal",
+          "Offset": [
+            -19,
+            11,
+            -37
+          ],
+          "Shape": "PartType.Ball",
+          "Size": [
+            3,
+            3,
+            3
+          ]
+        }
+      ],
+      "RewardMult": 1.5
+    }
+  ],
+  "Path": [
+    [
+      0,
+      55
+    ],
+    [
+      -40,
+      36
+    ],
+    [
+      -6,
+      12
+    ],
+    [
+      40,
+      -8
+    ],
+    [
+      30,
+      -36
+    ],
+    [
+      0,
+      -55
+    ]
+  ],
+  "Shiba": {
+    "Facing": 180,
+    "Position": [
+      67,
+      -26
+    ]
+  }
+}

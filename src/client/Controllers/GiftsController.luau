@@ -3,6 +3,10 @@
 -- The server tracks both; this shows them and sends ClaimStreak / ClaimPlaytime.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Features = require(ReplicatedStorage.Shared.Config.Features)
+-- The street tycoon replaces this part of the old game (docs/GAME_DESIGN.md → Street, plots and buttons).
+local STREET_MODE = Features.Tycoon and Features.Street
 local Workspace = game:GetService("Workspace")
 
 local Hub = require(ReplicatedStorage.Shared.Config.Hub)
@@ -181,10 +185,16 @@ function GiftsController.Refresh()
 end
 
 function GiftsController.Init()
+	if STREET_MODE then
+		return
+	end
 	build()
 end
 
 function GiftsController.Start()
+	if STREET_MODE then
+		return
+	end
 	State.Changed:Connect(GiftsController.Refresh)
 	GiftsController.Refresh()
 end

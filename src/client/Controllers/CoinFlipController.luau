@@ -5,9 +5,12 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Features = require(ReplicatedStorage.Shared.Config.Features)
+-- The street tycoon replaces this part of the old game (docs/GAME_DESIGN.md → Street, plots and buttons).
+local STREET_MODE = Features.Tycoon and Features.Street
 local TweenService = game:GetService("TweenService")
 
-local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Hub = require(ReplicatedStorage.Shared.Config.Hub)
 local Net = require(ReplicatedStorage.Shared.Net)
 
@@ -68,7 +71,7 @@ local function refreshChoices()
 	for index, button in betButtons do
 		local fraction = FLIP.BetFractions[index]
 		local label = if fraction == 1 then "ALL" else `{math.floor(fraction * 100)}%`
-		Widgets.SetMoneyText(button, `{label}\n{Format.Money(math.floor(points * fraction))}`)
+		Widgets.SetMoneyText(button, `{label}\n{Widgets.MoneyString(math.floor(points * fraction))}`)
 	end
 end
 
@@ -186,7 +189,7 @@ local function build()
 		local column = (index - 1) % 2
 		local rowIndex = (index - 1) // 2
 		local button = Widgets.Button(duels, "", Theme.CardLight, 16)
-		Widgets.SetMoneyText(button, Format.Money(amount))
+		Widgets.SetMoneyText(button, Widgets.MoneyString(amount))
 		button.Position = UDim2.new(column * 0.5, if column == 0 then 10 else 4, 0, 60 + rowIndex * 44)
 		button.Size = UDim2.new(0.5, -14, 0, 38)
 		button.Activated:Connect(function()
@@ -225,7 +228,7 @@ local function showInvite(duelId: number, challenger: string, amount: number)
 	text.TextWrapped = true
 	text.TextXAlignment = Enum.TextXAlignment.Center
 	-- Two fixed lines (money text doesn't wrap).
-	Widgets.SetMoneyText(text, `{challenger} challenges you\nto a coin flip for {Format.Money(amount)}!`)
+	Widgets.SetMoneyText(text, `{challenger} challenges you\nto a coin flip for {Widgets.MoneyString(amount)}!`)
 	local function answer(accept: boolean)
 		Net.Get(Net.DuelRespond):FireServer(duelId, accept)
 		gui:Destroy()
@@ -250,10 +253,16 @@ local function showInvite(duelId: number, challenger: string, amount: number)
 end
 
 function CoinFlipController.Init()
+	if STREET_MODE then
+		return
+	end
 	build()
 end
 
 function CoinFlipController.Start()
+	if STREET_MODE then
+		return
+	end
 	State.Changed:Connect(refreshChoices)
 	Players.PlayerAdded:Connect(refreshPlayers)
 	Players.PlayerRemoving:Connect(function()
@@ -264,7 +273,7 @@ function CoinFlipController.Start()
 			resultLabel.TextColor3 = if won then Theme.Good else Theme.Bad
 			Widgets.SetMoneyText(
 				resultLabel,
-				if won then `WON +{Format.Money(amount)}!` else `Lost {Format.Money(amount)}`
+				if won then `WON +{Widgets.MoneyString(amount)}!` else `Lost {Widgets.MoneyString(amount)}`
 			)
 		end)
 	end)
@@ -276,7 +285,9 @@ function CoinFlipController.Start()
 				resultLabel.TextColor3 = if won then Theme.Good else Theme.Bad
 				Widgets.SetMoneyText(
 					resultLabel,
-					if won then `Beat {opponent}! +{Format.Money(amount)}` else `{opponent} won {Format.Money(amount)}`
+					if won
+						then `Beat {opponent}! +{Widgets.MoneyString(amount)}`
+						else `{opponent} won {Widgets.MoneyString(amount)}`
 				)
 			end)
 		end)

@@ -3,13 +3,12 @@
 
 local Economy = require(script.Parent.Parent.Config.Economy)
 
-local SYMBOL = Economy.Currency.Symbol
-
 local Format = {}
 
--- The currency's name and plain-text symbol ("Bonk Dollars", "B$"), see Config/Economy → Currency.
+-- The currency's name ("Bonk Dollars"), see Config/Economy → Currency. Amounts carry no symbol text.
 Format.CurrencyName = Economy.Currency.Name
-Format.CurrencySymbol = SYMBOL
+-- Placeholder the menus replace by the drawn cash icon (Widgets.MoneyText / SetMoneyText). Never shown as text.
+Format.MoneyMarker = "¤"
 
 -- Numbers from here on are written short ("1.23Qa"): doubles above ~1e15 have no exact digits left, and a
 -- 30-digit number doesn't fit anywhere anyway.
@@ -140,21 +139,39 @@ function Format.Short(value: number): string
 	return `{sign}{text}{SHORT[group]}`
 end
 
--- Amounts up to this are written in full ("B$ 123,456"), bigger ones short ("B$ 1.23M").
+-- Amounts up to this are written in full ("123,456"), bigger ones short ("1.23M").
 local MONEY_FULL_BELOW = 1e6
 
--- A Bonk Dollars amount as plain text: 1234 → "B$ 1,234", 5.6e15 → "B$ 5.6Qa". Menus draw the symbol
--- (Widgets.SetMoneyText).
+-- A Bonk Dollars amount as a plain number, no currency text: 1234 → "1,234", 5.6e15 → "5.6Qa". The currency is
+-- only ever shown as the drawn cash icon (Widgets.MoneyIcon); to get the icon next to the number in a menu, put
+-- Format.MoneyMarker in front (Widgets.MoneyString does) and hand the text to Widgets.SetMoneyText / MoneyText.
 function Format.Money(value: number): string
 	if math.abs(value) >= MONEY_FULL_BELOW then
-		return `{SYMBOL} {Format.Short(value)}`
+		return Format.Short(value)
 	end
-	return `{SYMBOL} {Format.Number(value)}`
+	return Format.Number(value)
 end
 
--- Short form for tight spots: 1234 → "B$ 1.23K".
+-- Short form for tight spots: 1234 → "1.23K".
 function Format.MoneyShort(value: number): string
-	return `{SYMBOL} {Format.Short(value)}`
+	return Format.Short(value)
+end
+
+-- A countdown with the two biggest units: 186000 → "2d 03h", 4500 → "1h 15m", 125 → "2m 05s", 9 → "9s".
+function Format.Countdown(seconds: number): string
+	local total = math.max(0, math.floor(seconds))
+	local days = total // 86400
+	local hours = (total % 86400) // 3600
+	local minutes = (total % 3600) // 60
+	local rest = total % 60
+	if days > 0 then
+		return string.format("%dd %02dh", days, hours)
+	elseif hours > 0 then
+		return string.format("%dh %02dm", hours, minutes)
+	elseif minutes > 0 then
+		return string.format("%dm %02ds", minutes, rest)
+	end
+	return `{rest}s`
 end
 
 return Format

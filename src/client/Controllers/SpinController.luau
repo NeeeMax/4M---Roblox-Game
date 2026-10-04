@@ -5,6 +5,10 @@
 -- The pie is drawn from thin wedges (one per 2°) inside a CanvasGroup, which rotates as one picture.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Features = require(ReplicatedStorage.Shared.Config.Features)
+-- The street tycoon replaces this part of the old game (docs/GAME_DESIGN.md → Street, plots and buttons).
+local STREET_MODE = Features.Tycoon and Features.Street
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
@@ -232,7 +236,7 @@ local function spinTo(index: number, text: string)
 	tween.Completed:Wait()
 	local segment = CONFIG.Segments[index]
 	resultLabel.TextColor3 = if segment.Kind == "Nothing" then Theme.Muted else Theme.Accent
-	-- "+B$ 1,234" (from the server) shows the Bonk Dollars symbol.
+	-- "+1,234" comes from the server as plain text.
 	Widgets.SetMoneyText(
 		resultLabel,
 		if segment.Kind == "Nothing" then "Nothing this time… try again tomorrow!" else `You won {text}!`
@@ -260,10 +264,16 @@ local function tick()
 end
 
 function SpinController.Init()
+	if STREET_MODE then
+		return
+	end
 	build()
 end
 
 function SpinController.Start()
+	if STREET_MODE then
+		return
+	end
 	Net.Get(Net.SpinResult).OnClientEvent:Connect(function(index: number, text: string)
 		waiting = false
 		spinning = true

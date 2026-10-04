@@ -9,7 +9,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local EconomyConfig = require(ReplicatedStorage.Shared.Config.EconomyConfig)
-local Shop = require(ReplicatedStorage.Shared.Config.Shop)
+local Features = require(ReplicatedStorage.Shared.Config.Features)
+local TycoonConfig = require(ReplicatedStorage.Shared.Config.Tycoon)
+local TycoonSteps = require(ReplicatedStorage.Shared.Util.TycoonSteps)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Types = require(ReplicatedStorage.Shared.Types)
 local Upgrades = require(ReplicatedStorage.Shared.Config.Upgrades)
@@ -25,7 +27,13 @@ type Session = {
 
 -- 2: economy rework (Rebirths, Tutorial, Bank.AutomationPerMinute, Basket/Intern levels). Version-1 saves are
 -- migrated in stateFromSaved: nothing is lost, levels and Bonk Dollars are kept as they are.
-local SAVE_VERSION = 2
+-- 3: additive fields only (Social, Party: feat/social-party), filled with defaults for older saves; no logic depends on
+-- the number.
+-- 3: additive fields only, each with a default for older saves (no code depends on the number):
+--    Shiba Variants: `Variants` (slots Normal, counters 0).
+-- 4: additive field `Tycoon` (Shiba Workers, docs/decisions/0006), default for older saves; nothing reads it while
+--    Config/Features.Tycoon is false. Legacy fields (UpgradeLevels, ActiveShooters …) stay saved until the cleanup phase.
+local SAVE_VERSION = 4
 
 local stateChanged = Net.Get(Net.StateChanged)
 
@@ -66,6 +74,33 @@ local function defaultState(): PlayerState
 		Settings = { Music = 0.5, Effects = 1, Hints = true },
 		Rebirths = 0,
 		Tutorial = { Step = 0, FirstBonkDone = false },
+		-- Social + Bonk Party (feat/social-party).
+		Social = {
+			ReferralRewarded = false,
+			InviteRewardsWeek = 0,
+			InviteRewardsThisWeek = 0,
+			PendingInviteRewards = 0,
+		},
+		Party = { Id = 0, Catches = 0, Claimed = false, Count = 0 },
+		-- ===== Shiba Variants (save v3) =====
+		Variants = { Slots = {}, RollsSinceRainbow = 0, RollsSinceHuge = 0, TotalRolls = 0 },
+		-- ===== end Shiba Variants =====
+		Tycoon = {
+			Enabled = Features.Tycoon,
+			Street = if Features.Street and Features.Tycoon then true else nil,
+			Steps = {},
+			Shibas = {},
+			NextShibaId = 1,
+			Equipped = {},
+			-- Street mode starts without a bay: the first pad spawns the first Shiba.
+			EquipSlots = if Features.Street and Features.Tycoon then 0 else TycoonConfig.StartEquipSlots,
+			Arches = {},
+			Pads = {},
+			Zone = 0,
+			EggsHatched = {},
+			VaultStored = 0,
+			Ascensions = 0,
+		},
 	}
 end
 
@@ -84,6 +119,140 @@ end
 local function isNumber(value: unknown): boolean
 	-- `value == value` rejects NaN.
 	return typeof(value) == "number" and value == value and value ~= math.huge and value ~= -math.huge
+end
+
+-- Non-negative whole number from saved data, or `fallback`.
+local function wholeNumber(value: unknown, fallback: number, max: number): number
+	if isNumber(value) then
+		return math.clamp(math.floor(value :: number), 0, max)
+	end
+	return fallback
+end
+
+-- Tycoon (save v4): every field is validated; unknown ids and out-of-range values are dropped, never trusted.
+local function loadTycoon(state: PlayerState, raw: unknown)
+	local tycoon = state.Tycoon
+	if tycoon == nil or typeof(raw) ~= "table" then
+		return
+	end
+	local data = raw :: { [string]: any }
+	local shibaCount = #EconomyConfig.Shibas
+
+	if typeof(data.Shibas) == "table" then
+		local kept = 0
+		for id, shiba in data.Shibas do
+			if kept >= TycoonConfig.MaxOwnedShibas then
+				break
+			end
+			if typeof(id) == "string" and string.match(id, "^s%d+$") and typeof(shiba) == "table" then
+				local tier = shiba.Tier
+				local level = shiba.Level
+				if isNumber(tier) and tier == math.floor(tier) and tier >= 0 and tier < shibaCount then
+					local variant: Types.VariantId = "Normal"
+					if typeof(shiba.Variant) == "string" then
+						local rank = EconomyConfig.Variants.Rank[shiba.Variant]
+						if rank and rank > 0 then
+							variant = shiba.Variant :: Types.VariantId
+						end
+					end
+					tycoon.Shibas[id] = {
+						Tier = tier,
+						Level = if isNumber(level)
+							then math.clamp(math.floor(level), 1, TycoonConfig.Lane.LevelCapHard)
+							else 1,
+						Variant = variant,
+						Automated = if shiba.Automated == true then true else nil,
+					}
+					kept += 1
+				end
+			end
+		end
+	end
+
+	-- Next id: never reuse an id that exists.
+	local nextId = wholeNumber(data.NextShibaId, 1, 2 ^ 31)
+	for id in tycoon.Shibas do
+		nextId = math.max(nextId, (tonumber(string.sub(id, 2)) or 0) + 1)
+	end
+	tycoon.NextShibaId = math.max(1, nextId)
+
+	-- Street mode has one bay per Shiba (up to Street.Bays) and starts with none.
+	local street = tycoon.Street == true
+	local minSlots = if street then 0 else TycoonConfig.StartEquipSlots
+	local maxSlots = if street then TycoonConfig.Street.Bays else TycoonConfig.MaxEquipSlots
+	tycoon.EquipSlots = math.clamp(wholeNumber(data.EquipSlots, minSlots, maxSlots), minSlots, maxSlots)
+
+	if typeof(data.Steps) == "table" and tycoon.Steps then
+		for id, bought in data.Steps do
+			if typeof(id) == "string" and bought == true and TycoonSteps.ById[id] then
+				tycoon.Steps[id] = true
+			end
+		end
+	end
+
+	if typeof(data.Equipped) == "table" then
+		local used: { [string]: boolean } = {}
+		for slot, id in data.Equipped do
+			local index = if typeof(slot) == "string" then tonumber(slot) else nil
+			if
+				index
+				and index == math.floor(index)
+				and index >= 1
+				and index <= tycoon.EquipSlots
+				and typeof(id) == "string"
+				and tycoon.Shibas[id]
+				and not used[id]
+			then
+				tycoon.Equipped[tostring(index)] = id
+				used[id] = true
+			end
+		end
+	end
+
+	if typeof(data.Arches) == "table" then
+		for slot, count in data.Arches do
+			local index = if typeof(slot) == "string" then tonumber(slot) else nil
+			if index and index == math.floor(index) and index >= 1 and index <= TycoonConfig.MaxEquipSlots then
+				local arches = wholeNumber(count, 0, TycoonConfig.Arch.Max)
+				if arches > 0 then
+					tycoon.Arches[tostring(index)] = arches
+				end
+			end
+		end
+	end
+
+	if typeof(data.Pads) == "table" then
+		local kept = 0
+		for id, owned in data.Pads do
+			if kept >= TycoonConfig.MaxPads then
+				break
+			end
+			if typeof(id) == "string" and #id <= TycoonConfig.MaxIdLength and owned == true then
+				tycoon.Pads[id] = true
+				kept += 1
+			end
+		end
+	end
+
+	tycoon.Zone = wholeNumber(data.Zone, 0, TycoonConfig.MaxZone)
+
+	if typeof(data.EggsHatched) == "table" then
+		local kept = 0
+		for id, count in data.EggsHatched do
+			if kept >= TycoonConfig.MaxEggIds then
+				break
+			end
+			if typeof(id) == "string" and #id <= TycoonConfig.MaxIdLength and isNumber(count) then
+				tycoon.EggsHatched[id] = wholeNumber(count, 0, 2 ^ 40)
+				kept += 1
+			end
+		end
+	end
+
+	if isNumber(data.VaultStored) then
+		tycoon.VaultStored = math.max(0, data.VaultStored :: number)
+	end
+	tycoon.Ascensions = wholeNumber(data.Ascensions, 0, 1000000)
 end
 
 -- Saved data is never trusted blindly: unknown fields are dropped, numbers are clamped to valid ranges.
@@ -223,9 +392,7 @@ local function stateFromSaved(saved: unknown): PlayerState
 		for _, id in Upgrades.Order do
 			local level = data.UpgradeLevels[id]
 			if isNumber(level) then
-				-- Shooters may go past MaxLevel with the +2 Shiba Slots pass.
-				local bonus = if id == "Shooters" then Shop.Pass.ExtraShibas else 0
-				state.UpgradeLevels[id] = math.clamp(math.floor(level), 0, Upgrades.Defs[id].MaxLevel + bonus)
+				state.UpgradeLevels[id] = math.clamp(math.floor(level), 0, Upgrades.Defs[id].MaxLevel)
 			end
 		end
 	end
@@ -242,6 +409,52 @@ local function stateFromSaved(saved: unknown): PlayerState
 		-- Migration from version 1: players from before the rework already know the game, so no tutorial.
 		state.Tutorial = { Step = 1000, FirstBonkDone = true }
 	end
+	-- ==== Social + Bonk Party (feat/social-party) ====
+	local social = data.Social
+	if typeof(social) == "table" then
+		state.Social = {
+			ReferralRewarded = social.ReferralRewarded == true,
+			InviteRewardsWeek = if isNumber(social.InviteRewardsWeek) then math.floor(social.InviteRewardsWeek) else 0,
+			InviteRewardsThisWeek = if isNumber(social.InviteRewardsThisWeek)
+				then math.max(0, math.floor(social.InviteRewardsThisWeek))
+				else 0,
+			PendingInviteRewards = if isNumber(social.PendingInviteRewards)
+				then math.clamp(math.floor(social.PendingInviteRewards), 0, 1000)
+				else 0,
+		}
+	end
+	local party = data.Party
+	if typeof(party) == "table" then
+		state.Party = {
+			Id = if isNumber(party.Id) then math.floor(party.Id) else 0,
+			Catches = if isNumber(party.Catches) then math.max(0, math.floor(party.Catches)) else 0,
+			Claimed = party.Claimed == true,
+			Count = if isNumber(party.Count) then math.max(0, math.floor(party.Count)) else 0,
+		}
+	end
+	-- ==== end Social + Bonk Party ====
+	-- ===== Shiba Variants (save v3; older saves keep the default: every slot Normal) =====
+	local variants = data.Variants
+	if typeof(variants) == "table" then
+		if typeof(variants.Slots) == "table" then
+			for slot, variant in variants.Slots do
+				local index = if typeof(slot) == "string" then tonumber(slot) else nil
+				local rank = if typeof(variant) == "string" then EconomyConfig.Variants.Rank[variant] else nil
+				-- Slots 1 … 99 with a known, better-than-Normal variant (99: room for more slot passes later).
+				if index and index == math.floor(index) and index >= 1 and index <= 99 and rank and rank > 0 then
+					state.Variants.Slots[tostring(index)] = variant :: Types.VariantId
+				end
+			end
+		end
+		local function counter(value: unknown): number
+			return if isNumber(value) then math.max(0, math.floor(value :: number)) else 0
+		end
+		state.Variants.RollsSinceRainbow = counter(variants.RollsSinceRainbow)
+		state.Variants.RollsSinceHuge = counter(variants.RollsSinceHuge)
+		state.Variants.TotalRolls = counter(variants.TotalRolls)
+	end
+	-- ===== end Shiba Variants =====
+	loadTycoon(state, data.Tycoon)
 	local owned = Upgrades.GetValue("Shooters", state.UpgradeLevels.Shooters)
 	state.ActiveShooters = owned
 	if isNumber(data.ActiveShooters) then
@@ -373,6 +586,15 @@ function DataService.SaveNow(player: Player)
 		task.spawn(save, player, session)
 	end
 end
+
+-- ==== Social + Bonk Party (feat/social-party) ====
+-- Whether this player's state will be saved (false while loading failed): SocialService only takes pending invite
+-- rewards out of their DataStore key when they can be kept.
+function DataService.CanSave(player: Player): boolean
+	local session = sessions[player]
+	return session ~= nil and session.CanSave and store ~= nil
+end
+-- ==== end Social + Bonk Party ====
 
 -- Admin testing tool: puts the player back to a brand-new save (keeps TotalEarned for the leaderboard).
 function DataService.Reset(player: Player)

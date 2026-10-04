@@ -1,5 +1,5 @@
 --!strict
--- Magnet boost (timed, Config/Shop → Products "Magnet15", Shop.Pass.AutoCatchRadius / AutoCatchInterval).
+-- Magnet boost (timed, boost "Magnet", Shop.Pass.AutoCatchRadius / AutoCatchInterval).
 -- Every AutoCatchInterval seconds, for each owner: their live, unpaid projectiles whose current position on the
 -- planned path is within AutoCatchRadius studs of the character are paid out like a Normal bonk (no head bonus,
 -- combo counts, a new player's first paid hit gets the first-bonk bonus) through BonkService.AwardHit. Only the server's own path and character position are used.
@@ -7,6 +7,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Features = require(ReplicatedStorage.Shared.Config.Features)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local ProjectilePath = require(ReplicatedStorage.Shared.Util.ProjectilePath)
 local Shop = require(ReplicatedStorage.Shared.Config.Shop)
@@ -54,6 +55,10 @@ local function catchFor(player: Player)
 end
 
 function AutoCatchService.Start()
+	-- The tycoon (TycoonService) replaces the throw-and-catch loop.
+	if Features.Tycoon then
+		return
+	end
 	task.spawn(function()
 		while true do
 			task.wait(Shop.Pass.AutoCatchInterval)

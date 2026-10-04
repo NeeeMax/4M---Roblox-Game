@@ -26,6 +26,7 @@ local Stations = require(ReplicatedStorage.Shared.Config.Stations)
 local Tutorial = require(ReplicatedStorage.Shared.Config.Tutorial)
 local Types = require(ReplicatedStorage.Shared.Types)
 local Upgrades = require(ReplicatedStorage.Shared.Config.Upgrades)
+local Features = require(ReplicatedStorage.Shared.Config.Features)
 
 local HudController = require(script.Parent.HudController)
 local State = require(script.Parent.Parent.UI.State)
@@ -254,7 +255,7 @@ local function purchasable(state: Types.PlayerState, id: string): (number, numbe
 	if lockedUntil(state, id) then
 		return 0, Upgrades.GetCost(id, level), false
 	end
-	local limit = if state.Passes.StackUpgrade then Stations.StackMax else 1
+	local limit = 1
 	local count, total = 0, 0
 	while count < limit and level + count < maxLevel do
 		local cost = Upgrades.GetCost(id, level + count)
@@ -1014,6 +1015,10 @@ function StationController.GetStand(id: string): Instance?
 end
 
 function StationController.Init()
+	-- The tycoon (TycoonService) replaces the old loop.
+	if Features.Tycoon then
+		return
+	end
 	localFolder = Instance.new("Folder")
 	localFolder.Name = "LocalStationVisuals"
 	localFolder.Parent = Workspace
@@ -1022,6 +1027,10 @@ function StationController.Init()
 end
 
 function StationController.Start()
+	-- The tycoon (TycoonService) replaces the old loop.
+	if Features.Tycoon then
+		return
+	end
 	State.Start()
 	State.Changed:Connect(refresh)
 	RunService.RenderStepped:Connect(turnSilhouette)

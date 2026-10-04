@@ -6,6 +6,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Features = require(ReplicatedStorage.Shared.Config.Features)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local Net = require(ReplicatedStorage.Shared.Net)
 local RateLimiter = require(ReplicatedStorage.Shared.Util.RateLimiter)
@@ -61,6 +62,10 @@ end
 
 -- Starts one of the player's Bonk Rains if they are on their island and none is running. Returns whether it did.
 function RainService.TryStart(player: Player): boolean
+	-- The old loop is off while the tycoon runs: a rain would be spent on sticks nothing processes.
+	if Features.Tycoon then
+		return false
+	end
 	local state = DataService.GetState(player)
 	if not state or state.BonkRains <= 0 then
 		return false
@@ -89,6 +94,10 @@ function RainService.Give(player: Player)
 end
 
 function RainService.Start()
+	-- The tycoon (TycoonService) replaces the throw-and-catch loop.
+	if Features.Tycoon then
+		return
+	end
 	Net.Get(Net.UseBonkRain).OnServerEvent:Connect(function(player)
 		if RateLimiter.Allow(limiter, player) then
 			RainService.TryStart(player)

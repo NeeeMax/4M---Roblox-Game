@@ -4,13 +4,14 @@
 -- - Turning: the server only publishes the yaw a Shiba should face; the model turns there smoothly.
 -- - Floating and orbit spin, for models whose Config/ShibaEffects entry (keyed by the model's name) asks for it.
 -- - Throw animation: the server sets the release time (attribute Shooters.Throw.ThrowAtAttribute, server clock); the
---   throwing arm with what is in the paw turns around the shoulder: back during the aim time, a fast swing forward at
---   the release, then back to rest. Only models with a ThrowArm part and a Shoulder marker swing (assets/README.md).
+--   throwing arm with what is in the paw turns around the shoulder: raised overhead during the aim time, a fast downward
+--   chop at the release, then back to rest. Only models with a ThrowArm part and a Shoulder marker swing (assets/README.md).
 -- - What is in the paw (the hand projectile the server put there, else the model's Stick) swings with the arm and is
 --   hidden from the release for Shooters.HandStickHideTime, so it looks thrown. Hiding happens here, on the same
 --   server-clock release time as the swing (the server never changes it). A projectile's Grip marker stays hidden.
 -- - Shiny / Mythic outlines: only the ShibaEffects.MaxEditionOutlines nearest to the camera stay enabled (Roblox
---   draws at most 31 Highlights at once).
+--   draws at most 31 Highlights at once). Shiba Variant outlines use the same name, so they share that budget; the
+--   Rainbow / Huge ones (and the Huge platform ring) cycle through the rainbow here.
 -- The server places each model once and never moves it, so every pose is computed from that rest pivot, and parts
 -- that stream in later are fitted into the current pose. Purely visual, nothing is sent back.
 
@@ -63,6 +64,10 @@ local rigs: { [Model]: Rig } = {}
 local editionOutlines: { [Highlight]: boolean } = {}
 -- Seconds between two checks of which edition outlines are nearest.
 local OUTLINE_CHECK_INTERVAL = 0.5
+-- ===== Shiba Variants: Rainbow / Huge outlines and Huge platform rings cycle through the rainbow
+-- (Config/ShibaEffects → Variants, HueCycle; the model's Variant attribute says which).
+local rainbowOutlines: { [Highlight]: boolean } = {}
+local rainbowParts: { [BasePart]: boolean } = {}
 
 local ShibaController = {}
 
@@ -167,6 +172,17 @@ end
 local function onDescendantAdded(descendant: Instance)
 	if descendant:IsA("Highlight") and descendant.Name == ShibaEffects.EditionOutlineName then
 		editionOutlines[descendant] = true
+		-- Shiba Variants: a hue-cycling variant's outline.
+		local owner = descendant.Parent
+		local variant = if owner then owner:GetAttribute(ShibaEffects.VariantAttribute) else nil
+		local look = if typeof(variant) == "string" then ShibaEffects.Variants[variant] else nil
+		if look and look.HueCycle then
+			rainbowOutlines[descendant] = true
+		end
+		return
+	end
+	if descendant:IsA("BasePart") and descendant.Name == ShibaEffects.VariantRingName then
+		rainbowParts[descendant] = true
 		return
 	end
 	if descendant:IsA("Model") then
@@ -202,18 +218,19 @@ local function easeOut(k: number): number
 	return 1 - (1 - k) * (1 - k)
 end
 
--- Arm angle in degrees at `t` seconds after the release (negative t: still aiming). Positive swings forward.
+-- Arm angle in degrees at `t` seconds after the release (negative t: still aiming). Positive raises the paw forward
+-- and up (180 = straight overhead): raised during the aim, a fast downward chop at the release, then back to rest.
 local function swingAngle(t: number): number
 	local aim = SHOOTERS.AimTime
 	if t < -aim or t >= THROW.SwingTime + THROW.ReturnTime then
 		return 0
 	end
 	if t < 0 then
-		return -THROW.WindupDegrees * easeOut((t + aim) / aim)
+		return THROW.WindupDegrees * easeOut((t + aim) / aim)
 	end
 	if t < THROW.SwingTime then
 		local k = t / THROW.SwingTime
-		return -THROW.WindupDegrees + (THROW.WindupDegrees + THROW.ReleaseDegrees) * k * k
+		return THROW.WindupDegrees + (THROW.ReleaseDegrees - THROW.WindupDegrees) * k * k
 	end
 	local k = (t - THROW.SwingTime) / THROW.ReturnTime
 	return THROW.ReleaseDegrees * (1 - k * k * (3 - 2 * k))
@@ -325,6 +342,22 @@ local function update(dt: number)
 	end
 	if #parts > 0 then
 		Workspace:BulkMoveTo(parts, frames, Enum.BulkMoveMode.FireCFrameChanged)
+	end
+	-- Shiba Variants: one shared rainbow hue for every cycling outline (only the drawn ones) and platform ring.
+	local color = Color3.fromHSV((now / ShibaEffects.RainbowCycleSeconds) % 1, 0.75, 1)
+	for outline in rainbowOutlines do
+		if not outline.Parent then
+			rainbowOutlines[outline] = nil
+		elseif outline.Enabled then
+			outline.OutlineColor = color
+		end
+	end
+	for part in rainbowParts do
+		if not part.Parent then
+			rainbowParts[part] = nil
+		else
+			part.Color = color
+		end
 	end
 end
 

@@ -7,6 +7,10 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Features = require(ReplicatedStorage.Shared.Config.Features)
+-- The street tycoon replaces this part of the old game (docs/GAME_DESIGN.md → Street, plots and buttons).
+local STREET_MODE = Features.Tycoon and Features.Street
+
 local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Hub = require(ReplicatedStorage.Shared.Config.Hub)
 local Net = require(ReplicatedStorage.Shared.Net)
@@ -155,6 +159,9 @@ local function onDuelRespond(player: Player, duelId: unknown, accept: unknown)
 end
 
 function CoinFlipService.Start()
+	if STREET_MODE then
+		return
+	end
 	Net.Get(Net.CoinFlip).OnServerEvent:Connect(onCoinFlip)
 	Net.Get(Net.DuelChallenge).OnServerEvent:Connect(onDuelChallenge)
 	Net.Get(Net.DuelRespond).OnServerEvent:Connect(onDuelRespond)

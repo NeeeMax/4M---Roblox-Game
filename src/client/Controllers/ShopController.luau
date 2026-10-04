@@ -5,9 +5,12 @@
 -- the item. Other code opens a tab with ShopController.OpenTab("POWERS").
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Features = require(ReplicatedStorage.Shared.Config.Features)
+-- The street tycoon replaces this part of the old game (docs/GAME_DESIGN.md → Street, plots and buttons).
+local STREET_MODE = Features.Tycoon and Features.Street
 local Workspace = game:GetService("Workspace")
 
-local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Shop = require(ReplicatedStorage.Shared.Config.Shop)
 
@@ -22,13 +25,11 @@ local TAB_NAMES = { "POWERS", "PASSES", "ITEMS", "TROPHIES" }
 local PRICE_YELLOW = Color3.fromRGB(255, 214, 40)
 local PRICE_TEXT = Color3.fromRGB(40, 30, 0)
 
--- The POWERS tab, in this order: icon and the "before → after" line (nil = none). Effects: UpgradeService (RunFaster, StackUpgrade), HudController (Manage).
+-- The POWERS tab, in this order: icon and the "before → after" line (nil = none). Effect: HudController (Manage).
 type PowerInfo = { Icon: string, Change: string? }
-local POWER_ORDER = { "Manage", "RunFaster", "StackUpgrade" }
+local POWER_ORDER = { "Manage" }
 local POWERS: { [string]: PowerInfo } = {
 	Manage = { Icon = "📋" },
-	RunFaster = { Icon = "🏃", Change = "x1 → x1.5" },
-	StackUpgrade = { Icon = "⏫", Change = "x1 → x10" },
 }
 
 type Card = {
@@ -279,7 +280,7 @@ local function build()
 		order += 1
 		local how = if trophy.Points
 			then `{trophy.Rarity} · shows on your island`
-			else `{trophy.Rarity} · from the shop, VIP, streak or starter pack`
+			else `{trophy.Rarity} · a reward: shop, VIP, streak, starter pack, invites, Bonk Party`
 		local button = card(tabs.TROPHIES, order, trophy.DisplayName, how, trophy.Color, "🏆")
 		if trophy.Points then
 			button.Activated:Connect(function()
@@ -295,7 +296,7 @@ local function build()
 				end
 				if trophy.Points then
 					local canBuy = state ~= nil and state.BonkPoints >= trophy.Points
-					return Format.Money(trophy.Points), if canBuy then Theme.Good else Theme.CardLight
+					return Widgets.MoneyString(trophy.Points), if canBuy then Theme.Good else Theme.CardLight
 				end
 				return "EXCLUSIVE", Theme.CardLight
 			end,
@@ -312,7 +313,7 @@ function ShopController.Refresh()
 	for _, entry in cards do
 		local text, color, textColor = entry.Refresh()
 		entry.Button.TextColor3 = textColor or Theme.Text
-		-- Bonk Dollars prices ("B$ 5,000") show the symbol.
+		-- Bonk Dollars prices show the cash icon (Widgets.MoneyString).
 		Widgets.SetMoneyText(entry.Button, text)
 		Widgets.SetButtonColor(entry.Button, color)
 	end
@@ -328,6 +329,9 @@ end
 
 -- Starter pack popup: once per session for players who joined within OfferHours and haven't bought it.
 local function showOffer()
+	if STREET_MODE then
+		return
+	end
 	local state = State.Get()
 	if offerShown or not state or state.StarterPackBought then
 		return

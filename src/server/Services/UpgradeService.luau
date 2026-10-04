@@ -1,6 +1,6 @@
 --!strict
 -- Upgrade levels, server-validated purchases, the active-shooter count, and applying MoveSpeed to the character.
--- Other services read upgrade effects through GetValue / GetLevel / GetFireInterval / GetActiveShooters.
+-- Other services read upgrade effects through GetValue / GetLevel / GetFireInterval / GetActiveShooters / GetThrowRate.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -8,7 +8,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Economy = require(ReplicatedStorage.Shared.Config.Economy)
 local EconomyConfig = require(ReplicatedStorage.Shared.Config.EconomyConfig)
 local Format = require(ReplicatedStorage.Shared.Util.Format)
+local Features = require(ReplicatedStorage.Shared.Config.Features)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
+
+-- The street tycoon walks at a fixed speed (Gameplay.Character.StreetWalkSpeed).
+local STREET_MODE = Features.Tycoon and Features.Street
 local Net = require(ReplicatedStorage.Shared.Net)
 local RateLimiter = require(ReplicatedStorage.Shared.Util.RateLimiter)
 local Types = require(ReplicatedStorage.Shared.Types)
@@ -17,12 +21,13 @@ local Upgrades = require(ReplicatedStorage.Shared.Config.Upgrades)
 local BoostService = require(script.Parent.BoostService)
 local DataService = require(script.Parent.DataService)
 local EconomyService = require(script.Parent.EconomyService)
+local EventService = require(script.Parent.EventService)
 local NotifyService = require(script.Parent.NotifyService)
 local QuestService = require(script.Parent.QuestService)
 local RewardService = require(script.Parent.RewardService)
+local VariantService = require(script.Parent.VariantService)
 
 -- The Run Faster game pass (Config/Shop): WalkSpeed ×1.5.
-local RUN_FASTER_MULTIPLIER = 1.5
 
 local purchaseLimiter = RateLimiter.New(Economy.MaxRequestsPerSecond, 1)
 local shooterLimiter = RateLimiter.New(Economy.MaxRequestsPerSecond, 1)
@@ -55,15 +60,27 @@ function UpgradeService.GetFireInterval(player: Player): number
 	return RewardService.GetShooterTier(player).FireInterval / BoostService.GetMultiplier(player, "FireRate")
 end
 
+-- Sticks per second the player's ring of Shibas really throws, and the ValueMultiplier each stick carries: the
+-- natural rate (active Shibas / fire interval, fire-rate boost and StickStorm included) held to the stick density cap
+-- (Gameplay.Shooters.MaxThrowsPerSecond, raised during a StickStorm). throws/s × multiplier = the natural rate.
+function UpgradeService.GetThrowRate(player: Player): (number, number)
+	local interval = UpgradeService.GetFireInterval(player) * EventService.FireIntervalMultiplier()
+	return EconomyConfig.ThrowRate(
+		UpgradeService.GetActiveShooters(player),
+		interval,
+		EventService.MaxThrowsMultiplier()
+	)
+end
+
 local function applyMovement(player: Player)
 	local character = player.Character
 	local humanoid = if character then character:FindFirstChildOfClass("Humanoid") else nil
 	if not humanoid then
 		return
 	end
-	local state = DataService.GetState(player)
-	local passMultiplier = if state and state.Passes.RunFaster then RUN_FASTER_MULTIPLIER else 1
-	humanoid.WalkSpeed = UpgradeService.GetValue(player, "MoveSpeed") * passMultiplier
+	humanoid.WalkSpeed = if STREET_MODE
+		then Gameplay.Character.StreetWalkSpeed
+		else UpgradeService.GetValue(player, "MoveSpeed")
 	-- Every character jumps the same (Gameplay.Character.JumpPower).
 	humanoid.UseJumpPower = true
 	humanoid.JumpPower = Gameplay.Character.JumpPower
@@ -131,6 +148,18 @@ function UpgradeService.TryPurchase(player: Player, id: string, count: number): 
 	end
 
 	local newLevel = startLevel + bought
+	-- ===== Shiba Variants: Bonk-Dollar evolutions roll every owned slot (once per level), a new Shiba rolls its slot.
+	-- Robux grants use SetLevel and never roll (VariantService header).
+	if def.Id == "ShooterTier" then
+		VariantService.RollSlots(player, VariantService.OwnedSlots(player), bought)
+	elseif def.Id == "Shooters" then
+		local newSlots: { number } = {}
+		for slot = Upgrades.GetValue("Shooters", startLevel) + 1, Upgrades.GetValue("Shooters", newLevel) do
+			table.insert(newSlots, slot)
+		end
+		VariantService.RollSlots(player, newSlots)
+	end
+	-- ===== end Shiba Variants
 	if def.Id == "Shooters" then
 		-- A newly bought shooter starts active.
 		state.ActiveShooters = Upgrades.GetValue("Shooters", newLevel)
@@ -202,19 +231,6 @@ function UpgradeService.Start()
 
 	-- Levels are 0 until the data is loaded; apply the real MoveSpeed once it is (and after an admin reset).
 	DataService.OnLoaded(applyMovement)
-	-- Re-apply when the Run Faster pass is bought or toggled (passes change through DataService.Replicate).
-	local hadRunFaster: { [Player]: boolean } = {}
-	DataService.OnReplicated(function(player)
-		local state = DataService.GetState(player)
-		local has = state ~= nil and state.Passes.RunFaster == true
-		if (hadRunFaster[player] or false) ~= has then
-			hadRunFaster[player] = has
-			applyMovement(player)
-		end
-	end)
-	Players.PlayerRemoving:Connect(function(player)
-		hadRunFaster[player] = nil
-	end)
 end
 
 return UpgradeService

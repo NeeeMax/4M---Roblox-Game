@@ -5,11 +5,14 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Features = require(ReplicatedStorage.Shared.Config.Features)
+-- The street tycoon replaces this part of the old game (docs/GAME_DESIGN.md → Street, plots and buttons).
+local STREET_MODE = Features.Tycoon and Features.Street
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
-local Format = require(ReplicatedStorage.Shared.Util.Format)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Obby = require(ReplicatedStorage.Shared.Config.Obby)
 local World = require(ReplicatedStorage.Shared.Config.World)
@@ -183,7 +186,7 @@ local function onFinished(time: unknown, reward: unknown, bestTime: unknown, nex
 	nextRewardAt = nextAt
 	timeLabel.Text = string.format("%.1f s", time)
 	if reward > 0 then
-		Widgets.SetMoneyText(rewardLabel, `+{Format.Money(reward)} · 2× dollars {Obby.BoostSeconds // 60} min`)
+		Widgets.SetMoneyText(rewardLabel, `+{Widgets.MoneyString(reward)} · 2× dollars {Obby.BoostSeconds // 60} min`)
 	elseif bestTime >= time then
 		Widgets.SetMoneyText(rewardLabel, "NEW BEST TIME!")
 	else
@@ -204,6 +207,9 @@ local function onFinished(time: unknown, reward: unknown, bestTime: unknown, nex
 end
 
 function ObbyController.Start()
+	if STREET_MODE then
+		return
+	end
 	build()
 	Net.Get(Net.ObbyStarted).OnClientEvent:Connect(onStarted)
 	Net.Get(Net.ObbyFinished).OnClientEvent:Connect(onFinished)

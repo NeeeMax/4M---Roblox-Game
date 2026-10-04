@@ -69,6 +69,61 @@ local Net = {
 	-- S→C (source: AutomationSource, projectileId: number, reward: number) — the basket or the intern caught one of the
 	-- player's sticks and paid `reward` (visual only)
 	AutomationCatch = "AutomationCatch",
+
+	-- ==== Social + Bonk Party (feat/social-party) ====
+	-- S→C (friends: number, multiplier: number) — Roblox friends in this server that count for the player's Friend
+	-- Boost (capped) and the income multiplier it gives
+	FriendBoostChanged = "FriendBoostChanged",
+	-- S→C (startsAt: number, endsAt: number) — the running Weekend Bonk Party (startsAt <= now < endsAt) or the next
+	-- one, Unix time (compare with Workspace:GetServerTimeNow())
+	PartyChanged = "PartyChanged",
+	-- C→S () — claim the Bonk Party quest reward
+	ClaimPartyQuest = "ClaimPartyQuest",
+	-- ==== end Social + Bonk Party ====
+	-- ===== Shiba Variants =====
+	-- S→C (finderUserId: number, finderName: string, slot: number, variant: VariantId, shibaName: string) — a Shiba
+	-- slot rolled a better variant. Sent to the finder for every new variant (reveal card) and, for Huge, to everyone
+	-- in the server (chat line).
+	VariantRolled = "VariantRolled",
+	-- ===== end Shiba Variants =====
+	-- ==== Tycoon "Shiba Workers" (contract phase 0, docs/decisions/0006) ====
+	-- C→S (padId: string) — buy a purchase pad (egg stand, Mill ring, vault upgrade, equip slot …), see Config/Tycoon
+	BuyTycoonPad = "BuyTycoonPad",
+	-- C→S (eggId: string, count: number) — hatch `count` (1, 3 or 10) eggs of this egg tier
+	HatchEgg = "HatchEgg",
+	-- S→C (eggId: string, results: { HatchResult }) — what the hatch produced (reveal animation, visual only)
+	HatchResults = "HatchResults",
+	-- C→S (shibaId: string, slot: number) — put an owned Shiba on an equip slot (ring position)
+	EquipShiba = "EquipShiba",
+	-- C→S (slot: number) — take the Shiba off an equip slot
+	UnequipShiba = "UnequipShiba",
+	-- C→S (slot: number, quantity: number) — level up the equipped Shiba on `slot`; quantity 1, 10 or 0 = as many as affordable
+	UpgradeShiba = "UpgradeShiba",
+	-- C→S (targetShibaId: string, sourceShibaId: string) — merge a duplicate into another Shiba of the same type
+	MergeShibas = "MergeShibas",
+	-- C→S (kind: string, slot: number) — buy a lane upgrade: kind "Arch" (lane arch on `slot`); Mill rings and the vault use BuyTycoonPad
+	UpgradeLane = "UpgradeLane",
+	-- S→C (slot: number, amount: number, source: string) — income the lane just paid (numbers/items on the belt, visual only;
+	-- clients never award money)
+	TycoonPayout = "TycoonPayout",
+	-- S→C (crateId: number, slot: number, endsAt: number) — a Golden Crate rides the belt of `slot` until `endsAt` (server clock)
+	CrateSpawned = "CrateSpawned",
+	-- C→S (crateId: number) — tap/walk over a Golden Crate before it reaches the Mill
+	CollectCrate = "CollectCrate",
+	-- C→S (slot: number) — step on the boop mat of a lane (short lane boost, cooldown on the server)
+	BoopLane = "BoopLane",
+	-- C→S () — collect the vault (also happens automatically when the player is close)
+	CollectVault = "CollectVault",
+	-- S→C (slot: number, serverTime: number, automated: boolean) — the Shiba on `slot` swings its stick now (animation and hit
+	-- marker only; clicking the Shiba and buying its automation go through the world prompts/ClickDetector, not a remote)
+	ShibaSwung = "ShibaSwung",
+	-- S→C (slot: number, launch: Vector3) — the owner stood in the hit zone of the swinging Shiba on `slot`: the client flings its
+	-- own character with `launch` (visual only; the server already paid the bonus through TycoonPayout with source "Bonk")
+	PlayerBonked = "PlayerBonked",
+	-- C→S (slot: number) — buy the automation of the Shiba equipped on `slot` (the Upgrades menu; the world prompt on the
+	-- level plate does the same without a remote)
+	BuyAutomation = "BuyAutomation",
+	-- ==== end Tycoon ====
 }
 
 local ALL_NAMES = {
@@ -101,6 +156,29 @@ local ALL_NAMES = {
 	Net.ClaimIndex,
 	Net.SaveSettings,
 	Net.AutomationCatch,
+	-- Social + Bonk Party (feat/social-party)
+	Net.FriendBoostChanged,
+	Net.PartyChanged,
+	Net.ClaimPartyQuest,
+	-- Shiba Variants
+	Net.VariantRolled,
+	-- Tycoon "Shiba Workers"
+	Net.BuyTycoonPad,
+	Net.HatchEgg,
+	Net.HatchResults,
+	Net.EquipShiba,
+	Net.UnequipShiba,
+	Net.UpgradeShiba,
+	Net.MergeShibas,
+	Net.UpgradeLane,
+	Net.TycoonPayout,
+	Net.CrateSpawned,
+	Net.CollectCrate,
+	Net.BoopLane,
+	Net.CollectVault,
+	Net.ShibaSwung,
+	Net.PlayerBonked,
+	Net.BuyAutomation,
 }
 
 function Net.CreateRemotes()

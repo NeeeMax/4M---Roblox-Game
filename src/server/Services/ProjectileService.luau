@@ -12,15 +12,14 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Events = require(ReplicatedStorage.Shared.Config.Events)
+local Features = require(ReplicatedStorage.Shared.Config.Features)
 local Gameplay = require(ReplicatedStorage.Shared.Config.Gameplay)
 local ProjectilePath = require(ReplicatedStorage.Shared.Util.ProjectilePath)
 local Projectiles = require(ReplicatedStorage.Shared.Config.Projectiles)
-local Shop = require(ReplicatedStorage.Shared.Config.Shop)
 
 local EventService = require(script.Parent.EventService)
 local IslandService = require(script.Parent.IslandService)
 local NotifyService = require(script.Parent.NotifyService)
-local RewardService = require(script.Parent.RewardService)
 local UpgradeService = require(script.Parent.UpgradeService)
 
 local CONFIG = Gameplay.Projectiles
@@ -40,6 +39,14 @@ export type ShotPlan = {
 	Golden: boolean,
 	-- MegaStick server event: the giant stick (Events.MegaStick.DiameterScale × diameter, pays RewardMultiplier ×).
 	Mega: boolean,
+	-- Stick density cap (Gameplay.Shooters.MaxThrowsPerSecond): how many throws this stick stands for. 1 by default;
+	-- NPCShooterService sets it before Fire when the ring is capped. Every payout (bonk, basket, intern) multiplies
+	-- the stick value by it (RewardService.GetStickValue). Shiba Variants: NPCShooterService multiplies the throwing
+	-- slot's VariantMultiplier into it, so every payout gets the variant too.
+	ValueMultiplier: number,
+	-- Shiba Variants: the throwing Shiba's variant multiplier (EconomyConfig.Variants.Multiplier), already included in
+	-- ValueMultiplier; kept separately for logs and tests. 1 for Bonk Rain drops.
+	VariantMultiplier: number,
 }
 
 export type ProjectileInfo = {
@@ -100,15 +107,12 @@ function ProjectileService.GetLaunchDirection(from: Vector3, to: Vector3): Vecto
 	return horizontal * math.cos(angle) + Vector3.yAxis * math.sin(angle)
 end
 
--- Rolls whether the next projectile of `owner` is golden (Lucky Sticks pass: more often).
-local function rollGolden(owner: Player): boolean
+-- Rolls whether the next projectile is golden.
+local function rollGolden(): boolean
 	if EventService.IsActive("GoldenMinute") then
 		return true
 	end
-	local chance = if RewardService.HasPass(owner, "LuckySticks")
-		then Shop.Pass.LuckyGoldenChance
-		else CONFIG.GoldenChance
-	return random:NextNumber() < chance
+	return random:NextNumber() < CONFIG.GoldenChance
 end
 
 -- Plans a shot for `owner` from `from` that first lands on `target` (a point at projectile-centre height).
@@ -140,8 +144,10 @@ function ProjectileService.Plan(owner: Player, from: Vector3, target: Vector3): 
 		NominalSpeed = nominalSpeed,
 		Speed = speed,
 		Path = ProjectilePath.Build(island.Center, radius, from, velocity, gravity),
-		Golden = rollGolden(owner),
+		Golden = rollGolden(),
 		Mega = mega,
+		ValueMultiplier = 1,
+		VariantMultiplier = 1,
 	}
 end
 
@@ -166,8 +172,11 @@ function ProjectileService.PlanDrop(owner: Player, target: Vector3, height: numb
 		-- A drop lands at about this speed.
 		Speed = gravity * fallTime,
 		Path = ProjectilePath.Build(island.Center, radius, from, velocity, gravity),
-		Golden = rollGolden(owner),
+		Golden = rollGolden(),
 		Mega = false,
+		-- Bonk Rain sticks are extra sticks on top of the Shibas' (their own fixed Rate): plain value.
+		ValueMultiplier = 1,
+		VariantMultiplier = 1,
 	}
 end
 
@@ -297,6 +306,10 @@ function ProjectileService.Fire(owner: Player, plan: ShotPlan)
 	marker.CFrame = CFrame.new(plan.From)
 	marker:SetAttribute(CONFIG.IdAttribute, id)
 	marker:SetAttribute(CONFIG.GoldenAttribute, plan.Golden)
+	if plan.ValueMultiplier > 1 then
+		-- Clients show the "×N" tag and a stronger trail (ProjectileController).
+		marker:SetAttribute(CONFIG.ValueMultiplierAttribute, plan.ValueMultiplier)
+	end
 	if plan.Mega then
 		marker:SetAttribute(Events.MegaStick.Attribute, true)
 		NotifyService.Send(owner, `MEGA STICK incoming! Catch it for x{Events.MegaStick.RewardMultiplier}!`, "Good")
@@ -342,6 +355,10 @@ function ProjectileService.MarkPaid(info: ProjectileInfo)
 end
 
 function ProjectileService.Start()
+	-- The tycoon (TycoonService) replaces the throw-and-catch loop.
+	if Features.Tycoon then
+		return
+	end
 	Players.PlayerRemoving:Connect(function(player: Player)
 		for _, info in live do
 			if info.Owner == player then

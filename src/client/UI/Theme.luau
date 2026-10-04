@@ -45,6 +45,21 @@ return {
 	SliderMusic = Color3.fromRGB(184, 152, 255),
 	SliderEffects = Color3.fromRGB(255, 204, 150),
 
+	-- Cash icon (Widgets.MoneyIcon).
+	BillGreen = Color3.fromRGB(70, 205, 85),
+	BillLight = Color3.fromRGB(170, 240, 150),
+	BillOutline = Color3.fromRGB(14, 48, 22),
+	-- Income line under the money pill.
+	Income = Color3.fromRGB(90, 255, 110),
+
+	-- HUD: money pill and the left menu tile grid.
+	MoneyPillFill = Color3.fromRGB(14, 16, 22),
+	MoneyPillStroke = Color3.fromRGB(8, 8, 10),
+	TileSize = 74,
+	TileGap = 10,
+	-- "Limited!" tag.
+	LimitedTag = Color3.fromRGB(235, 40, 50),
+
 	-- HUD square buttons.
 	MenuButton = Color3.fromRGB(60, 60, 72),
 	-- Every ScreenGui built by Widgets.Screen is scaled by viewport height / 820 × UIScale, clamped to Min … Max.
