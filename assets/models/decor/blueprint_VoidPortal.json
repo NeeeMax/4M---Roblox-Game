@@ -2069,7 +2069,7 @@
           "Material": "Material.SmoothPlastic",
           "Offset": [
             -44,
-            4,
+            4.5,
             72
           ],
           "Rotation": [
@@ -2112,7 +2112,7 @@
           "Material": "Material.SmoothPlastic",
           "Offset": [
             -35,
-            2.5,
+            3,
             68
           ],
           "Rotation": [
@@ -2155,7 +2155,7 @@
           "Material": "Material.SmoothPlastic",
           "Offset": [
             -37,
-            3.25,
+            3.75,
             78
           ],
           "Rotation": [

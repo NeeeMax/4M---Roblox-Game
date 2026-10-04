@@ -522,16 +522,16 @@ end
 local function comets(): Pieces
 	local pieces: Pieces = {}
 	local spots = {
-		{ -20, 40, 52, CYAN },
-		{ 0, 30, 60, PURPLE },
-		{ 24, 44, 48, MAGENTA },
-		{ -40, 28, 40, VIOLET },
-		{ 8, 52, 70, CYAN },
+		{ x = -20, y = 40, z = 52, c = CYAN },
+		{ x = 0, y = 30, z = 60, c = PURPLE },
+		{ x = 24, y = 44, z = 48, c = MAGENTA },
+		{ x = -40, y = 28, z = 40, c = VIOLET },
+		{ x = 8, y = 52, z = 70, c = CYAN },
 	}
 	for _, s in spots do
-		table.insert(pieces, Ball(s[1], s[2], s[3], 5, 5, 5, s[4], Plastic))
-		table.insert(pieces, B(s[1] - 7, s[2] + 3.4, s[3] + 2, 14, 1.6, 2, s[4], Plastic, 0, 12, -22))
-		table.insert(pieces, B(s[1] - 5, s[2] + 2.2, s[3] - 2.6, 9, 1.2, 1.4, PALE, Plastic, 0, 12, -22))
+		table.insert(pieces, Ball(s.x, s.y, s.z, 5, 5, 5, s.c, Plastic))
+		table.insert(pieces, B(s.x - 7, s.y + 3.4, s.z + 2, 14, 1.6, 2, s.c, Plastic, 0, 12, -22))
+		table.insert(pieces, B(s.x - 5, s.y + 2.2, s.z - 2.6, 9, 1.2, 1.4, PALE, Plastic, 0, 12, -22))
 	end
 	return pieces
 end
