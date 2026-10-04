@@ -547,17 +547,24 @@ def build_Ground(p):
     rng = random.Random(5)
     bx(p, (-90, 90), (0, 0.3), (-70, 70), OBS, 0.05)
     # tonal obsidian slabs
-    for _ in range(26):
+    for _ in range(12):
         w, d = 7 + rng.random() * 9, 6 + rng.random() * 8
         x, z = -86 + rng.random() * 172, -66 + rng.random() * 132
         bx(p, (x - w / 2, x + w / 2), (0.3, 0.32), (z - d / 2, z + d / 2), rng.choice([BLK, ROCK, BLK, OBS]), 0.08)
     # red-veined rock fields
-    for (x, z, w, d, col) in ((-58, 34, 46, 30, RROCK), (60, 30, 40, 36, DRED), (-20, -30, 44, 34, DRED), (26, -52, 52, 30, RROCK),
-                              (-70, -48, 30, 24, DRED), (70, -34, 30, 22, RROCK)):
+    GR1, GR2 = (140, 50, 46), (104, 34, 40)
+    for (x, z, w, d, col) in ((-58, 34, 46, 30, GR1), (60, 30, 40, 36, GR2), (-20, -30, 44, 34, GR2), (26, -52, 52, 30, GR1),
+                              (-70, -48, 30, 24, GR2), (70, -34, 30, 22, GR1)):
         bx(p, (x - w / 2, x + w / 2), (0.3, 0.34), (z - d / 2, z + d / 2), col, 0.07)
         bx(p, (x - w * 0.3, x + w * 0.3), (0.34, 0.36), (z - d * 0.3, z + d * 0.3), shade(col, 0.8), 0.08)
     # glowing lava cracks
+    for (x, z, r) in ((-30, 20, 3.2), (40, -30, 2.6), (-80, -20, 2.8), (80, 60, 2.4), (-10, 58, 2.2)):
+        vcyl(p, x, 0.3, 0.42, z, r + 0.7, BLK, verts=8, jit=0.05)
+        vcyl(p, x, 0.38, 0.46, z, r, LAVA, verts=8, jit=0.03)
+        vcyl(p, x, 0.44, 0.5, z, r * 0.55, LAVAY, verts=6, jit=0.03)
     for pts in (((-60, -50), (-52, -47), (-44, -52), (-36, -49), (-28, -53), (-20, -50)),
+                ((-10, 30), (-4, 34), (2, 31), (9, 35)),
+                ((60, -10), (64, -4), (61, 2), (66, 8)),
                 ((54, 23), (51, 30), (55, 36), (52, 43), (56, 50), (54, 57)),
                 ((-72, -11), (-70, -4), (-74, 2), (-71, 9), (-73, 15), (-72, 19)),
                 ((23, 8), (30, 6), (36, 10), (42, 7), (49, 9))):
@@ -566,12 +573,12 @@ def build_Ground(p):
     path = [(v[0], v[1]) for v in BP["Path"]]
     for (x0, z0), (x1, z1) in zip(path, path[1:]):
         L = math.hypot(x1 - x0, z1 - z0)
-        n = max(1, int(L // 8))
+        n = max(1, int(L // 10))
         ang = -math.degrees(math.atan2(z1 - z0, x1 - x0))
         for k in range(n):
             u = (k + 0.5) / n
             cx, cz = x0 + (x1 - x0) * u, z0 + (z1 - z0) * u
-            dk.box(p, (cx, 0.35, cz), (L / n * 0.8, 0.1, 4.8), ROCK if k % 2 else DRED, rot=(0, ang, 0), jitter=0.07)
+            dk.box(p, (cx, 0.35, cz), (L / n * 0.8, 0.1, 4.8), (86, 74, 82) if k % 2 else (124, 42, 46), rot=(0, ang, 0), jitter=0.07)
     # the red-ringed plaza under the Demon Shiba
     bx(p, (7, 33), (0.3, 0.42), (-27, -1), ROCK, 0.04)
     bx(p, (9.5, 30.5), (0.42, 0.5), (-24.5, -3.5), DRED, 0.04)
@@ -616,12 +623,20 @@ def build_HellSign(p):
     for sx in (-1, 1):
         x = sx * 7
         bx(p, (x - 0.7, x + 0.7), (1.2, 10.2), (-0.7, 0.7), BLK)
-        for yy in (2.6, 8.6):
+        for yy in (1.6, 3.8):
             bx(p, (x - 0.95, x + 0.95), (yy, yy + 0.6), (-0.95, 0.95), IRON)
         cone(p, x, 10.2, 0, 0.85, 2.0, IRON, verts=4)
     bx(p, (-10.2, 10.2), (5.4, 11.4), (-0.45, 0.45), BLK)
     bx(p, (-9.3, 9.3), (6.1, 10.7), (0.4, 0.9), RED)
-    text(p, "HELL", 0, 6.8, 0.9, 1.5, 3.4, 3.2, 0.8, 1.0, BONE)
+    LC = (238, 226, 190)
+    y0, h, w, t = 6.8, 3.2, 3.4, 0.8
+    for i, ch in enumerate("HELL"):
+        x0 = -8.3 + i * 4.4
+        parts = {"H": [(0, 0, t, h), (w - t, 0, w, h), (t, h / 2 - t / 2, w - t, h / 2 + t / 2)],
+                 "E": [(0, 0, t, h), (t, h - t, w, h), (t, h / 2 - t / 2, w * 0.85, h / 2 + t / 2), (t, 0, w, t)],
+                 "L": [(0, 0, t, h), (t, 0, w, t)]}[ch]
+        for (a, b, c, d) in parts:
+            dk.box(p, (x0 + (a + c) / 2, y0 + (b + d) / 2, 1.15), (c - a, d - b, 0.7), LC, jitter=0.03)
     for sx in (-1, 1):
         for yy in (5.9, 10.9):
             dk.ball(p, (sx * 9.7, yy, 0.6), 0.45, IRON, subdiv=1)
@@ -649,18 +664,22 @@ def build_SpikeFence(p):
 
 # ---- 5. BoneHeap ----------------------------------------------------------------------------------------------------------
 def build_BoneHeap(p):
-    dk.ball(p, (0, 2.4, 0), 1.0, BONE, scale=(7, 2.5, 6.2), subdiv=2, jitter=0.1)
-    dk.ball(p, (1.5, 4.6, 0.4), 1.0, DBONE, scale=(4, 2.0, 3.4), subdiv=2, jitter=0.1)
+    dk.ball(p, (0, 2.2, 0), 1.0, DBONE, scale=(7, 2.3, 6.2), subdiv=2, jitter=0.16)
+    for (x, z, sx, sy, sz) in ((-3.0, -1.0, 3.0, 1.6, 2.6), (2.6, 2.0, 2.6, 1.5, 2.4), (-1.0, 3.4, 2.4, 1.2, 2.0), (3.4, -2.6, 2.6, 1.4, 2.2)):
+        dk.ball(p, (x, 3.4 + sy * 0.6, z), 1.0, BONE, scale=(sx, sy, sz), subdiv=1, jitter=0.2)
+    for k in range(6):
+        a = 2 * math.pi * k / 6 + 0.3
+        bone(p, (3.0 * math.cos(a), 2.4, 2.6 * math.sin(a)), (6.6 * math.cos(a), 3.4 + (k % 3) * 0.8, 5.8 * math.sin(a)), 0.3, BONE, 1.5, 4)
     for k, (dx, dz, r) in enumerate(((-5.2, -2.2, 1.5), (5.4, 1.8, 1.4), (-1.8, 5.2, 1.6), (3.2, -5.0, 1.4), (-5.8, 2.6, 1.3),
-                                     (0.0, -3.2, 1.2), (4.4, 4.4, 1.2))):
+                                     )):
         yaw = math.degrees(math.atan2(dx, dz))
-        skull(p, (dx, 1.2 + r * 0.7 + (1.4 if abs(dx) < 3 and abs(dz) < 4 else 0), dz), r, yaw=yaw, sub=2 if r > 1.45 else 1)
-    # ribcage standing in the mound
-    bone(p, (-3.6, 4.4, -0.8), (2.0, 4.8, -0.8), 0.32, DBONE)
-    for i in range(5):
-        x = -3.0 + i * 1.3
+        skull(p, (dx, 1.2 + r * 0.7 + (1.4 if abs(dx) < 3 and abs(dz) < 4 else 0), dz), r, yaw=yaw, sub=1)
+    # ribcage standing in the mound (spine along z, ribs curving out sideways)
+    bone(p, (-0.2, 6.0, -3.4), (-0.2, 6.2, 2.2), 0.32, DBONE)
+    for i in range(4):
+        z = -2.8 + i * 1.6
         for side in (-1, 1):
-            rib(p, x, 4.5, -0.8, 2.8 - abs(i - 2) * 0.25, 2.6, BONE, segs=4, thick=0.3, yaw=90, side=side)
+            rib(p, -0.2, 3.4, z, 3.2 - abs(i - 1.5) * 0.35, 2.7, BONE, segs=3, thick=0.3, yaw=0, side=side)
     # long bones criss-crossing
     bone(p, (-6.4, 1.0, 3.2), (-1.4, 3.2, 5.6), 0.34)
     bone(p, (1.4, 1.0, 5.8), (6.0, 2.6, 2.0), 0.34)
@@ -682,18 +701,19 @@ def lava_pool(p, x, z, r, col, rim_n=9):
     vcyl(p, x, 0.6, 0.7, z, r * 0.62, col, verts=10, jit=0.03)
     for k in range(rim_n):
         a = 2 * math.pi * k / rim_n + x
-        rock(p, (x + (r + 0.8) * math.cos(a), 0.6, z + (r + 0.8) * math.sin(a)), 0.9 + (k % 3) * 0.25, LROCK if k % 2 else ROCK, squash=0.8)
+        rock(p, (x + (r + 0.8) * math.cos(a), 0.6, z + (r + 0.8) * math.sin(a)), 0.9 + (k % 3) * 0.25, LROCK if k % 2 else ROCK, squash=0.8, sub=0)
+    cone(p, x, 0.6, z, r * 0.18, 1.5 + r * 0.15, LAVAY, verts=5, jit=0.03)
     for k in range(3):
         a = 1.7 * k + z
         dk.ball(p, (x + r * 0.35 * math.cos(a), 0.7, z + r * 0.35 * math.sin(a)), 0.5, LAVAY, scale=(1, 0.5, 1), subdiv=1, jitter=0.03)
 
 
 def build_LavaPools(p):
-    lava_pool(p, -4.1, 5.6, 6.0, LAVAY)
-    lava_pool(p, 5.9, -5.4, 4.6, LAVAY)
-    lava_pool(p, -9.1, -8.4, 3.6, LAVAY, rim_n=7)
+    lava_pool(p, -4.1, 5.6, 6.0, LAVAY, rim_n=7)
+    lava_pool(p, 5.9, -5.4, 4.6, LAVAY, rim_n=6)
+    lava_pool(p, -9.1, -8.4, 3.6, LAVAY, rim_n=5)
     for (x, z, h, col) in ((-11.1, 11.6, 4.4, ROCK), (1.9, 12.6, 3.8, OBS), (11.9, -1.4, 3.6, ROCK), (-0.1, -12.4, 4.4, OBS)):
-        rock(p, (x, h * 0.35, z), h * 0.48, col, squash=0.8, sub=2)
+        rock(p, (x, h * 0.35, z), h * 0.48, col, squash=0.8, sub=1)
         shard(p, x - 0.6, h * 0.4, z + 0.3, 1.5, h * 0.6, shade(col, 1.4), tilt=(-0.5, 0.3))
         shard(p, x + 0.8, h * 0.3, z - 0.4, 1.2, h * 0.5, shade(col, 1.3), tilt=(0.4, -0.2))
 
@@ -736,9 +756,9 @@ def dead_tree(p, x, z, h, lean, yaw):
 
 
 def build_DeadTrees(p):
-    dead_tree(p, -0.2, -0.9, 11, 0.6, 10)
-    dead_tree(p, -8.2, 7.1, 9, -0.8, 80)
-    dead_tree(p, 7.8, -6.9, 8, 0.8, 200)
+    dead_tree(p, -0.2, -0.9, 12.6, 0.6, 10)
+    dead_tree(p, -8.2, 3.2, 10.4, -0.8, 80)
+    dead_tree(p, 7.8, -6.0, 9.4, 0.8, 200)
     for (x, z, r) in ((-6, 0, 1.4), (4, 3, 1.2), (-2, -6, 1.0)):
         dk.ball(p, (x, 0.3, z), r, LAVA, scale=(1, 0.15, 0.9), subdiv=1, jitter=0.04)
 
@@ -759,7 +779,7 @@ def build_Cauldron(p):
     for yy, rr in ((5.0, 4.85), (7.9, 4.8)):
         vcyl(p, cx, yy, yy + 0.4, cz, rr, IRON, verts=14, jit=0.03)
     vcyl(p, cx, 9.3, 10.2, cz, 4.7, IRON, verts=14, top_r=4.95)
-    vcyl(p, cx, 9.9, 10.15, cz, 4.3, GREEN, verts=14, jit=0.04)
+    vcyl(p, cx, 10.0, 10.32, cz, 4.3, GREEN, verts=14, jit=0.04)
     for (dx, dz, r) in ((-1.4, 1.0, 0.9), (1.8, -0.6, 0.7), (0.2, -2.0, 0.6), (-2.2, -1.2, 0.5)):
         dk.ball(p, (cx + dx, 10.3 + r * 0.3, cz + dz), r, (160, 232, 110), scale=(1, 0.7, 1), subdiv=1, jitter=0.04)
     dk.ball(p, (cx + 0.6, 11.0, cz + 0.2), 0.9, (160, 232, 110), subdiv=1)
@@ -781,16 +801,17 @@ def vent(p, x, z, r, h, puffs):
     for k in range(6):
         a = 2 * math.pi * k / 6 + x
         shard(p, x + r * 0.5 * math.cos(a), h + 0.2, z + r * 0.5 * math.sin(a), 0.55, 1.0 + (k % 2) * 0.5, SULF, tilt=(0.2 * math.cos(a), 0.2 * math.sin(a)), verts=4)
-    for (dy, rr, col) in puffs:
-        dk.ball(p, (x + 0.15 * dy % 0.6, h + dy, z), rr, col, scale=(1, 0.9, 1), subdiv=2, jitter=0.06)
+    vcyl(p, x, h + 0.5, h + 0.58, z, r * 0.3, RED, verts=8, jit=0.02)
+    for i, (dy, rr, col) in enumerate(puffs):
+        dk.ball(p, (x + (0.5 if i % 2 else -0.4) * (i + 0.5), h + dy, z + 0.3 * i), rr, col, scale=(1.15, 0.85, 1.05), subdiv=2 if i == 2 else 1, jitter=0.08)
 
 
 def build_SulfurVents(p):
     vcyl(p, 0, 0, 0.35, 0, 9.0, SULF, verts=16, jit=0.08)
     vcyl(p, -1, 0.3, 0.4, 0.5, 5.5, (232, 214, 96), verts=12, jit=0.08)
-    vent(p, 2, -5, 3.5, 2.4, ((2.2, 1.6, ASH), (4.6, 2.0, (140, 136, 142)), (7.2, 2.6, ASH)))
-    vent(p, -6, 1, 2.8, 1.8, ((1.9, 1.3, ASH), (3.8, 1.7, (140, 136, 142)), (6.0, 2.1, ASH)))
-    vent(p, 4, 5, 3.0, 2.0, ((2.0, 1.4, ASH), (4.2, 1.8, (140, 136, 142)), (6.6, 2.2, ASH)))
+    vent(p, 2, -5, 3.5, 2.4, ((1.8, 1.5, (120, 116, 122)), (3.7, 1.8, (150, 146, 152)), (5.6, 2.0, (186, 182, 188))))
+    vent(p, -6, 1, 2.8, 1.8, ((1.5, 1.3, (120, 116, 122)), (3.1, 1.5, (150, 146, 152)), (4.8, 1.7, (186, 182, 188))))
+    vent(p, 4, 5, 3.0, 2.0, ((1.6, 1.4, (120, 116, 122)), (3.3, 1.6, (150, 146, 152)), (5.2, 1.8, (186, 182, 188))))
 
 
 # ---- 11. ImpStatues -------------------------------------------------------------------------------------------------------
@@ -852,7 +873,7 @@ def gate_pillar(p, x):
     bx(p, (x - 3.1, x + 3.1), (20.6, 21.6), (-3.1, 3.1), RROCK)
     bx(p, (x - 2.4, x + 2.4), (21.6, 22.0), (-2.4, 2.4), BLK)
     for sx in (-1, 1):
-        horn(p, (x + sx * 1.5, 22.0, 0), sx, 3.8, 2.4, 0.75, BONE, n=4)
+        horn(p, (x + sx * 1.5, 22.0, 0), sx, 3.8, 1.3, 0.75, BONE, n=4)
     cone(p, x, 22.0, 0, 0.7, 2.6, BONE, verts=5)
 
 
@@ -907,8 +928,11 @@ def build_HellKennel(p):
     skull(p, (0, 5.0, z1 + 0.5), 0.8, sub=1, glow=RED)
     dk.prism(p, (0, 5.8, (z0 + z1) / 2), 9.2, 8.2, 3.6, BLK, ridge='z', jitter=0.05)
     bx(p, (-0.45, 0.45), (9.2, 9.7), (z0 - 0.6, z1 + 0.6), RROCK)
-    for zz in (-4.0, -1.2, 1.6):
-        cone(p, 0, 9.6, zz, 0.5, 2.3, BONE, verts=4)
+    for zz in (-4.2, -2.0, 0.2, 2.2):
+        cone(p, 0, 9.6, zz, 0.45, 1.6 if zz < 2 else 2.3, BONE, verts=4)
+    for sx in (-1, 1):
+        for zz in (-3.6, -1.2, 1.2, 3.0):
+            cone(p, sx * 3.7, 5.9, zz, 0.32, 0.9, BONE, verts=4)
     vcyl(p, 4.4, 0, 0.9, 3.8, 1.5, IRON, verts=10, top_r=1.7)
     for (dx, dz, r) in ((0, 0, 0.9), (0.6, 0.4, 0.5), (-0.5, -0.4, 0.5)):
         dk.ball(p, (4.4 + dx, 1.0, 3.8 + dz), r, BONE, scale=(1, 0.7, 1), subdiv=1)
@@ -1008,29 +1032,33 @@ def build_WarBanners(p):
 # ---- 18. LavaFountain -----------------------------------------------------------------------------------------------------
 def build_LavaFountain(p):
     vcyl(p, 0, 0, 2.0, 0, 8.6, ROCK, verts=14, jit=0.07)
-    vcyl(p, 0, 2.0, 2.4, 0, 8.7, LROCK, verts=14, jit=0.05)
-    vcyl(p, 0, 2.0, 2.2, 0, 7.2, LAVA, verts=14, jit=0.03)
-    vcyl(p, 0, 2.15, 2.25, 0, 4.8, LAVAY, verts=12, jit=0.03)
-    poly_cone(p, 0, 2.0, 7.0, 0, 3.4, BLK, verts=7, rt=1.6, jit=0.08)
+    vcyl(p, 0, 2.0, 2.3, 0, 8.7, LROCK, verts=14, jit=0.05)
+    vcyl(p, 0, 2.1, 2.45, 0, 7.3, LAVA, verts=14, jit=0.03)
+    vcyl(p, 0, 2.4, 2.52, 0, 5.4, LAVAY, verts=14, jit=0.03)
+    vcyl(p, 0, 2.5, 2.56, 0, 3.6, LAVA, verts=12, jit=0.03)
+    poly_cone(p, 0, 2.4, 7.0, 0, 3.2, BLK, verts=7, rt=1.5, jit=0.08)
     for k in range(3):
-        a = 2 * math.pi * k / 3
-        shard(p, 1.8 * math.cos(a), 2.0, 1.8 * math.sin(a), 1.1, 3.4, OBS, tilt=(0.9 * math.cos(a), 0.9 * math.sin(a)), verts=5)
-    tube(p, (0, 6.8, 0), (0, 11.0, 0), 1.1, 0.6, LAVA, 6, 0.03)
-    dk.ball(p, (0, 12.4, 0), 1.5, LAVAY, subdiv=2, jitter=0.04)
-    for k in range(4):
-        a = math.pi / 2 * k + 0.6
-        pts = [(0, 10.0, 0), (2.0 * math.cos(a), 11.0, 2.0 * math.sin(a)), (4.2 * math.cos(a), 9.4, 4.2 * math.sin(a)), (5.6 * math.cos(a), 5.4, 5.6 * math.sin(a))]
-        chain_path(p, pts, 0.5, LAVA, verts=5, tip=0.3, jit=0.03)
-        dk.ball(p, (5.6 * math.cos(a), 4.0, 5.6 * math.sin(a)), 0.7, LAVAY, subdiv=1)
+        a = 2 * math.pi * k / 3 + 0.5
+        shard(p, 1.9 * math.cos(a), 2.4, 1.9 * math.sin(a), 1.1, 3.4, OBS, tilt=(0.9 * math.cos(a), 0.9 * math.sin(a)), verts=5)
+    tube(p, (0, 6.8, 0), (0, 11.2, 0), 1.2, 0.8, LAVA, 6, 0.03)
+    dk.ball(p, (0, 12.2, 0), 1.6, LAVAY, subdiv=2, jitter=0.04)
+    for k in range(6):
+        a = math.pi / 3 * k + 0.3
+        pts = []
+        for i in range(7):
+            t = i / 6
+            pts.append(((0.4 + 6.0 * t) * math.cos(a), 10.8 + 1.4 * math.sin(math.pi * t) - 8.4 * t * t, (0.4 + 6.0 * t) * math.sin(a)))
+        chain_path(p, pts, 0.62, LAVA, verts=5, tip=0.3, jit=0.03)
+        dk.ball(p, (6.4 * math.cos(a), 2.7, 6.4 * math.sin(a)), 0.7, LAVAY, scale=(1, 0.5, 1), subdiv=1)
     for k in range(7):
         a = 2 * math.pi * k / 7
-        rock(p, (9.0 * math.cos(a), 1.6, 9.0 * math.sin(a)), 1.5 + (k % 3) * 0.35, ROCK if k % 2 else OBS, squash=1.1, sub=1)
-    skull(p, (6.2, 2.6, -3.0), 0.9, yaw=40, sub=1)
+        rock(p, (7.4 * math.cos(a), 2.4, 7.4 * math.sin(a)), 1.2 + (k % 3) * 0.1, ROCK if k % 2 else OBS, squash=1.2, sub=0)
+    skull(p, (5.0, 3.4, -4.6), 0.8, yaw=40, sub=1)
 
 
 # ---- 19. BoneBridge -------------------------------------------------------------------------------------------------------
 def bridge_y(x):
-    return 1.2 + 1.4 * max(0.0, 1 - (x / 9.0) ** 2) ** 0.8
+    return 1.2 + 1.4 * max(0.0, 1 - (x / 8.0) ** 2) ** 0.8
 
 
 def build_BoneBridge(p):
@@ -1038,59 +1066,74 @@ def build_BoneBridge(p):
     for zz in (-9, -3, 3, 9):
         bx(p, (-1.2, 1.2), (0.45, 0.5), (zz - 1.2, zz + 1.2), LAVAY, 0.03)
     for sx in (-1, 1):
-        bx(p, (sx * 4.2 if sx > 0 else -8.6, 8.6 if sx > 0 else -4.2), (0, 0.6), (-12, 12), BLK, 0.1)
+        bx(p, (4.2 if sx > 0 else -8.6, 8.6 if sx > 0 else -4.2), (0, 0.6), (-12, 12), BLK, 0.1)
         for k in range(5):
             rock(p, (sx * 4.6, 0.7, -9.5 + k * 4.8), 0.9, ROCK, squash=0.7, sub=0)
-    for i in range(9):
-        x = -9 + 2.0 * i + 1.0
+    for i in range(8):
+        x = -8 + 2.0 * i + 1.0
         y = bridge_y(x)
         ang = -math.degrees(math.atan2(bridge_y(x + 0.5) - bridge_y(x - 0.5), 1.0))
         dk.box(p, (x, y, 0), (2.05, 0.55, 4.4), BONE if i % 2 else DBONE, rot=(0, 0, -ang), jitter=0.05)
     for sz in (-2.4, 2.4):
-        for xx in (-9, -4.5, 0, 4.5, 9):
+        for xx in (-8, -4, 0, 4, 8):
             y = bridge_y(xx) + 0.3
-            bone(p, (xx, y, sz), (xx, y + 3.2, sz), 0.22, BONE, 1.6, 5)
+            bone(p, (xx, y, sz), (xx, y + 2.9, sz), 0.22, BONE, 1.6, 5)
         prev = None
-        for xx in (-9, -6.75, -4.5, -2.25, 0, 2.25, 4.5, 6.75, 9):
-            q = (xx, bridge_y(xx) + 3.3, sz)
+        for xx in (-8, -6, -4, -2, 0, 2, 4, 6, 8):
+            q = (xx, bridge_y(xx) + 3.0, sz)
             if prev:
                 tube(p, prev, q, 0.2, 0.2, BONE, 4)
             prev = q
-    for (xx, sz) in ((-9, -2.4), (9, -2.4), (-9, 2.4), (9, 2.4)):
-        skull(p, (xx, bridge_y(xx) + 4.5, sz), 0.95, yaw=90 if xx > 0 else -90, sub=1)
+    for (xx, sz) in ((-8, -2.4), (8, -2.4), (-8, 2.4), (8, 2.4)):
+        skull(p, (xx, bridge_y(xx) + 4.2, sz), 0.95, yaw=90 if xx > 0 else -90, sub=1)
     for sx in (-1, 1):
-        bx(p, (sx * 9 - (0 if sx > 0 else 1.6), sx * 9 + (1.6 if sx > 0 else 0)), (0, 1.2), (-2.6, 2.6), ROCK)
+        bx(p, (7.4 if sx > 0 else -9.0, 9.0 if sx > 0 else -7.4), (0, 1.2), (-2.6, 2.6), ROCK)
 
 
 # ---- 20. RuinedWall -------------------------------------------------------------------------------------------------------
-def wall_block(p, x0, x1, h, z0=-1.3, z1=1.3, col=ROCK, crown=True):
+def wall_block(p, x0, x1, h, z0=-1.3, z1=1.3, col=ROCK, holes=(), broken=True):
+    rng = _R
     courses = max(2, int(h // 2.2))
     ch = h / courses
     for c in range(courses):
-        off = 0.0 if c % 2 == 0 else (x1 - x0) * 0.22
-        bx(p, (x0, x1), (c * ch, (c + 1) * ch - 0.05), (z0, z1), shade(col, 0.92 + 0.08 * (c % 2)), 0.07)
-    if crown:
-        n = max(1, int((x1 - x0) // 2.2))
-        for k in range(n):
-            if k % 2 == 0:
-                xa = x0 + (x1 - x0) * k / n
-                bx(p, (xa + 0.1, xa + (x1 - x0) / n - 0.1), (h, h + 1.0), (z0, z1), BLK, 0.06)
+        x = x0
+        while x < x1 - 0.2:
+            w = min(x1 - x, 1.6 + rng.random() * 1.8)
+            if x1 - (x + w) < 1.0:
+                w = x1 - x
+            xa, xb = x, x + w
+            x += w
+            hh = ch - 0.06
+            if c == courses - 1 and broken:
+                hh *= 0.35 + rng.random() * 0.65
+            if any(a < (xa + xb) / 2 < b and lo < c * ch + ch / 2 < hi for (a, b, lo, hi) in holes):
+                continue
+            dz = rng.random() * 0.3
+            cc = shade(col, 1.0 + 0.5 * rng.random()) if rng.random() < 0.3 else shade(col, 0.85 + 0.25 * rng.random())
+            if rng.random() < 0.12:
+                cc = RROCK
+            bx(p, (xa + 0.04, xb - 0.04), (c * ch, c * ch + hh), (z0 - dz, z1), cc, 0.08)
 
 
 def build_RuinedWall(p):
-    wall_block(p, -9.2, -2.2, 11.0)
+    wall_block(p, -9.2, -2.2, 11.0, col=(88, 78, 84), holes=((-7.4, -4.6, 3.0, 6.8),))
+    bx(p, (-7.2, -4.8), (3.2, 6.6), (-1.0, -0.7), RED)
+    bx(p, (-7.6, -4.4), (6.8, 7.4), (-1.3, 1.3), RROCK)
     wall_block(p, -2.2, 3.2, 6.0, col=OBS)
-    wall_block(p, 3.2, 9.8, 13.0)
-    wall_block(p, 9.8, 13.4, 4.4, col=OBS, crown=False)
+    wall_block(p, 3.2, 9.8, 13.0, col=ROCK)
+    wall_block(p, 9.8, 13.4, 4.4, col=OBS)
     bx(p, (-12.2, -9.2), (0, 8.0), (-1.7, 1.7), OBS)
-    bx(p, (-9.2, -2.2), (5.0, 8.2), (1.3, 1.5), RROCK)
-    bx(p, (-7.4, -4.4), (3.0, 6.4), (1.3, 1.6), BLK)
-    bx(p, (-7.0, -4.8), (3.2, 6.0), (1.5, 1.6), RED)
-    cloth(p, 6.4, 11.6, 1.5, 2.6, 4.4, DRED, teeth=3, wave=0.2)
-    tube(p, (5.1, 11.8, 1.5), (7.7, 11.8, 1.5), 0.2, 0.2, IRON, 4)
-    for (x, z, r, col) in ((-6, 2.6, 1.3, ROCK), (1, 2.4, 1.0, OBS), (7, 2.8, 1.3, ROCK), (11, 2.2, 1.1, OBS), (-10, 2.4, 1.0, ROCK), (4, -2.6, 1.0, OBS)):
+    for k in range(3):
+        bx(p, (-12.0 + 0.2 * k, -9.4 - 0.2 * k), (2.0 * k + 0.0, 2.0 * k + 1.9), (-1.7, 1.7), shade(OBS, 1.1 + 0.2 * k), 0.08)
+    cloth(p, 6.4, 11.6, 1.6, 2.6, 4.4, DRED, teeth=3, wave=0.2)
+    tube(p, (5.1, 11.8, 1.6), (7.7, 11.8, 1.6), 0.2, 0.2, IRON, 4)
+    for k, (x, z, r, col) in enumerate(((-6, 1.9, 0.9, ROCK), (1, 1.8, 0.8, OBS), (7, 2.0, 0.9, ROCK), (11, 1.8, 0.8, OBS), (-10, 1.8, 0.7, ROCK), (4, -2.0, 0.8, OBS),
+                                        (-3, 2.2, 0.6, LROCK), (9, 2.2, 0.6, LROCK))):
         rock(p, (x, r * 0.5, z), r, col, squash=0.8, sub=1)
-    skull(p, (-1.0, 0.9, 2.5), 0.8, yaw=20, sub=1)
+    skull(p, (-1.0, 0.8, 2.2), 0.7, yaw=20, sub=1)
+    shard(p, 6.0, 0.0, 2.0, 0.8, 1.8, OBS, tilt=(0.8, 0.0), verts=4)
+    for (x, y, w, ang) in ((-5.0, 11.4, 2.8, 14), (6.2, 13.6, 3.4, -16), (11.8, 4.8, 2.4, 20)):
+        dk.box(p, (x, y, 0.2), (w, 0.7, 2.6), shade(LROCK, 0.9), rot=(0, 0, ang), jitter=0.08)
 
 
 # ---- 21. Watchtower -------------------------------------------------------------------------------------------------------
@@ -1102,7 +1145,7 @@ def build_Watchtower(p):
         frust(p, 0, yy, yy + 0.6, 0, 8.0 - yy * 0.06, 8.0 - yy * 0.06, 8.0 - yy * 0.06, 8.0 - yy * 0.06, RROCK)
     for yy in (6.0, 10.5, 14.0):
         for (sx, sz, w, d) in ((0, 1, 1.3, 0.3), (0, -1, 1.3, 0.3), (1, 0, 0.3, 1.3), (-1, 0, 0.3, 1.3)):
-            k = 3.35 - yy * 0.04
+            k = 3.8 - (yy - 1.6) / 16.8 * 0.5 + 0.1
             dk.box(p, (sx * k, yy, sz * k), (w, 2.4, d), RED, jitter=0.03)
     bx(p, (-5.5, 5.5), (18.4, 19.6), (-5.5, 5.5), ROCK)
     for (sx, sz) in ((-1, -1), (-1, 1), (1, -1), (1, 1)):
@@ -1198,18 +1241,23 @@ def build_FireAltar(p):
 
 
 # ---- 24. LavaMoat ---------------------------------------------------------------------------------------------------------
-def moat_blocks(p, x0, x1, z0, z1, along, rng, hmax):
-    """Rough bank blocks along a straight edge (along = 'z' or 'x')."""
+def moat_blocks(p, x0, x1, z0, z1, along, rng, hmax, spikes=False):
+    """Rough bank blocks along a straight edge (along = 'z' or 'x'); spikes = a black spike on every other block."""
     L = (z1 - z0) if along == 'z' else (x1 - x0)
-    n = max(1, int(L // 3.3))
+    n = max(1, int(L // 4.4))
     for k in range(n):
         a = k / n * L
         b = (k + 1) / n * L - 0.15
         h = 0.7 + rng.random() * (hmax - 0.7)
+        col = rng.choice([BLK, OBS, ROCK, RROCK, BLK, LROCK])
         if along == 'z':
-            bx(p, (x0, x1), (0, h), (z0 + a, z0 + b), rng.choice([BLK, OBS, ROCK]), 0.1)
+            bx(p, (x0, x1), (0, h), (z0 + a, z0 + b), col, 0.1)
+            if spikes and k % 2 == 0:
+                shard(p, (x0 + x1) / 2, h, z0 + (a + b) / 2, 0.9, 3.15 - h, shade(col, 1.3), tilt=(0.1, 0.1), verts=4, jit=0.1)
         else:
-            bx(p, (x0 + a, x0 + b), (0, h), (z0, z1), rng.choice([BLK, OBS, ROCK]), 0.1)
+            bx(p, (x0 + a, x0 + b), (0, h), (z0, z1), col, 0.1)
+            if spikes and k % 2 == 0:
+                shard(p, x0 + (a + b) / 2, h, (z0 + z1) / 2, 0.9, 3.15 - h, shade(col, 1.3), tilt=(0.1, 0.1), verts=4, jit=0.1)
 
 
 def build_LavaMoat(p):
@@ -1223,41 +1271,59 @@ def build_LavaMoat(p):
         else:
             bx(p, (x - w / 2 + 0.5, x + w / 2 - 0.5), (0.5, 0.55), (z - 0.6, z + 0.6), LAVAY, 0.03)
     za, zb = -47.75 - zc - L / 2, -47.75 - zc + L / 2
-    for (xa, xb) in ((-19.7, -18.5), (-13.5, -12.3), (12.3, 13.5), (18.5, 19.7)):
-        moat_blocks(p, xa, xb, za, zb, 'z', rng, 1.4 if xa in (-19.7, 18.5) else 1.0)
+    for (xa, xb, tall, sp) in ((-19.7, -18.5, 1.4, True), (-13.5, -12.3, 1.0, False), (12.3, 13.5, 1.0, False), (18.5, 19.7, 1.4, True)):
+        moat_blocks(p, xa, xb, za, zb, 'z', rng, tall, sp)
     moat_blocks(p, -13.0, 13.0, -56.9 - zc - 0.6, -56.9 - zc + 0.6, 'x', rng, 1.0)
-    moat_blocks(p, -19.7, 19.7, -63.1 - zc - 0.6, -63.1 - zc + 0.6, 'x', rng, 1.6)
-    for (x, z) in ((-19, -15.0), (19, -15.0), (-18, 15.2), (18, 15.2), (0, 15.5), (-10, 15.0), (10, 15.0), (-19.2, 2.0), (19.2, 2.0)):
-        shard(p, x, 0.9, z, 1.0, 2.3 + rng.random() * 0.9, BLK, tilt=(0.2, 0.2), verts=4, jit=0.1)
-    for (x, z) in ((-17.0, 14.8), (17.0, 14.8)):
-        rock(p, (x, 1.6, z - 0.0), 1.6, ROCK, squash=1.0, sub=1)
+    moat_blocks(p, -19.7, 19.7, -63.1 - zc - 0.6, -63.1 - zc + 0.6, 'x', rng, 1.4, True)
+    for (x, z) in ((-19.1, -15.1), (19.1, -15.1), (-19.1, 15.2), (19.1, 15.2)):
+        vcyl(p, x, 0, 1.9, z, 0.75, BLK, verts=6)
+        skull(p, (x, 2.2, z), 0.9, sub=1, yaw=180 if z < 0 else 0, glow=RED)
+    for (x, z) in ((-16, -9.0), (-16, 1.0), (-16, 9.0), (16, -9.0), (16, 1.0), (16, 9.0), (-8, -12), (0, -12), (8, -12)):
+        rock(p, (x, 0.75, z), 0.9, BLK, squash=0.55, sub=0)
+    for (x, z) in ((-16.5, -4.0), (16.0, 5.0), (-15.5, 12.0), (15.5, -12.0), (4.0, -12.2), (-5.0, -11.8), (-17.0, 7.0), (17.0, -6.0), (-12.0, -12.6), (12.0, -11.5)):
+        dk.ball(p, (x, 0.62, z), 0.7, LAVAY, scale=(1, 0.35, 1), subdiv=1, jitter=0.03)
+    for (x, z, w, d) in ((-16.4, -11.5, 2.6, 1.6), (-15.6, 4.0, 1.8, 2.2), (-16.6, 13.0, 2.2, 1.4), (16.2, -5.0, 2.4, 1.8), (16.6, 8.0, 1.8, 2.4), (-4.0, -12.0, 2.4, 1.6),
+                         (8.0, -12.2, 2.6, 1.8), (15.8, 13.0, 2.0, 1.4)):
+        dk.box(p, (x, 0.54, z), (w, 0.1, d), shade(DRED, 0.8), jitter=0.1)
+
+
 
 
 # ---- 25. SkullMountain ----------------------------------------------------------------------------------------------------
 def build_SkullMountain(p):
-    rng = random.Random(25)
-    dk.ball(p, (0, 3.6, 0), 1.0, ROCK, scale=(13, 3.8, 11), subdiv=2, jitter=0.12)
-    dk.ball(p, (0, 8.6, 0), 1.0, OBS, scale=(8.6, 4.2, 7.0), subdiv=2, jitter=0.12)
-    dk.ball(p, (0, 13.0, 0), 1.0, ROCK, scale=(5.4, 3.4, 4.4), subdiv=2, jitter=0.12)
-    for k in range(10):
-        a = 2 * math.pi * k / 10 + 0.2
-        r = 11.0 + (k % 3) * 0.5
-        shard(p, r * 0.92 * math.cos(a), 0.8, r * 0.78 * math.sin(a), 2.0, 3.6 + (k % 4), OBS if k % 2 else BLK, tilt=(0.5 * math.cos(a), 0.5 * math.sin(a)), verts=5, jit=0.12)
-    for k, (a, rad, y) in enumerate(((20, 11.4, 3.4), (80, 10.0, 3.0), (140, 11.0, 3.6), (200, 11.6, 3.0), (260, 10.4, 3.2), (320, 11.2, 3.6),
-                                    (50, 7.4, 8.4), (130, 7.2, 8.0), (230, 7.6, 8.2), (310, 7.0, 8.6))):
+    # three jagged tiers of rock narrowing to a throne for the giant skull
+    poly_cone(p, 0, 0, 7.0, 0, 13.0, ROCK, verts=9, rt=9.4, jit=0.14)
+    poly_cone(p, 0, 7.0, 12.4, 0, 9.4, OBS, verts=9, rt=6.2, jit=0.14)
+    poly_cone(p, 0, 12.4, 16.4, 0, 6.2, ROCK, verts=8, rt=4.6, jit=0.14)
+
+    def surf(y):                                  # radius of the mountain at height y
+        if y < 7.0:
+            return 13.0 - 3.6 * y / 7.0
+        if y < 12.4:
+            return 9.4 - 3.2 * (y - 7.0) / 5.4
+        return 6.2 - 1.6 * (y - 12.4) / 4.0
+    for k in range(9):                            # spikes around the foot, leaning out
+        a = 2 * math.pi * k / 9 + 0.2
+        shard(p, 12.6 * math.cos(a), 0.4, 10.4 * math.sin(a), 2.4, 6.0 + (k % 3) * 2.0, OBS if k % 2 else BLK,
+              tilt=(2.2 * math.cos(a), 1.8 * math.sin(a)), verts=5, jit=0.12)
+    for k, (a, y) in enumerate(((20, 2.6), (95, 3.0), (170, 2.4), (245, 3.2), (320, 2.8), (50, 8.4), (140, 8.8), (230, 8.2), (310, 8.6))):
         ar = math.radians(a)
-        x, z = rad * math.cos(ar) * 0.95, rad * math.sin(ar) * 0.82
-        skull(p, (x, y, z), 1.35 if k < 6 else 1.2, yaw=math.degrees(math.atan2(x, z)), sub=1)
-    for (a, y0) in ((30, 4), (110, 5), (190, 4), (290, 5)):
+        r = surf(y) * 1.0
+        x, z = r * math.cos(ar), r * 0.84 * math.sin(ar)
+        skull(p, (x, y, z), 1.35 if y < 5 else 1.15, yaw=math.degrees(math.atan2(x, z)), sub=1)
+    for (a, y0) in ((30, 12.0), (110, 11.0), (190, 12.0), (290, 11.0)):
         ar = math.radians(a)
-        pts = [(8.5 * math.cos(ar) * 0.6, 12.5, 7.0 * math.sin(ar) * 0.6), (10.2 * math.cos(ar) * 0.8, 9.0, 8.6 * math.sin(ar) * 0.8), (11.6 * math.cos(ar), 4.6, 9.6 * math.sin(ar))]
-        chain_path(p, pts, 0.38, LAVA, verts=4, tip=0.3, jit=0.03)
+        pts = [(surf(y0) * math.cos(ar), y0, 0.84 * surf(y0) * math.sin(ar)), (surf(y0 - 4) * 1.02 * math.cos(ar), y0 - 4, 0.86 * surf(y0 - 4) * math.sin(ar)),
+               (surf(1.5) * 1.01 * math.cos(ar), 1.5, 0.86 * surf(1.5) * math.sin(ar))]
+        chain_path(p, pts, 0.45, LAVA, verts=4, tip=0.3, jit=0.03)
     skull(p, (0, 19.6, 0.4), 4.2, sub=2, glow=RED)
     for t in (-2.4, -0.8, 0.8, 2.4):
-        dk.box(p, (t, 15.6, 3.9), (1.2, 1.0, 0.5), BONE, jitter=0.03)
+        dk.box(p, (t, 15.8, 3.9), (1.2, 1.0, 0.5), BONE, jitter=0.03)
     for sx in (-1, 1):
         horn(p, (sx * 3.2, 22.4, 0), sx, 5.8, 3.4, 0.95, BONE, n=5)
-    dk.box(p, (0, 22.0, 0.3), (1.4, 0.6, 0.4), DBONE, jitter=0.03)
+    for sx in (-1, 1):
+        for k in range(3):
+            cone(p, sx * (2.4 + 1.4 * k), 22.8 - 0.4 * k, -1.0, 0.45, 1.6, BONE, verts=4)
 
 
 # ---- 26. GateArch ---------------------------------------------------------------------------------------------------------
@@ -1267,12 +1333,12 @@ def arch_pillar(p, x):
     vcyl(p, x, 2.0, 20.4, 0, 2.2, OBS, verts=8, top_r=2.0, jit=0.07)
     for yy in (5.0, 9.0, 13.0, 17.0):
         vcyl(p, x, yy, yy + 0.7, 0, 2.55, RROCK, verts=8, jit=0.05)
-    skull(p, (x, 13.8, 1.5), 1.5, sub=2, glow=LAVA)
+    skull(p, (x, 13.8, 1.5), 1.5, sub=1, glow=LAVA)
     for yy in (7.5, 10.5):
         for sx in (-1, 1):
             dk.box(p, (x + sx * 1.7, yy, 1.4), (0.3, 1.6, 0.3), LAVA, jitter=0.03)
     for sx in (-1, 1):
-        horn(p, (x + sx * 1.4, 21.0, 0), sx, 5.0, 3.0, 0.75, BONE, n=5)
+        horn(p, (x + sx * 1.4, 21.0, 0), sx, 5.0, 1.5, 0.75, BONE, n=4)
 
 
 def build_GateArch(p):
@@ -1281,21 +1347,21 @@ def build_GateArch(p):
     bx(p, (-15.5, 15.5), (20.4, 24.0), (-2.6, 2.6), RROCK)
     bx(p, (-15.0, 15.0), (19.9, 20.4), (-2.3, 2.3), BLK)
     dk.prism(p, (0, 24.0, 0), 30.0, 4.4, 4.6, OBS, ridge='z', jitter=0.05)
-    skull(p, (0, 24.6, 2.2), 2.4, sub=2, glow=RED)
+    skull(p, (0, 24.6, 1.1), 2.3, sub=2, glow=RED)
     cone(p, 0, 28.5, 0, 0.7, 3.1, BONE, verts=5)
     for k, x in enumerate((-12.4, -8.2, -4.2, 4.2, 8.2, 12.4)):
         poly_cone(p, x, 18.8, 19.9, 0, 0.06, BONE, verts=4, rt=0.55)
     for sx in (-1, 1):
-        cloth(p, sx * 8.6, 19.8, 2.7, 3.0, 7.0, RED, teeth=3, wave=0.4, trim=BLK)
-        dk.box(p, (sx * 8.6, 16.4, 3.05), (1.2, 1.2, 0.15), BONE, jitter=0.03)
+        cloth(p, sx * 8.6, 19.8, 2.5, 3.0, 7.0, RED, teeth=3, wave=0.3, trim=BLK)
+        dk.box(p, (sx * 8.6, 16.4, 2.8), (1.2, 1.2, 0.15), BONE, jitter=0.03)
         for sz in (-1, 1):
-            horn(p, (sx * 14.6, 24.0, sz * 1.4), sx, 3.6, 1.6, 0.5, BONE, n=3)
+            horn(p, (sx * 14.0, 24.0, sz * 1.4), sx, 3.6, 1.0, 0.5, BONE, n=3)
 
 
 # ---- 27. WingBackdrop -----------------------------------------------------------------------------------------------------
 def build_WingBackdrop(p):
     frust(p, 0, 0, 28.0, 0, 3.2, 2.4, 2.2, 1.8, BLK)
-    skull(p, (0, 30.4, 0.1), 1.5, sub=2, glow=RED)
+    skull(p, (0, 30.6, 0.0), 1.15, sub=2, glow=RED)
     for sx in (-1, 1):
         horn(p, (sx * 0.9, 31.6, 0), sx, 2.4, 1.0, 0.4, BONE, n=3)
     for yy in (6, 12, 18, 24):
@@ -1382,16 +1448,16 @@ def build_HellfirePortal(p):
     bx(p, (-15, 15), (0, 1.0), (-6, 6), ROCK)
     bx(p, (-13.5, 13.5), (1.0, 2.0), (-5, 5), RROCK)
     for sx in (-1, 1):
-        for k, x in enumerate((9.5, 12.5)):
+        for k, x in enumerate((10.5,)):
             skull(p, (sx * x, 2.9, 4.4), 0.9, sub=1, yaw=sx * (10 + 20 * k))
         bx(p, (sx * 7.5 - 1.7, sx * 7.5 + 1.7), (2.0, 7.0), (-1.7, 1.7), BLK)
         bx(p, (sx * 7.5 - 2.0, sx * 7.5 + 2.0), (6.4, 7.2), (-2.0, 2.0), RROCK)
     cy = 16.0
-    ring_xy(p, (0, cy, 0), 12.0, 8.7, 3.0, OBS, segs=16, jit=0.07)
-    ring_xy(p, (0, cy, 0), 12.4, 11.4, 3.5, RROCK, segs=16, jit=0.05)
-    ring_xy(p, (0, cy, 0), 8.8, 8.2, 2.2, LAVA, segs=16, jit=0.03)
-    for k in range(12):
-        a = 2 * math.pi * k / 12 + 0.26
+    ring_xy(p, (0, cy, 0), 12.0, 8.7, 3.0, OBS, segs=14, jit=0.07)
+    ring_xy(p, (0, cy, 0), 12.4, 11.4, 3.5, RROCK, segs=14, jit=0.05)
+    ring_xy(p, (0, cy, 0), 8.8, 8.2, 2.2, LAVA, segs=14, jit=0.03)
+    for k in range(10):
+        a = 2 * math.pi * k / 10 + 0.3
         dk.box(p, (10.2 * math.cos(a), cy + 10.2 * math.sin(a), 1.55), (0.5, 1.5, 0.2), RED, rot=(0, 0, math.degrees(a) - 90), jitter=0.03)
     for k in range(8):
         a = math.radians(45 * k + 22.5) if k not in () else 0
@@ -1402,7 +1468,7 @@ def build_HellfirePortal(p):
     dk.cyl(p, (0, cy, -0.4), 8.4, 0.8, DRED, axis='z', verts=20, jitter=0.03)
     dk.cyl(p, (0, cy, -0.1), 6.2, 0.5, RED, axis='z', verts=18, jitter=0.03)
     for k, (col, z0) in enumerate(((LRED, 0.1), (LAVA, 0.25), (LAVAY, 0.4))):
-        spiral(p, (0, cy, 0), 1.0, 8.2, 2 * math.pi * k / 3, 1.1, 2.6, z0, z0 + 0.35, col, n=14)
+        spiral(p, (0, cy, 0), 1.0, 8.2, 2 * math.pi * k / 3, 1.1, 2.6, z0, z0 + 0.35, col, n=11)
     dk.cyl(p, (0, cy, 0.6), 1.9, 0.5, LAVAY, axis='z', verts=12, jitter=0.03)
     skull(p, (0, 29.6, 0), 1.6, sub=2, glow=RED)
     for sx in (-1, 1):
@@ -1416,12 +1482,11 @@ PART_IDS = ["Ground", "Braziers", "HellSign", "SpikeFence", "BoneHeap", "LavaPoo
             "GateArch", "WingBackdrop", "DemonThrone", "HellfireSpire", "HellfirePortal"]
 PARTS = [(pid, globals()["build_" + pid]) for pid in PART_IDS if ("build_" + pid) in globals()]
 
-AZ = {"GatePillars": 100, "GateArch": 100, "Ground": 165}
+AZ = {"Ground": 165}
 ELEV = {}
 MULT = {"Ground": 1.7, "HellfireSpire": 2.6, "DemonStatue": 2.3, "GateArch": 2.3, "HellfirePortal": 2.2, "WingBackdrop": 2.4}
 SHIBA_AT = {"Ground": (20, -14, 270, 0)}
 SHIBA_STUDS = 11.0
-EOF_MARK = None
 
 
 # ---- previews ----------------------------------------------------------------------------------------------------------
