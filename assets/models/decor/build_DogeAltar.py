@@ -48,8 +48,8 @@ LPINK = (246, 184, 198)
 FUR = (240, 170, 60)
 WATER = (90, 170, 210)
 LWATER = (150, 208, 232)
-PALE = (255, 236, 160)
-GLOW = (255, 250, 222)
+PALE = (255, 232, 130)
+GLOW = (255, 255, 240)
 LANT = (255, 226, 150)
 DARK = (46, 42, 40)
 BLACK = (30, 28, 30)
@@ -370,8 +370,11 @@ def bone(p, a, b, r, col, kr=None, spread=None, off=(1, 0, 0), kcol=None, verts=
 
 
 def flame(p, cx, y0, cz, s=1.0):
-    dk.cone(p, (cx, y0, cz), 0.62 * s, 1.7 * s, FLAME, verts=6, jitter=0.05)
-    dk.cone(p, (cx, y0 + 0.1 * s, cz), 0.36 * s, 2.2 * s, YFLAME, verts=6, jitter=0.05)
+    dk.cone(p, (cx, y0, cz), 0.7 * s, 1.5 * s, FLAME, verts=6, jitter=0.05)
+    for k in range(4):
+        a = math.radians(k * 90 + 20)
+        dk.cone(p, (cx + 0.38 * s * math.cos(a), y0 + 0.1 * s, cz + 0.38 * s * math.sin(a)), 0.36 * s, (1.7 + 0.6 * (k % 2)) * s, RED if k % 2 else FLAME, verts=5, jitter=0.05)
+    dk.cone(p, (cx, y0 + 0.1 * s, cz), 0.42 * s, 2.4 * s, YFLAME, verts=6, jitter=0.05)
 
 
 def fluted(p, cx, cz, y0, y1, r, col, ribcol=None, n=8, verts=16, rib=0.16, top_r=None):
@@ -430,24 +433,24 @@ def build_Ground(p):
     k = 0
     for (ax, az), (cx_, cz_) in zip(path[:-1], path[1:]):
         L = math.hypot(cx_ - ax, cz_ - az)
-        n = max(1, int(L / 4.4))
+        n = max(1, int(L / 5.2))
         yaw = math.degrees(math.atan2(-(cz_ - az), cx_ - ax))
         px, pz = -(cz_ - az) / L, (cx_ - ax) / L
         for i in range(n):
             t = (i + 0.5) / n
             off = 0.45 * (1 if k % 2 else -1)
             col = (MARBLE, CREAM, LSTONE)[k % 3]
-            cb(p, (ax + (cx_ - ax) * t + px * off, 0.44, az + (cz_ - az) * t + pz * off), (3.5, 0.28, 4.6), col, 0.05, rot=(0, yaw, 0))
+            cb(p, (ax + (cx_ - ax) * t + px * off, 0.44, az + (cz_ - az) * t + pz * off), (4.0, 0.28, 4.8), col, 0.05, rot=(0, yaw, 0))
             k += 1
     # golden sun mosaic under the Shiba
     mx, mz = 28, -10
-    disc(p, mx, 0.3, 0.4, mz, 15, DGOLD, 32)
+    disc(p, mx, 0.3, 0.4, mz, 15, DGOLD, 24)
     star_poly(p, (mx, 0.43, mz), 'xz', 14.6, 11.2, 0.06, LGOLD, n=12, rot0=90, jit=0.02)
-    disc(p, mx, 0.4, 0.48, mz, 10.8, GOLD, 32)
+    disc(p, mx, 0.4, 0.48, mz, 10.8, GOLD, 24)
     disc(p, mx, 0.48, 0.53, mz, 6.4, CREAM, 28)
     star_poly(p, (mx, 0.55, mz), 'xz', 5.8, 3.0, 0.04, GOLD, n=8, rot0=90, jit=0.02)
     disc(p, mx, 0.53, 0.58, mz, 2.0, RED, 16)
-    for a in range(0, 360, 30):
+    for a in range(0, 360, 45):
         r_ = math.radians(a)
         cb(p, (mx + 8.6 * math.cos(r_), 0.5, mz + 8.6 * math.sin(r_)), (1.0, 0.06, 1.0), DGOLD, 0.03, rot=(0, -a + 45, 0))
 
@@ -466,8 +469,8 @@ def build_Gate(p):
         vcyl(p, x, 13.4, 14.8, z, 1.7, DGOLD, verts=16, top_r=2.4)
         bx(p, (x - 2.5, x + 2.5), (14.8, 16), (z - 2.5, z + 2.5), GOLD, 0.03)
         # dog ears (outer ear leans outward, inner ear straight) with a pink inside
-        ear(p, x + s * 1.3, 16, z, 1.7, 3.4, 1.3, GOLD, lean=s * 0.5)
-        ear(p, x + s * 1.3, 16, z + 0.45, 0.9, 2.5, 0.5, PINK, lean=s * 0.4)
+        ear(p, x + s * 1.3, 16, z, 2.0, 3.6, 1.4, GOLD, lean=s * 0.6)
+        ear(p, x + s * 1.3, 16, z + 0.6, 1.1, 2.7, 0.5, PINK, lean=s * 0.45)
         ear(p, x - s * 1.0, 16, z, 1.5, 3.0, 1.3, GOLD, lean=-s * 0.2)
         ball(p, (x, 16.8, z + 1.6), 0.5, LGOLD, subdiv=1)
     bx(p, (-12, 12), (11.2, 13.6), (z - 1.6, z + 1.6), MARBLE, 0.03)
@@ -482,8 +485,6 @@ def build_Gate(p):
     bone(p, (-1.9, 12.4, z + 2.1), (1.9, 12.4, z + 2.1), 0.28, LGOLD, kr=0.42, spread=0.4, off=(0, 1, 0))
     # golden bone crowning the gate
     bone(p, (-3.2, 16.4, z), (3.2, 16.4, z), 0.5, GOLD, kr=0.8, spread=0.6, off=(0, 0, 1), kcol=LGOLD)
-    for s in (-1, 1):
-        rod(p, (s * 6.5, 15, z), (s * 3.4, 15.9, z), 0.28, DGOLD, verts=6)
 
 
 # ---- 3. Lanterns -------------------------------------------------------------------------------------------------------
@@ -497,6 +498,7 @@ def lantern(p, x, z, h):
         for sz in (-1, 1):
             bx(p, (x + sx * 1.4 - 0.18, x + sx * 1.4 + 0.18), (h + 0.35, h + 2.2), (z + sz * 1.4 - 0.18, z + sz * 1.4 + 0.18), DGOLD, 0.02)
     bx(p, (x - 0.5, x + 0.5), (h + 0.35, h + 2.2), (z - 0.5, z + 0.5), GLOW, 0.02)
+    bx(p, (x - 1.46, x + 1.46), (h + 1.15, h + 1.4), (z - 1.46, z + 1.46), DGOLD, 0.02)
     bx(p, (x - 2.2, x + 2.2), (h + 2.2, h + 2.6), (z - 2.2, z + 2.2), GOLD, 0.03)
     pyramid(p, x, h + 2.6, z, 1.9, 1.0, GOLD, top=0.12)
     ball(p, (x, h + 3.65, z), 0.35, LGOLD, subdiv=1)
@@ -549,12 +551,22 @@ def build_Stall(p):
 # ---- 5. Coins ----------------------------------------------------------------------------------------------------------
 @part("Coins")
 def build_Coins(p):
-    coin_heap(p, -62, 12, 6.6, 12, y0=-0.2, th=0.55, seed=1)
-    coin_heap(p, -55, 17, 4.2, 8, y0=-0.2, th=0.5, seed=2)
-    coin_heap(p, -68, 6, 3.9, 7, y0=-0.2, th=0.5, seed=3)
+    import random
+    rnd = random.Random(3)
+    heaps = ((-62, 3, 12, 7.0, 0.46, 0.86, 2, 11), (-55, 2, 17, 4.6, 0.44, 0.9, 1, 6), (-68, 2, 6, 4.0, 0.5, 1.0, 1, 5))
+    for (cx, cy, cz, r, sy, sz, sub, n) in heaps:
+        ball(p, (cx, cy, cz), r, GOLD, scale=(1, sy, sz), subdiv=sub, jit=0.08)
+        for i in range(n):
+            ph = rnd.uniform(0, 2 * math.pi)
+            u = rnd.uniform(0.1, 0.9)
+            x, z = cx + r * u * math.cos(ph), cz + r * sz * u * math.sin(ph)
+            y = cy + r * sy * math.sqrt(1 - u * u) + 0.1
+            col = (LGOLD, GOLD, LGOLD, DGOLD)[i % 4]
+            dk.cyl(p, (x, y, z), rnd.uniform(0.9, 1.3), 0.3, col, axis='y', verts=8,
+                   rot=(rnd.uniform(-40, 40), rnd.uniform(0, 90), rnd.uniform(-40, 40)), jitter=0.04)
     for x, z, r in ((-58.5, 6.6, 0.9), (-64.8, 17.4, 0.8), (-52, 13, 0.8), (-70, 9, 0.7), (-59.2, 20, 0.7)):
         vcyl(p, x, -0.2, 0.15, z, r, GOLD if x > -60 else DGOLD, verts=8)
-    # treasure chest (turned 25 degrees), open lid showing gold
+    # treasure chest (turned 25 degrees), lid open, gold inside
     cx, cz = -57, 8
     a = 25
     cb(p, (cx, 1.0, cz), (4, 2.0, 2.8), WOOD, 0.04, rot=(0, a, 0))
@@ -566,12 +578,11 @@ def build_Coins(p):
     cb(p, (cx + px, 2.9, cz + pz), (4, 0.4, 1.3), DWOOD, 0.04, rot=(35, a, 0))
     ball(p, (cx, 2.2, cz), 1.3, GOLD, scale=(1.3, 0.5, 1.0), subdiv=1)
     # giant standing coin leaning on the heap: rim, face disc and a paw
-    xcyl(p, -70.6, -69.4, 5.4, 14, 4.0, DGOLD, verts=20)
-    xcyl(p, -70.9, -69.1, 5.4, 14, 3.3, GOLD, verts=20)
+    xcyl(p, -70.6, -69.4, 5.4, 14, 4.0, DGOLD, verts=16)
+    xcyl(p, -70.9, -69.1, 5.4, 14, 3.3, GOLD, verts=16)
     xcyl(p, -71.0, -69.0, 5.4, 14, 2.2, LGOLD, verts=14)
     for k, (dz, dy) in enumerate(((-0.9, 0.9), (0.0, 1.3), (0.9, 0.9), (0, -0.4))):
         ball(p, (-71.15, 5.4 + dy, 14 + dz), 0.42 if k < 3 else 0.7, DGOLD, scale=(0.4, 1, 1), subdiv=1)
-    # stacked small coin columns
     for (x, z, n, r) in ((-52, 11, 5, 1.3), (-51, 14, 4, 1.1)):
         for i in range(n):
             vcyl(p, x + 0.12 * (i % 2), i * 0.5 - 0.1, i * 0.5 + 0.4, z, r, GOLD if i % 2 else DGOLD, verts=10)
@@ -581,10 +592,10 @@ def build_Coins(p):
 @part("Fountain")
 def build_Fountain(p):
     cx, cz = 28, 40
-    vcyl(p, cx, -0.0, 2.0, cz, 8, STONE, verts=24)
-    vcyl(p, cx, 1.5, 2.0, cz, 8.25, LSTONE, verts=24)
-    vcyl(p, cx, 0.5, 0.9, cz, 8.3, DGOLD, verts=24)
-    vcyl(p, cx, 1.9, 2.15, cz, 6.9, WATER, verts=24)
+    vcyl(p, cx, -0.0, 2.0, cz, 8, STONE, verts=20)
+    vcyl(p, cx, 1.5, 2.0, cz, 8.25, LSTONE, verts=20)
+    vcyl(p, cx, 0.5, 0.9, cz, 8.3, DGOLD, verts=20)
+    vcyl(p, cx, 1.9, 2.15, cz, 6.9, WATER, verts=20)
     vcyl(p, cx, 2.0, 7.2, cz, 1.5, MARBLE, verts=12, top_r=1.1)
     vcyl(p, cx, 2.0, 3.0, cz, 2.6, STONE, verts=12, top_r=1.5)
     vcyl(p, cx, 6.8, 7.4, cz, 1.9, GOLD, verts=12)
@@ -598,12 +609,18 @@ def build_Fountain(p):
         ball(p, (cx + sx * 0.75, 13.4, cz), 0.95, GOLD, subdiv=1)
         ball(p, (cx + sx * 0.75, 9.9, cz), 0.8, DGOLD, subdiv=1)
     ball(p, (cx, 14.3, cz), 0.8, LGOLD, subdiv=1)
-    # water arcs from the bone down into the bowl and basin
-    for k in range(8):
-        a = math.radians(k * 45 + 22)
-        bar(p, (cx + 0.5 * math.cos(a), 13.0, cz + 0.5 * math.sin(a)), (cx + 3.3 * math.cos(a), 10.0, cz + 3.3 * math.sin(a)), 0.3, LWATER, 0.02)
-        bar(p, (cx + 4.0 * math.cos(a + 0.4), 9.4, cz + 4.0 * math.sin(a + 0.4)), (cx + 6.0 * math.cos(a + 0.4), 2.1, cz + 6.0 * math.sin(a + 0.4)),
-            0.3, LWATER, 0.02)
+    # curved sprays from the bone into the bowl, and from the bowl over the rim into the basin
+    for k in range(3):
+        a = math.radians(k * 120 + 20)
+        c_, s_ = math.cos(a), math.sin(a)
+        pts = [(0.5, 13.0), (1.7, 12.7), (2.8, 11.6), (3.4, 9.9)]
+        for (r0, y0_), (r1, y1_) in zip(pts[:-1], pts[1:]):
+            bar(p, (cx + r0 * c_, y0_, cz + r0 * s_), (cx + r1 * c_, y1_, cz + r1 * s_), 0.28, LWATER, 0.02)
+        b = a + 0.9
+        c2, s2 = math.cos(b), math.sin(b)
+        pts = [(4.2, 9.4), (5.0, 8.9), (5.8, 7.4), (6.3, 4.8), (6.5, 2.2)]
+        for (r0, y0_), (r1, y1_) in zip(pts[:-1], pts[1:]):
+            bar(p, (cx + r0 * c2, y0_, cz + r0 * s2), (cx + r1 * c2, y1_, cz + r1 * s2), 0.28, LWATER, 0.02)
     # four golden dog-head gargoyles on the rim
     for k in range(4):
         a = math.radians(k * 90 + 45)
@@ -648,7 +665,6 @@ def build_Hall(p):
     bx(p, (cx - 14, cx + 14), (19, 21), (-53, -36), GOLD, 0.03)
     dk.prism(p, (cx, 21, -46), 22, 13, 4.1, DGOLD, ridge='z', jitter=0.03)
     dk.prism(p, (cx, 21, -46), 18, 11, 3.1, GOLD, ridge='z', jitter=0.03)
-    pts_tri = [(cx - 6, 21.2), (cx + 6, 21.2), (cx, 24.6)]
     for sx in (-1, 1):                      # acroteria: golden dog ears at the roof corners
         ear(p, cx + sx * 10.5, 21, -52, 1.8, 3.0, 1.6, GOLD, lean=sx * 0.3)
         ear(p, cx + sx * 10.5, 21, -40, 1.8, 3.0, 1.6, GOLD, lean=sx * 0.3)
@@ -704,8 +720,8 @@ def build_Wall(p):
     # the sun niche
     xcyl(p, 43.0, 44.5, 10, z0, 5.5, GOLD, verts=24)
     star_poly(p, (42.9, 10, z0), 'yz', 5.5, 4.0, 0.2, LGOLD, n=12, rot0=90, jit=0.02)
-    xcyl(p, 42.7, 43.6, 10, z0, 3.7, CREAM, verts=20)
-    xcyl(p, 42.7, 43.4, 10, z0, 1.9, RED, verts=14)
+    xcyl(p, 42.6, 43.6, 10, z0, 3.7, CREAM, verts=20)
+    xcyl(p, 42.4, 43.2, 10, z0, 1.9, RED, verts=14)
     for sz in (-1, 1):
         fluted(p, 43.5, z0 + sz * 9, 2, 15.8, 1.2, DGOLD, GOLD, n=6, verts=12, rib=0.14)
         bx(p, (41.8, 45.2), (15.8, 17.0), (z0 + sz * 9 - 1.7, z0 + sz * 9 + 1.7), GOLD, 0.03)
@@ -727,7 +743,7 @@ def build_Pond(p):
     # rim: a ring of rocks around the oval
     import random
     rnd = random.Random(5)
-    n = 30
+    n = 18
     for i in range(n):
         a = 2 * math.pi * i / n
         x = cx + 13.6 * math.cos(a)
@@ -737,17 +753,17 @@ def build_Pond(p):
         col = (STONE, LSTONE, MARBLE, STONE)[i % 4]
         cb(p, (x, h / 2, z), (s * 1.3, h, s), col, 0.06, rot=(0, -math.degrees(a) + rnd.uniform(-15, 15), 0))
     # arched wooden bridge: planks following an arc, red rails with gold posts
-    for i in range(9):
-        t = -1 + 2 * (i + 0.5) / 9
+    for i in range(7):
+        t = -1 + 2 * (i + 0.5) / 7
         x = cx + t * 6.8
-        y = 1.55 + (1 - t * t) * 1.15
-        ang = math.degrees(math.atan2(-2 * t * 1.15 / 6.8, 1))
-        cb(p, (x, y, cz), (1.6, 0.35, 4.0), WOOD if i % 2 else LWOOD, 0.05, rot=(0, 0, ang))
+        y = 1.55 + (1 - t * t) * 0.75
+        ang = math.degrees(math.atan2(-2 * t * 0.75 / 6.8, 1))
+        cb(p, (x, y, cz), (2.1, 0.35, 4.0), WOOD if i % 2 else LWOOD, 0.05, rot=(0, 0, ang))
     for sz in (-1, 1):
         prev = None
         for i in range(10):
             t = -1 + 2 * i / 9
-            pt = (cx + t * 6.8, 2.2 + (1 - t * t) * 1.15 + 1.15, cz + sz * 1.95)
+            pt = (cx + t * 6.8, 2.2 + (1 - t * t) * 0.75 + 0.9, cz + sz * 1.95)
             if prev:
                 rod(p, prev, pt, 0.17, RED, verts=6)
             if i % 3 == 0:
@@ -775,7 +791,6 @@ def build_Pagoda(p):
     cx, cz = 68, 8
     bx(p, (cx - 8, cx + 8), (0, 1.6), (cz - 8, cz + 8), STONE, 0.04)
     bx(p, (cx - 7.4, cx + 7.4), (1.6, 1.9), (cz - 7.4, cz + 7.4), LSTONE, 0.03)
-    stairs_z = cz + 8
     levels = [(1.9, 8.0, 4.4, 14.4), (9.3, 14.7, 3.2, 11.2), (15.8, 20.6, 2.3, 8.0)]
     for i, (y0, y1, hw, roof_w) in enumerate(levels):
         bx(p, (cx - hw, cx + hw), (y0, y1), (cz - hw, cz + hw), CREAM, 0.03)
@@ -824,11 +839,13 @@ def sitdog(p, x, z, k, fur=MARBLE, trim=GOLD, face=(0, 1)):
     for sx in (-1, 1):
         cb(p, (x + sx * 0.8 * k, hy + 0.5 * k, z + 2.35 * k * fz), (0.5 * k, 0.5 * k, 0.3 * k), DARK, 0.02)
         ear(p, x + sx * 1.5 * k, hy + 1.6 * k, z + 0.1 * k * fz, 1.3 * k, 2.6 * k, 0.9 * k, trim, lean=sx * 0.2 * k)
+        ear(p, x + sx * 1.5 * k, hy + 1.7 * k, z + 0.5 * k * fz, 0.7 * k, 1.8 * k, 0.3 * k, PINK, lean=sx * 0.15 * k)
     # collar with medallion
     ball(p, (x, 2.0 + 9.4 * k, z + 0.5 * k * fz), 2.15 * k, trim, scale=(1, 0.28, 1), subdiv=1)
     ball(p, (x, 2.0 + 9.0 * k, z + 2.0 * k * fz), 0.55 * k, LGOLD, subdiv=1)
     # tail curling behind
-    ball(p, (x - 1.2 * k, 2.0 + 1.6 * k, z - 2.6 * k * fz), 1.0 * k, fur, scale=(0.6, 1.0, 1.4), subdiv=1)
+    ball(p, (x - 1.2 * k, 2.0 + 1.8 * k, z - 2.6 * k * fz), 1.3 * k, fur, scale=(0.6, 1.3, 1.5), subdiv=1)
+    ball(p, (x - 1.2 * k, 2.0 + 3.4 * k, z - 3.2 * k * fz), 0.8 * k, trim, subdiv=1)
 
 
 @part("Guardians")
@@ -909,12 +926,12 @@ def build_BonePillars(p):
 
 # ---- 16. Garden --------------------------------------------------------------------------------------------------------
 def hedge(p, x0, x1, z0, z1, h):
-    bx(p, (x0, x1), (0, h), (z0, z1), DGREEN, 0.06)
+    bx(p, (x0, x1), (0, h), (z0, z1), GREEN, 0.06)
     n = max(2, int((x1 - x0) / 2.0)) if (x1 - x0) > (z1 - z0) else max(2, int((z1 - z0) / 2.0))
     for i in range(n):
         t = (i + 0.5) / n
         c = (x0 + (x1 - x0) * t, h, z0 + (z1 - z0) * t) if (x1 - x0) > (z1 - z0) else ((x0 + x1) / 2, h, z0 + (z1 - z0) * t)
-        ball(p, c, min(x1 - x0, z1 - z0) * 0.6 if min(x1 - x0, z1 - z0) < 4 else 1.4, GREEN if i % 2 else DGREEN, scale=(1, 0.7, 1), subdiv=1)
+        ball(p, c, min(x1 - x0, z1 - z0) * 0.6 if min(x1 - x0, z1 - z0) < 4 else 1.4, LGREEN if i % 2 else GREEN, scale=(1, 0.7, 1), subdiv=1)
 
 
 def blossom_tree(p, x, z, th, trunk_r, cw, ch, cy, col, col2):
@@ -936,8 +953,8 @@ def build_Garden(p):
     for k, (dx, dz, c) in enumerate(((-50.6, 27, PINK), (-49.2, 29.6, GOLD), (-47.6, 27.4, PINK), (-46.2, 29.8, LPINK), (-51, 29.8, LPINK), (-45, 27.2, GOLD))):
         rod(p, (dx, 1.6, dz), (dx, 2.3, dz), 0.08, GREEN, verts=4)
         ball(p, (dx, 2.45, dz), 0.55, c, subdiv=1)
-    blossom_tree(p, -40, 32.5, 6, 0.8, 7, 6, 8, GREEN, LGREEN)
-    blossom_tree(p, -54, 31.5, 6.8, 0.9, 8, 7, 9, DGREEN, GREEN)
+    blossom_tree(p, -40, 32.5, 6, 0.8, 7, 6, 8, LGREEN, GREEN)
+    blossom_tree(p, -54, 31.5, 6.8, 0.9, 8, 7, 9, GREEN, LGREEN)
     blossom_tree(p, -44, 21, 7.6, 0.8, 7.4, 6.4, 9.6, PINK, LPINK)
     for i in range(8):
         cb(p, (-43 + (0.5 if i % 2 else -0.5), 0.3, 21.8 + i * 2.0), (1.8, 0.2, 1.4), STONE if i % 2 else LSTONE, 0.05, rot=(0, 10 * (i % 3) - 10, 0))
@@ -975,6 +992,9 @@ def build_Tablets(p):
     tablet(-47, 12, 5.4, z, 0, 0)
     tablet(-42, 8, 4.2, z - 1, -14, 2)
     bx(p, (-50, -44), (13.0, 13.8), (z - 0.9, z + 0.9), GOLD, 0.03)
+    for x in (-53.5, -41):
+        xcyl(p, x - 0.2, x + 0.2, 1.5, z + 2.4, 0.7, GOLD, verts=10)
+    bone(p, (-48.5, 1.5, z + 2.4), (-45.5, 1.5, z + 2.4), 0.2, BONE, kr=0.35, spread=0.3, off=(0, 0, 1))
     ball(p, (-47, 14.0, z), 0.5, LGOLD, subdiv=1)
 
 
@@ -1094,7 +1114,7 @@ def build_Bells(p):
     dk.prism(p, (-28, 16.0, z), 18.4, 5.6, 1.4, GOLD, ridge='x', jitter=0.03)
     bx(p, (-37, -19), (16.0, 16.4), (z - 2.6, z + 2.6), DGOLD, 0.03)
     for sx in (-1, 1):
-        ear(p, -28 + sx * 8.8, 16.2, z, 1.4, 1.1, 3.2, GOLD, lean=sx * 0.8)
+        ear(p, -28 + sx * 8.2, 16.2, z, 1.4, 1.1, 3.2, GOLD, lean=sx * 0.8)
     bell(p, -31, 12.9, z, 1.7, 4.2)
     bell(p, -28, 13.0, z, 2.2, 5.2, DGOLD)
     bell(p, -25, 12.9, z, 1.7, 4.2)
@@ -1163,12 +1183,13 @@ def doge(p, ox, oz, s, y0, hk=1.0, gem=False):
 
     def Bx(x0, x1, ya, yb, z0, z1, col, j=0.04):
         bx(p, (ox + x0 * s, ox + x1 * s), (y0 + (ya - 4) * s, y0 + (yb - 4) * s), (oz + z0 * s, oz + z1 * s), col, j)
-    ball(p, P(2, 11, 0), 8 * s, GOLD, scale=(1, 1, 0.94), subdiv=2)
+    ball(p, P(2, 11, 0), 8 * s, GOLD, scale=(1, 1, 0.94), subdiv=1)
     for sz in (-1, 1):
         ball(p, P(1, 8, sz * 6.2), 4.2 * s, GOLD, scale=(1.5, 1.2, 0.8), subdiv=1)
         Bx(-5.5, -1.5, 4, 7, sz * 6.2 - 2.2, sz * 6.2 + 2.2, CREAM)         # hind paws
-    Bx(-6, 4.5, 8, 33, -5.5, 5.5, GOLD, 0.05)
-    Bx(-6.4, -5.4, 11, 30, -3.6, 3.6, CREAM, 0.03)                         # bib
+    Bx(-5, 3.5, 8, 33, -4.6, 4.6, GOLD, 0.05)
+    ball(p, P(-1, 19, 0), 6.2 * s, GOLD, scale=(1.0, 1.7, 0.95), subdiv=1)
+    ball(p, P(-5.2, 19, 0), 4.8 * s, CREAM, scale=(0.55, 1.6, 0.85), subdiv=1)
     for sz in (-1, 1):                                                       # front legs and paws
         Bx(-7.8, -4.2, 5, 23, sz * 4 - 1.8, sz * 4 + 1.8, GOLD)
         Bx(-10.4, -5.0, 4, 6.8, sz * 4 - 2.2, sz * 4 + 2.2, CREAM)
@@ -1198,8 +1219,8 @@ def doge(p, ox, oz, s, y0, hk=1.0, gem=False):
     ball(p, P(12.4, 16, 0), 2.6 * s, GOLD, scale=(0.9, 1.3, 1.0), subdiv=1)
     ball(p, P(11.5, 20.6, 0), 1.6 * s, CREAM, subdiv=1)
     # back ridge
-    for k in range(5):
-        cb(p, P(4.6, 14 + k * 4.4, 0), (0.7 * s, 1.6 * s, 2.0 * s), DGOLD, 0.03)
+    for k in range(3):
+        cb(p, P(4.6, 16 + k * 6.4, 0), (0.7 * s, 1.6 * s, 2.0 * s), DGOLD, 0.03)
 
 
 @part("Cheems")
@@ -1310,19 +1331,27 @@ def build_Vault(p):
 def build_WishTree(p):
     cx, cz = -43, 49.5
     vcyl(p, cx, 0, 10, cz, 1.8, WOOD, verts=10, top_r=1.2)
+    vcyl(p, cx, 3.0, 3.6, cz, 1.95, RED, verts=10)
+    vcyl(p, cx, 3.6, 4.0, cz, 1.9, GOLD, verts=10)
     for k in range(5):
         a = math.radians(k * 72 + 10)
         rod(p, (cx + 1.5 * math.cos(a), 0.2, cz + 1.5 * math.sin(a)), (cx + 3.2 * math.cos(a), 0.0, cz + 3.2 * math.sin(a)), 0.6, DWOOD, verts=6, r2=0.25)
     rod(p, (cx, 8, cz), (cx - 3.5, 12.5, cz), 0.5, WOOD, verts=6)
     rod(p, (cx, 8, cz), (cx + 3.5, 12.5, cz), 0.5, WOOD, verts=6)
     ball(p, (cx, 14, cz), 7, PINK, scale=(1, 0.57, 0.93), subdiv=2)
-    for (dx, dy, dz, r, c) in ((5, -2, 2, 4, CREAM), (-5, -2, -2, 4, PINK), (-2, 1.5, 3, 3.4, LPINK), (3, 1.8, -3, 3.2, LPINK), (-6, 0, 3, 3, CREAM)):
+    for (dx, dy, dz, r, c) in ((5, -1.5, 2, 3.0, LPINK), (-5, -1.5, -2, 3.0, LPINK), (-2, 1.8, 3, 2.6, PINK), (3, 2.0, -3, 2.4, LPINK),
+                              (-6, 0, 3, 2.4, PINK), (0, -2, -4.5, 2.6, LPINK), (4, -2.2, 4, 2.2, PINK)):
         ball(p, (cx + dx, 14 + dy, cz + dz), r, c, subdiv=1)
-    ribs = ((6, 8.4, -3, RED), (2.5, 8.6, 6, GOLD), (-4, 8.8, -5, RED), (-6, 9, 3, GOLD), (0, 8.9, -6, GOLD), (4, 9.1, 2.5, RED))
+    for k in range(14):                      # blossoms on the canopy
+        a = k * 2.4
+        ball(p, (cx + 6.2 * math.cos(a) * (0.5 + 0.5 * ((k * 7) % 5) / 4), 14 + 3.4 * math.sin(a * 1.7), cz + 5.6 * math.sin(a) * 0.8),
+             0.55, WHITE if k % 3 == 0 else LPINK, subdiv=1)
+    ribs = ((6, 8.6, -3, RED), (2.5, 8.8, 6, GOLD), (-4, 9.0, -5, RED), (-6, 9.2, 3, GOLD), (0, 9.1, -6, GOLD), (4, 9.3, 2.5, RED))
     for (dx, y, dz, c) in ribs:
-        bx(p, (cx + dx - 0.2, cx + dx + 0.2), (y - 0.2, y + 3.0), (cz + dz - 0.05, cz + dz + 0.05), c, 0.03)
-        rod(p, (cx + dx * 0.9, y + 3.0, cz + dz * 0.9), (cx + dx, y + 3.0, cz + dz), 0.08, DWOOD, verts=4)
-        cb(p, (cx + dx, y - 0.55, cz + dz), (0.5, 0.7, 0.05), CREAM, 0.03)
+        bx(p, (cx + dx - 0.35, cx + dx + 0.35), (y - 0.2, y + 3.2), (cz + dz - 0.06, cz + dz + 0.06), c, 0.03)
+        bx(p, (cx + dx - 0.35, cx + dx + 0.35), (y - 0.2, y + 0.1), (cz + dz - 0.1, cz + dz + 0.1), DGOLD, 0.03)
+        rod(p, (cx + dx * 0.9, y + 3.2, cz + dz * 0.9), (cx + dx, y + 3.2, cz + dz), 0.08, DWOOD, verts=4)
+        cb(p, (cx + dx, y - 0.8, cz + dz), (0.7, 0.9, 0.06), CREAM, 0.03)
     for k, (dx, dz) in enumerate(((4, 0), (-4, 1), (0, -4))):
         cb(p, (cx + dx * 1.2, 0.25, cz + dz * 1.2 + 3.5), (1.2, 0.5, 1.0), STONE, 0.05, rot=(0, 30 * k, 0))
     for k in range(7):
@@ -1337,27 +1366,32 @@ def build_HolyLight(p):
     vcyl(p, cx, 0, 1.2, cz, 5, MARBLE, verts=20)
     vcyl(p, cx, 1.2, 1.6, cz, 4.0, GOLD, verts=20)
     vcyl(p, cx, 1.6, 2.8, cz, 3.0, CREAM, verts=16, top_r=2.6)
-    # the beam: flared at the base, wide pale shell with a bright core
-    vcyl(p, cx, 2.8, 5.0, cz, 3.4, PALE, verts=16, top_r=2.3)
-    vcyl(p, cx, 5.0, 29.0, cz, 2.3, PALE, verts=16, top_r=2.0)
-    vcyl(p, cx, 29.0, 30.6, cz, 2.0, PALE, verts=16, top_r=0.3)
-    vcyl(p, cx, 2.8, 30.0, cz, 1.1, GLOW, verts=12, top_r=0.6)
+    star_poly(p, (cx, 2.9, cz), 'xz', 4.9, 2.6, 0.1, LGOLD, n=8, rot0=90, jit=0.02)
+    # the column of light: a bright core and two crossing blades of pale gold that narrow toward the sky
+    vcyl(p, cx, 2.8, 4.0, cz, 2.4, PALE, verts=16, top_r=1.5)
+    vcyl(p, cx, 4.0, 30.4, cz, 1.5, GLOW, verts=12, top_r=0.8)
+    vcyl(p, cx, 30.4, 32.0, cz, 0.8, GLOW, verts=12, top_r=0.15)
+    for (wx, wz) in ((1, 0), (0, 1), (0.7071, 0.7071), (0.7071, -0.7071)):
+        for (y0, y1, w0, w1, col) in ((2.8, 12.0, 4.6, 3.4, PALE), (12.0, 22.0, 3.4, 2.4, LGOLD), (22.0, 31.0, 2.4, 0.4, PALE)):
+            pts = [(cx - wx * w0 - wz * 0.12, y0, cz - wz * w0 - wx * 0.12), (cx + wx * w0 - wz * 0.12, y0, cz + wz * w0 - wx * 0.12),
+                   (cx + wx * w1 - wz * 0.12, y1, cz + wz * w1 - wx * 0.12), (cx - wx * w1 - wz * 0.12, y1, cz - wz * w1 - wx * 0.12),
+                   (cx - wx * w0 + wz * 0.12, y0, cz - wz * w0 + wx * 0.12), (cx + wx * w0 + wz * 0.12, y0, cz + wz * w0 + wx * 0.12),
+                   (cx + wx * w1 + wz * 0.12, y1, cz + wz * w1 + wx * 0.12), (cx - wx * w1 + wz * 0.12, y1, cz - wz * w1 + wx * 0.12)]
+            dk.poly(p, (0, 0, 0), pts, [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)], col, 0.02)
     for y, r in ((10, 4.5), (18, 3.5), (26, 2.7)):
-        ring(p, (cx, y, cz), r, 0.28, GOLD, axis='y', segs=24, sides=4)
-        for k in range(6):
-            a = math.radians(k * 60 + y * 7)
+        ring(p, (cx, y, cz), r, 0.28, GOLD, axis='y', segs=14, sides=4)
+        for k in range(5):
+            a = math.radians(k * 72 + y * 7)
             ball(p, (cx + r * math.cos(a), y, cz + r * math.sin(a)), 0.42, LGOLD, subdiv=1)
-    star_poly(p, (cx, 31.5, cz), 'xy', 1.6, 0.6, 0.2, WHITE, n=4, rot0=90, jit=0.02)
-    star_poly(p, (cx, 31.5, cz), 'yz', 1.6, 0.6, 0.2, WHITE, n=4, rot0=90, jit=0.02)
-    ball(p, (cx, 31.5, cz), 0.8, GLOW, subdiv=1)
+    star_poly(p, (cx, 31.5, cz), 'xy', 1.7, 0.6, 0.2, WHITE, n=4, rot0=90, jit=0.02)
+    star_poly(p, (cx, 31.5, cz), 'yz', 1.7, 0.6, 0.2, WHITE, n=4, rot0=90, jit=0.02)
+    ball(p, (cx, 31.5, cz), 0.9, WHITE, subdiv=1)
     for sx in (-1, 1):
         for sz in (-1, 1):
-            x, z = cx + sx * 3.6, cz + sz * 3.6
-            cb(p, (x, 21 + 0.5 * sx, z), (1.0, 2.6, 1.0), LGOLD, 0.03, rot=(0, 45, 0))
-    for k in range(10):                      # motes of light spiralling up
+            cb(p, (cx + sx * 3.8, 21 + 0.8 * sx * sz, cz + sz * 3.8), (0.9, 2.4, 0.9), LGOLD, 0.03, rot=(0, 45, 0))
+    for k in range(8):                      # motes of light spiralling up
         a = math.radians(k * 137)
-        y = 4 + k * 2.6
-        cb(p, (cx + 3.0 * math.cos(a), y, cz + 3.0 * math.sin(a)), (0.4, 0.4, 0.4), GLOW, 0.02, rot=(0, 45, 45))
+        cb(p, (cx + 3.0 * math.cos(a), 4 + k * 3.2, cz + 3.0 * math.sin(a)), (0.4, 0.4, 0.4), GLOW, 0.02, rot=(0, 45, 45))
 
 
 # ---- 30. Colossus ------------------------------------------------------------------------------------------------------
@@ -1369,17 +1403,17 @@ def build_Colossus(p):
     bx(p, (cx - 9.4, cx + 9.4), (3.7, 4.0), (cz - 8.4, cz + 8.4), GOLD, 0.03)
     doge(p, cx, cz, 1.0, 4.0, hk=1.0)
     # halo and sun rays behind the head
-    ring(p, (cx + 5.5, 38, cz), 10.0, 0.6, GOLD, axis='x', segs=28, sides=6)
-    star_poly(p, (cx + 7, 38, cz), 'yz', 12.5, 9.2, 0.5, LGOLD, n=12, rot0=90, jit=0.03)
+    ring(p, (cx + 5.5, 38, cz), 9.2, 0.55, GOLD, axis='x', segs=24, sides=6)
+    star_poly(p, (cx + 7, 38, cz), 'yz', 10.2, 8.0, 0.5, LGOLD, n=12, rot0=90, jit=0.03)
     # golden bones at the pedestal corners
     for sx in (-1, 1):
         for sz in (-1, 1):
             bone(p, (cx + sx * 9.8, 4.0, cz + sz * 7.4), (cx + sx * 9.8, 9.0, cz + sz * 7.4), 0.6, GOLD, kr=0.9, spread=0.7, off=(0, 0, 1), kcol=LGOLD)
 # ==== MAIN ====
 MISSING = []
-AZ = {"Wall": 70, "Sun": 70, "Throne": 70, "Cheems": 60, "Colossus": 70, "Kennel": 110, "Vault": 70}
+AZ = {"Wall": 110, "Sun": 100, "Throne": 100, "Cheems": 100, "Colossus": 110, "Kennel": 110, "Vault": 250, "Hall": 160}
 ELEV = {}
-MULT = {"Ground": 1.9, "Colossus": 2.0, "Hall": 2.0}
+MULT = {"Ground": 1.9, "Colossus": 3.0, "Hall": 2.0, "HolyLight": 2.6, "HaloArch": 2.4}
 SHIBA_AT = {"Ground": None}
 
 
