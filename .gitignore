@@ -29,3 +29,6 @@ assets/models/decor/__pycache__/
 
 # Regenerable decor stage overviews
 assets/models/decor/out/*/stage_*.png
+
+# Roblox Open Cloud key for assets/upload.py
+.roblox-api-key
