@@ -40,6 +40,9 @@ File name → instance type (Script Sync / Rojo convention):
 - **Code lives in files, not in Studio.** Edit `src/`; Studio only mirrors it via Script Sync. Never write game code in Studio.
 - **Every number lives in `src/shared/Config/`.** Prices, rates, timings, sizes, cooldowns, limits: no magic numbers in
   services, controllers or UI. Read them from Config.
+- **UI must pass `assets/ui_check.luau` on 4 real screen sizes** (Galaxy A06, iPhone 16, iPad 10th gen, 1080p):
+  thumb-sized buttons (≥ 44 px), nothing touches, centred to 1.5 px, no text under 14 px, no rando boxes. Run it in
+  the Client DataModel of a playtest after every UI change, including new icons.
 - **Read `docs/TRAPS.md` before Studio work** and add a line whenever something costs you more than an hour.
 - **Exactly one Script per side.** `src/server/Main.server.luau` and `src/client/Main.client.luau` are the only entry points. Everything else is a ModuleScript loaded by them. Never add another `.server.luau` or `.client.luau` file.
 - **`--!strict` at the top of every `.luau` file.** Fix type errors; do not silence them with `any` unless the reason is written in a comment.
