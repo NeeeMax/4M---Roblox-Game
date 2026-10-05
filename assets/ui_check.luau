@@ -24,7 +24,10 @@ local issues: { string } = {}
 type Rect = { x1: number, y1: number, x2: number, y2: number }
 
 local function add(kind: string, obj: Instance, detail: string)
-	table.insert(issues, ("%-9s %s  %s"):format(kind, (obj:GetFullName():gsub("^Players%.[^.]+%.PlayerGui%.", "")), detail))
+	table.insert(
+		issues,
+		("%-9s %s  %s"):format(kind, (obj:GetFullName():gsub("^Players%.[^.]+%.PlayerGui%.", "")), detail)
+	)
 end
 
 local function rectOf(g: GuiObject): Rect
@@ -43,7 +46,12 @@ local function visibleRect(g: GuiObject): Rect?
 			end
 			if node ~= g and node.ClipsDescendants then
 				local c = rectOf(node)
-				r = { x1 = math.max(r.x1, c.x1), y1 = math.max(r.y1, c.y1), x2 = math.min(r.x2, c.x2), y2 = math.min(r.y2, c.y2) }
+				r = {
+					x1 = math.max(r.x1, c.x1),
+					y1 = math.max(r.y1, c.y1),
+					x2 = math.min(r.x2, c.x2),
+					y2 = math.min(r.y2, c.y2),
+				}
 			end
 		end
 		node = node.Parent
@@ -58,7 +66,8 @@ local function visibleRect(g: GuiObject): Rect?
 end
 
 local function isText(g: GuiObject): boolean
-	return (g:IsA("TextLabel") or g:IsA("TextButton") or g:IsA("TextBox")) and (g :: any).Text ~= ""
+	return (g:IsA("TextLabel") or g:IsA("TextButton") or g:IsA("TextBox"))
+		and (g :: any).Text ~= ""
 		and (g :: any).TextTransparency < 1
 end
 
@@ -128,14 +137,32 @@ for _, gui in playerGui:GetChildren() do
 		end
 
 		-- 5 no rando boxes
-		if d.BackgroundTransparency < 1 and (d.BackgroundColor3 == DEFAULT_GREY or (d.BackgroundColor3 == DEFAULT_WHITE and (isText(d) or isImage(d)))) then
+		if
+			d.BackgroundTransparency < 1
+			and (
+				d.BackgroundColor3 == DEFAULT_GREY or (
+					d.BackgroundColor3 == DEFAULT_WHITE and (isText(d) or isImage(d))
+				)
+			)
+		then
 			add("BOX", d, "default background colour (forgot BackgroundTransparency?)")
 		end
-		if (d:IsA("ImageLabel") or d:IsA("ImageButton")) and d.Image == "" and d.BackgroundTransparency < 1 and #d:GetChildren() == 0 then
+		if
+			(d:IsA("ImageLabel") or d:IsA("ImageButton"))
+			and d.Image == ""
+			and d.BackgroundTransparency < 1
+			and #d:GetChildren() == 0
+		then
 			add("BOX", d, "image without Image shows only its background")
 		end
-		if isImage(d) and (d :: any).ScaleType == Enum.ScaleType.Stretch and math.abs(w / h - 1) > ICON_STRETCH
-			and (d :: any).ImageRectSize == Vector2.zero and w < 200 and h < 200 then
+		if
+			isImage(d)
+			and (d :: any).ScaleType == Enum.ScaleType.Stretch
+			and math.abs(w / h - 1) > ICON_STRETCH
+			and (d :: any).ImageRectSize == Vector2.zero
+			and w < 200
+			and h < 200
+		then
 			add("ICON", d, ("stretched %dx%d (use ScaleType Fit or a square box)"):format(w, h))
 		end
 
