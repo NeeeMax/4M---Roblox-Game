@@ -30,3 +30,9 @@ Read before working in Studio. Add a line whenever something costs you more than
 - **Open Cloud uploads images as-is** (`assets/upload.py`): a white background stays white. Cut it out before uploading UI icons.
 - **Open Cloud model uploads (.fbx/.rbxm) become packages.**
 - **Cloudflare flux-1-schnell** rejects a `seed` field and some requests when 6 run in parallel (HTTP 400) — send them one after another.
+
+## UI
+
+- **`TextSize` lies under a `UIScale`:** TextSize 18 rendered at 9 px on phones. Judge text by `TextBounds`, which is
+  what `assets/ui_check.luau` does.
+- **Studio's default viewport hides phone problems.** HUD tiles are 37 px and labels 9 px on a Galaxy A06 but fine on PC.
