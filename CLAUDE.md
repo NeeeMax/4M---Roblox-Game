@@ -37,10 +37,14 @@ File name → instance type (Script Sync / Rojo convention):
 
 ## Hard rules
 
+- **Code lives in files, not in Studio.** Edit `src/`; Studio only mirrors it via Script Sync. Never write game code in Studio.
+- **Every number lives in `src/shared/Config/`.** Prices, rates, timings, sizes, cooldowns, limits: no magic numbers in
+  services, controllers or UI. Read them from Config.
+- **Read `docs/TRAPS.md` before Studio work** and add a line whenever something costs you more than an hour.
 - **Exactly one Script per side.** `src/server/Main.server.luau` and `src/client/Main.client.luau` are the only entry points. Everything else is a ModuleScript loaded by them. Never add another `.server.luau` or `.client.luau` file.
 - **`--!strict` at the top of every `.luau` file.** Fix type errors; do not silence them with `any` unless the reason is written in a comment.
 - **The server is authoritative.** Never trust data from the client. Every remote handler validates type, range and rate before acting.
-- **Remotes are defined only in `src/shared/Net/`** and documented in `docs/NETWORK.md` in the same PR. No `Instance.new("RemoteEvent")` anywhere else.
+- **All client↔server messages go through one file: `src/shared/Net/init.luau`.** Remotes are defined only there and documented in `docs/NETWORK.md` in the same PR. No `Instance.new("RemoteEvent")` anywhere else.
 - **`src/shared/` has no side effects on require.** No connections, no loops, no instance creation at module load.
 - **No attributes or tags on scripts.** Script Sync does not support synced scripts with attributes/tags. Put configuration in `src/shared/Config/`.
 - **No deprecated APIs:** use `task.wait/spawn/defer/delay`, not `wait/spawn/delay`. When connecting `Players.PlayerAdded`, also handle players who joined before the connection.
