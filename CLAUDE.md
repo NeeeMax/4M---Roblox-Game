@@ -72,6 +72,14 @@ The pull request is opened automatically. If `gh` is available, replace its body
 merged PRs later, so be explicit about changed remotes, changed types, and how to test in Studio. Commit messages
 must be clear either way; they are the minimum record.
 
+## Project skills (`.claude/skills/`)
+
+Third-party Roblox skills, vetted 2026-10-05 (MIT): `roblox-dev-skill` (MSayib: Luau, engine API, Studio MCP usage and
+safety) and from AshExplained/roblox-skills `roblox-datastore-persistence`, `roblox-security-economy`,
+`roblox-economy-balancing`, `roblox-monetization-optimization`, `roblox-policy-compliance`,
+`roblox-publishing-discovery`, `roblox-mobile-playtest`. **This file wins over them**: they sometimes suggest creating or
+editing scripts in Studio (`multi_edit`) or building UI in StarterGui; here code lives in `src/`.
+
 ## When unsure
 
 Ask your human. Do not guess at game design decisions; if `docs/GAME_DESIGN.md` does not answer it, it is not decided yet.
