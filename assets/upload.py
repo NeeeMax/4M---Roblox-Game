@@ -8,6 +8,7 @@ become Model assets (packages), .mp3/.ogg/.wav/.flac Audio.
 
 API key (never commit it): env ROBLOX_API_KEY, or the git-ignored file .roblox-api-key in the repo root.
 Create it on create.roblox.com → Open Cloud → API Keys with "assets" Read + Write.
+Uploads go to Max's account unless env ROBLOX_USER_ID is set (your own key must belong to that user).
 """
 
 import json
@@ -19,7 +20,7 @@ import urllib.request
 import uuid
 from pathlib import Path
 
-USER_ID = "453953297"  # Crazymax0815
+USER_ID = os.environ.get("ROBLOX_USER_ID", "453953297")  # default: Crazymax0815 (Max)
 API = "https://apis.roblox.com/assets/v1/"
 TYPES = {
     ".png": ("Image", "image/png"), ".jpg": ("Image", "image/jpeg"), ".jpeg": ("Image", "image/jpeg"),
