@@ -43,6 +43,10 @@ File name → instance type (Script Sync / Rojo convention):
 - **UI must pass `assets/ui_check.luau` on 4 real screen sizes** (Galaxy A06, iPhone 16, iPad 10th gen, 1080p):
   thumb-sized buttons (≥ 44 px), nothing touches, centred to 1.5 px, no text under 14 px, no rando boxes. Run it in
   the Client DataModel of a playtest after every UI change, including new icons.
+- **Maps must pass `assets/map_check.luau`** (Server DataModel of a playtest, around the character): floating
+  platforms, no-footing tops, unreachable high ground, places players shouldn't reach, no-way-out pockets, sight lines
+  too open/closed, parts inside parts, uneven rings, short falls vs ragdoll-height falls. Mark areas players must not
+  stand on with the tag or attribute `OffLimits` (names like Roof/Wall/Fence/Tree count automatically).
 - **Read `docs/TRAPS.md` before Studio work** and add a line whenever something costs you more than an hour.
 - **Exactly one Script per side.** `src/server/Main.server.luau` and `src/client/Main.client.luau` are the only entry points. Everything else is a ModuleScript loaded by them. Never add another `.server.luau` or `.client.luau` file.
 - **`--!strict` at the top of every `.luau` file.** Fix type errors; do not silence them with `any` unless the reason is written in a comment.
